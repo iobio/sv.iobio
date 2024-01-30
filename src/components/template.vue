@@ -1,13 +1,21 @@
 <template>
-    <div id="template"></div>
+  <div id="template"></div>
 </template>
 
 <script>
-    export default {
-  name: 'template',
-  components: {
+export default {
+name: 'template',
+components: {
+},
+props: {
+},
+data () {
+  return {
   }
+},
 }
 </script>
 
-<style></style>
+<style lang="sass">
+
+</style>
