@@ -1,13 +1,21 @@
 <template>
-    <div id="svCircos">testing</div>
+    <div id="svCircos"></div>
 </template>
 
 <script>
-    export default {
+  export default {
   name: 'svCircos',
   components: {
-  }
+  },
+  props: {
+  },
+  data () {
+    return {
+    }
+  },
 }
 </script>
 
-<style></style>
+<style lang="sass">
+
+</style>
