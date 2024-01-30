@@ -1,22 +1,29 @@
 <template>
     <div id="charts-container">
-
+        <svCircos />
     </div>
   </template>
   
-  <script>
-      export default {
-    name: 'ChartsContainer',
-    components: {
+<script>
+    import svCircos from "./viz/svCircos.viz.vue"
+
+    export default {
+        name: 'ChartsContainer',
+        components: {
+            svCircos
+        }
     }
-  }
-  
-  </script>
-  
-  <style lang="css">
-    #charts-container {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-    }
-  </style>
+
+</script>
+
+<style lang="sass">
+    #charts-container 
+        align-content: center
+        box-sizing: border-box
+        display: flex
+        flex-direction: row
+        height: 100%
+        justify-content: center
+        width: 100%
+
+</style>

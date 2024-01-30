@@ -12,6 +12,7 @@
 
 <script>
   import ChartsContainer from './components/ChartsContainer.vue'
+
   export default {
     name: 'app',
     components: {
@@ -21,33 +22,30 @@
 
 </script>
 
-<style lang="css">
-  #logo-div {
-    position: absolute;
-    top: 0px;
-    right: 5px;
-  }
-
-  #main-container {
-    width: 100%;
-    height: 100%;
-    padding-top: 40px;
-    box-sizing: border-box;
-  }
-
-  img {
-    width: 30px;
-    height: 30px;
-    margin-right: 0px;
-    padding-right: 0px;
-    transform: translate(3px, 5px);
-  }
-  span {
-    font-size: 25px;
-    font-weight: bold;
-    color: #4188b8;
-    margin-left: 0px;
-    padding-left: 0px;
-  }
+<style lang="sass">
+  #logo-div 
+    position: absolute
+    right: 5px
+    top: 0px
+  
+  #main-container 
+    box-sizing: border-box
+    height: 100%
+    padding-top: 40px
+    width: 100%
+  
+  img 
+    height: 30px
+    margin-right: 0px
+    padding-right: 0px
+    transform: translate(3px, 5px)
+    width: 30px
+  
+  span 
+    color: #4188b8
+    font-size: 25px
+    font-weight: bold
+    margin-left: 0px
+    padding-left: 0px
 
 </style>
