@@ -43,6 +43,11 @@ export default function svCircos() {
         const maxDiameter = maxRadius * 2;
 
         const maxCircumference = maxDiameter * Math.PI;
+
+        const center = {
+            x: width / 2,
+            y: height / 2
+        };
         
         // Change the range to radians (0 to 2π)
         const angleScale = d3.scaleLinear()
@@ -50,43 +55,81 @@ export default function svCircos() {
             .range([0, 2 * Math.PI]);
 
         //iterate over the chromosomes and create the arcs
-        let startbp = 1;
+        let startbp = 0;
         let startAngle = angleScale(startbp);
         let accumulatedBP = 0;
+        let endAngle = angleScale(accumulatedBP);
+        let startColor = '#1F68C1'
+        let endColor = '#A63D40'
 
         for (let chromosome of chromosomeList) {
+
             accumulatedBP += chromosome.bp;
-            const endAngle = angleScale(accumulatedBP);
+            endAngle = angleScale(accumulatedBP);
+
+            //Calulate the color based on the start color and end color and the percentage of the genome that the chromosome represents
+            let percentage = accumulatedBP / bpGenomeSize;
+            let color = d3.interpolate(startColor, endColor)(percentage);
+
+            //create a group for each chromosome and the label
+            const g = svg.append('g');
 
             const arc = d3.arc()
-                .innerRadius(maxRadius * 0.95)
+                .innerRadius(maxRadius * 0.90)
                 .outerRadius(maxRadius)
                 .startAngle(startAngle)
                 .endAngle(endAngle)
-                .padAngle(0.003)
+                .padAngle(0)
                 .cornerRadius(3);
 
-            svg.append('path')
+            g.append('path')
+                .datum({startAngle: startAngle, endAngle: endAngle})
                 .attr('d', arc)
                 .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                .attr('fill', 'none')
-                .attr('stroke', 'black')
-                .attr('stroke-width', 1);
+                .attr('fill', color)
+                .attr('stroke', 'white')
+                .attr('stroke-width', 1)
+                .on('mouseover', function (event, d) {
+                    //do an animation that makes the arc inner radius bigger for a short time then go back to normal
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('d', d3.arc()
+                            .innerRadius(maxRadius * 0.85)
+                            .outerRadius(maxRadius)
+                            .startAngle(d.startAngle)
+                            .endAngle(d.endAngle)
+                            .padAngle(0)
+                            .cornerRadius(3)
+                        )
+                        .transition()
+                        .duration(400)
+                        .attr('d', d3.arc()
+                            .innerRadius(maxRadius * 0.90)
+                            .outerRadius(maxRadius)
+                            .startAngle(d.startAngle)
+                            .endAngle(d.endAngle)
+                            .padAngle(0)
+                            .cornerRadius(3)
+                        );
+                });
 
             // Calculate the middle angle of the arc in radians
-            const textAngle = (startAngle + endAngle) / 2;
-            const textRadius = maxRadius + 15;
-            const textX = (width / 2) + (textRadius * Math.cos(textAngle));
-            const textY = (height / 2) + (textRadius * Math.sin(textAngle));
+            const textAngle = (startAngle + endAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+            const textRadius = maxRadius * 0.95;
+            const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
+            const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
 
             //take chr off the chromosome name
             let chrName = chromosome.name.replace('chr', '');
-            svg.append('text')
+            g.append('text')
                 .attr('x', textX)
                 .attr('y', textY)
+                .attr('fill', 'white')
                 .attr('text-anchor', 'middle')
                 .attr('alignment-baseline', 'middle')
-                .text(chrName);
+                .text(chrName)
+                .style('pointer-events', 'none');
 
             startAngle = endAngle;
         }

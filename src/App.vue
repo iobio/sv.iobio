@@ -2,7 +2,7 @@
   <div id="main-container">
     <div id="logo-div">
       <img src="/sv.svg" alt="logo">
-      <span>.iobio</span>
+      <span>.io<span id="bio-span">bio</span></span>
     </div>
 
     <ChartsContainer />
@@ -41,10 +41,12 @@
     width: 30px
   
   span 
-    color: #4188b8
+    color: #1F68C1
     font-size: 25px
     font-weight: bold
     margin-left: 0px
     padding-left: 0px
+    #bio-span 
+      color: #A63D40
 
 </style>
