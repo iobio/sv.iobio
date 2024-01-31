@@ -31,7 +31,6 @@
   #main-container 
     box-sizing: border-box
     height: 100%
-    padding-top: 40px
     width: 100%
   
   img 
