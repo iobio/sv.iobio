@@ -31,15 +31,15 @@ export default {
 <style lang="sass">
   #svCircos
     align-items: center
+    background-color: none
     border-radius: 5px
-    border: 1px solid #ccc
-    box-shadow: 0 0 10px #ccc
+    border: none
     box-sizing: border-box
     display: flex
     flex-direction: column
-    height: 94%
+    height: 92%
     justify-content: center
-    margin: 4% 10px 10px 10px
+    margin: 3% 10px 10px 10px
     padding: 10px
     width: 100%
 </style>
