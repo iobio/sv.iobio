@@ -62,9 +62,16 @@ export default function svCircos() {
         let startColor = '#1F68C1'
         let endColor = '#A63D40'
 
+        let chromosomeAccumulatedMap = new Map();
+
         for (let chromosome of chromosomeList) {
+            let chromStart = accumulatedBP;
 
             accumulatedBP += chromosome.bp;
+
+            let chromEnd = accumulatedBP;
+            chromosomeAccumulatedMap.set(chromosome.name.replace('chr', ''), {start: chromStart, end: chromEnd});
+
             endAngle = angleScale(accumulatedBP);
 
             //Calulate the color based on the start color and end color and the percentage of the genome that the chromosome represents
@@ -134,9 +141,31 @@ export default function svCircos() {
             startAngle = endAngle;
         }
 
+        let vcfData;
 
-    
+        fetch('../vcf.json')
+            .then(response => response.json())
+            .then(data => {
+                vcfData = data;
+                for (let variant of vcfData) {
+                    //each variant is going to have a POS and a #CHROM property, we have the accumulated start and end for each chromosome
+                    //POS is the position of the variant in the chromosome so we can use that to get an angle for the variant
+                    let accPos = chromosomeAccumulatedMap.get(variant['#CHROM']).start + variant['POS'];
+                    let angle = angleScale(accPos);
+                    let radius = maxRadius * 0.80;
+                    let x = center.x + (radius * Math.cos(angle));
+                    let y = center.y + (radius * Math.sin(angle));
+                    svg.append('circle')
+                        .attr('cx', x)
+                        .attr('cy', y)
+                        .attr('r', 1)
+                        .attr('fill', 'black');
 
+                }
+                console.log(vcfData);
+            });
+        
+        
         container.node().appendChild(svg.node());
     }
     return chart;
