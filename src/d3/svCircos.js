@@ -15,7 +15,8 @@ export default function svCircos() {
 
     const bpGenomeSize = 3095693981; //hg38
 
-    function chart(parentTag) {
+    function chart(parentTag, data=null) {
+        let vcfData = data;
         const container = d3.select(parentTag);
         let paddingLeft = parseInt(container.style('padding-left'), 10);
         let paddingRight = parseInt(container.style('padding-right'), 10);
@@ -97,28 +98,24 @@ export default function svCircos() {
                 .attr('stroke', 'white')
                 .attr('stroke-width', 1)
                 .on('mouseover', function (event, d) {
-                    //do an animation that makes the arc inner radius bigger for a short time then go back to normal
-                    d3.select(this)
-                        .transition()
-                        .duration(200)
-                        .attr('d', d3.arc()
-                            .innerRadius(maxRadius * 0.85)
-                            .outerRadius(maxRadius)
-                            .startAngle(d.startAngle)
-                            .endAngle(d.endAngle)
-                            .padAngle(0)
-                            .cornerRadius(3)
-                        )
-                        .transition()
-                        .duration(400)
-                        .attr('d', d3.arc()
-                            .innerRadius(maxRadius * 0.90)
-                            .outerRadius(maxRadius)
-                            .startAngle(d.startAngle)
-                            .endAngle(d.endAngle)
-                            .padAngle(0)
-                            .cornerRadius(3)
-                        );
+                    //Had done a grow but it is somewhat odd so removed it for now
+                    //make the cursor a pointer
+                    d3.select(this).style('cursor', 'pointer');
+                    //slightly increase the opacity
+                    d3.select(this).attr('opacity', 0.7);
+                })
+                .on('mouseout', function (event, d) {
+                    //make the cursor the default
+                    d3.select(this).style('cursor', 'default');
+                    //reset the opacity
+                    d3.select(this).attr('opacity', 1);
+                })
+                .on('click', function (event, d) {
+                    //We will identify the chromosome that was clicked
+                    let start = chromStart;
+                    let end = chromEnd;
+                    let chromSize = end - start;
+                    console.log(chromSize);
                 });
 
             // Calculate the middle angle of the arc in radians
@@ -141,32 +138,98 @@ export default function svCircos() {
             startAngle = endAngle;
         }
 
-        let vcfData;
-
-        fetch('../vcf.json')
+        if (vcfData === null) {
+            fetch('../vcf.json')
             .then(response => response.json())
             .then(data => {
                 vcfData = data;
-                for (let variant of vcfData) {
-                    //each variant is going to have a POS and a #CHROM property, we have the accumulated start and end for each chromosome
-                    //POS is the position of the variant in the chromosome so we can use that to get an angle for the variant
-                    let accPos = chromosomeAccumulatedMap.get(variant['#CHROM']).start + variant['POS'];
-                    let angle = angleScale(accPos);
-                    let radius = maxRadius * 0.80;
-                    let x = center.x + (radius * Math.cos(angle));
-                    let y = center.y + (radius * Math.sin(angle));
-                    svg.append('circle')
-                        .attr('cx', x)
-                        .attr('cy', y)
-                        .attr('r', 1)
-                        .attr('fill', 'black');
-
-                }
-                console.log(vcfData);
+                renderTracks(vcfData)
             });
-        
-        
+        } else {
+            renderTracks(vcfData);
+        }
+
         container.node().appendChild(svg.node());
+
+//HELPER FUNCTIONS
+        function renderTracks(data, tracks=null) {
+            for (let variant of data) {
+                //each variant is going to have a POS and a #CHROM property, we have the accumulated start and end for each chromosome
+                //POS is the position of the variant in the chromosome so we can use that to get an angle for the variant
+                let accPos = chromosomeAccumulatedMap.get(variant['#CHROM']).start + variant['POS'];
+                let angle = angleScale(accPos) - Math.PI / 2; // -90 deg in radians because the circle starts at 3 o'clock
+                let radius = maxRadius * 0.84;
+                let lineLength = 2; // Half the desired line length to extend in both directions
+
+                // Calculate the central point of the line
+                let centerX = center.x + (radius * Math.cos(angle));
+                let centerY = center.y + (radius * Math.sin(angle));
+                
+                // Calculate start and end points of the line
+                let x1 = centerX - lineLength * Math.cos(angle);
+                let y1 = centerY - lineLength * Math.sin(angle);
+                let x2 = centerX + lineLength * Math.cos(angle);
+                let y2 = centerY + lineLength * Math.sin(angle);
+                
+                // Append the line to the SVG
+                svg.append('line')
+                    .attr('x1', x1)
+                    .attr('y1', y1)
+                    .attr('x2', x2)
+                    .attr('y2', y2)
+                    .attr('stroke', function (d) {
+                        let color = 'blue';
+                        let info = variant.INFO;
+                        let svTypeKey = 'SVTYPE=';
+                        let svTypeIndex = info.indexOf(svTypeKey) + svTypeKey.length;
+                        let svTypeEndIndex = info.indexOf(';', svTypeIndex);
+                        if (svTypeEndIndex === -1) { // SVTYPE might be the last entry in the string
+                            svTypeEndIndex = info.length;
+                        }
+                        let svType = info.slice(svTypeIndex, svTypeEndIndex);
+                    
+                        if (svType.slice(0, 4) === 'DEL') {
+                            color = "red";
+                        }
+                        if (svType.slice(0, 4) === 'DUP') {
+                            color = "green";
+                        }
+                        return color;
+                    })
+                    .attr('opacity', function (d) {
+                        let opacity = 1;
+                        //take the info from the variant and look for 'AF=' get the number after that but before the ';' and use the inverse of that as the opacity
+                        let info = variant.INFO;
+                        let afIndex = info.indexOf('AF=') + 3;
+                        let af = info.slice(afIndex, info.indexOf(';', afIndex));
+                        if (af) {
+                            opacity = 1 - af;
+                        }
+                        return opacity;
+                    })
+                    .attr('stroke-width', 1) // Set the stroke width to make the line visible
+                    .on('mouseover', function (event, d) {
+                        //increase the lenth of the line on mouseover so increase x and y 2 by 5
+                        let longer_x2 = centerX + (lineLength + 10) * Math.cos(angle);
+                        let longer_y2 = centerY + (lineLength + 10) * Math.sin(angle);
+                        d3.select(this)
+                            .transition()
+                            .duration(20)
+                            .attr('x2', longer_x2)
+                            .attr('y2', longer_y2)
+                            .attr('stroke-width', 1); // Increase the stroke width on mouseover
+                        console.log(variant);
+                    })
+                    .on('mouseout', function (event, d) {
+                        d3.select(this)
+                            .transition()
+                            .duration(20)
+                            .attr('stroke-width', 1)
+                            .attr('x2', x2)
+                            .attr('y2', y2); // Reset the stroke width on mouseout
+                    });
+            }
+        }
     }
     return chart;
 }

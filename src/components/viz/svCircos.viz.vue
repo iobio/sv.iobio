@@ -13,16 +13,23 @@ export default {
   },
   data () {
     return {
+      vcfData: null,
     }
   },
   mounted () {
-    this.drawCircos()
+    fetch('../vcf.json')
+      .then(response => response.json())
+      .then(data => {
+          this.vcfData = data;
+
+          this.drawCircos()
+      });
   },
   methods: {
     drawCircos() {
       let containerTag = '#svCircos';
       let svCircosChart = new svCircos();
-      svCircosChart(containerTag)
+      svCircosChart(containerTag, this.vcfData)
     }
   }
 }
