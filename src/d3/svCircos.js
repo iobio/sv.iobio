@@ -159,24 +159,45 @@ export default function svCircos() {
                 let accPos = chromosomeAccumulatedMap.get(variant['#CHROM']).start + variant['POS'];
                 let angle = angleScale(accPos) - Math.PI / 2; // -90 deg in radians because the circle starts at 3 o'clock
                 let radius = maxRadius * 0.84;
-                let lineLength = 2; // Half the desired line length to extend in both directions
 
                 // Calculate the central point of the line
                 let centerX = center.x + (radius * Math.cos(angle));
                 let centerY = center.y + (radius * Math.sin(angle));
-                
-                // Calculate start and end points of the line
-                let x1 = centerX - lineLength * Math.cos(angle);
-                let y1 = centerY - lineLength * Math.sin(angle);
-                let x2 = centerX + lineLength * Math.cos(angle);
-                let y2 = centerY + lineLength * Math.sin(angle);
-                
+
+                //take the info from the variant and look for 'AF=' get the number after that but before the ';' and use the inverse of that as the line len
+                let info = variant.INFO;
+                let afIndex = info.indexOf('AF=') + 3;
+                let af = info.slice(afIndex, info.indexOf(';', afIndex));
+
+                let lineLength = 1
+                if (af && !isNaN(af)) {
+                    //Some of my test files have an AF that is two numbers I'm not certain why those wont get this variable they'll have 1
+                    lineLength = 1 + (1 - af) *10;
+                }
+
+                let x1 = centerX;
+                let y1 = centerY;
+                let x2 = centerX + (lineLength * Math.cos(angle));
+                let y2 = centerY + (lineLength * Math.sin(angle));
+
                 // Append the line to the SVG
                 svg.append('line')
-                    .attr('x1', x1)
-                    .attr('y1', y1)
-                    .attr('x2', x2)
-                    .attr('y2', y2)
+                    .attr('x1', function(d) {
+                        
+                        return x1
+                    })
+                    .attr('y1', function(d) {
+                        
+                        return y1
+                    })
+                    .attr('x2', function(d) {
+                        
+                        return x2
+                    })
+                    .attr('y2', function(d) {
+
+                        return y2
+                    })
                     .attr('stroke', function (d) {
                         let color = 'blue';
                         let info = variant.INFO;
