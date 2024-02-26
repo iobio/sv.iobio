@@ -17,7 +17,19 @@ export default function svCircos() {
 
     function chart(parentTag, data=null) {
         let vcfData = data;
+
         const container = d3.select(parentTag);
+
+        //Setting the genome origin start, end, and size
+        let originZoom = {
+            start: 0,
+            end: bpGenomeSize,
+            size: bpGenomeSize
+        };
+
+        //Zoomed section will have a start, end, and size (we will start with clicking a chromosome and getting the start end and size of that later maybe brush)
+        let zoomedSection = originZoom;
+
         let paddingLeft = parseInt(container.style('padding-left'), 10);
         let paddingRight = parseInt(container.style('padding-right'), 10);
         let paddingTop = parseInt(container.style('padding-top'), 10);
@@ -56,27 +68,23 @@ export default function svCircos() {
             .range([0, 2 * Math.PI]);
 
         //iterate over the chromosomes and create the arcs
-        let startbp = 0;
-        let startAngle = angleScale(startbp);
-        let accumulatedBP = 0;
-        let endAngle = angleScale(accumulatedBP);
         let startColor = '#1F68C1'
         let endColor = '#A63D40'
 
-        let chromosomeAccumulatedMap = new Map();
+        let chromosomeAccumulatedMap = _genChromosomeAccumulatedMap(chromosomeList)
 
         for (let chromosome of chromosomeList) {
-            let chromStart = accumulatedBP;
+            let chromosomeName = chromosome.name.replace('chr', '');
+            let chrom = chromosomeAccumulatedMap.get(chromosomeName)
 
-            accumulatedBP += chromosome.bp;
+            let chromStart = chrom.start;
+            let chromEnd = chrom.end;
 
-            let chromEnd = accumulatedBP;
-            chromosomeAccumulatedMap.set(chromosome.name.replace('chr', ''), {start: chromStart, end: chromEnd});
-
-            endAngle = angleScale(accumulatedBP);
+            let startAngle = angleScale(chromStart)
+            let endAngle = angleScale(chromEnd);
 
             //Calulate the color based on the start color and end color and the percentage of the genome that the chromosome represents
-            let percentage = accumulatedBP / bpGenomeSize;
+            let percentage = chromEnd / bpGenomeSize;
             let color = d3.interpolate(startColor, endColor)(percentage);
 
             //create a group for each chromosome and the label
@@ -115,7 +123,13 @@ export default function svCircos() {
                     let start = chromStart;
                     let end = chromEnd;
                     let chromSize = end - start;
-                    console.log(chromSize);
+                    
+                    zoomedSection = {
+                        start: start,
+                        end: end,
+                        size: chromSize
+                    }
+                    console.log(zoomedSection)
                 });
 
             // Calculate the middle angle of the arc in radians
@@ -134,11 +148,10 @@ export default function svCircos() {
                 .attr('alignment-baseline', 'middle')
                 .text(chrName)
                 .style('pointer-events', 'none');
-
-            startAngle = endAngle;
         }
 
         if (vcfData === null) {
+            //fetch it here
             fetch('../vcf.json')
             .then(response => response.json())
             .then(data => {
@@ -146,12 +159,31 @@ export default function svCircos() {
                 renderTracks(vcfData)
             });
         } else {
+            //use the data we have from the app
             renderTracks(vcfData);
         }
 
         container.node().appendChild(svg.node());
 
 //HELPER FUNCTIONS
+        function _genChromosomeAccumulatedMap(chromosomeList){
+            //iterate over the chromosomes and create the arcs
+            let accumulatedBP = 0;
+
+            let chromosomeAccumulatedMap = new Map();
+
+            for (let chromosome of chromosomeList) {
+                let chromStart = accumulatedBP;
+
+                accumulatedBP += chromosome.bp;
+
+                let chromEnd = accumulatedBP;
+                chromosomeAccumulatedMap.set(chromosome.name.replace('chr', ''), {start: chromStart, end: chromEnd});
+            }
+
+            return chromosomeAccumulatedMap
+        }
+
         function renderTracks(data, tracks=null) {
             for (let variant of data) {
                 //each variant is going to have a POS and a #CHROM property, we have the accumulated start and end for each chromosome
