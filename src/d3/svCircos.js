@@ -67,6 +67,36 @@ export default function svCircos() {
             .domain([0, bpGenomeSize])
             .range([0, 2 * Math.PI]);
 
+        //make a group for the circle and the dna.svg
+        let centerSymbolGroup = svg.append('g')
+            .attr('cursor', 'pointer')
+            .on('click', function (event, d) {
+                //we will reset the zoomed section to the origin zoom eventually
+
+                //also reset the image to the dna.svg
+                centerSymbolGroup.select('image')
+                    .attr('xlink:href', '/dna.svg')
+                    .attr('x', center.x - 10)
+                    .attr('y', center.y - 10)
+                    .attr('width', 20)
+                    .attr('height', 20);
+            });
+
+        //in the center of the chart we will have a circle that is 10px diameter
+        centerSymbolGroup.append('circle')
+            .attr('cx', center.x)
+            .attr('cy', center.y)
+            .attr('r', 15)
+            .attr('fill', '#1F68C1');
+        
+        //on top of this circle we will render the dna.svg that we have /dna.svg
+        centerSymbolGroup.append('image')
+            .attr('xlink:href', '/dna.svg')
+            .attr('x', center.x - 10)
+            .attr('y', center.y - 10)
+            .attr('width', 20)
+            .attr('height', 20);
+        
         //iterate over the chromosomes and create the arcs
         let startColor = '#1F68C1'
         let endColor = '#A63D40'
@@ -130,6 +160,14 @@ export default function svCircos() {
                         size: chromSize
                     }
                     console.log(zoomedSection)
+
+                    //get our centerSymbolGroup and change the symbol to our magnify-out.svg
+                    centerSymbolGroup.select('image')
+                        .attr('xlink:href', '/magnify-out.svg')
+                        .attr('x', center.x - 10)
+                        .attr('y', center.y - 10)
+                        .attr('width', 20)
+                        .attr('height', 20);
                 });
 
             // Calculate the middle angle of the arc in radians
