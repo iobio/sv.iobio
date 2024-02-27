@@ -16,6 +16,7 @@ export default function svCircos() {
     const bpGenomeSize = 3095693981; //hg38
 
     function chart(parentTag, data=null) {
+        setBaseStyles();
         let vcfData = data;
 
         const container = d3.select(parentTag);
@@ -72,6 +73,21 @@ export default function svCircos() {
             .attr('cursor', 'pointer')
             .on('click', function (event, d) {
                 //we will reset the zoomed section to the origin zoom eventually
+                zoomedSection = originZoom;
+
+                //get selected-chromosome and remove it if
+                let selected = d3.select('.selected-chromosome');
+                if (selected) {
+                    selected.classed('selected-chromosome', false);
+                }
+
+                //clear all the tracks and render the new tracks
+                svg.selectAll('line').remove();
+                renderTracks([zoomedSection.start, zoomedSection.end], vcfData);
+
+                //clear all the chromosomes and render the new chromosomes
+                svg.selectAll('.chromosome').remove();
+                renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
 
                 //also reset the image to the dna.svg
                 centerSymbolGroup.select('image')
@@ -103,90 +119,7 @@ export default function svCircos() {
 
         let chromosomeAccumulatedMap = _genChromosomeAccumulatedMap(chromosomeList)
 
-        for (let chromosome of chromosomeList) {
-            let chromosomeName = chromosome.name.replace('chr', '');
-            let chrom = chromosomeAccumulatedMap.get(chromosomeName)
-
-            let chromStart = chrom.start;
-            let chromEnd = chrom.end;
-
-            let startAngle = angleScale(chromStart)
-            let endAngle = angleScale(chromEnd);
-
-            //Calulate the color based on the start color and end color and the percentage of the genome that the chromosome represents
-            let percentage = chromEnd / bpGenomeSize;
-            let color = d3.interpolate(startColor, endColor)(percentage);
-
-            //create a group for each chromosome and the label
-            const g = svg.append('g');
-
-            const arc = d3.arc()
-                .innerRadius(maxRadius * 0.90)
-                .outerRadius(maxRadius)
-                .startAngle(startAngle)
-                .endAngle(endAngle)
-                .padAngle(0)
-                .cornerRadius(3);
-
-            g.append('path')
-                .datum({startAngle: startAngle, endAngle: endAngle})
-                .attr('d', arc)
-                .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                .attr('fill', color)
-                .attr('stroke', 'white')
-                .attr('stroke-width', 1)
-                .on('mouseover', function (event, d) {
-                    //Had done a grow but it is somewhat odd so removed it for now
-                    //make the cursor a pointer
-                    d3.select(this).style('cursor', 'pointer');
-                    //slightly increase the opacity
-                    d3.select(this).attr('opacity', 0.7);
-                })
-                .on('mouseout', function (event, d) {
-                    //make the cursor the default
-                    d3.select(this).style('cursor', 'default');
-                    //reset the opacity
-                    d3.select(this).attr('opacity', 1);
-                })
-                .on('click', function (event, d) {
-                    //We will identify the chromosome that was clicked
-                    let start = chromStart;
-                    let end = chromEnd;
-                    let chromSize = end - start;
-                    
-                    zoomedSection = {
-                        start: start,
-                        end: end,
-                        size: chromSize
-                    }
-                    console.log(zoomedSection)
-
-                    //get our centerSymbolGroup and change the symbol to our magnify-out.svg
-                    centerSymbolGroup.select('image')
-                        .attr('xlink:href', '/magnify-out.svg')
-                        .attr('x', center.x - 10)
-                        .attr('y', center.y - 10)
-                        .attr('width', 20)
-                        .attr('height', 20);
-                });
-
-            // Calculate the middle angle of the arc in radians
-            const textAngle = (startAngle + endAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-            const textRadius = maxRadius * 0.95;
-            const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
-            const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
-
-            //take chr off the chromosome name
-            let chrName = chromosome.name.replace('chr', '');
-            g.append('text')
-                .attr('x', textX)
-                .attr('y', textY)
-                .attr('fill', 'white')
-                .attr('text-anchor', 'middle')
-                .attr('alignment-baseline', 'middle')
-                .text(chrName)
-                .style('pointer-events', 'none');
-        }
+        renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
 
         if (vcfData === null) {
             //fetch it here
@@ -194,16 +127,23 @@ export default function svCircos() {
             .then(response => response.json())
             .then(data => {
                 vcfData = data;
-                renderTracks(vcfData)
+                renderTracks([zoomedSection.start, zoomedSection.end], vcfData)
             });
         } else {
             //use the data we have from the app
-            renderTracks(vcfData);
+            renderTracks([zoomedSection.start, zoomedSection.end], vcfData);
         }
 
         container.node().appendChild(svg.node());
 
 //HELPER FUNCTIONS
+        function setBaseStyles() {
+            //anything with a .selected-chromosome will be green
+            let style = document.createElement('style');
+            style.innerHTML = '.selected-chromosome {fill: green;}';
+            document.getElementsByTagName('head')[0].appendChild(style);
+        }
+
         function _genChromosomeAccumulatedMap(chromosomeList){
             //iterate over the chromosomes and create the arcs
             let accumulatedBP = 0;
@@ -222,11 +162,123 @@ export default function svCircos() {
             return chromosomeAccumulatedMap
         }
 
-        function renderTracks(data, tracks=null) {
+        function renderChromosomes(range, chromosomeList) {
+            for (let chromosome of chromosomeList) {
+                let chromosomeName = chromosome.name.replace('chr', '');
+                let chrom = chromosomeAccumulatedMap.get(chromosomeName)
+    
+                let chromStart = chrom.start;
+                let chromEnd = chrom.end;
+    
+                let startAngle = angleScale(chromStart)
+                let endAngle = angleScale(chromEnd);
+
+                if (chromEnd > range[1] || chromStart < range[0]) {
+                    //dont render this chromosome at all
+                    continue;
+                }
+    
+                //Calulate the color based on the start color and end color and the percentage of the genome that the chromosome represents
+                let percentage = chromEnd / bpGenomeSize;
+                let color = d3.interpolate(startColor, endColor)(percentage);
+    
+                //create a group for each chromosome and the label
+                const g = svg.append('g');
+    
+                const arc = d3.arc()
+                    .innerRadius(maxRadius * 0.90)
+                    .outerRadius(maxRadius)
+                    .startAngle(startAngle)
+                    .endAngle(endAngle)
+                    .padAngle(0)
+                    .cornerRadius(3);
+    
+                g.append('path')
+                    .datum({startAngle: startAngle, endAngle: endAngle})
+                    .attr('d', arc)
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                    .attr('fill', color)
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 1)
+                    .attr('class', 'chromosome')
+                    .on('mouseover', function (event, d) {
+                        //Had done a grow but it is somewhat odd so removed it for now
+                        //make the cursor a pointer
+                        d3.select(this).style('cursor', 'pointer');
+                        //slightly increase the opacity
+                        d3.select(this).attr('opacity', 0.7);
+                    })
+                    .on('mouseout', function (event, d) {
+                        //make the cursor the default
+                        d3.select(this).style('cursor', 'default');
+                        //reset the opacity
+                        d3.select(this).attr('opacity', 1);
+                    })
+                    .on('click', function (event, d) {
+                        //We will identify the chromosome that was clicked
+                        let start = chromStart;
+                        let end = chromEnd;
+                        let chromSize = end - start;
+                        
+                        zoomedSection = {
+                            start: start,
+                            end: end,
+                            size: chromSize
+                        };
+
+                        //clear all the chromosomes and render the new chromosomes
+                        svg.selectAll('.chromosome').remove();
+                        renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
+
+                        //get the event target and set class list to selected-chromosome
+                        let target = event.target;
+                        target.classList.add('selected-chromosome');
+    
+                        //clear all the tracks and render the new tracks
+                        svg.selectAll('line').remove();
+                        renderTracks([zoomedSection.start, zoomedSection.end], vcfData);
+
+    
+                        console.log(zoomedSection)
+    
+                        //get our centerSymbolGroup and change the symbol to our magnify-out.svg
+                        centerSymbolGroup.select('image')
+                            .attr('xlink:href', '/magnify-out.svg')
+                            .attr('x', center.x - 10)
+                            .attr('y', center.y - 10)
+                            .attr('width', 20)
+                            .attr('height', 20);
+                    });
+    
+                // Calculate the middle angle of the arc in radians
+                const textAngle = (startAngle + endAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+                const textRadius = maxRadius * 0.95;
+                const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
+                const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
+    
+                //take chr off the chromosome name
+                let chrName = chromosome.name.replace('chr', '');
+                g.append('text')
+                    .attr('x', textX)
+                    .attr('y', textY)
+                    .attr('fill', 'white')
+                    .attr('text-anchor', 'middle')
+                    .attr('alignment-baseline', 'middle')
+                    .text(chrName)
+                    .style('pointer-events', 'none');
+            }
+        }
+
+        function renderTracks(range, data, tracks=null) {
             for (let variant of data) {
                 //each variant is going to have a POS and a #CHROM property, we have the accumulated start and end for each chromosome
                 //POS is the position of the variant in the chromosome so we can use that to get an angle for the variant
                 let accPos = chromosomeAccumulatedMap.get(variant['#CHROM']).start + variant['POS'];
+
+                if (accPos < range[0] || accPos > range[1]) {
+                    continue;
+                }
+
                 let angle = angleScale(accPos) - Math.PI / 2; // -90 deg in radians because the circle starts at 3 o'clock
                 let radius = maxRadius * 0.84;
 
