@@ -14,8 +14,33 @@ export default function svCircos() {
     ];
 
     const bpGenomeSize = 3095693981; //hg38
+    let centromereData = null;
 
-    function chart(parentTag, data=null) {
+
+    async function chart(parentTag, data=null) {
+        //pull the hg19 centromere data out of the file and add a centromere to each of the chromosomes (start and end of the centromere are columns 2 and 3)
+        if (centromereData === null) {
+            let centromereFile = await fetch('../hg19_centromeres.bed')
+            centromereData = await centromereFile.text();
+        }
+
+        let centromeres = centromereData.split('\n');
+        centromeres.forEach(centromereLine => {
+            if (centromereLine.trim() === "") return; // Skip empty lines
+            let centromere = centromereLine.split('\t');
+            if (centromere.length < 3) return; // Skip lines with insufficient data
+
+            let chrom = centromere[0];
+            let start = parseInt(centromere[1], 10);
+            let end = parseInt(centromere[2], 10);
+            let bp = end - start;
+            let chromIndex = chromosomeList.findIndex(x => x.name === chrom);
+
+            if (chromIndex !== -1) { // Ensure the chromosome was found
+                chromosomeList[chromIndex].centromere = {start: start, end: end, bp: bp};
+            }
+        });
+
         setBaseStyles();
         let vcfData = data;
 
@@ -64,8 +89,8 @@ export default function svCircos() {
         };
         
         // Change the range to radians (0 to 2π)
-        const angleScale = d3.scaleLinear()
-            .domain([0, bpGenomeSize])
+        let angleScale = d3.scaleLinear()
+            .domain([zoomedSection.start, zoomedSection.end])
             .range([0, 2 * Math.PI]);
 
         //make a group for the circle and the dna.svg
@@ -74,6 +99,11 @@ export default function svCircos() {
             .on('click', function (event, d) {
                 //we will reset the zoomed section to the origin zoom eventually
                 zoomedSection = originZoom;
+
+                //reset the charts angle scale
+                angleScale = d3.scaleLinear()
+                    .domain([zoomedSection.start, zoomedSection.end])
+                    .range([0, 2 * Math.PI]);
 
                 //get selected-chromosome and remove it if
                 let selected = d3.select('.selected-chromosome');
@@ -87,7 +117,9 @@ export default function svCircos() {
 
                 //clear all the chromosomes and render the new chromosomes
                 svg.selectAll('.chromosome').remove();
-                renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
+                //clear all the chromosome labels
+                svg.selectAll('.chromosome-label').remove();
+                _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
 
                 //also reset the image to the dna.svg
                 centerSymbolGroup.select('image')
@@ -119,7 +151,8 @@ export default function svCircos() {
 
         let chromosomeAccumulatedMap = _genChromosomeAccumulatedMap(chromosomeList)
 
-        renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
+        _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
+        renderChromosomeRangeAxis([zoomedSection.start, zoomedSection.end]);
 
         if (vcfData === null) {
             //fetch it here
@@ -162,7 +195,18 @@ export default function svCircos() {
             return chromosomeAccumulatedMap
         }
 
-        function renderChromosomes(range, chromosomeList) {
+        function renderChromosomeRangeAxis(chromosome) {
+            //we will need to render tics on each chromosome
+             
+            
+        }
+
+        function _renderChromosomes(range, chromosomeList) {
+            //grab chromosomes, centromeres, and chromosome-labels and remove them
+            svg.selectAll('.chromosome').remove();
+            svg.selectAll('.centromere').remove();
+            svg.selectAll('.chromosome-label').remove();
+
             for (let chromosome of chromosomeList) {
                 let chromosomeName = chromosome.name.replace('chr', '');
                 let chrom = chromosomeAccumulatedMap.get(chromosomeName)
@@ -186,19 +230,19 @@ export default function svCircos() {
                 const g = svg.append('g');
     
                 const arc = d3.arc()
-                    .innerRadius(maxRadius * 0.90)
+                    .innerRadius(maxRadius * 0.95)
                     .outerRadius(maxRadius)
                     .startAngle(startAngle)
                     .endAngle(endAngle)
                     .padAngle(0)
-                    .cornerRadius(3);
+                    .cornerRadius(50);
     
                 g.append('path')
                     .datum({startAngle: startAngle, endAngle: endAngle})
                     .attr('d', arc)
                     .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                    .attr('fill', color)
-                    .attr('stroke', 'white')
+                    .attr('fill', 'transparent')
+                    .attr('stroke', color)
                     .attr('stroke-width', 1)
                     .attr('class', 'chromosome')
                     .on('mouseover', function (event, d) {
@@ -226,9 +270,16 @@ export default function svCircos() {
                             size: chromSize
                         };
 
+                        //reset the charts angle scale
+                        angleScale = d3.scaleLinear()
+                            .domain([zoomedSection.start, zoomedSection.end])
+                            .range([0, 2 * Math.PI]);
+
                         //clear all the chromosomes and render the new chromosomes
                         svg.selectAll('.chromosome').remove();
-                        renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
+                        //clear all the chromosome labels
+                        svg.selectAll('.chromosome-label').remove();
+                        _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
 
                         //get the event target and set class list to selected-chromosome
                         let target = event.target;
@@ -237,9 +288,6 @@ export default function svCircos() {
                         //clear all the tracks and render the new tracks
                         svg.selectAll('line').remove();
                         renderTracks([zoomedSection.start, zoomedSection.end], vcfData);
-
-    
-                        console.log(zoomedSection)
     
                         //get our centerSymbolGroup and change the symbol to our magnify-out.svg
                         centerSymbolGroup.select('image')
@@ -249,10 +297,41 @@ export default function svCircos() {
                             .attr('width', 20)
                             .attr('height', 20);
                     });
+
+                if (chromosome.centromere) {
+                    let centromere = chromosome.centromere;
+                    let centromereStartAngle = angleScale(chromStart + centromere.start);
+                    let centromereEndAngle = angleScale(chromStart + centromere.end);
+
+                    const centromereArc = d3.arc()
+                        .innerRadius(maxRadius * 0.95)
+                        .outerRadius(maxRadius)
+                        .startAngle(centromereStartAngle)
+                        .endAngle(centromereEndAngle)
+                        .padAngle(0)
+                        .cornerRadius(50);
+
+                    g.append('path')
+                        .datum({startAngle: centromereStartAngle, endAngle: centromereEndAngle})
+                        .attr('d', centromereArc)
+                        .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                        .attr('fill', color)
+                        .attr('stroke', color)
+                        .attr('stroke-width', 1)
+                        .attr('class', 'centromere');
+                }
+
     
-                // Calculate the middle angle of the arc in radians
-                const textAngle = (startAngle + endAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-                const textRadius = maxRadius * 0.95;
+                // Calculate the middle angle of the arc in radians based on the whole genome size and scale
+                let textAngleScale = d3.scaleLinear()
+                    .domain([0, bpGenomeSize])
+                    .range([0, 2 * Math.PI]);
+
+                let textStartAngle = textAngleScale(chromStart);
+                let textEndAngle = textAngleScale(chromEnd);
+
+                const textAngle = (textStartAngle + textEndAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+                const textRadius = maxRadius + 10;
                 const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
                 const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
     
@@ -261,7 +340,8 @@ export default function svCircos() {
                 g.append('text')
                     .attr('x', textX)
                     .attr('y', textY)
-                    .attr('fill', 'white')
+                    .attr('class', 'chromosome-label')
+                    .attr('fill', color)
                     .attr('text-anchor', 'middle')
                     .attr('alignment-baseline', 'middle')
                     .text(chrName)
@@ -350,7 +430,15 @@ export default function svCircos() {
                         }
                         return opacity;
                     })
-                    .attr('stroke-width', 1) // Set the stroke width to make the line visible
+                    .attr('stroke-width', function(d) {
+                        //if the range is less than 1000000 then make the stroke width 4 otherwise make it 1
+                        if (range[1] - range[0] <= 248000000) {
+                            return 3;
+                        }
+
+                        return 1;
+                    
+                    }) // Set the stroke width to make the line visible
                     .on('mouseover', function (event, d) {
                         //increase the lenth of the line on mouseover so increase x and y 2 by 5
                         let longer_x2 = centerX + (lineLength + 10) * Math.cos(angle);
@@ -359,17 +447,15 @@ export default function svCircos() {
                             .transition()
                             .duration(20)
                             .attr('x2', longer_x2)
-                            .attr('y2', longer_y2)
-                            .attr('stroke-width', 1); // Increase the stroke width on mouseover
+                            .attr('y2', longer_y2);
                         console.log(variant);
                     })
                     .on('mouseout', function (event, d) {
                         d3.select(this)
                             .transition()
                             .duration(20)
-                            .attr('stroke-width', 1)
                             .attr('x2', x2)
-                            .attr('y2', y2); // Reset the stroke width on mouseout
+                            .attr('y2', y2);
                     });
             }
         }
