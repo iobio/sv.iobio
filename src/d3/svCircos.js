@@ -206,6 +206,7 @@ export default function svCircos() {
             svg.selectAll('.chromosome').remove();
             svg.selectAll('.centromere').remove();
             svg.selectAll('.chromosome-label').remove();
+            svg.selectAll('.chromosome-background').remove();
 
             for (let chromosome of chromosomeList) {
                 let chromosomeName = chromosome.name.replace('chr', '');
@@ -216,6 +217,11 @@ export default function svCircos() {
     
                 let startAngle = angleScale(chromStart)
                 let endAngle = angleScale(chromEnd);
+
+                let centromere = chromosome.centromere;
+                let centromereStartAngle = angleScale(chromStart + centromere.start);
+                let centromereCenterAngle = angleScale(chromStart + (centromere.start + centromere.end) / 2);
+                let centromereEndAngle = angleScale(chromStart + centromere.end);
 
                 if (chromEnd > range[1] || chromStart < range[0]) {
                     //dont render this chromosome at all
@@ -229,34 +235,21 @@ export default function svCircos() {
                 //create a group for each chromosome and the label
                 const g = svg.append('g');
     
-                const arc = d3.arc()
-                    .innerRadius(maxRadius * 0.95)
-                    .outerRadius(maxRadius)
-                    .startAngle(startAngle)
-                    .endAngle(endAngle)
-                    .padAngle(0)
-                    .cornerRadius(50);
-    
-                g.append('path')
-                    .datum({startAngle: startAngle, endAngle: endAngle})
-                    .attr('d', arc)
-                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                    .attr('fill', 'transparent')
-                    .attr('stroke', color)
-                    .attr('stroke-width', 1)
+                //create a group for both parts of the chromosomes
+                const chromosomeGroup = g.append('g')
                     .attr('class', 'chromosome')
                     .on('mouseover', function (event, d) {
                         //Had done a grow but it is somewhat odd so removed it for now
                         //make the cursor a pointer
                         d3.select(this).style('cursor', 'pointer');
-                        //slightly increase the opacity
-                        d3.select(this).attr('opacity', 0.7);
+                        //grab the background and increase the opacity
+                        d3.select(this).selectAll('.chromosome-background').attr('fill-opacity', 0.3);
                     })
                     .on('mouseout', function (event, d) {
                         //make the cursor the default
                         d3.select(this).style('cursor', 'default');
-                        //reset the opacity
-                        d3.select(this).attr('opacity', 1);
+                        //grab the background and decrease the opacity
+                        d3.select(this).selectAll('.chromosome-background').attr('fill-opacity', 0.1);
                     })
                     .on('click', function (event, d) {
                         //We will identify the chromosome that was clicked
@@ -298,30 +291,95 @@ export default function svCircos() {
                             .attr('height', 20);
                     });
 
-                if (chromosome.centromere) {
-                    let centromere = chromosome.centromere;
-                    let centromereStartAngle = angleScale(chromStart + centromere.start);
-                    let centromereEndAngle = angleScale(chromStart + centromere.end);
+                const arcP = d3.arc()
+                    .innerRadius(maxRadius * 0.96)
+                    .outerRadius(maxRadius)
+                    .startAngle(startAngle)
+                    .endAngle(centromereCenterAngle)
+                    .padAngle(0)
+                    .padRadius(2)
+                    .cornerRadius(function(d, i) {
+                        return 9;
+                    });
 
-                    const centromereArc = d3.arc()
-                        .innerRadius(maxRadius * 0.95)
-                        .outerRadius(maxRadius)
-                        .startAngle(centromereStartAngle)
-                        .endAngle(centromereEndAngle)
-                        .padAngle(0)
-                        .cornerRadius(50);
+                const arcQ = d3.arc()
+                    .innerRadius(maxRadius * 0.96)
+                    .outerRadius(maxRadius)
+                    .startAngle(centromereCenterAngle)
+                    .endAngle(endAngle)
+                    .padAngle(0)
+                    .padRadius(2)
+                    .cornerRadius(function(d, i) {
+                        return 9;
+                    });
 
-                    g.append('path')
-                        .datum({startAngle: centromereStartAngle, endAngle: centromereEndAngle})
-                        .attr('d', centromereArc)
-                        .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                        .attr('fill', color)
-                        .attr('stroke', color)
-                        .attr('stroke-width', 1)
-                        .attr('class', 'centromere');
-                }
+                chromosomeGroup.append('path')
+                    .datum({startAngle: startAngle, endAngle: centromereEndAngle})
+                    .attr('d', arcP)
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                    .attr('fill', 'white')
+                    .attr('stroke', color)
+                    .attr('stroke-width', 1)
+                    .attr('class', 'chromosome-p');
+                
+                chromosomeGroup.append('path')
+                    .datum({startAngle: centromereEndAngle, endAngle: endAngle})
+                    .attr('d', arcQ)
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                    .attr('fill', 'white')
+                    .attr('stroke', color)
+                    .attr('stroke-width', 1)
+                    .attr('class', 'chromosome-q');
 
-    
+                const centromereArc = d3.arc()
+                    .innerRadius(function(d, i) {
+                        //if we are zoomed all the way out then make the centromere a little smaller
+                        if (zoomedSection.size === bpGenomeSize) {
+                            return maxRadius * 0.969;
+                        }
+                        return maxRadius * 0.96;
+                    })
+                    .outerRadius(function(d, i) {
+                        if (zoomedSection.size === bpGenomeSize) {
+                            return maxRadius * 0.99;
+                        }
+                        return maxRadius;
+                    })
+                    .startAngle(centromereStartAngle)
+                    .endAngle(centromereEndAngle)
+                    .padAngle(0)
+                    .cornerRadius(0);
+
+                chromosomeGroup.append('path')
+                    .datum({startAngle: centromereStartAngle, endAngle: centromereEndAngle})
+                    .attr('d', centromereArc)
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                    .attr('fill', color)
+                    .attr('stroke', color)
+                    .attr('opacity', 0.5)
+                    .attr('stroke-width', 1)
+                    .attr('class', 'centromere');
+                
+                //create an arc from the start to the end of the chromosome
+                let lineArc = d3.arc()
+                    .innerRadius(maxRadius * 1.05)
+                    .outerRadius(maxRadius * .98)
+                    .startAngle(startAngle)
+                    .endAngle(endAngle)
+                    .padAngle(0)
+                    .cornerRadius(0);
+
+                chromosomeGroup.append('path')
+                    .datum({startAngle: startAngle, endAngle: endAngle})
+                    .attr('d', lineArc)
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                    .attr('fill', color)
+                    .attr('fill-opacity', 0.1)
+                    .attr('stroke', color)
+                    .attr('stroke-width', 1)
+                    .attr('class', 'chromosome-background')
+                    .lower();
+
                 // Calculate the middle angle of the arc in radians based on the whole genome size and scale
                 let textAngleScale = d3.scaleLinear()
                     .domain([0, bpGenomeSize])
