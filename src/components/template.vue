@@ -13,6 +13,14 @@ data () {
   return {
   }
 },
+mounted () {
+},
+methods: {
+},
+computed: {
+},
+watch: {
+},
 }
 </script>
 
