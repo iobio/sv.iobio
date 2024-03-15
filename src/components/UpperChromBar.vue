@@ -1,10 +1,10 @@
 <template>
-    <div id="middle-section"></div>
-  </template>
+    <div id="upper-chrom-bar"></div>
+</template>
   
 <script>
   export default {
-  name: middleSection,
+  name: upperChromBar,
   components: {
   },
   props: {
@@ -25,5 +25,5 @@
 </script>
   
 <style lang="sass">
-  
+
 </style>

@@ -2,7 +2,7 @@
     <div id="right-section"></div>
   </template>
   
-  <script>
+<script>
   export default {
   name: rightSection,
   components: {
@@ -22,8 +22,8 @@
   watch: {
   },
   }
-  </script>
-  
-  <style lang="sass">
-  
-  </style>
+</script>
+
+<style lang="sass">
+
+</style>

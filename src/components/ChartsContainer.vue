@@ -2,7 +2,7 @@
     <div id="charts-container">
         <svCircos />
     </div>
-  </template>
+</template>
   
 <script>
     import svCircos from "./viz/svCircos.viz.vue"
@@ -13,7 +13,6 @@
             svCircos
         }
     }
-
 </script>
 
 <style lang="sass">
