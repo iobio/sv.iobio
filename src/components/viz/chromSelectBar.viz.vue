@@ -1,10 +1,10 @@
 <template>
-    <div id="middle-section"></div>
+    <div id="chrom-select-bar"></div>
   </template>
   
 <script>
   export default {
-  name: middleSection,
+  name: leftSection,
   components: {
   },
   props: {
