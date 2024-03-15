@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["src/*"]
+      },
+      "target": "esnext",
+      "module": "esnext",
+      "allowSyntheticDefaultImports": true,
+      "moduleResolution": "node",
+      "experimentalDecorators": true,
+      "esModuleInterop": true,
+      "allowJs": true,
+      "typeRoots": ["node_modules/@types"],
+      "lib": ["dom", "esnext"]
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist"]
+  }
