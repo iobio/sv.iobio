@@ -1,10 +1,10 @@
 <template>
-    <div id="right-section"></div>
+    <div id="right-tracks-section"></div>
   </template>
   
 <script>
   export default {
-  name: rightSection,
+  name: rightTracksSection,
   components: {
   },
   props: {
