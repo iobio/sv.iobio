@@ -109,7 +109,37 @@ export default function chromSelectBar(parentElementTag, refChromosomes, brush=f
             .attr('x', 1)
             .attr('width', d => x(chromosomeMap.get(d.chr).end) - x(chromosomeMap.get(d.chr).start) - 1)
             .attr('height', height - margin.bottom - margin.top)
-            .attr('fill', d => d.color);
+            .attr('fill', function(d) {
+                //iterate over the chromosomes and create the arcs
+                let startColor = '#1F68C1'
+                let endColor = '#A63D40'
+
+                let percentage = chromosomeMap.get(d.chr).end / genomeSize;
+                let color = d3.interpolate(startColor, endColor)(percentage);
+                return color;
+            })
+            .attr('fill-opacity', 0.3);
+
+            //add the labels
+            chromosomeBars.append('text')
+                .attr('x', d => (x(chromosomeMap.get(d.chr).end) - x(chromosomeMap.get(d.chr).start) - 6)/2)
+                //if the label is two characters long, move it over a bit so it's centered
+                .attr('transform', function(d) {
+                    if (d.chr.length == 2) {
+                        return `translate(${-4}, 0)`;
+                    }
+                })
+                .attr('y', height - margin.bottom - margin.top -5)
+                .text(d => d.chr)
+                .attr('font-size', '15px')
+                .attr('fill', function(d) {
+                    let startColor = '#1F68C1'
+                    let endColor = '#A63D40'
+    
+                    let percentage = chromosomeMap.get(d.chr).end / genomeSize;
+                    let color = d3.interpolate(startColor, endColor)(percentage);
+                    return color;
+                });
     }
     
     return svg.node();

@@ -4,6 +4,7 @@
 
 <script>
 import svCircos from '../../d3/svCircos.js'
+import * as d3 from 'd3';
 
 export default {
   name: 'svCircos',
@@ -26,7 +27,7 @@ export default {
       });
 
     this.resizeObserver = new ResizeObserver(() => {
-    this.drawChromSelectBar()
+      this.drawCircos()
     });
 
     this.resizeObserver.observe(document.getElementById('svCircos'));
@@ -37,6 +38,8 @@ export default {
   methods: {
     drawCircos() {
       let containerTag = '#svCircos';
+      //remove anything from the container
+      d3.select(containerTag).selectAll("*").remove();
       let svCircosChart = new svCircos();
       svCircosChart(containerTag, this.vcfData)
     }

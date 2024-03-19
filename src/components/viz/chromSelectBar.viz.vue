@@ -24,17 +24,31 @@
     fetch('http://localhost:3000/chromosomes?build=hg38')
       .then(response => response.json())
       .then(data => {
-          this.chromosomes = data;
+        this.chromosomes = data;
+        this.drawChromSelectBar()
+
+        if (this.chromosomes) {
+        this.resizeObserver = new ResizeObserver( () => {
           this.drawChromSelectBar()
-      });
-    
-    this.resizeObserver = new ResizeObserver(() => {
-      this.drawChromSelectBar()
+        });
+
+        this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
+      }
     });
-    this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
+  },
+  onUpdated() {
+    if (this.chromosomes) {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.drawChromSelectBar()
+      });
+
+      this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
+    }
   },
   beforeDestroy() {
-    this.resizeObserver.unobserve(document.getElementById('chrom-select-bar'));
+    if (this.resizeObserver){
+      this.resizeObserver.unobserve(document.getElementById('chrom-select-bar'));
+    }
   },
   methods: {
     drawChromSelectBar() {
