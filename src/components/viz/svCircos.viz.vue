@@ -24,6 +24,15 @@ export default {
 
           this.drawCircos()
       });
+
+    this.resizeObserver = new ResizeObserver(() => {
+    this.drawChromSelectBar()
+    });
+
+    this.resizeObserver.observe(document.getElementById('svCircos'));
+  },
+  beforeDestroy() {
+    this.resizeObserver.unobserve(document.getElementById('svCircos'));
   },
   methods: {
     drawCircos() {

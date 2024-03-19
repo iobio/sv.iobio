@@ -59,9 +59,58 @@ export default function chromSelectBar(parentElementTag, refChromosomes, brush=f
         .attr('width', width)
         .attr('height', height);
 
-    //We will need to loop over the chromosomes (which are not optional) and we will need to get the cumulative length of the chromosomes and the maximum length of the whole genome
-    //Create also a cumulativeMap that will store the cumulative length of the chromosomes starts and ends for easy access similar to the circos plot
+    let { chromosomeMap, genomeSize } = _genChromosomeAccumulatedMap(chromosomes);
 
+    let x = d3.scaleLinear()
+        .domain([0, genomeSize])
+        .range([margin.left, width - margin.right]);
+
+    let xAxis = g => g
+        .attr('transform', `translate(0, ${height - margin.bottom})`)
+        .call(d3.axisBottom(x)
+            .ticks(width / 80)
+            .tickSizeOuter(0)
+            .tickFormat(d => `${d / 1000}kb`));
+
+    svg.append('g')
+        .call(xAxis);
+
+    _renderChromosomes(); //function that renders the actual chromosome sections of the chart
+
+    function _genChromosomeAccumulatedMap(chromosomeList){
+        //iterate over the chromosomes and create the arcs
+        let accumulatedBP = 0;
+
+        let chromosomeAccumulatedMap = new Map();
+
+        for (let chromosome of chromosomeList) {
+            let chromStart = accumulatedBP;
+
+            accumulatedBP += chromosome.length;
+
+            let chromEnd = accumulatedBP;
+            chromosomeAccumulatedMap.set(chromosome.chr, {start: chromStart, end: chromEnd});
+        }
+
+        let genomeSize = accumulatedBP;
+        let chromosomeMap = chromosomeAccumulatedMap;
+
+        return {chromosomeMap, genomeSize};
+    }
+
+    function _renderChromosomes() {
+        let chromosomeBars = svg.append('g')
+            .selectAll('g')
+            .data(chromosomes)
+            .join('g')
+            .attr('transform', d => `translate(${x(chromosomeMap.get(d.chr).start)}, 0)`);
+
+        chromosomeBars.append('rect')
+            .attr('x', 1)
+            .attr('width', d => x(chromosomeMap.get(d.chr).end) - x(chromosomeMap.get(d.chr).start) - 1)
+            .attr('height', height - margin.bottom - margin.top)
+            .attr('fill', d => d.color);
+    }
     
     return svg.node();
 }

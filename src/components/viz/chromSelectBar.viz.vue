@@ -4,6 +4,7 @@
   
 <script>
   import chromSelectBar from '../../d3/chromSelectBar.d3.js';
+  import * as d3 from 'd3';
 
   export default {
   name: "ChromSelectBarViz",
@@ -14,7 +15,8 @@
   data () {
     return {
       chromosomes: null,
-      chromSelectBarChart: null
+      chromSelectBarChart: null,
+      resizeObserver: null
     }
   },
   mounted () {
@@ -25,16 +27,26 @@
           this.chromosomes = data;
           this.drawChromSelectBar()
       });
+    
+    this.resizeObserver = new ResizeObserver(() => {
+      this.drawChromSelectBar()
+    });
+    this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
+  },
+  beforeDestroy() {
+    this.resizeObserver.unobserve(document.getElementById('chrom-select-bar'));
   },
   methods: {
     drawChromSelectBar() {
       let containerTag = '#chrom-select-bar';
       this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes);
-      
-      //grab the container
-      let container = document.querySelector(containerTag);
-      //inject the svg
-      container.appendChild(this.chromSelectBarChart);
+
+      //if there is anything in the container, remove it
+      d3.select(containerTag).selectAll("*").remove();
+
+      //get the container and append the chart
+      let container = d3.select(containerTag);
+      container.node().append(this.chromSelectBarChart);
     }
   },
   computed: {

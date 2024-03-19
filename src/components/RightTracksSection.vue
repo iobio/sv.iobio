@@ -32,5 +32,6 @@
 <style lang="sass">
   #right-tracks-section
     flex-grow: 1
+    box-sizing: border-box
 
 </style>
