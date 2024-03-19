@@ -21,6 +21,47 @@ Functions:
 
 import * as d3 from 'd3';
 
-export default function chromSelectBar(parentElement, refChromosomes, brush=false, options=null) {
+export default function chromSelectBar(parentElementTag, refChromosomes, brush=false, options=null) {
+    let parentElement = d3.select(parentElementTag);
 
+    let width = parentElement.node().clientWidth;
+    let height = parentElement.node().clientHeight;
+    let chromosomes = refChromosomes;
+    let bands = null;
+    let centromeres = null;
+    let pointsOfInterest = null;
+    let maximumSelection = 1000000;
+    let selectionCallback = null;
+
+    if (options) {
+        if (options.centromeres) {
+            centromeres = options.centromeres;
+        }
+        if (options.bands) {
+            bands = options.bands;
+        }
+        if (options.pointsOfInterest) {
+            pointsOfInterest = options.pointsOfInterest;
+        }
+        if (options.maximumSelection) {
+            maximumSelection = options.maximumSelection;
+        }
+        if (options.selectionCallback) {
+            selectionCallback = options.selectionCallback;
+        }
+    }
+
+    const margin = {top: 20, right: 10, bottom: 20, left: 10};
+
+    const svg = d3.create('svg')
+        .attr('viewBox', [0, 0, width, height])
+        .attr('class', 'chrom-select-bar-d3')
+        .attr('width', width)
+        .attr('height', height);
+
+    //We will need to loop over the chromosomes (which are not optional) and we will need to get the cumulative length of the chromosomes and the maximum length of the whole genome
+    //Create also a cumulativeMap that will store the cumulative length of the chromosomes starts and ends for easy access similar to the circos plot
+
+    
+    return svg.node();
 }

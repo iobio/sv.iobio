@@ -1,22 +1,22 @@
 <template>
   <div id="main-container">
-    <div id="logo-div">
-      <img src="/sv.svg" alt="logo">
-      <span>.io<span id="bio-span">bio</span></span>
+    <UpperChromBar />
+    <div id="lower-block-container">
+      <RightTracksSection />
     </div>
-
-    <ChartsContainer />
 
   </div>
 </template>
 
 <script>
-  import ChartsContainer from './components/ChartsContainer.vue'
+  import UpperChromBar from './components/UpperChromBar.vue'
+  import RightTracksSection from './components/RightTracksSection.vue';
 
   export default {
     name: 'app',
     components: {
-      ChartsContainer
+      UpperChromBar,
+      RightTracksSection
     }
   }
 
@@ -30,9 +30,17 @@
   
   #main-container 
     box-sizing: border-box
+    display: flex
+    flex-direction: column
     height: 100%
     width: 100%
   
+  #lower-block-container 
+    display: flex
+    flex-direction: row
+    height: 100%
+    justify-content: center
+    width: 100%
   img 
     height: 30px
     margin-right: 0px

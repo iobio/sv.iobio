@@ -44,9 +44,7 @@ export default {
     box-sizing: border-box
     display: flex
     flex-direction: column
-    height: 92%
+    height: 100%
     justify-content: center
-    margin: 3% 10px 10px 10px
-    padding: 10px
     width: 100%
 </style>
