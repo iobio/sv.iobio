@@ -215,6 +215,7 @@ export default function svCircos(parentTag, data=null, options=null) {
         svg.selectAll('.centromere').remove();
         svg.selectAll('.chromosome-label').remove();
         svg.selectAll('.chromosome-background').remove();
+        svg.selectAll('.chromosome-band').remove();
 
         for (let chromosome of chromosomeList) {
             let chromosomeName = chromosome.name.replace('chr', '');
