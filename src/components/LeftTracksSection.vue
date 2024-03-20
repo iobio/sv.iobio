@@ -1,5 +1,5 @@
 <template>
-    <div id="right-tracks-section">
+    <div id="left-tracks-section">
         <svCircos />
     </div>
   </template>
@@ -8,7 +8,7 @@
   import svCircos from './viz/svCircos.viz.vue';
 
   export default {
-  name: "RightTracksSection",
+  name: "LeftTracksSection",
   components: {
     svCircos
   },
@@ -30,12 +30,14 @@
 </script>
 
 <style lang="sass">
-  #right-tracks-section
+  #left-tracks-section
     padding-top: 10px
     padding-bottom: 10px
-    flex-grow: 1
+    flex-grow: 1.25
     flex-basis: 0
     height: 100%
     box-sizing: border-box
+    border: 1px solid #F5F5F5
+    border-radius: 5px
 
 </style>

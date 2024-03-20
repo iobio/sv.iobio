@@ -237,6 +237,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
         //if there are bands render them as well follow the color scheme of the idiograms
         if (bands) {
+            let bandPositionObject = {};
+
             for (let band of bands) {
                 let bandStart = chromosomeMap.get(band.chr).start + band.start;
                 let bandEnd = chromosomeMap.get(band.chr).start + band.end;
@@ -244,7 +246,16 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 let bandHeight = height - margin.bottom - margin.top - 11;
 
                 //only if gieStain starts with gpos will it be rendered
-                if (band.gieStain.startsWith('gpos')) {
+                if (band.gieStain.startsWith('gpos75')) {
+                    //if the band is outside of the total genome size then skip it console.log it
+                    if (bandStart > genomeSize) {
+                        console.log('band start is greater than genome size');
+                        console.log(band);
+                        continue;
+                    }
+
+                    //get the intensity based on the gieStain number after gpos
+                    let intensity = band.gieStain.replace('gpos', '')/100;
                     chromosomeBars.append('rect')
                         .attr('x', x(bandStart) - x(chromosomeMap.get(band.chr).start))
                         .attr('width', bandWidth)
@@ -259,7 +270,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                             let color = d3.interpolate(startColor, endColor)(percentage);
                             return color;
                         })
-                        .attr('fill-opacity', 0.3);
+                        .attr('fill-opacity', intensity);
+
                 }
             }
         }

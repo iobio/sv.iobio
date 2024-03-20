@@ -2,7 +2,11 @@
   <div id="main-container">
     <UpperChromBar />
     <div id="lower-block-container">
-      <RightTracksSection />
+      <VariantListBar />
+      <div id="lower-sections-container">
+        <LeftTracksSection />
+        <RightSection />
+      </div>
     </div>
 
   </div>
@@ -10,13 +14,17 @@
 
 <script>
   import UpperChromBar from './components/UpperChromBar.vue'
-  import RightTracksSection from './components/RightTracksSection.vue';
+  import LeftTracksSection from './components/LeftTracksSection.vue';
+  import RightSection from './components/RightSection.vue';
+  import VariantListBar from './components/VariantListBar.vue';
 
   export default {
     name: 'app',
     components: {
       UpperChromBar,
-      RightTracksSection
+      LeftTracksSection,
+      RightSection,
+      VariantListBar
     }
   }
 
@@ -41,7 +49,14 @@
     height: 100%
     justify-content: center
     width: 100%
-    // box-sizing: border-box
+  
+  #lower-sections-container
+    display: flex
+    flex-direction: row
+    height: 100%
+    justify-content: center
+    flex-grow: 1
+    
   img 
     height: 30px
     margin-right: 0px
@@ -58,4 +73,4 @@
     #bio-span 
       color: #A63D40
 
-</style>
+</style>./components/LeftTracksSection.vue
