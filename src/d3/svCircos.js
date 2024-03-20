@@ -15,11 +15,39 @@ export default function svCircos(parentTag, data=null, options=null) {
 
     const bpGenomeSize = 3095693981; //hg38
     let centromeres = null;
+    let bands = null;
 
     //if there are options try to get the centromere data from the options
     if (options) {
         if (options.centromeres) {
             centromeres = options.centromeres;
+        }
+        if (options.bands){
+            bands = options.bands;
+
+            let newBands = [];
+            for (let band of bands) {
+                let newChr = band.chr.replace('chr', '');
+
+                //if the chr has a _ cut everything after it
+                if (newChr.includes('_')) {
+                    newChr = newChr.split('_')[0];
+                }
+
+                //if the new chr has a _ then skip it or if it's M or Un, or if the name doesnt have a . in it then skip it
+                if (newChr == 'M' || newChr == 'Un') {
+                    continue;
+                }
+
+                //if they are gneg they are going to be white so skip them ie they are not gpos
+                if (!band.gieStain.includes('gpos')) {
+                    continue;
+                }
+
+                band.chr = newChr;
+                newBands.push(band);
+            }
+            bands = newBands;
         }
     }
 
@@ -339,6 +367,37 @@ export default function svCircos(parentTag, data=null, options=null) {
                 .attr('opacity', 0.5)
                 .attr('stroke-width', 1)
                 .attr('class', 'centromere');
+            
+            if (bands){
+                //filter the bands to only include the bands that are in the range
+                let filteredBands = bands.filter(band => {
+                    return band.chr === chromosome.name.replace('chr', '');
+                });
+
+                for (let band of filteredBands) {
+                    let bandStartAngle = angleScale(chromStart + band.start);
+                    let bandEndAngle = angleScale(chromStart + band.end);
+
+                    //opacity will be set by the gieStain numbers which are after gpos in the gieStain field
+                    let gieStainOpacity = band.gieStain.replace('gpos', '')/100;
+
+                    let bandArc = d3.arc()
+                        .innerRadius(maxRadius * 0.965)
+                        .outerRadius(maxRadius * 0.995)
+                        .startAngle(bandStartAngle)
+                        .endAngle(bandEndAngle)
+                        .padAngle(0)
+                        .cornerRadius(0);
+
+                    chromosomeGroup.append('path')
+                        .datum({startAngle: bandStartAngle, endAngle: bandEndAngle})
+                        .attr('d', bandArc)
+                        .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                        .attr('fill', color)
+                        .attr('class', 'chromosome-band')
+                        .attr('opacity', gieStainOpacity);
+                }
+            }
             
             //create an arc from the start to the end of the chromosome
             let lineArc = d3.arc()

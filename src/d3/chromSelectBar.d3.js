@@ -72,7 +72,6 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 newBands.push(band);
             }
             bands = newBands;
-            console.log(bands.length);
         }
         if (options.pointsOfInterest) {
             pointsOfInterest = options.pointsOfInterest;
@@ -155,111 +154,109 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 .attr('stroke', 'white')
                 .attr('fill-opacity', 0.3);
 
-                if (!centromeres) {
-                    //add another rectangle slightly smaller and under the last one to start to make the idiograms
-                    chromosomeGroup.append('rect')
-                        //class will be idiogram
-                        .attr('class', 'upper-idiogram')
-                        .attr('x', 1)
-                        .attr('width', x(chromosome.end) - x(chromosome.start))
-                        .attr('height', height - margin.bottom - margin.top - 10)
-                        .attr('transform', `translate(0, 18)` )
-                        .attr('fill', 'white')
-                        .attr('stroke', chromosomeColor)
-                        //make the corners rounded
-                        .attr('rx', 3);
-                } else {
-                    chromosomeGroup.append('rect')
-                        //class will be idiogram
-                        .attr('class', 'upper-idiogram-parm')
-                        .attr('x', 1)
-                        .attr('width', function(){
-                            //start will be the absolute start of the centromere which is currently based on the chromosome start
-                            //will need to add chr to the label to get the correct start
-                            let centromereStart = chromosome.start + centromeres[chr].start;
-                            let centromereEnd = chromosome.start + centromeres[chr].end;
-                            //get the center of the centromere
-                            let centromereCenter = (centromereEnd - centromereStart) / 2;
-                            //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                            return x(centromereStart + centromereCenter) - x(chromosome.start) - 1;
-                        })
-                        .attr('height', height - margin.bottom - margin.top - 9)
-                        .attr('transform', `translate(0, 17)` )
-                        .attr('fill', 'white')
-                        .attr('stroke', chromosomeColor)
-                        //make the corners rounded
-                        .attr('rx', 3);
-                    
-                    //now to make the q arm
-                    chromosomeGroup.append('rect')
-                        //class will be idi
-                        .attr('class', 'lower-idiogram-qarm')
-                        .attr('x', function(d){
-                            //start will be the absolute start of the centromere which is currently based on the chromosome start
-                            //will need to add chr to the label to get the correct start
-                            let centromereStart = chromosome.start + centromeres[chr].start;
-                            let centromereEnd = chromosome.start + centromeres[chr].end;
-                            //get the center of the centromere
-                            let centromereCenter = (centromereEnd - centromereStart) / 2;
-                            //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                            return x(centromereStart + centromereCenter) - x(chromosome.start);
-                        })
-                        .attr('width', function(d){
-                            //start will be the absolute start of the centromere which is currently based on the chromosome start
-                            //will need to add chr to the label to get the correct start
-                            let centromereStart = chromosome.start + centromeres[chr].start;
-                            let centromereEnd = chromosome.start + centromeres[chr].end;
-                            //get the center of the centromere
-                            let centromereCenter = (centromereEnd - centromereStart) / 2;
-                            //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                            return x(chromosome.end) - x(centromereEnd - centromereCenter);
-                        })
-                        .attr('height', height - margin.bottom - margin.top - 9)
-                        .attr('transform', `translate(0, 17)` )
-                        .attr('fill', 'white')
-                        .attr('stroke', chromosomeColor)
-                        //make the corners rounded
-                        .attr('rx', 3);   
-                }
-                
-                //if there are bands filter for the bands that are in this chromosome
-                if (bands) {
-                    let chrBands = bands.filter(band => band.chr == chr);
-
-                    for (let band of chrBands) {
-                        console.log(band.start, band.chr);
-
-                        let bandWidth = x(band.end) - x(band.start);
-                        let bandHeight = height - margin.bottom - margin.top - 11;
-
-                        //get the intensity based on the gieStain number after gpos
-                        let intensity = band.gieStain.replace('gpos', '')/100;
-
-                        //create my band rectangle
-                        chromosomeGroup.append('rect')
-                            .attr('x', 1 + x(band.start))
-                            .attr('width', bandWidth)
-                            .attr('height', bandHeight)
-                            .attr('transform', `translate(0, 18)`)
-                            .attr('fill', chromosomeColor)
-                            .attr('fill-opacity', intensity)
-                            .raise();
-                    }
-                }
-
-                //add the labels
-                chromosomeGroup.append('text')
-                    .attr('x', (x(chromosome.end) - x(chromosome.start) - 6)/2)
-                    //if the label is two characters long, move it over a bit so it's centered
-                    .attr('transform', function() {
-                        if (chr.length == 2) {
-                            return `translate(${-4}, 0)`;
-                        }
+            if (!centromeres) {
+                //add another rectangle slightly smaller and under the last one to start to make the idiograms
+                chromosomeGroup.append('rect')
+                    //class will be idiogram
+                    .attr('class', 'upper-idiogram')
+                    .attr('x', 1)
+                    .attr('width', x(chromosome.end) - x(chromosome.start))
+                    .attr('height', height - margin.bottom - margin.top - 10)
+                    .attr('transform', `translate(0, 18)` )
+                    .attr('fill', 'white')
+                    .attr('stroke', chromosomeColor)
+                    //make the corners rounded
+                    .attr('rx', 3);
+            } else {
+                chromosomeGroup.append('rect')
+                    //class will be idiogram
+                    .attr('class', 'upper-idiogram-parm')
+                    .attr('x', 1)
+                    .attr('width', function(){
+                        //start will be the absolute start of the centromere which is currently based on the chromosome start
+                        //will need to add chr to the label to get the correct start
+                        let centromereStart = chromosome.start + centromeres[chr].start;
+                        let centromereEnd = chromosome.start + centromeres[chr].end;
+                        //get the center of the centromere
+                        let centromereCenter = (centromereEnd - centromereStart) / 2;
+                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                        return x(centromereStart + centromereCenter) - x(chromosome.start) - 1;
                     })
-                    .attr('y', height - margin.bottom - margin.top - 3)
-                    .text(chr)
-                    .attr('font-size', "15px")
-                    .attr('fill', chromosomeColor);
+                    .attr('height', height - margin.bottom - margin.top - 9)
+                    .attr('transform', `translate(0, 17)` )
+                    .attr('fill', 'white')
+                    .attr('stroke', chromosomeColor)
+                    //make the corners rounded
+                    .attr('rx', 3);
+                
+                //now to make the q arm
+                chromosomeGroup.append('rect')
+                    //class will be idi
+                    .attr('class', 'lower-idiogram-qarm')
+                    .attr('x', function(d){
+                        //start will be the absolute start of the centromere which is currently based on the chromosome start
+                        //will need to add chr to the label to get the correct start
+                        let centromereStart = chromosome.start + centromeres[chr].start;
+                        let centromereEnd = chromosome.start + centromeres[chr].end;
+                        //get the center of the centromere
+                        let centromereCenter = (centromereEnd - centromereStart) / 2;
+                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                        return x(centromereStart + centromereCenter) - x(chromosome.start);
+                    })
+                    .attr('width', function(d){
+                        //start will be the absolute start of the centromere which is currently based on the chromosome start
+                        //will need to add chr to the label to get the correct start
+                        let centromereStart = chromosome.start + centromeres[chr].start;
+                        let centromereEnd = chromosome.start + centromeres[chr].end;
+                        //get the center of the centromere
+                        let centromereCenter = (centromereEnd - centromereStart) / 2;
+                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                        return x(chromosome.end) - x(centromereEnd - centromereCenter);
+                    })
+                    .attr('height', height - margin.bottom - margin.top - 9)
+                    .attr('transform', `translate(0, 17)` )
+                    .attr('fill', 'white')
+                    .attr('stroke', chromosomeColor)
+                    //make the corners rounded
+                    .attr('rx', 3);   
+            }
+            
+            //if there are bands filter for the bands that are in this chromosome
+            if (bands) {
+                let chrBands = bands.filter(band => band.chr == chr);
+
+                for (let band of chrBands) {
+                    let bandWidth = x(band.end) - x(band.start);
+                    let bandHeight = height - margin.bottom - margin.top - 11;
+
+                    //get the intensity based on the gieStain number after gpos
+                    let intensity = band.gieStain.replace('gpos', '')/100;
+
+                    //create my band rectangle
+                    chromosomeGroup.append('rect')
+                        .attr('x', x(band.start) - margin.left)
+                        .attr('width', bandWidth)
+                        .attr('height', bandHeight)
+                        .attr('transform', `translate(0, 18)`)
+                        .attr('fill', chromosomeColor)
+                        .attr('fill-opacity', intensity)
+                        .raise();
+                }
+            }
+
+            //add the labels
+            chromosomeGroup.append('text')
+                .attr('x', (x(chromosome.end) - x(chromosome.start) - 6)/2)
+                //if the label is two characters long, move it over a bit so it's centered
+                .attr('transform', function() {
+                    if (chr.length == 2) {
+                        return `translate(${-4}, 0)`;
+                    }
+                })
+                .attr('y', height - margin.bottom - margin.top - 3)
+                .text(chr)
+                .attr('font-size', "15px")
+                .attr('fill', chromosomeColor);
         });
     }
     

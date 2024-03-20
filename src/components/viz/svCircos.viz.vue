@@ -17,6 +17,7 @@ export default {
       vcfData: null,
       circosChart: null,
       centromeres: null,
+      bands: null,
     }
   },
   mounted () {
@@ -30,6 +31,12 @@ export default {
       .then(response => response.json())
       .then(data => {
         this.centromeres = data;
+      });
+
+    fetch('http://localhost:3000/bands?build=hg38')
+      .then(response => response.json())
+      .then(data => {
+        this.bands = data;
       });
 
     this.resizeObserver = new ResizeObserver(() => {
@@ -49,12 +56,13 @@ export default {
       container.selectAll("*").remove();
 
       //if we dont have centromeres, dont draw the circos
-      if (!this.centromeres) {
+      if (!this.hasAllOptions) {
         return;
       }
 
       let options = {
-        centromeres: this.centromeres
+        centromeres: this.centromeres,
+        bands: this.bands
       }
       //remove anything from the container
       this.circosChart = new svCircos(containerTag, this.vcfData, options)
@@ -69,7 +77,7 @@ export default {
   },
   computed: {
     hasAllOptions() {
-      return this.centromeres;
+      return this.centromeres && this.vcfData && this.bands
     }
   },
   watch: {
