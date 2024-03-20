@@ -52,10 +52,14 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let newBands = [];
             for (let band of bands) {
                 let newChr = band.chr.replace('chr', '');
-                //if the new chr has a _ then skip it or if it's M or Un
+                //if the new chr has a _ then skip it or if it's M or Un, or if the name doesnt have a . in it then skip it
                 if (newChr == 'M' || newChr == 'Un' || newChr.includes('_')) {
                     continue;
                 }
+                if (band.name.includes('.')){
+                    continue;
+                }
+
                 band.chr = newChr;
                 newBands.push(band);
             }
@@ -94,7 +98,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         .call(d3.axisBottom(x)
             .ticks(width / 80)
             .tickSizeOuter(0)
-            .tickFormat(d => `${d / 1000}kb`));
+            .tickFormat(d => `${d / 1000000}Mb`));
 
     svg.append('g')
         .call(xAxis);
@@ -237,8 +241,6 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
         //if there are bands render them as well follow the color scheme of the idiograms
         if (bands) {
-            let bandPositionObject = {};
-
             for (let band of bands) {
                 let bandStart = chromosomeMap.get(band.chr).start + band.start;
                 let bandEnd = chromosomeMap.get(band.chr).start + band.end;
@@ -246,9 +248,9 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 let bandHeight = height - margin.bottom - margin.top - 11;
 
                 //only if gieStain starts with gpos will it be rendered
-                if (band.gieStain.startsWith('gpos75')) {
+                if (band.gieStain.startsWith('gpos')) {
                     //if the band is outside of the total genome size then skip it console.log it
-                    if (bandStart > genomeSize) {
+                    if (bandStart > genomeSize || bandEnd > genomeSize) {
                         console.log('band start is greater than genome size');
                         console.log(band);
                         continue;
@@ -287,7 +289,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             })
             .attr('y', height - margin.bottom - margin.top - 3)
             .text(d => d.chr)
-            .attr('font-size', '15px')
+            .attr('font-size', "15px")
             .attr('fill', function(d) {
                 let startColor = '#1F68C1'
                 let endColor = '#A63D40'

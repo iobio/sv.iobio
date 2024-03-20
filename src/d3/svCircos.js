@@ -367,14 +367,22 @@ export default function svCircos(parentTag, data=null, options=null) {
 
             let textStartAngle = textAngleScale(chromStart);
             let textEndAngle = textAngleScale(chromEnd);
+            
+            let isSmallerSection = Math.min(width, height) <= 700;
+            let textRadiusOffset = 10; //there is an offset to get the text more in the middle and if the section is smaller then we need to adjust the offset a little
+
+            if (isSmallerSection){
+                textRadiusOffset = 7;
+            }
 
             const textAngle = (textStartAngle + textEndAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-            const textRadius = maxRadius + 10;
+            const textRadius = maxRadius + textRadiusOffset;
             const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
             const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
 
             //take chr off the chromosome name
             let chrName = chromosome.name.replace('chr', '');
+            
             g.append('text')
                 .attr('x', textX)
                 .attr('y', textY)
@@ -383,7 +391,16 @@ export default function svCircos(parentTag, data=null, options=null) {
                 .attr('text-anchor', 'middle')
                 .attr('alignment-baseline', 'middle')
                 .text(chrName)
+                .attr('font-size', function(d) {
+                    if (isSmallerSection) {
+                        return "12px";
+                    } else {
+                        return "15px";
+                    }
+                })
                 .style('pointer-events', 'none');
+
+            //if we are in a smaller section then we need to adjust the posi
         }
     }
 
