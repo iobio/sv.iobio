@@ -41,7 +41,7 @@
     height: 100%
     justify-content: center
     width: 100%
-    box-sizing: border-box
+    // box-sizing: border-box
   img 
     height: 30px
     margin-right: 0px

@@ -34,6 +34,8 @@
     padding-top: 10px
     padding-bottom: 10px
     flex-grow: 1
+    flex-basis: 0
+    height: 100%
     box-sizing: border-box
 
 </style>
