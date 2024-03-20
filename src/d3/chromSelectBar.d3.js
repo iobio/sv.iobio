@@ -48,6 +48,18 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         }
         if (options.bands) {
             bands = options.bands;
+
+            let newBands = [];
+            for (let band of bands) {
+                let newChr = band.chr.replace('chr', '');
+                //if the new chr has a _ then skip it or if it's M or Un
+                if (newChr == 'M' || newChr == 'Un' || newChr.includes('_')) {
+                    continue;
+                }
+                band.chr = newChr;
+                newBands.push(band);
+            }
+            bands = newBands;
         }
         if (options.pointsOfInterest) {
             pointsOfInterest = options.pointsOfInterest;
@@ -152,7 +164,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     return color;
                 })
                 //make the corners rounded
-                .attr('rx', 5);
+                .attr('rx', 3);
         } else {
             chromosomeBars.append('rect')
                 //class will be idiogram
@@ -168,8 +180,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                     return x(centromereStart + centromereCenter) - x(chromosomeMap.get(d.chr).start) - 1;
                 })
-                .attr('height', height - margin.bottom - margin.top - 10)
-                .attr('transform', `translate(0, 18)` )
+                .attr('height', height - margin.bottom - margin.top - 9)
+                .attr('transform', `translate(0, 17)` )
                 .attr('fill', 'white')
                 .attr('stroke', function(d) {
                     //iterate over the chromosomes and create the arcs
@@ -181,7 +193,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     return color;
                 })
                 //make the corners rounded
-                .attr('rx', 5);
+                .attr('rx', 3);
             
             //now to make the q arm
             chromosomeBars.append('rect')
@@ -207,8 +219,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                     return x(chromosomeMap.get(d.chr).end) - x(centromereEnd - centromereCenter);
                 })
-                .attr('height', height - margin.bottom - margin.top - 10)
-                .attr('transform', `translate(0, 18)` )
+                .attr('height', height - margin.bottom - margin.top - 9)
+                .attr('transform', `translate(0, 17)` )
                 .attr('fill', 'white')
                 .attr('stroke', function(d) {
                     //iterate over the chromosomes and create the arcs
@@ -220,7 +232,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     return color;
                 })
                 //make the corners rounded
-                .attr('rx', 5);   
+                .attr('rx', 3);   
         }
 
         //if there are bands render them as well follow the color scheme of the idiograms
@@ -229,23 +241,26 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 let bandStart = chromosomeMap.get(band.chr).start + band.start;
                 let bandEnd = chromosomeMap.get(band.chr).start + band.end;
                 let bandWidth = x(bandEnd) - x(bandStart);
-                let bandHeight = height - margin.bottom - margin.top - 10;
+                let bandHeight = height - margin.bottom - margin.top - 11;
 
-                chromosomeBars.append('rect')
-                    .attr('x', x(bandStart) - x(chromosomeMap.get(band.chr).start))
-                    .attr('width', bandWidth)
-                    .attr('height', bandHeight)
-                    .attr('transform', `translate(0, 18)`)
-                    .attr('fill', function(d) {
-                        //iterate over the chromosomes and create the arcs
-                        let startColor = '#1F68C1'
-                        let endColor = '#A63D40'
+                //only if gieStain starts with gpos will it be rendered
+                if (band.gieStain.startsWith('gpos')) {
+                    chromosomeBars.append('rect')
+                        .attr('x', x(bandStart) - x(chromosomeMap.get(band.chr).start))
+                        .attr('width', bandWidth)
+                        .attr('height', bandHeight)
+                        .attr('transform', `translate(0, 18)`)
+                        .attr('fill', function(d) {
+                            //iterate over the chromosomes and create the arcs
+                            let startColor = '#1F68C1'
+                            let endColor = '#A63D40'
 
-                        let percentage = chromosomeMap.get(d.chr).end / genomeSize;
-                        let color = d3.interpolate(startColor, endColor)(percentage);
-                        return color;
-                    })
-                    .attr('fill-opacity', 0.3);
+                            let percentage = chromosomeMap.get(d.chr).end / genomeSize;
+                            let color = d3.interpolate(startColor, endColor)(percentage);
+                            return color;
+                        })
+                        .attr('fill-opacity', 0.3);
+                }
             }
         }
 
@@ -258,7 +273,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     return `translate(${-4}, 0)`;
                 }
             })
-            .attr('y', height - margin.bottom - margin.top - 6)
+            .attr('y', height - margin.bottom - margin.top - 3)
             .text(d => d.chr)
             .attr('font-size', '15px')
             .attr('fill', function(d) {
