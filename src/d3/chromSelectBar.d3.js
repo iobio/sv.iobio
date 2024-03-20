@@ -21,7 +21,7 @@ Functions:
 
 import * as d3 from 'd3';
 
-export default function chromSelectBar(parentElementTag, refChromosomes, brush=false, options=null) {
+export default function chromSelectBar(parentElementTag, refChromosomes, options=null) {
     let parentElement = d3.select(parentElementTag);
 
     let width = parentElement.node().clientWidth;
@@ -32,10 +32,19 @@ export default function chromSelectBar(parentElementTag, refChromosomes, brush=f
     let pointsOfInterest = null;
     let maximumSelection = 1000000;
     let selectionCallback = null;
+    let brush = false;
 
     if (options) {
         if (options.centromeres) {
             centromeres = options.centromeres;
+
+            //Convert the centromeres remove the chr from the chr field use that as the key
+            let newCentromeres = {};
+            for (let centromere of centromeres) {
+                let newKey = centromere.chr.replace('chr', '');
+                newCentromeres[newKey] = centromere;
+            }
+            centromeres = newCentromeres;
         }
         if (options.bands) {
             bands = options.bands;
@@ -48,6 +57,9 @@ export default function chromSelectBar(parentElementTag, refChromosomes, brush=f
         }
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
+        }
+        if (options.brush) {
+            brush = options.brush;
         }
     }
 
@@ -119,27 +131,144 @@ export default function chromSelectBar(parentElementTag, refChromosomes, brush=f
                 return color;
             })
             .attr('fill-opacity', 0.3);
-
-            //add the labels
-            chromosomeBars.append('text')
-                .attr('x', d => (x(chromosomeMap.get(d.chr).end) - x(chromosomeMap.get(d.chr).start) - 6)/2)
-                //if the label is two characters long, move it over a bit so it's centered
-                .attr('transform', function(d) {
-                    if (d.chr.length == 2) {
-                        return `translate(${-4}, 0)`;
-                    }
-                })
-                .attr('y', height - margin.bottom - margin.top -5)
-                .text(d => d.chr)
-                .attr('font-size', '15px')
-                .attr('fill', function(d) {
+        
+        if (!centromeres) {
+            //add another rectangle slightly smaller and under the last one to start to make the idiograms
+            chromosomeBars.append('rect')
+                //class will be idiogram
+                .attr('class', 'upper-idiogram')
+                .attr('x', 1)
+                .attr('width', d => x(chromosomeMap.get(d.chr).end) - x(chromosomeMap.get(d.chr).start) - 1)
+                .attr('height', height - margin.bottom - margin.top - 10)
+                .attr('transform', `translate(0, 18)` )
+                .attr('fill', 'white')
+                .attr('stroke', function(d) {
+                    //iterate over the chromosomes and create the arcs
                     let startColor = '#1F68C1'
                     let endColor = '#A63D40'
-    
+
                     let percentage = chromosomeMap.get(d.chr).end / genomeSize;
                     let color = d3.interpolate(startColor, endColor)(percentage);
                     return color;
-                });
+                })
+                //make the corners rounded
+                .attr('rx', 5);
+        } else {
+            chromosomeBars.append('rect')
+                //class will be idiogram
+                .attr('class', 'upper-idiogram-parm')
+                .attr('x', 1)
+                .attr('width', function(d){
+                    //start will be the absolute start of the centromere which is currently based on the chromosome start
+                    //will need to add chr to the label to get the correct start
+                    let centromereStart = chromosomeMap.get(d.chr).start + centromeres[d.chr].start;
+                    let centromereEnd = chromosomeMap.get(d.chr).start + centromeres[d.chr].end;
+                    //get the center of the centromere
+                    let centromereCenter = (centromereEnd - centromereStart) / 2;
+                    //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                    return x(centromereStart + centromereCenter) - x(chromosomeMap.get(d.chr).start) - 1;
+                })
+                .attr('height', height - margin.bottom - margin.top - 10)
+                .attr('transform', `translate(0, 18)` )
+                .attr('fill', 'white')
+                .attr('stroke', function(d) {
+                    //iterate over the chromosomes and create the arcs
+                    let startColor = '#1F68C1'
+                    let endColor = '#A63D40'
+
+                    let percentage = chromosomeMap.get(d.chr).end / genomeSize;
+                    let color = d3.interpolate(startColor, endColor)(percentage);
+                    return color;
+                })
+                //make the corners rounded
+                .attr('rx', 5);
+            
+            //now to make the q arm
+            chromosomeBars.append('rect')
+                //class will be idi
+                .attr('class', 'lower-idiogram-qarm')
+                .attr('x', function(d){
+                    //start will be the absolute start of the centromere which is currently based on the chromosome start
+                    //will need to add chr to the label to get the correct start
+                    let centromereStart = chromosomeMap.get(d.chr).start + centromeres[d.chr].start;
+                    let centromereEnd = chromosomeMap.get(d.chr).start + centromeres[d.chr].end;
+                    //get the center of the centromere
+                    let centromereCenter = (centromereEnd - centromereStart) / 2;
+                    //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                    return x(centromereStart + centromereCenter) - x(chromosomeMap.get(d.chr).start);
+                })
+                .attr('width', function(d){
+                    //start will be the absolute start of the centromere which is currently based on the chromosome start
+                    //will need to add chr to the label to get the correct start
+                    let centromereStart = chromosomeMap.get(d.chr).start + centromeres[d.chr].start;
+                    let centromereEnd = chromosomeMap.get(d.chr).start + centromeres[d.chr].end;
+                    //get the center of the centromere
+                    let centromereCenter = (centromereEnd - centromereStart) / 2;
+                    //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                    return x(chromosomeMap.get(d.chr).end) - x(centromereEnd - centromereCenter);
+                })
+                .attr('height', height - margin.bottom - margin.top - 10)
+                .attr('transform', `translate(0, 18)` )
+                .attr('fill', 'white')
+                .attr('stroke', function(d) {
+                    //iterate over the chromosomes and create the arcs
+                    let startColor = '#1F68C1'
+                    let endColor = '#A63D40'
+
+                    let percentage = chromosomeMap.get(d.chr).end / genomeSize;
+                    let color = d3.interpolate(startColor, endColor)(percentage);
+                    return color;
+                })
+                //make the corners rounded
+                .attr('rx', 5);   
+        }
+
+        //if there are bands render them as well follow the color scheme of the idiograms
+        if (bands) {
+            for (let band of bands) {
+                let bandStart = chromosomeMap.get(band.chr).start + band.start;
+                let bandEnd = chromosomeMap.get(band.chr).start + band.end;
+                let bandWidth = x(bandEnd) - x(bandStart);
+                let bandHeight = height - margin.bottom - margin.top - 10;
+
+                chromosomeBars.append('rect')
+                    .attr('x', x(bandStart) - x(chromosomeMap.get(band.chr).start))
+                    .attr('width', bandWidth)
+                    .attr('height', bandHeight)
+                    .attr('transform', `translate(0, 18)`)
+                    .attr('fill', function(d) {
+                        //iterate over the chromosomes and create the arcs
+                        let startColor = '#1F68C1'
+                        let endColor = '#A63D40'
+
+                        let percentage = chromosomeMap.get(d.chr).end / genomeSize;
+                        let color = d3.interpolate(startColor, endColor)(percentage);
+                        return color;
+                    })
+                    .attr('fill-opacity', 0.3);
+            }
+        }
+
+        //add the labels
+        chromosomeBars.append('text')
+            .attr('x', d => (x(chromosomeMap.get(d.chr).end) - x(chromosomeMap.get(d.chr).start) - 6)/2)
+            //if the label is two characters long, move it over a bit so it's centered
+            .attr('transform', function(d) {
+                if (d.chr.length == 2) {
+                    return `translate(${-4}, 0)`;
+                }
+            })
+            .attr('y', height - margin.bottom - margin.top - 6)
+            .text(d => d.chr)
+            .attr('font-size', '15px')
+            .attr('fill', function(d) {
+                let startColor = '#1F68C1'
+                let endColor = '#A63D40'
+
+                let percentage = chromosomeMap.get(d.chr).end / genomeSize;
+                let color = d3.interpolate(startColor, endColor)(percentage);
+                return color;
+        });
     }
     
     return svg.node();

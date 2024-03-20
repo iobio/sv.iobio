@@ -15,6 +15,8 @@
   data () {
     return {
       chromosomes: null,
+      centromeres: null,
+      bands: null,
       chromSelectBarChart: null,
       resizeObserver: null
     }
@@ -35,15 +37,20 @@
         this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
       }
     });
-  },
-  onUpdated() {
-    if (this.chromosomes) {
-      this.resizeObserver = new ResizeObserver(() => {
-        this.drawChromSelectBar()
+
+    fetch('http://localhost:3000/centromeres?build=hg38')
+      .then(response => response.json())
+      .then(data => {
+        this.centromeres = data;
       });
 
-      this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
-    }
+    fetch('http://localhost:3000/bands?build=hg38')
+      .then(response => response.json())
+      .then(data => {
+        this.bands = data;
+      });
+  },
+  onUpdated() {
   },
   beforeDestroy() {
     if (this.resizeObserver){
@@ -53,7 +60,9 @@
   methods: {
     drawChromSelectBar() {
       let containerTag = '#chrom-select-bar';
-      this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes);
+      let options = {centromeres: this.centromeres};
+
+      this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes, options);
 
       //if there is anything in the container, remove it
       d3.select(containerTag).selectAll("*").remove();
