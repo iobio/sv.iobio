@@ -34,7 +34,6 @@ export default {
 
     this.resizeObserver = new ResizeObserver(() => {
       //set a timeout to prevent the drawCircos from being called too many times
-      console.log('resize observed')
       this.drawCircos()
     });
 
@@ -45,7 +44,6 @@ export default {
   },
   methods: {
     async drawCircos() {
-      console.log('drawing circos')
       let containerTag = '#svCircos';
       let container = d3.select(containerTag);
       container.selectAll("*").remove();
@@ -69,8 +67,16 @@ export default {
       container.node().appendChild(this.circosChart);
     }
   },
+  computed: {
+    hasAllOptions() {
+      return this.centromeres;
+    }
+  },
   watch: {
     vcfData: function() {
+      this.drawCircos()
+    },
+    hasAllOptions: function() {
       this.drawCircos()
     }
   }
