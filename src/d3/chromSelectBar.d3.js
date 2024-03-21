@@ -149,7 +149,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             chromosomeGroup.append('rect')
                 .attr('x', 1)
                 .attr('width', x(chromosome.end) - x(chromosome.start))
-                .attr('height', height - margin.bottom - margin.top)
+                .attr('height', height - margin.bottom - margin.top + 5)
                 .attr('fill', chromosomeColor)
                 .attr('stroke', 'white')
                 .attr('fill-opacity', 0.3);
@@ -162,7 +162,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('x', 1)
                     .attr('width', x(chromosome.end) - x(chromosome.start))
                     .attr('height', height - margin.bottom - margin.top - 10)
-                    .attr('transform', `translate(0, 18)` )
+                    .attr('transform', `translate(0, 16)` )
                     .attr('fill', 'white')
                     .attr('stroke', chromosomeColor)
                     //make the corners rounded
@@ -183,7 +183,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         return x(centromereStart + centromereCenter) - x(chromosome.start) - 1;
                     })
                     .attr('height', height - margin.bottom - margin.top - 9)
-                    .attr('transform', `translate(0, 17)` )
+                    .attr('transform', `translate(0, 16)` )
                     .attr('fill', 'white')
                     .attr('stroke', chromosomeColor)
                     //make the corners rounded
@@ -214,7 +214,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         return x(chromosome.end) - x(centromereEnd - centromereCenter);
                     })
                     .attr('height', height - margin.bottom - margin.top - 9)
-                    .attr('transform', `translate(0, 17)` )
+                    .attr('transform', `translate(0, 16)` )
                     .attr('fill', 'white')
                     .attr('stroke', chromosomeColor)
                     //make the corners rounded
@@ -237,7 +237,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         .attr('x', x(band.start) - margin.left)
                         .attr('width', bandWidth)
                         .attr('height', bandHeight)
-                        .attr('transform', `translate(0, 18)`)
+                        .attr('transform', `translate(0, 17)`)
                         .attr('fill', chromosomeColor)
                         .attr('fill-opacity', intensity)
                         .raise();
@@ -253,9 +253,9 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top - 3)
+                .attr('y', height - margin.bottom - margin.top - 2)
                 .text(chr)
-                .attr('font-size', "15px")
+                .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
         });
     }
