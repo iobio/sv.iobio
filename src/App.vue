@@ -1,5 +1,6 @@
 <template>
   <div id="main-container">
+    <NavBar />
     <UpperChromBar />
     <div id="lower-block-container">
       <VariantListBar />
@@ -17,6 +18,7 @@
   import LeftTracksSection from './components/LeftTracksSection.vue';
   import RightSection from './components/RightSection.vue';
   import VariantListBar from './components/VariantListBar.vue';
+  import NavBar from './components/NavBar.vue';
 
   export default {
     name: 'app',
@@ -24,7 +26,8 @@
       UpperChromBar,
       LeftTracksSection,
       RightSection,
-      VariantListBar
+      VariantListBar,
+      NavBar
     }
   }
 
@@ -56,7 +59,7 @@
     height: 100%
     justify-content: center
     flex-grow: 1
-    
+
   img 
     height: 30px
     margin-right: 0px

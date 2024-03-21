@@ -154,6 +154,9 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 .attr('stroke', 'white')
                 .attr('fill-opacity', 0.3);
 
+            let idioHeight = height - margin.bottom - margin.top - 8;
+            let idioPosOffset = 16;
+
             if (!centromeres) {
                 //add another rectangle slightly smaller and under the last one to start to make the idiograms
                 chromosomeGroup.append('rect')
@@ -161,8 +164,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('class', 'upper-idiogram')
                     .attr('x', 1)
                     .attr('width', x(chromosome.end) - x(chromosome.start))
-                    .attr('height', height - margin.bottom - margin.top - 10)
-                    .attr('transform', `translate(0, 16)` )
+                    .attr('height', idioHeight)
+                    .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
                     .attr('stroke', chromosomeColor)
                     //make the corners rounded
@@ -182,8 +185,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromosome.start) - 1;
                     })
-                    .attr('height', height - margin.bottom - margin.top - 9)
-                    .attr('transform', `translate(0, 16)` )
+                    .attr('height', idioHeight)
+                    .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
                     .attr('stroke', chromosomeColor)
                     //make the corners rounded
@@ -213,8 +216,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(chromosome.end) - x(centromereEnd - centromereCenter);
                     })
-                    .attr('height', height - margin.bottom - margin.top - 9)
-                    .attr('transform', `translate(0, 16)` )
+                    .attr('height', idioHeight)
+                    .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
                     .attr('stroke', chromosomeColor)
                     //make the corners rounded
@@ -227,7 +230,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
                 for (let band of chrBands) {
                     let bandWidth = x(band.end) - x(band.start);
-                    let bandHeight = height - margin.bottom - margin.top - 11;
+                    let bandHeight = height - margin.bottom - margin.top - 10;
 
                     //get the intensity based on the gieStain number after gpos
                     let intensity = band.gieStain.replace('gpos', '')/100;
