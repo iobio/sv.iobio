@@ -262,6 +262,42 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 .attr('fill', chromosomeColor);
         });
     }
+
+    //render brush later so it's on top
+    if (brush) {
+        let brush = d3.brushX()
+            .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
+            .on('end', brushed);
+
+        svg.append('g')
+            .attr('height', height - margin.bottom - margin.top)
+            .attr('class', 'brush-area')
+            .call(brush)
+            .raise();
+    }
+
+    function brushed(event) {
+        let selection = event.selection;
+
+        //if the selection is null then the user has clicked off the brush so don't do anything
+        if (!selection || selection[0] == selection[1]) {
+            //ensure we return back the whole genome
+            selectionCallback({start: 0, end: genomeSize});
+            return;
+        }
+
+        //selection will be in the pixel space so need to convert it to the base pair space
+        let start = x.invert(selection[0]);
+        let end = x.invert(selection[1]);
+
+        //send the rounded start and end to the callback to the nearest whole number
+        start = Math.round(start);
+        end = Math.round(end);
+
+        if (selectionCallback) {
+            selectionCallback({start, end});
+        }
+    }
     
     return svg.node();
 }

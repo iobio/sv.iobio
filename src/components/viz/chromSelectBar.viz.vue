@@ -68,13 +68,21 @@
           return;
         }
 
-        let options = {centromeres: this.centromeres, bands: this.bands};
+        let options = {
+          centromeres: this.centromeres, 
+          bands: this.bands,
+          brush: true,
+          selectionCallback: this.areaSelected
+        };
         this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes, options);
         
         //get the container and append the chart
         let container = d3.select(containerTag);
         container.node().append(this.chromSelectBarChart);
 
+      },
+      areaSelected(selection){
+        console.log('area selected', selection);
       }
     },
     computed: {
