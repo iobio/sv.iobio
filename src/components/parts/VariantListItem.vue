@@ -1,7 +1,7 @@
 <template>
     <div id="variant-list-item">
         <div class="preview" :class="{opened: showMore}" @click="showMore = !showMore">
-            <div>{{ variant.rank }}</div>
+            <div class="rank-text">{{ variant.rank }}</div>
             <div>{{ variant.chromosome }}</div>
             <div class="location-text">st: {{ variant.start }} end: {{ variant.end }}</div>
             <div class="type-text">{{ variant.type }}</div>
@@ -57,6 +57,9 @@
             border-bottom: 1px solid #F5F5F5
             &.opened
                 box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
+            .rank-text
+                color: #2A65B7
+                font-weight: bold
             .location-text
                 font-size: 0.7em
             .type-text
