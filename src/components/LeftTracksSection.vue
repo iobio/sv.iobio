@@ -13,6 +13,7 @@
     svCircos
   },
   props: {
+    svList: Array
   },
   data () {
     return {

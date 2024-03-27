@@ -1,11 +1,14 @@
 <template>
   <div id="main-container">
     <NavBar />
-    <UpperChromBar />
+    <UpperChromBar
+      :svList="svList"/>
     <div id="lower-block-container">
-      <VariantListBar />
+      <VariantListBar 
+        :svList="svList"/>
       <div id="lower-sections-container">
-        <LeftTracksSection />
+        <LeftTracksSection 
+          :svList="svList"/>
         <RightSection />
       </div>
     </div>
@@ -19,6 +22,7 @@
   import RightSection from './components/RightSection.vue';
   import VariantListBar from './components/VariantListBar.vue';
   import NavBar from './components/NavBar.vue';
+  import Sv from './models/Sv.js'
 
   export default {
     name: 'app',
@@ -28,7 +32,24 @@
       RightSection,
       VariantListBar,
       NavBar
-    }
+    },
+    data() {
+      return {
+        svList: [],
+      }
+    },
+    mounted() {
+      fetch('http://localhost:3000/vcfJson')
+        .then(response => response.json())
+        .then(data => {
+          for (let i = 0; i < data.length; i++) {
+            this.svList.push(new Sv(data[i]))
+          }
+          console.log(this.svList)
+        });
+    },
+    methods: {
+    },
   }
 
 </script>
@@ -76,4 +97,4 @@
     #bio-span 
       color: #A63D40
 
-</style>./components/LeftTracksSection.vue
+</style>

@@ -13,6 +13,7 @@
     ChromSelectBarViz
   },
   props: {
+    svList: Array
   },
   data () {
     return {
