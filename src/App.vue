@@ -48,10 +48,7 @@
           for (let i = 0; i < data.length; i++) {
             this.svList.push(new Sv(data[i]))
           }
-          //sort the list
-          this.svList.sort((a, b) => {
-            return a.rank - b.rank
-          })
+          console.log(this.svList)
         });
     },
     methods: {
@@ -100,14 +97,5 @@
     padding-right: 0px
     transform: translate(3px, 5px)
     width: 30px
-  
-  span 
-    color: #1F68C1
-    font-size: 25px
-    font-weight: bold
-    margin-left: 0px
-    padding-left: 0px
-    #bio-span 
-      color: #A63D40
 
 </style>

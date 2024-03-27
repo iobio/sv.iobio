@@ -7,8 +7,11 @@
             <div class="type-text">{{ variant.type }}</div>
         </div>
         <div v-if="showMore" class="more-info">
-            <div>Effect: {{ variant.effect.toLowerCase() }}</div>
-            <div>Max AF: {{ variant.info.Max_AF }}</div>
+            <div><span>Effect:</span> <span>{{ variant.effect.toLowerCase() }}</span></div>
+            <div><span>Max AF:</span> <span>{{ variant.info.Max_AF }}</span></div>
+            <div><span>Gene:</span> <span>{{ variant.gene.geneSymbol }}</span></div>
+            <div><span>Ex. Combined:</span> <span>{{ roundScore(variant.exomiserCombScore) }}</span></div>
+            <div><span>Ex. Priority:</span> <span>{{ roundScore(variant.exomiserPriorityScore) }}</span></div>
         </div>
     </div>
   </template>
@@ -29,6 +32,11 @@
   mounted () {
   },
   methods: {
+    roundScore(score) {
+        //turn score to number
+        score = parseFloat(score)
+        return Math.round(score * 1000) / 1000
+    }
   },
   computed: {
   },
@@ -71,9 +79,11 @@
             box-sizing: border-box
             border-bottom: 1px solid #F5F5F5
             div
-                font-size: 0.9em
-                white-space: nowrap
-                text-overflow: ellipsis
                 width: 100%
+                display: flex
+                justify-content: space-between
+                span
+                    font-size: 0.8em
+                    margin-right: 5px
         
   </style>

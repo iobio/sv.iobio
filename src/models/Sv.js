@@ -12,9 +12,13 @@ class Sv {
             this.type = input.type;
             this.effect = input.variantEffect;
             this.info = this.parseInfo(input.vcfInfo);
+            this.rank = input.rank;
+            this.gene = input.gene;
+            this.exomiserCombScore = input.exomiserCombScore;
+            this.exomiserPval = input.exomiserPval;
+            this.exomiserPriorityScore = input.exomiserPriorityScore;
 
-            let { rank, array } = this.parseRank(this.info.Exomiser);
-            this.rank = rank;
+            let array = this.parseExomiser(this.info.Exomiser);
             this.info.Exomiser = array;
         } else {
             //This wont run (at least not now)
@@ -31,15 +35,13 @@ class Sv {
         return infoObj;
     }
 
-    parseRank(exomiserInfo) {
+    parseExomiser(exomiserInfo) {
         let array = exomiserInfo.split(',');
         //take the curly braces off of each element
         array = array.map(item => item.slice(1, -1));
         array = array.map(item => item.split('|'));
 
-        //get the rank
-        let rank = array[0][0];
-        return { rank, array};
+        return array;
     }
 }
 

@@ -23,6 +23,7 @@
   },
   data () {
     return {
+      open: true
     }
   },
   mounted () {
@@ -50,6 +51,7 @@
       border: 1px solid #F5F5F5
       border-radius: 5px
       overflow-y: auto
+      position: relative
       #variant-list-bar-header
         display: grid
         grid-template-columns: 1fr 1fr 1.5fr 1fr
