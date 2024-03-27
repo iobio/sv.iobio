@@ -36,6 +36,7 @@
       justify-content: space-between
       padding: 5px 10px
       width: 100%
+      height: 35px
       box-sizing: border-box
       background-color: #1D2F5E
       color: white

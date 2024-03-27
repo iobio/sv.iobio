@@ -1,8 +1,11 @@
 <template>
   <div id="main-container">
-    <NavBar />
-    <UpperChromBar
-      :svList="svList"/>
+    <div id="upper-bar-container">
+      <NavBar />
+      <UpperChromBar
+        :svList="svList"/>
+    </div>
+
     <div id="lower-block-container">
       <VariantListBar 
         :svList="svList"/>
@@ -45,7 +48,10 @@
           for (let i = 0; i < data.length; i++) {
             this.svList.push(new Sv(data[i]))
           }
-          console.log(this.svList)
+          //sort the list
+          this.svList.sort((a, b) => {
+            return a.rank - b.rank
+          })
         });
     },
     methods: {
@@ -64,14 +70,21 @@
     box-sizing: border-box
     display: flex
     flex-direction: column
-    height: 100%
+    height: 100vh
     width: 100%
   
   #lower-block-container 
     display: flex
     flex-direction: row
-    height: 100%
+    flex-grow: 1
     justify-content: center
+    width: 100%
+    overflow: hidden
+
+  #upper-bar-container
+    display: flex
+    flex-direction: column
+    height: fit-content
     width: 100%
   
   #lower-sections-container
