@@ -156,7 +156,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
                 let currentTrac = 0;
             
-                for (let x in Object.keys(tracMap)) {
+                for (let x of Object.keys(tracMap)) {
                     if (tracMap[x] != false && (absoluteStart > tracMap[x])) {
                         tracMap[x] = absoluteEnd;
                         currentTrac = x;
@@ -175,7 +175,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 let translateY = (currentTrac - 1) * 2;
 
                 pointGroup.append('rect')
-                    .attr('x', 1)
+                    .attr('x', x(0) - margin.left)
                     .attr('width', function() {
                         //if the block is too small to see make it 2 pixels wide
                         if (x(end) - x(start) < 2) {

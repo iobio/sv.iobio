@@ -125,7 +125,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             }
 
             //clear all the tracks and render the new tracks
-            svg.selectAll('line').remove();
+            svg.selectAll('.variant-arc').remove();
             renderTracks([zoomedSection.start, zoomedSection.end], svData);
 
             //clear all the chromosomes and render the new chromosomes
@@ -461,99 +461,83 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     }
 
     function renderTracks(range, data, tracks=null) {
-        for (let variant of data) {
-            //each variant is going to have a POS and a #CHROM property, we have the accumulated start and end for each chromosome
-            //POS is the position of the variant in the chromosome so we can use that to get an angle for the variant
-            let accPos = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['start'];
+        //if there are already arcs remove them before redrawing
+        svg.selectAll('.variant-arc').remove();
 
-            if (accPos < range[0] || accPos > range[1]) {
+        let tracMap = {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false,
+        };
+
+        let varPosMap = {};
+
+        for (let variant of data) {
+            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['start'];
+            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['end'];
+
+            let varStartAngle = angleScale(accStart);
+            let varEndAngle = angleScale(accEnd);
+
+            //the minimum arc needs to be 1 pixel
+            if (varEndAngle - varStartAngle < 0.01) {
+                varEndAngle += 0.01;
+            }
+
+            let currentTrac = 0;
+            let radiusOffset = 0;
+
+            //if the variant is not in the range then skip it
+            if (accEnd < range[0] || accStart > range[1]) {
                 continue;
             }
 
-            let angle = angleScale(accPos) - Math.PI / 2; // -90 deg in radians because the circle starts at 3 o'clock
-            let radius = maxRadius * 0.84;
+            //is the variant in the varPosMap
+            if (!varPosMap[`${accStart}-${accEnd}`]) {
+                varPosMap[`${accStart}-${accEnd}`] = [variant];
 
-            // Calculate the central point of the line
-            let centerX = center.x + (radius * Math.cos(angle));
-            let centerY = center.y + (radius * Math.sin(angle));
-
-            //take the info from the variant and look for 'AF=' get the number after that but before the ';' and use the inverse of that as the line len
-            let info = variant.info;
-            let af = info.Max_AF;
-
-            let lineLength = 1
-            if (af && !isNaN(af)) {
-                //Some of my test files have an AF that is two numbers I'm not certain why those wont get this variable they'll have 1
-                lineLength = 1 + (1 - af) *10;
-            }
-
-            let x1 = centerX;
-            let y1 = centerY;
-            let x2 = centerX + (lineLength * Math.cos(angle));
-            let y2 = centerY + (lineLength * Math.sin(angle));
-
-            // Append the line to the SVG
-            svg.append('line')
-                .attr('x1', function(d) {
-                    
-                    return x1
-                })
-                .attr('y1', function(d) {
-                    
-                    return y1
-                })
-                .attr('x2', function(d) {
-                    
-                    return x2
-                })
-                .attr('y2', function(d) {
-
-                    return y2
-                })
-                .attr('stroke', function (d) {
-                    let color = 'blue';
-                    if (variant.type === 'DEL') {
-                        color = "red";
-                    }
-                    if (variant.type === 'DUP') {
-                        color = "green";
-                    }
-                    return color;
-                })
-                .attr('opacity', function (d) {
-                    let opacity = 1;
-                    if (af) {
-                        opacity = 1 - af;
-                    }
-                    return opacity;
-                })
-                .attr('stroke-width', function(d) {
-                    //if the range is less than 1000000 then make the stroke width 4 otherwise make it 1
-                    if (range[1] - range[0] <= 248000000) {
-                        return 3;
-                    }
-
-                    return 1;
+                for (let x of Object.keys(tracMap)) {
+                    if (tracMap[x] === false || (accStart > tracMap[x])) {
+                        tracMap[x] = accEnd;
+                        currentTrac = x;
+                        break;
+                    } 
+                }
                 
-                }) // Set the stroke width to make the line visible
-                .on('mouseover', function (event, d) {
-                    //increase the lenth of the line on mouseover so increase x and y 2 by 5
-                    let longer_x2 = centerX + (lineLength + 10) * Math.cos(angle);
-                    let longer_y2 = centerY + (lineLength + 10) * Math.sin(angle);
-                    d3.select(this)
-                        .transition()
-                        .duration(20)
-                        .attr('x2', longer_x2)
-                        .attr('y2', longer_y2);
-                    console.log(variant);
-                })
-                .on('mouseout', function (event, d) {
-                    d3.select(this)
-                        .transition()
-                        .duration(20)
-                        .attr('x2', x2)
-                        .attr('y2', y2);
-                });
+                radiusOffset = (currentTrac - 1) * 4;
+                let radius = (maxRadius * 0.93) - radiusOffset;
+
+                //use var start and end angel to create an arc
+                let arc = d3.arc()
+                    .innerRadius(radius - 2)
+                    .outerRadius(radius)
+                    .startAngle(varStartAngle)
+                    .endAngle(varEndAngle)
+                    .padAngle(0)
+                    .cornerRadius(0);
+
+                svg.append('path')
+                    .datum({startAngle: varStartAngle, endAngle: varEndAngle})
+                    .attr('d', arc)
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                    .attr('fill', function(d) {
+                        if (variant.type === 'DEL') {
+                            return '#A63D40';
+                        } else if (variant.type === 'DUP') {
+                            return '#1F68C1';
+                        } else {
+                            return '#F4D03F';
+                        }
+                    })
+                    .attr('class', 'variant-arc');
+
+            } else {
+                varPosMap[`${accStart}-${accEnd}`].push(variant);
+                //dont render the same variant twice
+                continue;
+            }
         }
     }
     return svg.node();

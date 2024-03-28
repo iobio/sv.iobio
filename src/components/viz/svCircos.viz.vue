@@ -69,10 +69,10 @@ export default {
         bands: this.bands
       }
       //remove anything from the container
-      this.circosChart = new svCircos(containerTag, this.chromosomes, this.svList, options)
+      this.circosChart = new svCircos(containerTag, this.chromosomes, this.svListSorted, options)
 
       //if we dont have the data we need (vcfData), dont draw the circos
-      if (!this.svList) {
+      if (!this.svListSorted) {
         return;
       }
 
@@ -81,13 +81,20 @@ export default {
   },
   computed: {
     hasAllOptions() {
-      return this.centromeres && this.svList && this.bands && this.chromosomes
+      return this.centromeres && (this.svListSorted && this.svListSorted.length > 0) && this.bands && this.chromosomes
+    }, 
+    svListSorted() {
+      //sorted by chromosome and start
+      return [...this.svList].sort((a, b) => {
+        if (a.chromosome === b.chromosome) {
+          return a.start - b.start
+        } else {
+          return a.chromosome - b.chromosome
+        }
+      })
     }
   },
   watch: {
-    vcfData: function() {
-      this.drawCircos()
-    },
     hasAllOptions: function() {
       this.drawCircos()
     }
