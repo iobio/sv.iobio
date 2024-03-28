@@ -11,6 +11,7 @@
     components: {
     },
     props: {
+      svList: Array
     },
     data () {
       return {
@@ -18,7 +19,7 @@
         centromeres: null,
         bands: null,
         chromSelectBarChart: null,
-        resizeObserver: null
+        resizeObserver: null,
       }
     },
     mounted () {
@@ -72,6 +73,7 @@
           centromeres: this.centromeres, 
           bands: this.bands,
           brush: true,
+          pointsOfInterest: this.svListSorted,
           selectionCallback: this.areaSelected
         };
         this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes, options);
@@ -87,14 +89,22 @@
     },
     computed: {
       hasAllOptions() {
-        return this.chromosomes && this.centromeres && this.bands;
+        return this.chromosomes && this.centromeres && this.bands && (this.svListSorted && this.svListSorted.length > 0);
+      }, 
+      svListSorted() {
+        return [...this.svList].sort((a, b) => {
+          if (a.chromosome === b.chromosome) {
+            return a.start - b.start;
+          }
+          return a.chromosome - b.chromosome;
+        });
       }
     },
     watch: {
       //if any of the options change, redraw the chart
       hasAllOptions: function() {
         this.drawChromSelectBar();
-      }
+      }, 
     },
   }
 </script>

@@ -1,6 +1,7 @@
 <template>
     <div id="upper-chrom-bar">
-      <ChromSelectBarViz />
+      <ChromSelectBarViz 
+        :svList="svList"/>
     </div>
 </template>
   

@@ -113,6 +113,90 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
     _renderChromosomes(); //function that renders the actual chromosome sections of the chart
 
+    //if there are points of interest render them
+    if (pointsOfInterest) {
+        _renderPointsOfInterest();
+    }
+
+    function _renderPointsOfInterest() {
+        let tracMap = {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false,
+            6: false,
+        };
+
+        let poiMap = {};
+
+        //iterate over the points of interest and render them
+        for (let sv of pointsOfInterest) {
+            //get the chromosome and position
+            let chr = sv.chromosome;
+            let start = sv.start;
+            let end = sv.end;
+
+            //get the corresponding chromosome from the accumulated map
+            let chromosome = chromosomeMap.get(chr);
+            let absoluteStart = chromosome.start + start;
+            let absoluteEnd = chromosome.start + end;
+
+            let pointColor = d3.interpolate('#1F68C1', '#A63D40')(absoluteEnd / genomeSize);
+
+            //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
+            if (!poiMap[`${absoluteStart}-${absoluteEnd}`]) {
+                poiMap[`${absoluteStart}-${absoluteEnd}`] = [sv];
+
+                //create a new group for this point of interest
+                let pointGroup = svg.append('g')
+                    .attr('transform', `translate(${x(absoluteStart)}, 25)`)
+                    .attr('class', 'point-group')
+                    .attr('id', `poi-${chr}-${start}-${end}-group`);
+
+                let currentTrac = 0;
+            
+                for (let x in Object.keys(tracMap)) {
+                    if (tracMap[x] != false && (absoluteStart > tracMap[x])) {
+                        tracMap[x] = absoluteEnd;
+                        currentTrac = x;
+                        break;
+                    } else if (tracMap[x] != false && (absoluteStart < tracMap[x])) {
+                        continue;
+                    }
+
+                    if (tracMap[x] == false) {
+                        tracMap[x] = absoluteEnd;
+                        currentTrac = x;
+                        break;
+                    }
+                }
+                
+                let translateY = (currentTrac - 1) * 2;
+
+                pointGroup.append('rect')
+                    .attr('x', 1)
+                    .attr('width', function() {
+                        //if the block is too small to see make it 2 pixels wide
+                        if (x(end) - x(start) < 2) {
+                            return 2;
+                        }
+                        return x(end) - x(start);
+                    })
+                    .attr('transform', `translate(0, ${translateY})`)
+                    .attr('height', 1)
+                    .attr('fill', pointColor);
+
+            } else {
+                //dont render the point of interest if it already exists
+                poiMap[`${absoluteStart}-${absoluteEnd}`].push(sv);
+            }
+    
+
+        }
+    }
+
+
     function _genChromosomeAccumulatedMap(chromosomeList){
         //iterate over the chromosomes and create the arcs
         let accumulatedBP = 0;
