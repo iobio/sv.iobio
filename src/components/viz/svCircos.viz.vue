@@ -11,6 +11,7 @@ export default {
   components: {
   },
   props: {
+    svList: Array
   },
   data () {
     return {
@@ -18,14 +19,24 @@ export default {
       circosChart: null,
       centromeres: null,
       bands: null,
+      chromosomes: null,
     }
   },
   mounted () {
-    fetch('../vcf.json')
+    fetch('http://localhost:3000/chromosomes?build=hg38')
       .then(response => response.json())
       .then(data => {
-          this.vcfData = data;
-      });
+        this.chromosomes = data;
+        this.drawCircos()
+
+        if (this.chromosomes) {
+          this.resizeObserver = new ResizeObserver( () => {
+            this.drawCircos()
+          });
+
+          this.resizeObserver.observe(document.getElementById('svCircos'));
+        }
+    });
 
     fetch('http://localhost:3000/centromeres?build=hg38')
       .then(response => response.json())
@@ -38,13 +49,6 @@ export default {
       .then(data => {
         this.bands = data;
       });
-
-    this.resizeObserver = new ResizeObserver(() => {
-      //set a timeout to prevent the drawCircos from being called too many times
-      this.drawCircos()
-    });
-
-    this.resizeObserver.observe(document.getElementById('svCircos'));
   },
   beforeDestroy() {
     this.resizeObserver.unobserve(document.getElementById('svCircos'));
@@ -53,9 +57,9 @@ export default {
     async drawCircos() {
       let containerTag = '#svCircos';
       let container = d3.select(containerTag);
-      container.selectAll("*").remove();
+      container.selectAll("*").remove(); //remove before redrawing
 
-      //if we dont have centromeres, dont draw the circos
+      //if we dont have centromeres, bands, or chromosomes dont draw the chart
       if (!this.hasAllOptions) {
         return;
       }
@@ -65,10 +69,10 @@ export default {
         bands: this.bands
       }
       //remove anything from the container
-      this.circosChart = new svCircos(containerTag, this.vcfData, options)
+      this.circosChart = new svCircos(containerTag, this.chromosomes, this.svList, options)
 
       //if we dont have the data we need (vcfData), dont draw the circos
-      if (!this.vcfData) {
+      if (!this.svList) {
         return;
       }
 
@@ -77,7 +81,7 @@ export default {
   },
   computed: {
     hasAllOptions() {
-      return this.centromeres && this.vcfData && this.bands
+      return this.centromeres && this.svList && this.bands && this.chromosomes
     }
   },
   watch: {

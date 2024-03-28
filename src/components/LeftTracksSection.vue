@@ -1,6 +1,7 @@
 <template>
     <div id="left-tracks-section">
-        <svCircos />
+        <svCircos 
+          :svList="svList"/>
     </div>
   </template>
   

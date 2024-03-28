@@ -23,7 +23,6 @@
       }
     },
     mounted () {
-      // Get the ref chromosomes from http://localhost:3000/chromosomes?build=hg38
       fetch('http://localhost:3000/chromosomes?build=hg38')
         .then(response => response.json())
         .then(data => {
@@ -61,8 +60,7 @@
     methods: {
       drawChromSelectBar() {
         let containerTag = '#chrom-select-bar';
-        //if there is anything in the container, remove it
-        d3.select(containerTag).selectAll("*").remove();
+        d3.select(containerTag).selectAll("*").remove(); //remove before redrawing
 
         //if we dont have chromosomes, centromeres, or bands, dont draw the chart
         if (!this.hasAllOptions) {

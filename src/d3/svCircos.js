@@ -1,26 +1,29 @@
 import * as d3 from 'd3';
 
-export default function svCircos(parentTag, data=null, options=null) {
-    //Create a list of human chromosomes to be used as default
-    const chromosomeList = [
-        {name: 'chr1', bp: 248000000}, {name: 'chr2', bp: 242000000}, {name: 'chr3', bp: 199000000},
-        {name: 'chr4', bp: 192000000}, {name: 'chr5', bp: 181000000}, {name: 'chr6', bp: 171000000},
-        {name: 'chr7', bp: 159000000}, {name: 'chr8', bp: 146000000}, {name: 'chr9', bp: 141000000},
-        {name: 'chr10', bp: 136000000}, {name: 'chr11', bp: 135000000}, {name: 'chr12', bp: 134000000},
-        {name: 'chr13', bp: 115000000}, {name: 'chr14', bp: 107000000}, {name: 'chr15', bp: 102000000},
-        {name: 'chr16', bp: 90300000}, {name: 'chr17', bp: 81100000}, {name: 'chr18', bp: 78000000},
-        {name: 'chr19', bp: 59100000}, {name: 'chr20', bp: 63000000}, {name: 'chr21', bp: 48100000},
-        {name: 'chr22', bp: 51300000}, {name: 'chrX', bp: 155000000}, {name: 'chrY', bp: 59373566}
-    ];
-
-    const bpGenomeSize = 3095693981; //hg38
+export default function svCircos(parentTag, refChromosomes, data=null, options=null) {
+    let chromosomes = refChromosomes;
     let centromeres = null;
     let bands = null;
+
+    let { chromosomeAccumulatedMap, bpGenomeSize } = _genChromosomeAccumulatedMap(chromosomes);
 
     //if there are options try to get the centromere data from the options
     if (options) {
         if (options.centromeres) {
             centromeres = options.centromeres;
+
+            //add the centromeres to the chromosomes
+            for (let centromere of centromeres) {
+                let chrom = centromere.chr.replace('chr', '');
+                let start = centromere.start;
+                let end = centromere.end;
+                let bp = end - start;
+                let chromIndex = chromosomes.findIndex(x => x.chr === chrom);
+
+                if (chromIndex !== -1) { // Ensure the chromosome was found
+                    chromosomes[chromIndex].centromere = {start: start, end: end, bp: bp};
+                }
+            }
         }
         if (options.bands){
             bands = options.bands;
@@ -52,7 +55,7 @@ export default function svCircos(parentTag, data=null, options=null) {
     }
 
     setBaseStyles();
-    let vcfData = data;
+    let svData = data;
 
     const container = d3.select(parentTag);
 
@@ -96,10 +99,10 @@ export default function svCircos(parentTag, data=null, options=null) {
         let start = centromere.start;
         let end = centromere.end;
         let bp = end - start;
-        let chromIndex = chromosomeList.findIndex(x => x.name === chrom);
+        let chromIndex = chromosomes.findIndex(x => x.name === chrom);
 
         if (chromIndex !== -1) { // Ensure the chromosome was found
-            chromosomeList[chromIndex].centromere = {start: start, end: end, bp: bp};
+            chromosomes[chromIndex].centromere = {start: start, end: end, bp: bp};
         }
     });
 
@@ -123,13 +126,13 @@ export default function svCircos(parentTag, data=null, options=null) {
 
             //clear all the tracks and render the new tracks
             svg.selectAll('line').remove();
-            renderTracks([zoomedSection.start, zoomedSection.end], vcfData);
+            renderTracks([zoomedSection.start, zoomedSection.end], svData);
 
             //clear all the chromosomes and render the new chromosomes
             svg.selectAll('.chromosome').remove();
             //clear all the chromosome labels
             svg.selectAll('.chromosome-label').remove();
-            _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
+            _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
 
             //also reset the image to the dna.svg
             centerSymbolGroup.select('image')
@@ -159,22 +162,19 @@ export default function svCircos(parentTag, data=null, options=null) {
     let startColor = '#1F68C1'
     let endColor = '#A63D40'
 
-    let chromosomeAccumulatedMap = _genChromosomeAccumulatedMap(chromosomeList)
+    _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
 
-    _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
-    renderChromosomeRangeAxis([zoomedSection.start, zoomedSection.end]);
-
-    if (vcfData === null) {
+    if (svData === null) {
         //fetch it here
         fetch('../vcf.json')
         .then(response => response.json())
         .then(data => {
-            vcfData = data;
-            renderTracks([zoomedSection.start, zoomedSection.end], vcfData)
+            svData = data;
+            renderTracks([zoomedSection.start, zoomedSection.end], svData)
         });
     } else {
         //use the data we have from the app
-        renderTracks([zoomedSection.start, zoomedSection.end], vcfData);
+        renderTracks([zoomedSection.start, zoomedSection.end], svData);
     }
 
 //HELPER FUNCTIONS
@@ -194,19 +194,15 @@ export default function svCircos(parentTag, data=null, options=null) {
         for (let chromosome of chromosomeList) {
             let chromStart = accumulatedBP;
 
-            accumulatedBP += chromosome.bp;
+            accumulatedBP += chromosome.length;
 
             let chromEnd = accumulatedBP;
-            chromosomeAccumulatedMap.set(chromosome.name.replace('chr', ''), {start: chromStart, end: chromEnd});
+            chromosomeAccumulatedMap.set(chromosome.chr, {start: chromStart, end: chromEnd});
         }
 
-        return chromosomeAccumulatedMap
-    }
+        let bpGenomeSize = accumulatedBP;
 
-    function renderChromosomeRangeAxis(chromosome) {
-        //we will need to render tics on each chromosome
-            
-        
+        return {chromosomeAccumulatedMap, bpGenomeSize};
     }
 
     function _renderChromosomes(range, chromosomeList) {
@@ -218,7 +214,7 @@ export default function svCircos(parentTag, data=null, options=null) {
         svg.selectAll('.chromosome-band').remove();
 
         for (let chromosome of chromosomeList) {
-            let chromosomeName = chromosome.name.replace('chr', '');
+            let chromosomeName = chromosome.chr;
             let chrom = chromosomeAccumulatedMap.get(chromosomeName)
 
             let chromStart = chrom.start;
@@ -289,7 +285,7 @@ export default function svCircos(parentTag, data=null, options=null) {
 
                     //clear all the tracks and render the new tracks
                     svg.selectAll('line').remove();
-                    renderTracks([zoomedSection.start, zoomedSection.end], vcfData);
+                    renderTracks([zoomedSection.start, zoomedSection.end], svData);
 
                     //get our centerSymbolGroup and change the symbol to our magnify-out.svg
                     centerSymbolGroup.select('image')
@@ -372,7 +368,7 @@ export default function svCircos(parentTag, data=null, options=null) {
             if (bands){
                 //filter the bands to only include the bands that are in the range
                 let filteredBands = bands.filter(band => {
-                    return band.chr === chromosome.name.replace('chr', '');
+                    return band.chr === chromosome.chr.replace('chr', '');
                 });
 
                 for (let band of filteredBands) {
@@ -441,7 +437,7 @@ export default function svCircos(parentTag, data=null, options=null) {
             const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
 
             //take chr off the chromosome name
-            let chrName = chromosome.name.replace('chr', '');
+            let chrName = chromosome.chr.replace('chr', '');
             
             g.append('text')
                 .attr('x', textX)
@@ -468,7 +464,7 @@ export default function svCircos(parentTag, data=null, options=null) {
         for (let variant of data) {
             //each variant is going to have a POS and a #CHROM property, we have the accumulated start and end for each chromosome
             //POS is the position of the variant in the chromosome so we can use that to get an angle for the variant
-            let accPos = chromosomeAccumulatedMap.get(variant['#CHROM']).start + variant['POS'];
+            let accPos = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['start'];
 
             if (accPos < range[0] || accPos > range[1]) {
                 continue;
@@ -482,9 +478,8 @@ export default function svCircos(parentTag, data=null, options=null) {
             let centerY = center.y + (radius * Math.sin(angle));
 
             //take the info from the variant and look for 'AF=' get the number after that but before the ';' and use the inverse of that as the line len
-            let info = variant.INFO;
-            let afIndex = info.indexOf('AF=') + 3;
-            let af = info.slice(afIndex, info.indexOf(';', afIndex));
+            let info = variant.info;
+            let af = info.Max_AF;
 
             let lineLength = 1
             if (af && !isNaN(af)) {
@@ -517,29 +512,16 @@ export default function svCircos(parentTag, data=null, options=null) {
                 })
                 .attr('stroke', function (d) {
                     let color = 'blue';
-                    let info = variant.INFO;
-                    let svTypeKey = 'SVTYPE=';
-                    let svTypeIndex = info.indexOf(svTypeKey) + svTypeKey.length;
-                    let svTypeEndIndex = info.indexOf(';', svTypeIndex);
-                    if (svTypeEndIndex === -1) { // SVTYPE might be the last entry in the string
-                        svTypeEndIndex = info.length;
-                    }
-                    let svType = info.slice(svTypeIndex, svTypeEndIndex);
-                
-                    if (svType.slice(0, 4) === 'DEL') {
+                    if (variant.type === 'DEL') {
                         color = "red";
                     }
-                    if (svType.slice(0, 4) === 'DUP') {
+                    if (variant.type === 'DUP') {
                         color = "green";
                     }
                     return color;
                 })
                 .attr('opacity', function (d) {
                     let opacity = 1;
-                    //take the info from the variant and look for 'AF=' get the number after that but before the ';' and use the inverse of that as the opacity
-                    let info = variant.INFO;
-                    let afIndex = info.indexOf('AF=') + 3;
-                    let af = info.slice(afIndex, info.indexOf(';', afIndex));
                     if (af) {
                         opacity = 1 - af;
                     }
