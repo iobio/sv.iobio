@@ -20,6 +20,7 @@ class Sv {
 
             let array = this.parseExomiser(this.info.Exomiser);
             this.info.Exomiser = array;
+            this.otherGenes = input.otherGenes;
         } else {
             //This wont run (at least not now)
         }
@@ -36,10 +37,22 @@ class Sv {
     }
 
     parseExomiser(exomiserInfo) {
-        let array = exomiserInfo.split(',');
         //take the curly braces off of each element
-        array = array.map(item => item.slice(1, -1));
-        array = array.map(item => item.split('|'));
+        let array = exomiserInfo.split(',{');
+        array = array.map(geneListItem => geneListItem.split('|'));
+
+        //parse the array into an object
+        array = array.map(geneListItem => {
+            geneListItem = geneListItem.map(item => item.replace(/[{}'"\\\/]/g, '').replace(/_/g, ' '))
+            return {
+                geneRank: geneListItem[0],
+                geneSymbol: geneListItem[2],
+                geneId: geneListItem[3],
+                significance: geneListItem[14],
+                omim: geneListItem[16],
+                disease: geneListItem[17],
+            };
+        });
 
         return array;
     }

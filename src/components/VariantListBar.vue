@@ -6,7 +6,11 @@
         <div>Loc.</div>
         <div>Type</div>
       </div>
-      <VariantListItem v-for="(variant, index ) in svList" :key="index" :variant="variant"/>
+      <VariantListItem 
+        v-for="(variant, index ) in svList" 
+        :key="index" 
+        :variant="variant"
+        @variant-clicked="variantClicked"/>
     </div>
   </template>
   
@@ -30,6 +34,9 @@
 
   },
   methods: {
+    variantClicked(variant) {
+      this.$emit('variant-clicked', variant)
+    }
   },
   computed: {
   },
@@ -46,6 +53,7 @@
       justify-content: flex-start
       padding-bottom: 10px
       width: 250px
+      min-width: 250px
       height: 100%
       box-sizing: border-box
       border: 1px solid #F5F5F5

@@ -8,11 +8,13 @@
 
     <div id="lower-block-container">
       <VariantListBar 
-        :svList="svList"/>
+        :svList="svList"
+        @variant-clicked="updateFocusedVariant"/>
       <div id="lower-sections-container">
         <LeftTracksSection 
           :svList="svList"/>
-        <RightSection />
+        <RightSection 
+          :variantOfInterest="focusedVariant"/>
       </div>
     </div>
 
@@ -39,6 +41,7 @@
     data() {
       return {
         svList: [],
+        focusedVariant: null
       }
     },
     mounted() {
@@ -52,6 +55,13 @@
         });
     },
     methods: {
+      updateFocusedVariant(variant) {
+        if (variant == null) {
+          this.focusedVariant = null
+        } else {
+          this.focusedVariant = variant
+        }
+      }
     },
   }
 
@@ -90,6 +100,7 @@
     height: 100%
     justify-content: center
     flex-grow: 1
+    overflow: hidden
 
   img 
     height: 30px
