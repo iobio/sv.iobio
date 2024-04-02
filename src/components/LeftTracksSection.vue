@@ -1,7 +1,8 @@
 <template>
     <div id="left-tracks-section">
         <svCircos 
-          :svList="svList"/>
+          :svList="svList"
+          :zoomZone="selectedArea"/>
     </div>
   </template>
   
@@ -14,7 +15,8 @@
     svCircos
   },
   props: {
-    svList: Array
+    svList: Array,
+    selectedArea: Object
   },
   data () {
     return {

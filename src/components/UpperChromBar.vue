@@ -1,7 +1,8 @@
 <template>
     <div id="upper-chrom-bar">
       <ChromSelectBarViz 
-        :svList="svList"/>
+        :svList="svList"
+        @area-selected="areaSelected"/>
     </div>
 </template>
   
@@ -23,6 +24,9 @@
   mounted () {
   },
   methods: {
+    areaSelected(selectedArea) {
+      this.$emit('area-selected', selectedArea);
+    }
   },
   computed: {
   },

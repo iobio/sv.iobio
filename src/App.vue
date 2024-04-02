@@ -3,7 +3,8 @@
     <div id="upper-bar-container">
       <NavBar />
       <UpperChromBar
-        :svList="svList"/>
+        :svList="svList"
+        @area-selected="areaSelected"/>
     </div>
 
     <div id="lower-block-container">
@@ -12,7 +13,8 @@
         @variant-clicked="updateFocusedVariant"/>
       <div id="lower-sections-container">
         <LeftTracksSection 
-          :svList="svList"/>
+          :svList="svList"
+          :selectedArea="selectedArea"/>
         <RightSection 
           :variantOfInterest="focusedVariant"/>
       </div>
@@ -41,7 +43,8 @@
     data() {
       return {
         svList: [],
-        focusedVariant: null
+        focusedVariant: null,
+        selectedArea: null
       }
     },
     mounted() {
@@ -61,6 +64,9 @@
         } else {
           this.focusedVariant = variant
         }
+      },
+      areaSelected(selectedArea) {
+        this.selectedArea = selectedArea
       }
     },
   }

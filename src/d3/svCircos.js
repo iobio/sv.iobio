@@ -62,11 +62,11 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         if (options.zoomCallback) {
             zoomedCallback = options.zoomCallback;
         }
-        if (options.zoomZone && options.zoomZone.length === 2) {
+        if (options.zoomZone) {
             zoomZone = options.zoomZone;
 
-            let zoomStart = zoomZone[0];
-            let zoomEnd = zoomZone[1];
+            let zoomStart = zoomZone.start;
+            let zoomEnd = zoomZone.end;
             let zoomSize = zoomEnd - zoomStart;
 
             originZoom = {

@@ -12,7 +12,7 @@ export default {
   },
   props: {
     svList: Array,
-    zoomZone: Array
+    zoomZone: Object,
   },
   data () {
     return {
@@ -83,7 +83,6 @@ export default {
     },
     emitZoomEvent(zoomLevel) {
       this.$emit('circosZoom', zoomLevel)
-      console.log('zoom level: ', zoomLevel)
     }
   },
   computed: {
@@ -103,6 +102,9 @@ export default {
   },
   watch: {
     hasAllOptions: function() {
+      this.drawCircos()
+    },
+    zoomZone: function() {
       this.drawCircos()
     }
   }

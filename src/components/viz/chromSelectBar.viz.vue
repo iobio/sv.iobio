@@ -82,7 +82,7 @@
 
       },
       areaSelected(selection){
-        console.log('area selected', selection);
+        this.$emit('area-selected', selection);
       }
     },
     computed: {
