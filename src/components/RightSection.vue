@@ -26,7 +26,7 @@
   components: {
   },
   props: {
-    variantOfInterest: Object
+    variantOfInterest: Object,
   },
   data () {
     return {

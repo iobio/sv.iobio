@@ -11,7 +11,8 @@ export default {
   components: {
   },
   props: {
-    svList: Array
+    svList: Array,
+    zoomZone: Array
   },
   data () {
     return {
@@ -66,7 +67,9 @@ export default {
 
       let options = {
         centromeres: this.centromeres,
-        bands: this.bands
+        bands: this.bands,
+        zoomZone: this.zoomZone,
+        zoomCallback: this.emitZoomEvent
       }
       //remove anything from the container
       this.circosChart = new svCircos(containerTag, this.chromosomes, this.svListSorted, options)
@@ -77,6 +80,10 @@ export default {
       }
 
       container.node().appendChild(this.circosChart);
+    },
+    emitZoomEvent(zoomLevel) {
+      this.$emit('circosZoom', zoomLevel)
+      console.log('zoom level: ', zoomLevel)
     }
   },
   computed: {
