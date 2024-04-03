@@ -406,8 +406,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         start = Math.round(start);
         end = Math.round(end);
 
-        if (start == selection.start && end == selection.end) {
-            console.log('selection is the same as the previous selection');
+        if (selection && (start == selection.start && end == selection.end)) {
             return;
         }
 
