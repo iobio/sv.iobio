@@ -107,8 +107,12 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         y: height / 2
     };
     
-    let startAngleRad = 3 * Math.PI / 180;
-    let endAngleRad = 357 * Math.PI / 180;
+    let startAngleRad = 5 * Math.PI / 180;
+    let endAngleRad = 355 * Math.PI / 180;
+
+    //track lables will go in the missing 10 degrees they will be inserted at the appropriate radius starting at 357 degrees
+    let trackLabelStart = 355 * Math.PI / 180;
+    let trackLabelEnd = 5 * Math.PI / 180;
 
     // Change the range to radians (0 to 2π)
     let angleScale = d3.scaleLinear()
@@ -416,7 +420,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('stroke-width', 1)
                     .attr('class', 'centromere');
             } else {
-                console.log('No centromere for chromosome: ', chromosomeName);
                 //if there is no centromere it means that the range includes something smaller than a chromosome and that range does not have a centromere in it
                 //We render only the section
                 const subSectionArc = d3.arc()
@@ -445,6 +448,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 //if the band isn't in the chromosome we are looking at then skip it
                 let bandsInChrom = bands.filter(x => x.chr === chromosomeName);
 
+                let bandIterator = 0;
                 for (let band of bandsInChrom) {
                     //Get the band absolute start and end positions
                     let bandAbsStart = chromStart + band.start;
@@ -491,7 +495,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                         let bandLabelRadius = maxRadius *1.04;
                         let bandLabelX = (center.x) + ((bandLabelRadius) * Math.cos(bandLabelAngle));
                         let bandLabelY = (center.y) + ((bandLabelRadius) * Math.sin(bandLabelAngle));
-
+                        
                         let labelFontSize = 9;
 
                         //label for the band
@@ -509,7 +513,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     }
                 }
             }
-            
+
             //create an arc from the start to the end of the chromosome
             let lineArc = d3.arc()
                 .innerRadius(maxRadius * 1.08)

@@ -362,7 +362,6 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     if (brush) {
         //if there is a selection then we want to brush to that selection
         if (selection) {
-            console.log(selection);
             let start = selection.start;
             let end = selection.end;
 
@@ -383,7 +382,6 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             //set the brush to the selection but dont fire the callback
             svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
         } else {
-            console.log('no selection');
             let brush = d3.brushX()
                 .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
                 .on('end', brushed);
@@ -398,6 +396,13 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
     function brushed(event) {
         let brushSelection = event.selection;
+        //if the selection is null then the user has clicked off the brush so don't do anything
+        if (!brushSelection || brushSelection[0] == brushSelection[1]) {
+            //ensure we return back the whole genome
+            selectionCallback({start: 0, end: genomeSize});
+            return;
+        }
+
         //selection will be in the pixel space so need to convert it to the base pair space
         let start = x.invert(brushSelection[0]);
         let end = x.invert(brushSelection[1]);
@@ -407,13 +412,6 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         end = Math.round(end);
 
         if (selection && (start == selection.start && end == selection.end)) {
-            return;
-        }
-
-        //if the selection is null then the user has clicked off the brush so don't do anything
-        if (!brushSelection || start == end) {
-            //ensure we return back the whole genome
-            selectionCallback({start: 0, end: genomeSize});
             return;
         }
 
