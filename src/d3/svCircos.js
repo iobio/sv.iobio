@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { h } from 'vue';
 
 export default function svCircos(parentTag, refChromosomes, data=null, options=null) {
 
@@ -10,10 +11,15 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     //Zoom Variables
     let zoomedCallback = null;
     let zoomZone = null;
-    let originZoom = null;
+    let zoomedSection = null;
 
     let { chromosomeAccumulatedMap, bpGenomeSize } = _genChromosomeAccumulatedMap(chromosomes);
-
+    
+    let originZoom = {
+        start: 0,
+        end: bpGenomeSize,
+        size: bpGenomeSize
+    };
     //if there are options try to get the centromere data from the options
     if (options) {
         if (options.centromeres) {
@@ -69,29 +75,20 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             let zoomEnd = zoomZone.end;
             let zoomSize = zoomEnd - zoomStart;
 
-            originZoom = {
+            zoomedSection = {
                 start: zoomStart,
                 end: zoomEnd,
                 size: zoomSize
             };
+        } else {
+            zoomedSection = originZoom;
         }
-    }
-
-    if (!originZoom) {
-        originZoom = {
-            start: 0,
-            end: bpGenomeSize,
-            size: bpGenomeSize
-        };
     }
 
     _setBaseStyles();
     let svData = data;
 
     const container = d3.select(parentTag);
-
-    //Zoomed section will have a start, end, and size (we will start with clicking a chromosome and getting the start end and size of that later maybe brush)
-    let zoomedSection = originZoom;
 
     // width and height of the container will be the width and height of the svg
     let width = container.node().clientWidth;
@@ -103,17 +100,19 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('width', width)
         .attr('height', height);
 
-    const maxRadius = (Math.min(width, height) / 2) - 30;
+    const maxRadius = (Math.min(width, height) / 2) - 45;
 
     const center = {
         x: width / 2,
         y: height / 2
     };
     
+    let startAngleRad = 3 * Math.PI / 180;
+    let endAngleRad = 357 * Math.PI / 180;
     // Change the range to radians (0 to 2π)
     let angleScale = d3.scaleLinear()
         .domain([zoomedSection.start, zoomedSection.end])
-        .range([0, 2 * Math.PI]);
+        .range([startAngleRad, endAngleRad]);
 
     centromeres.forEach(centromere => {
         let chrom = centromere.chr;
@@ -139,7 +138,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             //reset the charts angle scale
             angleScale = d3.scaleLinear()
                 .domain([zoomedSection.start, zoomedSection.end])
-                .range([0, 2 * Math.PI]);
+                .range([startAngleRad, endAngleRad]);
 
             //get selected-chromosome and remove it if
             let selected = d3.select('.selected-chromosome');
@@ -160,24 +159,24 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             //also reset the image to the dna.svg
             centerSymbolGroup.select('image')
                 .attr('xlink:href', '/dna.svg')
-                .attr('x', center.x - 10)
-                .attr('y', center.y - 10)
+                .attr('x', width - (width - 70) - 10)
+                .attr('y', height - (height - 70) - 10)
                 .attr('width', 20)
                 .attr('height', 20);
         });
 
-    //in the center of the chart we will have a circle that is 10px diameter
+    //Upper left side of the circle will be that button
     centerSymbolGroup.append('circle')
-        .attr('cx', center.x)
-        .attr('cy', center.y)
+        .attr('cx', width - (width - 70))
+        .attr('cy', height - (height - 70))
         .attr('r', 15)
         .attr('fill', '#1F68C1');
     
     //on top of this circle we will render the dna.svg that we have /dna.svg
     centerSymbolGroup.append('image')
         .attr('xlink:href', '/dna.svg')
-        .attr('x', center.x - 10)
-        .attr('y', center.y - 10)
+        .attr('x', width - (width - 70) -10)
+        .attr('y', height - (height - 70) -10)
         .attr('width', 20)
         .attr('height', 20);
     
@@ -308,7 +307,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     //reset the charts angle scale
                     angleScale = d3.scaleLinear()
                         .domain([zoomedSection.start, zoomedSection.end])
-                        .range([0, 2 * Math.PI]);
+                        .range([startAngleRad, endAngleRad]);
 
                     //clear all the chromosomes and render the new chromosomes
                     svg.selectAll('.chromosome').remove();
@@ -327,8 +326,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     //get our centerSymbolGroup and change the symbol to our magnify-out.svg
                     centerSymbolGroup.select('image')
                         .attr('xlink:href', '/magnify-out.svg')
-                        .attr('x', center.x - 10)
-                        .attr('y', center.y - 10)
+                        .attr('x', width - (width - 70) - 10)
+                        .attr('y', height - (height - 70) - 10)
                         .attr('width', 20)
                         .attr('height', 20);
                 });
@@ -405,6 +404,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('stroke-width', 1)
                     .attr('class', 'centromere');
             } else {
+                console.log('No centromere for chromosome: ', chromosomeName);
                 //if there is no centromere it means that the range includes something smaller than a chromosome and that range does not have a centromere in it
                 //We render only the section
                 const subSectionArc = d3.arc()
@@ -413,16 +413,19 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .startAngle(startAngle)
                     .endAngle(endAngle)
                     .padAngle(0)
-                    .cornerRadius(0);
+                    .padRadius(2)
+                    .cornerRadius(function(d, i) {
+                        return 9;
+                    });
 
                 chromosomeGroup.append('path')
                     .datum({startAngle: startAngle, endAngle: endAngle})
                     .attr('d', subSectionArc)
                     .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                    .attr('fill', color)
+                    .attr('fill', 'white')
                     .attr('stroke', color)
                     .attr('stroke-width', 1)
-                    .attr('class', 'chromosome-background');
+                    .attr('class', 'chromosome-p');
             }
 
             
@@ -467,12 +470,36 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                         .attr('fill', color)
                         .attr('class', 'chromosome-band')
                         .attr('opacity', gieStainOpacity);
+
+                    if (zoomedSection.size <= chromosomeAccumulatedMap.get('1').end) {
+                        //The bands have a label that gives position commonly in the format of p12.3 or q12.3
+                        let bandLabel = band.name;
+                        //the band label will be placed in the middle of the band based on the band's position
+                        let bandLabelAngle = (bandStartAngle + bandEndAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+                        let bandLabelRadius = maxRadius *1.04;
+                        let bandLabelX = (center.x) + ((bandLabelRadius) * Math.cos(bandLabelAngle));
+                        let bandLabelY = (center.y) + ((bandLabelRadius) * Math.sin(bandLabelAngle));
+
+                        let labelFontSize = 9;
+
+                        //label for the band
+                        g.append('text')
+                            .attr('x', bandLabelX)
+                            .attr('y', bandLabelY)
+                            .attr('class', 'chromosome-label')
+                            .attr('fill', color)
+                            .attr('text-anchor', 'middle')
+                            .attr('alignment-baseline', 'middle')
+                            .text(bandLabel)
+                            .attr('font-size', `${labelFontSize}px`)
+                            .style('pointer-events', 'none');
+                    }
                 }
             }
             
             //create an arc from the start to the end of the chromosome
             let lineArc = d3.arc()
-                .innerRadius(maxRadius * 1.05)
+                .innerRadius(maxRadius * 1.08)
                 .outerRadius(maxRadius * .98)
                 .startAngle(startAngle)
                 .endAngle(endAngle)
@@ -493,22 +520,30 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             // Calculate the middle angle of the arc in radians based on the whole genome size and scale
             let textAngleScale = d3.scaleLinear()
                 .domain([0, bpGenomeSize])
-                .range([0, 2 * Math.PI]);
+                .range([startAngleRad, endAngleRad]);
 
             let textStartAngle = textAngleScale(chromStart);
             let textEndAngle = textAngleScale(chromEnd);
             
             let isSmallerSection = Math.min(width, height) <= 700;
-            let textRadiusOffset = 10; //there is an offset to get the text more in the middle and if the section is smaller then we need to adjust the offset a little
-
-            if (isSmallerSection){
-                textRadiusOffset = 7;
-            }
 
             const textAngle = (textStartAngle + textEndAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-            const textRadius = maxRadius + textRadiusOffset;
+            const textRadius = maxRadius * 1.09;
             const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
             const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
+
+            //put a small white rectangle behind the text to make it more readable
+            g.append('rect')
+                .attr('x', textX - 10)
+                .attr('y', textY - 11)
+                .attr('width', 20)
+                .attr('height', 20)
+                .attr('fill', 'white')
+                .attr('stroke', color)
+                .attr('class', 'chromosome-label')
+                .style('pointer-events', 'none')
+                .attr('fill-opacity', 0.8)
+                .attr('rx', 2);
 
             //take chr off the chromosome name
             let chrName = chromosome.chr.replace('chr', '');
@@ -519,6 +554,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .attr('class', 'chromosome-label')
                 .attr('fill', color)
                 .attr('text-anchor', 'middle')
+                .attr('font-weight', 'bold')
                 .attr('alignment-baseline', 'middle')
                 .text(chrName)
                 .attr('font-size', function(d) {
@@ -563,9 +599,17 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             let currentTrac = 0;
             let radiusOffset = 0;
 
-            //if the variant is not in the range then skip it
-            if (accEnd < range[0] || accStart > range[1]) {
+            //if the variant is not in the range then truncate or skip it appropriately
+            let newStartEnd = _getStartEndForRange(accStart, accEnd, range);
+
+            if (!newStartEnd) {
+                //dont render this variant at all
                 continue;
+            } else {
+                accStart = newStartEnd.start;
+                accEnd = newStartEnd.end;
+                varStartAngle = angleScale(accStart);
+                varEndAngle = angleScale(accEnd);
             }
 
             //is the variant in the varPosMap
@@ -605,7 +649,27 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                             return '#F4D03F';
                         }
                     })
-                    .attr('class', 'variant-arc');
+                    .attr('class', 'variant-arc')
+                    .on('mouseover', function (event, d) {
+                        console.log('variant: ', variant);
+                        d3.select(this)
+                            .style('fill', 'red')
+                            .style('cursor', 'pointer');
+            
+                    })
+                    .on('mouseout', function (event, d) {
+                        d3.select(this)
+                            .style('fill', function(d) {
+                                if (variant.type === 'DEL') {
+                                    return '#A63D40';
+                                } else if (variant.type === 'DUP') {
+                                    return '#1F68C1';
+                                } else {
+                                    return '#F4D03F';
+                                }
+                            })
+                            .style('cursor', 'default');
+                    });
 
             } else {
                 varPosMap[`${accStart}-${accEnd}`].push(variant);
