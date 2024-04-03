@@ -46,6 +46,11 @@
   </script>
   
   <style lang="sass">
+    .collapsed
+      #variant-list-bar
+        width: 0px
+        min-width: 0px
+        overflow: hidden
     #variant-list-bar
       display: flex
       flex-direction: column
@@ -60,6 +65,7 @@
       border-radius: 5px
       overflow-y: auto
       position: relative
+      transition: width 0.5s, min-width 0.5s, overflow 0.5s
       #variant-list-bar-header
         display: grid
         grid-template-columns: 1fr 1fr 1.5fr 1fr

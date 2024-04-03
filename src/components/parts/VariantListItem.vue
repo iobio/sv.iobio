@@ -56,6 +56,10 @@
   </script>
   
   <style lang="sass">
+    .collapsed
+        #variant-list-bar
+            #variant-list-item
+                white-space: nowrap
     #variant-list-item
         width: 100%
         .preview

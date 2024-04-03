@@ -9,9 +9,17 @@
     </div>
 
     <div id="lower-block-container">
-      <VariantListBar 
+      <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
+        <button id="var-list-bar-toggle-btn" @click="variantListBarOpen = !variantListBarOpen">
+          <img v-if="variantListBarOpen" src="/arrow-expand-left.svg" alt="close">
+          <img v-else src="/arrow-expand-right.svg" alt="open">
+        </button>
+        <VariantListBar 
         :svList="svList"
         @variant-clicked="updateFocusedVariant"/>
+      </div>
+
+
       <div id="lower-sections-container">
         <LeftTracksSection 
           :svList="svList"
@@ -46,7 +54,8 @@
       return {
         svList: [],
         focusedVariant: null,
-        selectedArea: null
+        selectedArea: null,
+        variantListBarOpen: true
       }
     },
     mounted() {
@@ -119,4 +128,36 @@
     transform: translate(3px, 5px)
     width: 30px
 
+  #var-list-bar-button-container
+    position: relative
+    height: 100%
+    padding: 0px
+    margin: 0px
+    width: 250px
+    transition: width 0.5s
+    &.collapsed
+      width: 0px
+  #var-list-bar-toggle-btn
+    position: absolute
+    top: 5px
+    right: -35px
+    z-index: 2
+    padding: 3px
+    margin: 0px
+    border-radius: 50%
+    display: flex
+    justify-content: center
+    align-items: center
+    border: 2px solid #2A65B7
+    background-color: #C1D1EA
+    &:hover
+      cursor: pointer
+      opacity: 0.8
+    img
+      height: 23px
+      width: 23px
+      display: flex 
+      justify-content: center
+      align-items: center
+      transform: translate(0px, 0px)
 </style>

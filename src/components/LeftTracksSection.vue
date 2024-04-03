@@ -47,5 +47,6 @@
     box-sizing: border-box
     border: 1px solid #F5F5F5
     border-radius: 5px
+    transition: all 0.5s
 
 </style>
