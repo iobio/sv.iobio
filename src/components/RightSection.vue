@@ -51,8 +51,9 @@
     justify-content: flex-start
     padding-top: 10px
     padding-bottom: 10px
-    flex-grow: .75
+    flex-grow: .4
     height: 100%
+    max-width: 40%
     box-sizing: border-box
     border: 1px solid #F5F5F5
     border-radius: 5px

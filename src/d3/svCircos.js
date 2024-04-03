@@ -172,14 +172,24 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('r', 15)
         .attr('fill', '#1F68C1');
     
-    //on top of this circle we will render the dna.svg that we have /dna.svg
-    centerSymbolGroup.append('image')
-        .attr('xlink:href', '/dna.svg')
-        .attr('x', width - (width - 70) -10)
-        .attr('y', height - (height - 70) -10)
+    if (zoomedSection.size !== bpGenomeSize) {
+        //get our centerSymbolGroup and change the symbol to our magnify-out.svg
+        centerSymbolGroup.append('image')
+        .attr('xlink:href', '/magnify-out.svg')
+        .attr('x', width - (width - 70) - 10)
+        .attr('y', height - (height - 70) - 10)
         .attr('width', 20)
         .attr('height', 20);
-    
+    } else {
+        //on top of this circle we will render the dna.svg that we have /dna.svg
+        centerSymbolGroup.append('image')
+            .attr('xlink:href', '/dna.svg')
+            .attr('x', width - (width - 70) -10)
+            .attr('y', height - (height - 70) -10)
+            .attr('width', 20)
+            .attr('height', 20);
+    }
+
     //iterate over the chromosomes and create the arcs
     let startColor = '#1F68C1'
     let endColor = '#A63D40'
