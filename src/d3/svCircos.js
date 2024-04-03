@@ -109,11 +109,13 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     
     let startAngleRad = 3 * Math.PI / 180;
     let endAngleRad = 357 * Math.PI / 180;
+
     // Change the range to radians (0 to 2π)
     let angleScale = d3.scaleLinear()
         .domain([zoomedSection.start, zoomedSection.end])
         .range([startAngleRad, endAngleRad]);
 
+    //process centromeres to put them into the correct chromosomes and format
     centromeres.forEach(centromere => {
         let chrom = centromere.chr;
         let start = centromere.start;
@@ -127,7 +129,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     });
 
     //make a group for the circle and the dna.svg
-    let centerSymbolGroup = svg.append('g')
+    let zoomOutButtonGroup = svg.append('g')
         .attr('cursor', 'pointer')
         .on('click', function (event, d) {
             //we will reset the zoomed section to the origin zoom eventually
@@ -157,7 +159,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
 
             //also reset the image to the dna.svg
-            centerSymbolGroup.select('image')
+            zoomOutButtonGroup.select('image')
                 .attr('xlink:href', '/dna.svg')
                 .attr('x', width - (width - 70) - 10)
                 .attr('y', height - (height - 70) - 10)
@@ -166,7 +168,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         });
 
     //Upper left side of the circle will be that button
-    centerSymbolGroup.append('circle')
+    zoomOutButtonGroup.append('circle')
         .attr('cx', width - (width - 70))
         .attr('cy', height - (height - 70))
         .attr('r', 15)
@@ -174,7 +176,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     
     if (zoomedSection.size !== bpGenomeSize) {
         //get our centerSymbolGroup and change the symbol to our magnify-out.svg
-        centerSymbolGroup.append('image')
+        zoomOutButtonGroup.append('image')
         .attr('xlink:href', '/magnify-out.svg')
         .attr('x', width - (width - 70) - 10)
         .attr('y', height - (height - 70) - 10)
@@ -182,7 +184,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('height', 20);
     } else {
         //on top of this circle we will render the dna.svg that we have /dna.svg
-        centerSymbolGroup.append('image')
+        zoomOutButtonGroup.append('image')
             .attr('xlink:href', '/dna.svg')
             .attr('x', width - (width - 70) -10)
             .attr('y', height - (height - 70) -10)
@@ -334,7 +336,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     _renderTracks([zoomedSection.start, zoomedSection.end], svData);
 
                     //get our centerSymbolGroup and change the symbol to our magnify-out.svg
-                    centerSymbolGroup.select('image')
+                    zoomOutButtonGroup.select('image')
                         .attr('xlink:href', '/magnify-out.svg')
                         .attr('x', width - (width - 70) - 10)
                         .attr('y', height - (height - 70) - 10)
@@ -485,7 +487,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                         //The bands have a label that gives position commonly in the format of p12.3 or q12.3
                         let bandLabel = band.name;
                         //the band label will be placed in the middle of the band based on the band's position
-                        let bandLabelAngle = (bandStartAngle + bandEndAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+                        let bandLabelAngle = ((bandStartAngle + bandEndAngle) / 2) - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
                         let bandLabelRadius = maxRadius *1.04;
                         let bandLabelX = (center.x) + ((bandLabelRadius) * Math.cos(bandLabelAngle));
                         let bandLabelY = (center.y) + ((bandLabelRadius) * Math.sin(bandLabelAngle));
@@ -493,11 +495,12 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                         let labelFontSize = 9;
 
                         //label for the band
-                        g.append('text')
+                        let label = g.append('text')
                             .attr('x', bandLabelX)
                             .attr('y', bandLabelY)
                             .attr('class', 'chromosome-label')
                             .attr('fill', color)
+                            .attr('font-weight', 'bold')
                             .attr('text-anchor', 'middle')
                             .attr('alignment-baseline', 'middle')
                             .text(bandLabel)
@@ -527,33 +530,24 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .attr('class', 'chromosome-background')
                 .lower();
 
-            // Calculate the middle angle of the arc in radians based on the whole genome size and scale
-            let textAngleScale = d3.scaleLinear()
-                .domain([0, bpGenomeSize])
-                .range([startAngleRad, endAngleRad]);
-
-            let textStartAngle = textAngleScale(chromStart);
-            let textEndAngle = textAngleScale(chromEnd);
-            
+            let textStartAngle = angleScale(chromStartUpdated) - Math.PI / 2; //text is horizontal so we need to rotate it 90 degrees
             let isSmallerSection = Math.min(width, height) <= 700;
 
-            const textAngle = (textStartAngle + textEndAngle) / 2 - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+            const textAngle = textStartAngle; 
             const textRadius = maxRadius * 1.09;
             const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
             const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
 
             //put a small white rectangle behind the text to make it more readable
-            g.append('rect')
-                .attr('x', textX - 10)
-                .attr('y', textY - 11)
-                .attr('width', 20)
-                .attr('height', 20)
+            g.append('circle')
+                .attr('cx', textX)
+                .attr('cy', textY)
+                .attr('r', 10)
+                .attr('transform', `translate(0, -1)`)
                 .attr('fill', 'white')
-                .attr('stroke', color)
                 .attr('class', 'chromosome-label')
                 .style('pointer-events', 'none')
-                .attr('fill-opacity', 0.8)
-                .attr('rx', 2);
+                .attr('fill-opacity', 0.8);
 
             //take chr off the chromosome name
             let chrName = chromosome.chr.replace('chr', '');
