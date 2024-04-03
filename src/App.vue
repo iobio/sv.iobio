@@ -4,6 +4,7 @@
       <NavBar />
       <UpperChromBar
         :svList="svList"
+        :zoomZone="selectedArea"
         @area-selected="areaSelected"/>
     </div>
 
@@ -14,7 +15,8 @@
       <div id="lower-sections-container">
         <LeftTracksSection 
           :svList="svList"
-          :selectedArea="selectedArea"/>
+          :selectedArea="selectedArea"
+          @circos-zoom-event="circosZoomFired"/>
         <RightSection 
           :variantOfInterest="focusedVariant"/>
       </div>
@@ -54,7 +56,6 @@
           for (let i = 0; i < data.length; i++) {
             this.svList.push(new Sv(data[i]))
           }
-          console.log(this.svList)
         });
     },
     methods: {
@@ -67,6 +68,9 @@
       },
       areaSelected(selectedArea) {
         this.selectedArea = selectedArea
+      },
+      circosZoomFired(zoomZone) {
+        this.selectedArea = zoomZone
       }
     },
   }

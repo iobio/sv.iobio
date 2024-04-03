@@ -2,12 +2,13 @@
     <div id="upper-chrom-bar">
       <ChromSelectBarViz 
         :svList="svList"
+        :selectedArea="zoomZone"
         @area-selected="areaSelected"/>
     </div>
 </template>
   
 <script>
-  import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
+import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
 
   export default {
   name: "UpperChromBar",
@@ -15,7 +16,8 @@
     ChromSelectBarViz
   },
   props: {
-    svList: Array
+    svList: Array,
+    zoomZone: Object
   },
   data () {
     return {

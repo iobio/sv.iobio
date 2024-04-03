@@ -2,7 +2,8 @@
     <div id="left-tracks-section">
         <svCircos 
           :svList="svList"
-          :zoomZone="selectedArea"/>
+          :zoomZone="selectedArea"
+          @circos-zoom-event="circosZoomFired"/>
     </div>
   </template>
   
@@ -25,6 +26,9 @@
   mounted () {
   },
   methods: {
+    circosZoomFired(zoomZone) {
+      this.$emit('circos-zoom-event', zoomZone)
+    }
   },
   computed: {
   },

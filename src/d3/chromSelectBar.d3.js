@@ -33,6 +33,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     let maximumSelection = 1000000;
     let selectionCallback = null;
     let brush = false;
+    let selection = null;
 
     if (options) {
         if (options.centromeres) {
@@ -85,6 +86,10 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         if (options.brush) {
             brush = options.brush;
         }
+        if (options.selection && options.selection !== null) {
+            //we want to automatically brush to the selection
+            selection = options.selection;
+        }
     }
 
     const margin = {top: 20, right: 10, bottom: 20, left: 10};
@@ -100,6 +105,12 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     let x = d3.scaleLinear()
         .domain([0, genomeSize])
         .range([margin.left, width - margin.right]);
+
+    if (selection) {
+        if (selection.end - selection.start >= genomeSize) {
+            selection = null;
+        }
+    }
 
     let xAxis = g => g
         .attr('transform', `translate(0, ${height - margin.bottom})`)
@@ -349,34 +360,63 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
     //render brush later so it's on top
     if (brush) {
-        let brush = d3.brushX()
-            .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
-            .on('end', brushed);
+        //if there is a selection then we want to brush to that selection
+        if (selection) {
+            console.log(selection);
+            let start = selection.start;
+            let end = selection.end;
 
-        svg.append('g')
-            .attr('height', height - margin.bottom - margin.top)
-            .attr('class', 'brush-area')
-            .call(brush)
-            .raise();
+            //selection will be in the base pair space so need to convert it to the pixel space
+            let startPixel = x(start);
+            let endPixel = x(end);
+            
+            let brush = d3.brushX()
+                .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
+                .on('end', brushed);
+
+            svg.append('g')
+                .attr('height', height - margin.bottom - margin.top)
+                .attr('class', 'brush-area')
+                .call(brush)
+                .raise();
+            
+            //set the brush to the selection but dont fire the callback
+            svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
+        } else {
+            console.log('no selection');
+            let brush = d3.brushX()
+                .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
+                .on('end', brushed);
+
+            svg.append('g')
+                .attr('height', height - margin.bottom - margin.top)
+                .attr('class', 'brush-area')
+                .call(brush)
+                .raise();
+        }
     }
 
     function brushed(event) {
-        let selection = event.selection;
-
-        //if the selection is null then the user has clicked off the brush so don't do anything
-        if (!selection || selection[0] == selection[1]) {
-            //ensure we return back the whole genome
-            selectionCallback({start: 0, end: genomeSize});
-            return;
-        }
-
+        let brushSelection = event.selection;
         //selection will be in the pixel space so need to convert it to the base pair space
-        let start = x.invert(selection[0]);
-        let end = x.invert(selection[1]);
+        let start = x.invert(brushSelection[0]);
+        let end = x.invert(brushSelection[1]);
 
         //send the rounded start and end to the callback to the nearest whole number
         start = Math.round(start);
         end = Math.round(end);
+
+        if (start == selection.start && end == selection.end) {
+            console.log('selection is the same as the previous selection');
+            return;
+        }
+
+        //if the selection is null then the user has clicked off the brush so don't do anything
+        if (!brushSelection || start == end) {
+            //ensure we return back the whole genome
+            selectionCallback({start: 0, end: genomeSize});
+            return;
+        }
 
         if (selectionCallback) {
             selectionCallback({start, end});

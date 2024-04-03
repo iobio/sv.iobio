@@ -82,7 +82,7 @@ export default {
       container.node().appendChild(this.circosChart);
     },
     emitZoomEvent(zoomLevel) {
-      this.$emit('circosZoom', zoomLevel)
+      this.$emit('circos-zoom-event', zoomLevel)
     }
   },
   computed: {

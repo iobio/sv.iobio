@@ -547,7 +547,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .attr('fill', 'white')
                 .attr('class', 'chromosome-label')
                 .style('pointer-events', 'none')
-                .attr('fill-opacity', 0.8);
+                .attr('fill-opacity', 1);
 
             //take chr off the chromosome name
             let chrName = chromosome.chr.replace('chr', '');

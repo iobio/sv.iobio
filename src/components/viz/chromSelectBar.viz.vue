@@ -11,7 +11,8 @@
     components: {
     },
     props: {
-      svList: Array
+      svList: Array,
+      selectedArea: Object
     },
     data () {
       return {
@@ -72,6 +73,7 @@
           bands: this.bands,
           brush: true,
           pointsOfInterest: this.svListSorted,
+          selection: this.selectedArea,
           selectionCallback: this.areaSelected
         };
         this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes, options);
@@ -102,7 +104,10 @@
       //if any of the options change, redraw the chart
       hasAllOptions: function() {
         this.drawChromSelectBar();
-      }, 
+      },
+      selectedArea: function() {
+        this.drawChromSelectBar();
+      },
     },
   }
 </script>
