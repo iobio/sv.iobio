@@ -35,6 +35,10 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     let brush = false;
     let selection = null;
 
+    //zoom variables
+    let zoomZone = null;
+    let zoomedSelection = null;
+
     if (options) {
         if (options.centromeres) {
             centromeres = options.centromeres;
@@ -231,19 +235,31 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
     function _renderChromosomes() {
         //render the chromosomes
-        chromosomeMap.forEach((chromosome, chr) => {
+        for (let [chr, chromosome] of chromosomeMap) {
+            let chromosomeStart = chromosome.start;
+            let chromosomeEnd = chromosome.end;
+            let centromereStart = null;
+            let centromereEnd = null;
+            let centromereCenter = null;
+
+            if (centromeres) {
+                centromereStart = chromosomeStart + centromeres[chr].start;
+                centromereEnd = chromosomeStart + centromeres[chr].end;
+                centromereCenter = (centromereEnd - centromereStart) / 2;
+            }
+
             //create a new group for this chromosome
             let chromosomeGroup = svg.append('g')
-                .attr('transform', `translate(${x(chromosome.start)}, 0)`)
+                .attr('transform', `translate(${x(chromosomeStart)}, 0)`)
                 .attr('class', 'chromosome-group')
                 .attr('id', `chr-${chr}-group`);
 
-            let chromosomeColor = d3.interpolate('#1F68C1', '#A63D40')(chromosome.end / genomeSize);
+            let chromosomeColor = d3.interpolate('#1F68C1', '#A63D40')(chromosomeEnd / genomeSize);
                 
             //add the chromosome bar
             chromosomeGroup.append('rect')
                 .attr('x', 1)
-                .attr('width', x(chromosome.end) - x(chromosome.start))
+                .attr('width', x(chromosomeEnd) - x(chromosomeStart))
                 .attr('height', height - margin.bottom - margin.top + 5)
                 .attr('fill', chromosomeColor)
                 .attr('stroke', 'white')
@@ -258,7 +274,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     //class will be idiogram
                     .attr('class', 'upper-idiogram')
                     .attr('x', 1)
-                    .attr('width', x(chromosome.end) - x(chromosome.start))
+                    .attr('width', x(chromosomeEnd) - x(chromosomeStart))
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
@@ -271,14 +287,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('class', 'upper-idiogram-parm')
                     .attr('x', 1)
                     .attr('width', function(){
-                        //start will be the absolute start of the centromere which is currently based on the chromosome start
-                        //will need to add chr to the label to get the correct start
-                        let centromereStart = chromosome.start + centromeres[chr].start;
-                        let centromereEnd = chromosome.start + centromeres[chr].end;
-                        //get the center of the centromere
-                        let centromereCenter = (centromereEnd - centromereStart) / 2;
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(centromereStart + centromereCenter) - x(chromosome.start) - 1;
+                        return x(centromereStart + centromereCenter) - x(chromosomeStart) - 1;
                     })
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
@@ -292,24 +302,12 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     //class will be idi
                     .attr('class', 'lower-idiogram-qarm')
                     .attr('x', function(d){
-                        //start will be the absolute start of the centromere which is currently based on the chromosome start
-                        //will need to add chr to the label to get the correct start
-                        let centromereStart = chromosome.start + centromeres[chr].start;
-                        let centromereEnd = chromosome.start + centromeres[chr].end;
-                        //get the center of the centromere
-                        let centromereCenter = (centromereEnd - centromereStart) / 2;
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(centromereStart + centromereCenter) - x(chromosome.start);
+                        return x(centromereStart + centromereCenter) - x(chromosomeStart);
                     })
-                    .attr('width', function(d){
-                        //start will be the absolute start of the centromere which is currently based on the chromosome start
-                        //will need to add chr to the label to get the correct start
-                        let centromereStart = chromosome.start + centromeres[chr].start;
-                        let centromereEnd = chromosome.start + centromeres[chr].end;
-                        //get the center of the centromere
-                        let centromereCenter = (centromereEnd - centromereStart) / 2;
+                    .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(chromosome.end) - x(centromereEnd - centromereCenter);
+                        return x(chromosomeEnd) - x(centromereEnd - centromereCenter);
                     })
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
@@ -344,7 +342,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
             //add the labels
             chromosomeGroup.append('text')
-                .attr('x', (x(chromosome.end) - x(chromosome.start) - 6)/2)
+                .attr('x', (x(chromosomeEnd) - x(chromosomeStart) - 6)/2)
                 //if the label is two characters long, move it over a bit so it's centered
                 .attr('transform', function() {
                     if (chr.length == 2) {
@@ -355,7 +353,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
-        });
+        };
     }
 
     //render brush later so it's on top
