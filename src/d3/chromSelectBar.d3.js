@@ -106,15 +106,30 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
     let { chromosomeMap, genomeSize } = _genChromosomeAccumulatedMap(chromosomes);
 
-    let x = d3.scaleLinear()
-        .domain([0, genomeSize])
-        .range([margin.left, width - margin.right]);
+    let originZoom = {
+        start: 0,
+        end: genomeSize,
+        size: genomeSize
+    }
 
     if (selection) {
         if (selection.end - selection.start >= genomeSize) {
+            zoomedSelection = originZoom;
             selection = null;
+        } else {
+            zoomedSelection = {
+                start: selection.start,
+                end: selection.end,
+                size: selection.end - selection.start
+            }
         }
+    } else {
+        zoomedSelection = originZoom;
     }
+
+    let x = d3.scaleLinear()
+    .domain([zoomedSelection.start, zoomedSelection.end])
+    .range([margin.left, width - margin.right]);
 
     let xAxis = g => g
         .attr('transform', `translate(0, ${height - margin.bottom})`)
@@ -126,7 +141,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     svg.append('g')
         .call(xAxis);
 
-    _renderChromosomes(); //function that renders the actual chromosome sections of the chart
+    _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
 
     //if there are points of interest render them
     if (pointsOfInterest) {
@@ -211,9 +226,13 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         }
     }
 
-
     function _genChromosomeAccumulatedMap(chromosomeList){
-        //iterate over the chromosomes and create the arcs
+        /**
+         * This function takes a list of chromosomes and generates a map of the chromosomes with their absolute start and end positions
+         *
+         * returns Object {chromosomeMap, genomeSize}
+         */
+
         let accumulatedBP = 0;
 
         let chromosomeAccumulatedMap = new Map();
@@ -233,24 +252,57 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         return {chromosomeMap, genomeSize};
     }
 
-    function _renderChromosomes() {
-        //render the chromosomes
+    function _renderChromosomes(range) {
+
         for (let [chr, chromosome] of chromosomeMap) {
+            //Chromosome start and end
             let chromosomeStart = chromosome.start;
+            let chromStartUpdated = chromosomeStart;
             let chromosomeEnd = chromosome.end;
+            let chromEndUpdated = chromosomeEnd;
+
+            //check and see if the chromosome is in the zoomed selection
+            let newStartEnd = _getStartEndForRange(chromosomeStart, chromosomeEnd, range);
+
+            if (!newStartEnd) {
+                //if we get nothing back we dont render this chromosome at all
+                continue;
+            } else {
+                //we will either get back the truncated start/ends or the original start/ends depending on if the chromosome is in the range
+                chromStartUpdated = newStartEnd.start;
+                chromEndUpdated = newStartEnd.end;
+            }
+
+            //Centromeres setup
+            let centromere = false;
             let centromereStart = null;
             let centromereEnd = null;
             let centromereCenter = null;
 
-            if (centromeres) {
+            //set absolute centromere start, end, and center based on the chromosome start and end (original)
+            if (centromeres) { 
+                centromere = true;
                 centromereStart = chromosomeStart + centromeres[chr].start;
                 centromereEnd = chromosomeStart + centromeres[chr].end;
                 centromereCenter = (centromereEnd - centromereStart) / 2;
+
+                if (chromosomeStart != chromStartUpdated || chromosomeEnd != chromEndUpdated) {
+                    let newCentStartEnd = _getStartEndForRange(centromereStart, centromereEnd, range);
+
+                    if (!newCentStartEnd) {
+                        //this centrome is not in the range so we will not render it
+                        centromere = false;
+                    } else {
+                        centromereStart = newCentStartEnd.start;
+                        centromereEnd = newCentStartEnd.end;
+                        centromereCenter = (centromereEnd - centromereStart) / 2;
+                    }
+                }
             }
 
             //create a new group for this chromosome
             let chromosomeGroup = svg.append('g')
-                .attr('transform', `translate(${x(chromosomeStart)}, 0)`)
+                .attr('transform', `translate(${x(chromStartUpdated)}, 0)`)
                 .attr('class', 'chromosome-group')
                 .attr('id', `chr-${chr}-group`);
 
@@ -259,7 +311,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             //add the chromosome bar
             chromosomeGroup.append('rect')
                 .attr('x', 1)
-                .attr('width', x(chromosomeEnd) - x(chromosomeStart))
+                .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
                 .attr('height', height - margin.bottom - margin.top + 5)
                 .attr('fill', chromosomeColor)
                 .attr('stroke', 'white')
@@ -268,13 +320,13 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let idioHeight = height - margin.bottom - margin.top - 8;
             let idioPosOffset = 16;
 
-            if (!centromeres) {
+            if (!centromere) {
                 //add another rectangle slightly smaller and under the last one to start to make the idiograms
                 chromosomeGroup.append('rect')
                     //class will be idiogram
                     .attr('class', 'upper-idiogram')
                     .attr('x', 1)
-                    .attr('width', x(chromosomeEnd) - x(chromosomeStart))
+                    .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
@@ -288,7 +340,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('x', 1)
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(centromereStart + centromereCenter) - x(chromosomeStart) - 1;
+                        return x(centromereStart + centromereCenter) - x(chromStartUpdated) - 1;
                     })
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
@@ -303,11 +355,11 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('class', 'lower-idiogram-qarm')
                     .attr('x', function(d){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(centromereStart + centromereCenter) - x(chromosomeStart);
+                        return x(centromereStart + centromereCenter) - x(chromStartUpdated);
                     })
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(chromosomeEnd) - x(centromereEnd - centromereCenter);
+                        return x(chromEndUpdated) - x(centromereEnd - centromereCenter);
                     })
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
@@ -416,6 +468,25 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         if (selectionCallback) {
             selectionCallback({start, end});
         }
+    }
+
+    function _getStartEndForRange(start, end, range) {
+        let st = start;
+        let en = end;
+
+        if ((start < range[0] && end <= range[0]) || (start >= range[1] && end > range[1])) {
+            return null;
+        } 
+
+        if (start < range[0]) {
+            st = range[0];
+        }
+
+        if (end > range[1]) {
+            en = range[1];
+        }
+
+        return {start: st, end: en};
     }
     
     return svg.node();
