@@ -353,7 +353,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 chromosomeGroup.append('rect')
                     //class will be idi
                     .attr('class', 'lower-idiogram-qarm')
-                    .attr('x', function(d){
+                    .attr('x', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromStartUpdated);
                     })
@@ -374,7 +374,25 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 let chrBands = bands.filter(band => band.chr == chr);
 
                 for (let band of chrBands) {
-                    let bandWidth = x(band.end) - x(band.start);
+                    //get the band start and end in the absolute base pair space for calculations
+                    let bandStartAbs = chromosomeStart + band.start;
+                    let bandEndAbs = chromosomeStart + band.end;
+
+                    //check and see if the band is in the zoomed selection
+                    let newBandStartEnd = _getStartEndForRange(bandStartAbs, bandEndAbs, range);
+
+                    if (!newBandStartEnd) {
+                        //if we get nothing back we dont render this band at all
+                        continue;
+                    } else {
+                        //we will either get back the truncated start/ends or the original start/ends depending on if the band is in the range
+                        bandStartAbs = newBandStartEnd.start;
+                        bandEndAbs = newBandStartEnd.end;
+                    }
+
+                    let bandStartX = x(bandStartAbs) - x(chromStartUpdated);
+                    let bandEndX = x(bandEndAbs) - x(chromStartUpdated);
+
                     let bandHeight = height - margin.bottom - margin.top - 10;
 
                     //get the intensity based on the gieStain number after gpos
@@ -382,8 +400,12 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
                     //create my band rectangle
                     chromosomeGroup.append('rect')
-                        .attr('x', x(band.start) - margin.left)
-                        .attr('width', bandWidth)
+                        .attr('x', function(){
+                            return bandStartX;
+                        })
+                        .attr('width', function(){
+                            return bandEndX - bandStartX;
+                        })
                         .attr('height', bandHeight)
                         .attr('transform', `translate(0, 17)`)
                         .attr('fill', chromosomeColor)
@@ -394,7 +416,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
             //add the labels
             chromosomeGroup.append('text')
-                .attr('x', (x(chromosomeEnd) - x(chromosomeStart) - 6)/2)
+                .attr('x', (x(chromEndUpdated) - x(chromStartUpdated) - 6)/2)
                 //if the label is two characters long, move it over a bit so it's centered
                 .attr('transform', function() {
                     if (chr.length == 2) {
