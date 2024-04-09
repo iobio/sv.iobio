@@ -122,6 +122,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 end: selection.end,
                 size: selection.end - selection.start
             }
+            selection = null; //setting selection to null so that we can keep zooming if we like
         }
     } else {
         zoomedSelection = originZoom;
@@ -145,10 +146,10 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
     //if there are points of interest render them
     if (pointsOfInterest) {
-        _renderPointsOfInterest();
+        _renderPointsOfInterest([zoomedSelection.start, zoomedSelection.end]);
     }
 
-    function _renderPointsOfInterest() {
+    function _renderPointsOfInterest(range) {
         let tracMap = {
             1: false,
             2: false,
@@ -172,6 +173,27 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let absoluteStart = chromosome.start + start;
             let absoluteEnd = chromosome.start + end;
 
+            let startUpdated = absoluteStart;
+            let endUpdated = absoluteEnd;
+
+            let startX = null; //no sense in setting these yet
+            let endX = null;
+
+            //check and see if the point of interest is in the zoomed selection
+            let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
+
+            if (!newStartEnd) {
+                //if we get nothing back we dont render this point of interest at all
+                continue;
+            } else {
+                //we will either get back the truncated start/ends or the original start/ends depending on if the point of interest is in the range
+                startUpdated = newStartEnd.start;
+                endUpdated = newStartEnd.end;
+
+                startX = x(startUpdated);
+                endX = x(endUpdated);
+            }
+
             let pointColor = d3.interpolate('#1F68C1', '#A63D40')(absoluteEnd / genomeSize);
 
             //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
@@ -180,23 +202,23 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
                 //create a new group for this point of interest
                 let pointGroup = svg.append('g')
-                    .attr('transform', `translate(${x(absoluteStart)}, 25)`)
+                    .attr('transform', `translate(${startX - margin.left}, 25)`)
                     .attr('class', 'point-group')
                     .attr('id', `poi-${chr}-${start}-${end}-group`);
 
                 let currentTrac = 0;
             
                 for (let x of Object.keys(tracMap)) {
-                    if (tracMap[x] != false && (absoluteStart > tracMap[x])) {
-                        tracMap[x] = absoluteEnd;
+                    if (tracMap[x] != false && (startX > tracMap[x])) {
+                        tracMap[x] = endX;
                         currentTrac = x;
                         break;
-                    } else if (tracMap[x] != false && (absoluteStart < tracMap[x])) {
+                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
                         continue;
                     }
 
                     if (tracMap[x] == false) {
-                        tracMap[x] = absoluteEnd;
+                        tracMap[x] = endX;
                         currentTrac = x;
                         break;
                     }
@@ -205,13 +227,13 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 let translateY = (currentTrac - 1) * 2;
 
                 pointGroup.append('rect')
-                    .attr('x', x(0) - margin.left)
+                    .attr('x', 0 + margin.left)
                     .attr('width', function() {
                         //if the block is too small to see make it 2 pixels wide
-                        if (x(end) - x(start) < 2) {
+                        if (endX - startX < 2) {
                             return 2;
                         }
-                        return x(end) - x(start);
+                        return endX - startX;
                     })
                     .attr('transform', `translate(0, ${translateY})`)
                     .attr('height', 1)
