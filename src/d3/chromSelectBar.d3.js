@@ -237,7 +237,14 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     })
                     .attr('transform', `translate(0, ${translateY})`)
                     .attr('height', 1)
-                    .attr('fill', pointColor);
+                    .attr('fill', function(){
+                        //should be red if it's a deletion
+                        if (sv.type == 'DEL') {
+                            return 'red';
+                        } else {
+                            return '#1F68C1';
+                        }
+                    });
 
             } else {
                 //dont render the point of interest if it already exists

@@ -650,11 +650,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('transform', `translate(${width / 2}, ${height / 2})`)
                     .attr('fill', function(d) {
                         if (variant.type === 'DEL') {
-                            return '#A63D40';
-                        } else if (variant.type === 'DUP') {
-                            return '#1F68C1';
+                            return 'red';
                         } else {
-                            return '#F4D03F';
+                            return '#1F68C1';
                         }
                     })
                     .attr('class', 'variant-arc')
@@ -669,11 +667,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                         d3.select(this)
                             .style('fill', function(d) {
                                 if (variant.type === 'DEL') {
-                                    return '#A63D40';
-                                } else if (variant.type === 'DUP') {
-                                    return '#1F68C1';
+                                    return 'red';
                                 } else {
-                                    return '#F4D03F';
+                                    return '#1F68C1';
                                 }
                             })
                             .style('cursor', 'default');
