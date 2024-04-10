@@ -659,9 +659,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .on('mouseover', function (event, d) {
                         console.log('variant: ', variant);
                         d3.select(this)
-                            .style('fill', 'red')
+                            .style('fill', '#DA44B4')
                             .style('cursor', 'pointer');
-            
+
                     })
                     .on('mouseout', function (event, d) {
                         d3.select(this)
