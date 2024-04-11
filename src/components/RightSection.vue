@@ -1,6 +1,6 @@
 <template>
     <div id="right-section">
-      <div v-if="!variantOfInterest" class="alt-section-text">Explore Section</div>
+      <div v-if="!variantOfInterest" class="alt-section-text explore">Explore Section</div>
       <div id="voi-container" v-else>
         <!-- <div>{{ variantOfInterest }}</div> -->
 
@@ -55,8 +55,7 @@
     height: 100%
     max-width: 40%
     box-sizing: border-box
-    border: 1px solid #F5F5F5
-    border-radius: 5px
+    border-left: 1px solid #F5F5F5
     overflow: hidden
     #voi-container
       display: flex
@@ -91,10 +90,12 @@
           height: fit-content
           box-sizing: border-box
     
-  .alt-section-text
+  .alt-section-text.explore
     font-size: 25px
     font-weight: bold
     color: #1F68C1
+    width: 100%
+    text-align: center
 
   .red
     color: red

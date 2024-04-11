@@ -13,6 +13,8 @@ export default {
   props: {
     svList: Array,
     zoomZone: Object,
+    focusedVariant: Object,
+    needsFocus: Boolean
   },
   data () {
     return {
@@ -71,6 +73,11 @@ export default {
         zoomZone: this.zoomZone,
         zoomCallback: this.emitZoomEvent
       }
+
+      if (this.needsFocus && this.focusedVariant) {
+        options.focusedVariant = this.focusedVariant
+      }
+
       //remove anything from the container
       this.circosChart = new svCircos(containerTag, this.chromosomes, this.svListSorted, options)
 
@@ -106,6 +113,11 @@ export default {
     },
     zoomZone: function() {
       this.drawCircos()
+    }, 
+    needsFocus: function() {
+      if (this.needsFocus && this.focusedVariant) {
+        this.drawCircos()
+      }
     }
   }
 }

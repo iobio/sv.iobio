@@ -42,9 +42,9 @@
     variantClicked() {
         this.showMore = !this.showMore
         if (this.showMore) {
-            this.$emit('variant-clicked', this.variant)
+            this.$emit('variant-clicked', this.variant, 'show')
         } else {
-            this.$emit('variant-clicked', null)
+            this.$emit('variant-clicked', this.variant, 'hide')
         }
     }
   },

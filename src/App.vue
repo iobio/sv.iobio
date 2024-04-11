@@ -24,6 +24,7 @@
         <LeftTracksSection 
           :svList="svList"
           :selectedArea="selectedArea"
+          :focusedVariant="focusedVariant"
           @circos-zoom-event="circosZoomFired"/>
         <RightSection 
           :variantOfInterest="focusedVariant"/>
@@ -68,9 +69,11 @@
         });
     },
     methods: {
-      updateFocusedVariant(variant) {
-        if (variant == null) {
+      updateFocusedVariant(variant, flag) {
+        if (this.focusedVariant === variant) {
           this.focusedVariant = null
+        } else if (this.focusedVariant !== variant && flag == 'hide') {
+          //dont change focused variant
         } else {
           this.focusedVariant = variant
         }

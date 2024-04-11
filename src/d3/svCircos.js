@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { h } from 'vue';
 
 export default function svCircos(parentTag, refChromosomes, data=null, options=null) {
 
@@ -82,6 +81,31 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             };
         } else {
             zoomedSection = originZoom;
+        }
+
+        //the focused variant will take precedence over the zoom zone so we will do this after the zoom zone
+        if (options.focusedVariant) {
+            let focusedVariant = options.focusedVariant;
+
+            let chrom = focusedVariant.chromosome;
+            let chromStart = chromosomeAccumulatedMap.get(chrom).start;
+            let varStartAbs = focusedVariant.start + chromStart;
+            let varEndAbs = focusedVariant.end + chromStart;
+            let varSize = varEndAbs - varStartAbs;
+            let halfSize = varSize / 2;
+
+            let focusedStart = varStartAbs - halfSize;
+            let focusedEnd = varEndAbs + halfSize;
+            let focusedSize = focusedEnd - focusedStart;
+
+            zoomedSection = {
+                start: focusedStart,
+                end: focusedEnd,
+                size: focusedSize
+            };
+
+            //call the zoomed callback
+            zoomedCallback(zoomedSection);
         }
     }
 

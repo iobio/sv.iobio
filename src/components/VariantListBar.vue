@@ -34,8 +34,8 @@
 
   },
   methods: {
-    variantClicked(variant) {
-      this.$emit('variant-clicked', variant)
+    variantClicked(variant, flag) {
+      this.$emit('variant-clicked', variant, flag)
     }
   },
   computed: {
