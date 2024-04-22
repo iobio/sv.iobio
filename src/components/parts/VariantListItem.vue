@@ -71,6 +71,8 @@
             border-bottom: 1px solid #F5F5F5
             &.opened
                 box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
+                background-color: #DEE9F7
+                border-bottom: 1px solid #DEE9F7
             .rank-text
                 color: #2A65B7
                 font-weight: bold

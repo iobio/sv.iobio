@@ -1,6 +1,6 @@
 <template>
     <div id="left-tracks-section">
-      <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Jump To Variant</button>
+      <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
         <svCircos 
           :svList="svList"
           :zoomZone="selectedArea"
@@ -38,7 +38,7 @@
       } else {
         this.showButton = true
       }
-      
+
       this.$emit('circos-zoom-event', zoomZone)
     },
     focusOnVariant() {
@@ -69,14 +69,19 @@
     flex-basis: 0
     height: 100%
     box-sizing: border-box
-    // border: 1px solid #F5F5F5
-    // border-radius: 5px
     transition: all 0.5s
   
   #focus-chart-btn
     position: absolute
     top: 10px
     right: 10px
+    padding: 5px 5px
+    background-color: #C1D1EA
+    color: #2A65B7
+    border: 2px solid #2A65B7
+    border-radius: 5px
+    font-weight: bold
+    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
     &:hover
       cursor: pointer
       opacity: 0.7
