@@ -6,6 +6,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     let chromosomes = refChromosomes;
     let centromeres = null;
     let bands = null;
+    let genes = null;
 
     //Zoom Variables
     let zoomedCallback = null;
@@ -107,6 +108,11 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             //call the zoomed callback
             zoomedCallback(zoomedSection);
         }
+
+        //if there are genes in the options then set the genes
+        if (options.genes) {
+            genes = options.genes;
+        }
     }
 
     _setBaseStyles();
@@ -186,6 +192,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             svg.selectAll('.chromosome-label').remove();
             _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
 
+            _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
+
             //also reset the image to the dna.svg
             zoomOutButtonGroup.select('image')
                 .attr('xlink:href', '/dna.svg')
@@ -226,6 +234,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
     _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
     _renderTracks([zoomedSection.start, zoomedSection.end], svData);
+
+    if (genes) {
+        _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
+    }
 
 //HELPER FUNCTIONS
     function _setBaseStyles() {
@@ -362,6 +374,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     //clear all the tracks and render the new tracks
                     svg.selectAll('line').remove();
                     _renderTracks([zoomedSection.start, zoomedSection.end], svData);
+
+                    _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
 
                     //get our centerSymbolGroup and change the symbol to our magnify-out.svg
                     zoomOutButtonGroup.select('image')
@@ -731,6 +745,200 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 //dont render the same variant twice
                 continue;
             }
+        }
+    }
+
+    function _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range) {
+        //if there are already arcs remove them before redrawing
+        svg.selectAll('.gene-arc').remove();
+
+        let tracMap = {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false,
+        };
+
+        let genePosMap = {};
+
+        for (let gene of Object.values(genes)) {
+            let geneChr = gene['chr'].replace('chr', '');
+            //if the gene is not in a chromosome in the map then skip it
+            if (!chromosomeAccumulatedMap.has(geneChr)) {
+                continue;
+            }
+
+            let accStart = chromosomeAccumulatedMap.get(geneChr).start + gene['start'];
+            let accEnd = chromosomeAccumulatedMap.get(geneChr).start + gene['end'];
+
+            let newStartEnd = _getStartEndForRange(accStart, accEnd, range);
+
+            if (!newStartEnd) {
+                //dont render this gene at all
+                continue;
+            }
+
+            accStart = newStartEnd.start;
+            accEnd = newStartEnd.end;
+
+            let geneStartAngle = angleScale(accStart);
+            let geneEndAngle = angleScale(accEnd);
+
+            //the minimum arc needs to be 1 pixel
+            if (geneEndAngle - geneStartAngle < 0.01) {
+                geneEndAngle += 0.01;
+            }
+
+            let currentTrac = 0;
+            let radiusOffset = 0;
+
+            //is the gene in the genePosMap
+            if (!genePosMap[`${accStart}-${accEnd}`]) {
+                genePosMap[`${accStart}-${accEnd}`] = [gene];
+
+                for (let x of Object.keys(tracMap)) {
+                    if (tracMap[x] === false || (accStart > tracMap[x])) {
+                        tracMap[x] = accEnd;
+                        currentTrac = x;
+                        break;
+                    } 
+                }
+                
+                radiusOffset = (currentTrac - 1) * 4;
+                let radius = (maxRadius * 0.85) - radiusOffset;
+
+                //use gene start and end angel to create an arc
+                let arc = d3.arc()
+                    .innerRadius(radius - 1)
+                    .outerRadius(radius)
+                    .startAngle(geneStartAngle)
+                    .endAngle(geneEndAngle)
+                    .padAngle(0)
+                    .cornerRadius(0);
+
+                svg.append('path')
+                    .datum({startAngle: geneStartAngle, endAngle: geneEndAngle})
+                    .attr('d', arc)
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                    .attr('fill', 'black')
+                    .attr('class', 'gene-arc')
+                    .on('mouseover', function (event, d) {
+                        console.log('gene: ', gene);
+                        d3.select(this)
+                            .style('fill', '#DA44B4')
+                            .style('cursor', 'pointer');
+
+                        //append a tooltip that is absolutely positioned to the mouse position
+                        let tooltip = d3.select('body').append('div')
+                            .attr('class', 'tooltip-hover-gene')
+                            .style('position', 'absolute')
+                            .style('background-color', 'white')
+                            .style('border', '1px solid black')
+                            .style('padding', '5px')
+                            .style('border-radius', '5px')
+                            .style('pointer-events', 'none')
+                            .style('overflow-y', 'auto')
+                            .style('max-height', '200px')
+                            .style('max-width', '100px');
+
+                        //put it in the right position
+                        let x = event.clientX;
+                        let y = event.clientY;
+
+                        tooltip.style('left', `${x + 10}px`)
+                            .style('top', `${y + 10}px`);
+
+                        //append the data to the tooltip
+                        tooltip.append('p')
+                            .text(`gene: ${gene.gene_symbol} | source: ${gene.annotation_source} | strand: ${gene.strand}`);
+
+                    }
+                )
+                .on('mouseout', function (event, d) {
+                    d3.select(this)
+                        .style('fill', 'black')
+                        .style('cursor', 'default');
+                    
+                    //remove the tooltip
+                    d3.select('.tooltip-hover-gene').remove();
+                });
+            } else {
+                genePosMap[`${accStart}-${accEnd}`].push(gene);
+                //dont render the same gene twice
+                continue;
+            }
+
+            //add a text that can only be seen if we are zoomed in enough it needs to be scaled and in the middle of the gene
+            let geneLabel = gene.gene_symbol;
+            let geneLabelAngle = ((geneStartAngle + geneEndAngle) / 2) - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+            let geneLabelRadius = (maxRadius * 0.829) - radiusOffset;
+            let geneLabelX = (center.x) + ((geneLabelRadius) * Math.cos(geneLabelAngle));
+            let geneLabelY = (center.y) + ((geneLabelRadius) * Math.sin(geneLabelAngle));
+            
+            //the font needs to be scaled based on the size of the zoomed section inversely proportional to the size of the zoomed section
+            let zoomedSize = range[1] - range[0];
+            let baseFontSize = 20;
+
+            // Ensure zoomedSize is at least 1 to avoid taking the logarithm of 0 or a negative number.
+            if (zoomedSize < 1) {
+                zoomedSize = 1;
+            }
+
+            // Normalize zoomedSize logarithmically
+            let normalized_window = Math.log(zoomedSize) / Math.log(bpGenomeSize);
+
+            // Calculate the scaled font size
+            let scaledFontSize = baseFontSize * (1 - normalized_window);
+
+            //label for the gene
+            let label = svg.append('text')
+                .attr('x', geneLabelX)
+                .attr('y', geneLabelY)
+                .attr('class', 'gene-label')
+                .attr('fill', 'black')
+                .attr('font-weight', 'bold')
+                .attr('text-anchor', 'middle')
+                .attr('alignment-baseline', 'middle')
+                .text(geneLabel)
+                .attr('font-size', `${scaledFontSize}px`)
+                .on('mouseover', function (event, d) {
+                    //make the cursor a pointer
+                    d3.select(this).style('cursor', 'pointer');
+
+                    //append a tooltip that is absolutely positioned to the mouse position
+                    let tooltip = d3.select('body').append('div')
+                        .attr('class', 'tooltip-hover-gene')
+                        .style('position', 'absolute')
+                        .style('background-color', 'white')
+                        .style('border', '1px solid black')
+                        .style('padding', '5px')
+                        .style('border-radius', '5px')
+                        .style('pointer-events', 'none')
+                        .style('overflow-y', 'auto')
+                        .style('max-height', '200px')
+                        .style('max-width', '100px');
+
+                    //put it in the right position
+                    let x = event.clientX;
+                    let y = event.clientY;
+
+                    tooltip.style('left', `${x + 10}px`)
+                        .style('top', `${y + 10}px`);
+
+                    //append the data to the tooltip
+                    tooltip.append('p')
+                        .text(`gene: ${gene.gene_symbol} | source: ${gene.annotation_source} | strand: ${gene.strand}`);
+                }
+            )
+            .on('mouseout', function (event, d) {           
+                //make the cursor the default
+                d3.select(this).style('cursor', 'default');
+
+                //remove the tooltip
+                d3.select('.tooltip-hover-gene').remove();
+            }
+            );
         }
     }
 

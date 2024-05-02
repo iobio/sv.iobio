@@ -23,6 +23,7 @@ export default {
       centromeres: null,
       bands: null,
       chromosomes: null,
+      genes: null,
     }
   },
   mounted () {
@@ -52,6 +53,13 @@ export default {
       .then(data => {
         this.bands = data;
       });
+    
+    //fetch all the genes for the circos chart
+    fetch('http://localhost:3000/genes?build=hg38&source=refseq')
+      .then(response => response.json())
+      .then(data => {
+        this.genes = data;
+      });
   },
   beforeDestroy() {
     this.resizeObserver.unobserve(document.getElementById('svCircos'));
@@ -78,6 +86,10 @@ export default {
         options.focusedVariant = this.focusedVariant
       }
 
+      if (this.genes) {
+        options.genes = this.genes
+      }
+
       //remove anything from the container
       this.circosChart = new svCircos(containerTag, this.chromosomes, this.svListSorted, options)
 
@@ -94,7 +106,7 @@ export default {
   },
   computed: {
     hasAllOptions() {
-      return this.centromeres && (this.svListSorted && this.svListSorted.length > 0) && this.bands && this.chromosomes
+      return this.centromeres && (this.svListSorted && this.svListSorted.length > 0) && this.bands && this.chromosomes && this.genes
     }, 
     svListSorted() {
       //sorted by chromosome and start
