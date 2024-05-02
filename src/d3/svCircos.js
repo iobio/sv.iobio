@@ -671,7 +671,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 }
                 
                 radiusOffset = (currentTrac - 1) * 4;
-                let radius = (maxRadius * 0.93) - radiusOffset;
+                let radius = (maxRadius * 0.85) - radiusOffset;
 
                 //use var start and end angel to create an arc
                 let arc = d3.arc()
@@ -806,7 +806,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 }
                 
                 radiusOffset = (currentTrac - 1) * 4;
-                let radius = (maxRadius * 0.85) - radiusOffset;
+                let radius = (maxRadius * 0.93) - radiusOffset;
 
                 //use gene start and end angel to create an arc
                 let arc = d3.arc()
@@ -872,7 +872,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             //add a text that can only be seen if we are zoomed in enough it needs to be scaled and in the middle of the gene
             let geneLabel = gene.gene_symbol;
             let geneLabelAngle = ((geneStartAngle + geneEndAngle) / 2) - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-            let geneLabelRadius = (maxRadius * 0.829) - radiusOffset;
+            let geneLabelRadius = (maxRadius * 0.909) - radiusOffset;
             let geneLabelX = (center.x) + ((geneLabelRadius) * Math.cos(geneLabelAngle));
             let geneLabelY = (center.y) + ((geneLabelRadius) * Math.sin(geneLabelAngle));
             
