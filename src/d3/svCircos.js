@@ -415,6 +415,118 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             //create a group for each chromosome and the label
             const g = svg.append('g');
 
+            let chromDrag = d3.drag()
+                .on('start', function (event, d) {
+                    //get the angle of the event based on the center
+                    let x = event.x - center.x;
+                    let y = event.y - center.y;
+                    let startAngle = Math.atan2(y, x) + Math.PI/2;
+
+                    //append an arc with the same inner and outer radius as the chromosome section starting at the angle of the event call it arc brush
+                    let arcBrush = d3.arc()
+                        .innerRadius(maxRadius * 0.96)
+                        .outerRadius(maxRadius * 1.085)
+                        .startAngle(startAngle)
+                        .endAngle(startAngle)
+                        .padAngle(0)
+                        .cornerRadius(0);
+                    //selecte the brush group and append the arc brush
+                    let brushGroup = d3.select('.brush-group');
+
+                    brushGroup.append('path')
+                        .datum({startAngle: startAngle, endAngle: endAngle})
+                        .attr('d', arcBrush)
+                        .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                        .attr('fill', 'grey')
+                        .attr('fill-opacity', 0.7)
+                        .attr('stroke', 'white')
+                        .attr('stroke-width', 1)
+                        .attr('class', 'arc-brush')
+                        .raise();
+                })
+                .on('drag', function (event, d) {
+                    //grab the arc-brush and update the end angle based on the event
+                    let arcBrush = svg.select('.arc-brush');
+                    let x = event.x - center.x;
+                    let y = event.y - center.y;
+                    let newAngle = Math.atan2(y, x) + Math.PI/2;
+
+                    // Redefine the arc with the updated endAngle
+                    arcBrush.attr('d', d3.arc()
+                        .innerRadius(maxRadius * 0.96)
+                        .outerRadius(maxRadius * 1.085)
+                        .startAngle(arcBrush.datum().startAngle)
+                        .endAngle(newAngle)
+                        .padAngle(0)
+                        .cornerRadius(0));
+                })
+                .on('end', function (event, d) {
+                    //get the start and end of the brush arc so that we can zoom in on that section
+                    let arcBrush = svg.select('.arc-brush');
+                    let startAngle = arcBrush.datum().startAngle;
+
+                    //get the angle of the event based on the center
+                    let x = event.x - center.x;
+                    let y = event.y - center.y;
+                    let endAngle = Math.atan2(y, x) + Math.PI/2;
+
+                    //if our end angle is less than our start angle then we need to add 2pi to the end angle
+                    if (endAngle < startAngle) {
+                        endAngle += 2 * Math.PI;
+                    }
+
+                    //if the start and end angles are the same then we dont want to zoom in at all just remove the brush
+                    if (startAngle === endAngle) {
+                        d3.select('.arc-brush').remove();
+                        return;
+                    }
+
+                    //get the start and end of the brush arc in bp
+                    let startBP = angleScale.invert(startAngle);
+                    startBP = Math.round(startBP);
+                    let endBP = angleScale.invert(endAngle);
+                    endBP = Math.round(endBP);
+
+                    zoomedSection = {
+                        start: startBP,
+                        end: endBP,
+                        size: endBP - startBP
+                    };
+
+                    //Send the zoomed section outside of the chart
+                    zoomedCallback(zoomedSection);
+
+                    //reset the charts angle scale
+                    angleScale = d3.scaleLinear()
+                        .domain([zoomedSection.start, zoomedSection.end])
+                        .range([startAngleRad, endAngleRad]);
+
+                    //clear all the chromosomes and render the new chromosomes
+                    svg.selectAll('.chromosome').remove();
+                    //clear all the chromosome labels
+                    svg.selectAll('.chromosome-label').remove();
+                    _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
+
+                    //clear all the tracks and render the new tracks
+                    svg.selectAll('line').remove();
+                    _renderTracks([zoomedSection.start, zoomedSection.end], svData);
+
+                    _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
+
+                    //get our centerSymbolGroup and change the symbol to our magnify-out.svg
+                    zoomOutButtonGroup.select('image')
+                        .attr('xlink:href', '/magnify-out.svg')
+                        .attr('x', width - (width - 70) - 10)
+                        .attr('y', height - (height - 70) - 10)
+                        .attr('width', 20)
+                        .attr('height', 20);
+
+                    //remove the brush
+                    d3.select('.arc-brush').remove();
+                });
+
+            g.call(chromDrag);
+
             //create a group for both parts of the chromosomes
             const chromosomeGroup = g.append('g')
                 .attr('class', 'chromosome')
@@ -431,7 +543,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     //grab the background and decrease the opacity
                     d3.select(this).selectAll('.chromosome-background').attr('fill-opacity', 0.1);
                 })
-                .on('click', function (event, d) {
+                .on('dblclick', function (event, d) {
                     //We will identify the chromosome that was clicked
                     let start = chromStart;
                     let end = chromEnd;
@@ -571,7 +683,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('class', 'chromosome-p');
             }
 
-            
             if (bands){
                 //if the band isn't in the chromosome we are looking at then skip it
                 let bandsInChrom = bands.filter(x => x.chr === chromosomeName);
@@ -701,9 +812,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     }
                 })
                 .style('pointer-events', 'none');
-
-            //if we are in a smaller section then we need to adjust the posi
         }
+        //append a new group for the brush to be added to
+        let brushGroup = svg.append('g')
+            .attr('class', 'brush-group');
     }
 
     function _renderTracks(range, data, tracks=null) {
