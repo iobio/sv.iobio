@@ -2,10 +2,10 @@
   <div id="main-container">
     <div id="upper-bar-container">
       <NavBar />
-      <UpperChromBar
+      <!-- <UpperChromBar
         :svList="svList"
         :zoomZone="selectedArea"
-        @area-selected="areaSelected"/>
+        @area-selected="areaSelected"/> -->
     </div>
 
     <div id="lower-block-container">

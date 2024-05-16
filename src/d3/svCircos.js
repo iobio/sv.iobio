@@ -143,7 +143,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     //track lables will go in the missing 10 degrees they will be inserted at the appropriate radius starting at 357 degrees
     let trackLabelStart = 355 * Math.PI / 180;
     let trackLabelEnd = 5 * Math.PI / 180;
-
+    
     // Change the range to radians (0 to 2π)
     let angleScale = d3.scaleLinear()
         .domain([zoomedSection.start, zoomedSection.end])
@@ -238,6 +238,96 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     if (genes) {
         _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
     }
+
+    //add the label "chromosome" starting at the trackLabelStart
+    let chromosomeLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+    let chromosomeLabelRadius = maxRadius * 1;
+
+    let chromosomeLabelX = (center.x) + ((chromosomeLabelRadius) * Math.cos(chromosomeLabelAngle));
+    let chromosomeLabelY = (center.y) + ((chromosomeLabelRadius) * Math.sin(chromosomeLabelAngle));
+
+    svg.append('text')
+        .attr('x', chromosomeLabelX)
+        .attr('y', chromosomeLabelY)
+        .attr('fill', 'black')
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .attr('alignment-baseline', 'middle')
+        .text('Chrom')
+        .attr('font-size', '9px')
+        .raise();
+
+    //same for the genes at their respective radius
+    let geneLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+    let geneLabelRadius = maxRadius * .92;
+
+    let geneLabelX = (center.x) + ((geneLabelRadius) * Math.cos(geneLabelAngle));
+    let geneLabelY = (center.y) + ((geneLabelRadius) * Math.sin(geneLabelAngle));
+
+    svg.append('text')
+        .attr('x', geneLabelX)
+        .attr('y', geneLabelY)
+        .attr('fill', 'black')
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .attr('alignment-baseline', 'middle')
+        .text('Genes')
+        .attr('font-size', '9px')
+        .raise();
+
+    //same for the proband at .84
+    let probandLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+    let probandLabelRadius = maxRadius * .84;
+
+    let probandLabelX = (center.x) + ((probandLabelRadius) * Math.cos(probandLabelAngle));
+    let probandLabelY = (center.y) + ((probandLabelRadius) * Math.sin(probandLabelAngle));
+
+    svg.append('text')
+        .attr('x', probandLabelX)
+        .attr('y', probandLabelY)
+        .attr('fill', 'black')
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .attr('alignment-baseline', 'middle')
+        .text('ProbVar')
+        .attr('font-size', '9px')
+        .raise();
+
+    //same for the other at .76
+    let otherLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+    let otherLabelRadius = maxRadius * .76;
+
+    let otherLabelX = (center.x) + ((otherLabelRadius) * Math.cos(otherLabelAngle));
+    let otherLabelY = (center.y) + ((otherLabelRadius) * Math.sin(otherLabelAngle));
+
+    svg.append('text')
+        .attr('x', otherLabelX)
+        .attr('y', otherLabelY)
+        .attr('fill', 'black')
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .attr('alignment-baseline', 'middle')
+        .text('Par1Var')
+        .attr('font-size', '9px')
+        .raise();
+
+    //same for other2 at .68
+    let other2LabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+    let other2LabelRadius = maxRadius * .68;
+
+    let other2LabelX = (center.x) + ((other2LabelRadius) * Math.cos(other2LabelAngle));
+    let other2LabelY = (center.y) + ((other2LabelRadius) * Math.sin(other2LabelAngle));
+
+    svg.append('text')
+        .attr('x', other2LabelX)
+        .attr('y', other2LabelY)
+        .attr('fill', 'black')
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .attr('alignment-baseline', 'middle')
+        .text('Par2Var')
+        .attr('font-size', '9px')
+        .raise();
 
 //HELPER FUNCTIONS
     function _setBaseStyles() {
@@ -560,7 +650,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .endAngle(endAngle)
                 .padAngle(0)
                 .cornerRadius(0);
-
+            
             chromosomeGroup.append('path')
                 .datum({startAngle: startAngle, endAngle: endAngle})
                 .attr('d', lineArc)
