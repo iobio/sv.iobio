@@ -889,8 +889,14 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             .datum({startAngle: startAngleRad, endAngle: endAngleRad})
             .attr('d', trackBackground)
             .attr('transform', `translate(${width / 2}, ${height / 2})`)
-            .attr('fill', '#F5F5F5')
-            .attr('id', 'prob-track-background');
+            .attr('fill', '#FAFAFA')
+            .attr('id', 'prob-track-background')
+            .on('mouseover', function (event, d) {
+                d3.select(this).attr('fill', '#F0F0F0');
+            })
+            .on('mouseout', function (event, d) {
+                d3.select(this).attr('fill', '#FAFAFA');
+            });
 
         let tracMap = {
             1: false,
@@ -1223,6 +1229,28 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         //remove the variant arcs if they exist
         svg.selectAll('.par1-variant-arc').remove();
 
+        //for now our radius is 0.76 to 0.78 render our bottom background part in white
+        let par1Background = d3.arc()
+            .innerRadius(maxRadius * 0.69)
+            .outerRadius(maxRadius * 0.79)
+            .startAngle(0)
+            .endAngle(360)
+            .padAngle(0)
+            .cornerRadius(2);
+
+        svg.append('path')
+            .datum({startAngle: startAngleRad, endAngle: endAngleRad})
+            .attr('d', par1Background)
+            .attr('transform', `translate(${width / 2}, ${height / 2})`)
+            .attr('fill', 'white')
+            .attr('id', 'par1-track-background')
+            .on('mouseover', function (event, d) {
+                d3.select(this).attr('fill', '#F0F0F0');
+            })
+            .on('mouseout', function (event, d) {
+                d3.select(this).attr('fill', 'white');
+            });
+
         let tracMap = {
             1: false,
             2: false,
@@ -1274,7 +1302,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 }
                 
                 radiusOffset = (currentTrac - 1) * 4;
-                let radius = (maxRadius * 0.76) - radiusOffset;
+                let radius = (maxRadius * 0.78) - radiusOffset;
 
                 //if the arc is super small... just make it a bit bigger so that we can see it
                 if (varEndAngle - varStartAngle < 0.005) {
@@ -1375,8 +1403,14 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             .datum({startAngle: startAngleRad, endAngle: endAngleRad})
             .attr('d', par2Background)
             .attr('transform', `translate(${width / 2}, ${height / 2})`)
-            .attr('fill', '#F5F5F5')
-            .attr('id', 'par2-track-background');
+            .attr('fill', '#FAFAFA')
+            .attr('id', 'par2-track-background')
+            .on('mouseover', function (event, d) {
+                d3.select(this).attr('fill', '#F0F0F0');
+            })
+            .on('mouseout', function (event, d) {
+                d3.select(this).attr('fill', '#FAFAFA');
+            });
 
         let tracMap = {
             1: false,
@@ -1515,6 +1549,29 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         //remove the variant arcs if they exist
         svg.selectAll('.altCalls-variant-arc').remove();
 
+        //for now our radius is from .60 to .52
+        let altCallsBackground = d3.arc()
+            .innerRadius(maxRadius * 0.56)
+            .outerRadius(maxRadius * 0.64)
+            .startAngle(0)
+            .endAngle(360)
+            .padAngle(0)
+            .cornerRadius(2);
+
+        svg.append('path')
+            .datum({startAngle: startAngleRad, endAngle: endAngleRad})
+            .attr('d', altCallsBackground)
+            .attr('transform', `translate(${width / 2}, ${height / 2})`)
+            .attr('fill', 'white')
+            .attr('id', 'altCalls-track-background')
+            .on('mouseover', function (event, d) {
+                d3.select(this).attr('fill', '#F0F0F0');
+            }
+        )
+        .on('mouseout', function (event, d) {
+            d3.select(this).attr('fill', 'white');
+        });
+
         let tracMap = {
             1: false,
             2: false,
@@ -1566,7 +1623,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 }
                 
                 radiusOffset = (currentTrac - 1) * 4;
-                let radius = (maxRadius * 0.59) - radiusOffset;
+                let radius = (maxRadius * 0.63) - radiusOffset;
 
                 //if the arc is super small... just make it a bit bigger so that we can see it
                 if (varEndAngle - varStartAngle < 0.005) {
