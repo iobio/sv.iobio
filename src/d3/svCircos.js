@@ -417,6 +417,12 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
             let arcDrag = d3.drag()
                 .on('start', function (event, d) {
+                    //if we are directly over a chromosome-label then we dont want to drag we want to allow the event to go to the chromosome-label
+                    //We need this because the brushable area is on top so it will take precedence
+                    if (event.sourceEvent.target.classList.contains('chromosome-label')) {
+                        return;
+                    }
+
                     //get the angle of the event based on the center
                     let x = event.x - center.x;
                     let y = event.y - center.y;
@@ -542,60 +548,12 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .attr('class', 'chromosome')
                 .on('mouseover', function (event, d) {
                     //Had done a grow but it is somewhat odd so removed it for now
-                    //make the cursor a pointer
-                    d3.select(this).style('cursor', 'pointer');
-                    //grab the background and increase the opacity
-                    d3.select(this).selectAll('.chromosome-background').attr('fill-opacity', 0.3);
+                    //make the cursor crosshair like it is brushable
+                    d3.select(this).style('cursor', 'crosshair');
                 })
                 .on('mouseout', function (event, d) {
                     //make the cursor the default
                     d3.select(this).style('cursor', 'default');
-                    //grab the background and decrease the opacity
-                    d3.select(this).selectAll('.chromosome-background').attr('fill-opacity', 0.1);
-                })
-                .on('dblclick', function (event, d) {
-                    //We will identify the chromosome that was clicked
-                    let start = chromStart;
-                    let end = chromEnd;
-                    let chromSize = end - start;
-                    
-                    zoomedSection = {
-                        start: start,
-                        end: end,
-                        size: chromSize
-                    };
-
-                    //Send the zoomed section outside of the chart
-                    zoomedCallback(zoomedSection);
-
-                    //reset the charts angle scale
-                    angleScale = d3.scaleLinear()
-                        .domain([zoomedSection.start, zoomedSection.end])
-                        .range([startAngleRad, endAngleRad]);
-
-                    //clear all the chromosomes and render the new chromosomes
-                    svg.selectAll('.chromosome').remove();
-                    //clear all the chromosome labels
-                    svg.selectAll('.chromosome-label').remove();
-                    _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
-
-                    //get the event target and set class list to selected-chromosome
-                    let target = event.target;
-                    target.classList.add('selected-chromosome');
-
-                    //clear all the tracks and render the new tracks
-                    svg.selectAll('line').remove();
-                    _renderTracks([zoomedSection.start, zoomedSection.end], svData);
-
-                    _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
-
-                    //get our centerSymbolGroup and change the symbol to our magnify-out.svg
-                    zoomOutButtonGroup.select('image')
-                        .attr('xlink:href', '/magnify-out.svg')
-                        .attr('x', width - (width - 70) - 10)
-                        .attr('y', height - (height - 70) - 10)
-                        .attr('width', 20)
-                        .attr('height', 20);
                 });
 
             //P and Q arms of the chromosome
@@ -799,8 +757,63 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .attr('transform', `translate(0, -1)`)
                 .attr('fill', 'white')
                 .attr('class', 'chromosome-label')
-                .style('pointer-events', 'none')
-                .attr('fill-opacity', 1);
+                .attr('fill-opacity', 1)
+                .style('cursor', 'pointer')
+                .on('click', function (event, d) {
+                    let start = chromStart;
+                    let end = chromEnd;
+                    let chromSize = end - start;
+
+                    zoomedSection = {
+                        start: start,
+                        end: end,
+                        size: chromSize
+                    };
+
+                    //Send the zoomed section outside of the chart
+                    zoomedCallback(zoomedSection);
+
+                    //reset the charts angle scale
+                    angleScale = d3.scaleLinear()
+                        .domain([zoomedSection.start, zoomedSection.end])
+                        .range([startAngleRad, endAngleRad]);
+
+                    //clear all the chromosomes and render the new chromosomes
+                    svg.selectAll('.chromosome').remove();
+                    //clear all the chromosome labels
+                    svg.selectAll('.chromosome-label').remove();
+                    _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
+
+                    //get the event target and set class list to selected-chromosome
+                    let target = event.target;
+                    target.classList.add('selected-chromosome');
+
+                    //clear all the tracks and render the new tracks
+                    svg.selectAll('line').remove();
+                    _renderTracks([zoomedSection.start, zoomedSection.end], svData);
+
+                    _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
+
+                    //get our centerSymbolGroup and change the symbol to our magnify-out.svg
+                    zoomOutButtonGroup.select('image')
+                        .attr('xlink:href', '/magnify-out.svg')
+                        .attr('x', width - (width - 70) - 10)
+                        .attr('y', height - (height - 70) - 10)
+                        .attr('width', 20)
+                        .attr('height', 20);
+                })
+                .on('mouseover', function (event, d) {
+                    d3.select(this).attr('stroke', color);
+
+                    let backgroundChrom = d3.select(this.parentNode).select('.chromosome-background');
+                    backgroundChrom.attr('fill-opacity', 0.3);
+                })
+                .on('mouseout', function (event, d) {
+                    d3.select(this).attr('stroke', 'white');
+
+                    let backgroundChrom = d3.select(this.parentNode).select('.chromosome-background');
+                    backgroundChrom.attr('fill-opacity', 0.1);
+                });
 
             //take chr off the chromosome name
             let chrName = chromosome.chr.replace('chr', '');
@@ -812,6 +825,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .attr('fill', color)
                 .attr('text-anchor', 'middle')
                 .attr('font-weight', 'bold')
+                .style('pointer-events', 'none')
                 .attr('alignment-baseline', 'middle')
                 .text(chrName)
                 .attr('font-size', function(d) {
@@ -820,8 +834,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     } else {
                         return "15px";
                     }
-                })
-                .style('pointer-events', 'none');
+                });
         }
         //append a new group for the brush to be added to
         let brushGroup = svg.append('g')
