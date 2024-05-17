@@ -470,11 +470,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     let y = event.y - center.y;
                     let endAngle = Math.atan2(y, x) + Math.PI/2;
 
-                    //if our end angle is less than our start angle then we need to add 2pi to the end angle
-                    if (endAngle < startAngle) {
-                        endAngle += 2 * Math.PI;
-                    }
-
                     //if the start and end angles are the same then we dont want to zoom in at all just remove the brush
                     if (startAngle === endAngle) {
                         d3.select('.arc-brush').remove();
@@ -486,6 +481,13 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     startBP = Math.round(startBP);
                     let endBP = angleScale.invert(endAngle);
                     endBP = Math.round(endBP);
+
+                    if (endBP < startBP) {
+                        //swap them because we assume the user brushed the opposite way
+                        let temp = startBP
+                        startBP = endBP
+                        endBP = temp
+                    }
 
                     zoomedSection = {
                         start: startBP,
@@ -777,11 +779,11 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             let isSmallerSection = Math.min(width, height) <= 700;
 
             const textAngle = textStartAngle; 
-            const textRadius = maxRadius * 1.09;
+            const textRadius = maxRadius * 1.07;
             const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
             const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
 
-            //put a small white rectangle behind the text to make it more readable
+            //put a small white circle behind the text to make it more readable
             g.append('circle')
                 .attr('cx', textX)
                 .attr('cy', textY)
