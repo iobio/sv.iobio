@@ -415,7 +415,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             //create a group for each chromosome and the label
             const g = svg.append('g');
 
-            let chromDrag = d3.drag()
+            let arcDrag = d3.drag()
                 .on('start', function (event, d) {
                     //get the angle of the event based on the center
                     let x = event.x - center.x;
@@ -469,6 +469,14 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     let x = event.x - center.x;
                     let y = event.y - center.y;
                     let endAngle = Math.atan2(y, x) + Math.PI/2;
+
+                    //atan2 has some odd behavior that returns the angle in negative radians in the 4th quadrent if this is the case we need to convert them
+                    if (endAngle < 0) {
+                        endAngle += 2 * Math.PI;
+                    }
+                    if (startAngle < 0) {
+                        startAngle += 2 * Math.PI;
+                    }
 
                     //if the start and end angles are the same then we dont want to zoom in at all just remove the brush
                     if (startAngle === endAngle) {
@@ -527,7 +535,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     d3.select('.arc-brush').remove();
                 });
 
-            g.call(chromDrag);
+            g.call(arcDrag);
 
             //create a group for both parts of the chromosomes
             const chromosomeGroup = g.append('g')
