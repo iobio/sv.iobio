@@ -8,12 +8,7 @@
             <div v-if="variant.info.Exomiser.some(gene => gene.significance == 'PATHOGENIC')"><span>P</span></div>
         </div>
         <div v-if="showMore" class="more-info">
-            <div><span>Effect:</span> <span>{{ variant.effect.toLowerCase() }}</span></div>
-            <div><span>Max AF:</span> <span>{{ variant.info.Max_AF }}</span></div>
-            <div><span>Top Gene:</span> <span class="gene-span">{{ variant.gene.geneSymbol }}</span></div>
-            <div><span>Ex. Combined:</span> <span>{{ roundScore(variant.exomiserCombScore) }}</span></div>
-            <div><span>Ex. Priority:</span> <span>{{ roundScore(variant.exomiserPriorityScore) }}</span></div>
-            <div><span>Genes Overlapped:</span><div class="other-genes-container"><span v-for="gene in variant.otherGenes.map(gene => gene.geneSymbol)">{{ gene }}</span></div></div>
+            <div><span>Genes Overlapped:</span></div>
         </div>
     </div>
   </template>
