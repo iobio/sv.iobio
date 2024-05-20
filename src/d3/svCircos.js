@@ -336,7 +336,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('text-anchor', 'middle')
         .attr('font-weight', 'bold')
         .attr('alignment-baseline', 'middle')
-        .text('ProbVar')
+        .text('Proband')
         .attr('font-size', '9px')
         .raise();
 
@@ -354,7 +354,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('text-anchor', 'middle')
         .attr('font-weight', 'bold')
         .attr('alignment-baseline', 'middle')
-        .text('Par1Var')
+        .text('Parent1')
         .attr('font-size', '9px')
         .raise();
 
@@ -372,7 +372,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('text-anchor', 'middle')
         .attr('font-weight', 'bold')
         .attr('alignment-baseline', 'middle')
-        .text('Par2Var')
+        .text('Parent2')
         .attr('font-size', '9px')
         .raise();
 
@@ -1131,8 +1131,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             let geneEndAngle = angleScale(accEnd);
 
             //the minimum arc needs to be 1 pixel
-            if (geneEndAngle - geneStartAngle < 0.01) {
-                geneEndAngle += 0.01;
+            if (geneEndAngle - geneStartAngle < 0.001) {
+                geneEndAngle += 0.001;
             }
 
             let currentTrac = 0;
@@ -1327,8 +1327,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             let geneEndAngle = angleScale(accEnd);
 
             //the minimum arc needs to be 1 pixel
-            if (geneEndAngle - geneStartAngle < 0.01) {
-                geneEndAngle += 0.01;
+            if (geneEndAngle - geneStartAngle < 0.001) {
+                geneEndAngle += 0.001;
             }
 
             let currentTrac = 0;
