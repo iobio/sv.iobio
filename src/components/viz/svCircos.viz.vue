@@ -15,7 +15,8 @@ export default {
     svList: Array,
     zoomZone: Object,
     focusedVariant: Object,
-    needsFocus: Boolean
+    needsFocus: Boolean,
+    genesOfInterest: Array,
   },
   data () {
     return {
@@ -113,7 +114,14 @@ export default {
 
       if (this.genes) {
         options.genes = this.genes
+
+        if (this.genesOfInterest) {
+          options.genesOfInterest = this.genesOfInterest.map(gene => this.genes[gene])
+          options.genesOfInterest.filter(gene => gene !== undefined);
+        }
       }
+      
+
 
       if (this.vcfDataPar1) {
         options.parent1Data = this.vcfDataPar1
@@ -124,7 +132,7 @@ export default {
       if (this.vcfAltCallerData) {
         options.altCallerData = this.vcfAltCallerData
       }
-      
+
       //remove anything from the container
       this.circosChart = new svCircos(containerTag, this.chromosomes, this.svListSorted, options)
 
@@ -165,7 +173,10 @@ export default {
       if (this.needsFocus && this.focusedVariant) {
         this.drawCircos()
       }
-    }
+    },
+    genesOfInterest: function(){
+      this.drawCircos()
+    },
   }
 }
 </script>

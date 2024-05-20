@@ -3,14 +3,14 @@
       <!-- file input -->
       <div class="nav-bar-item-wrapper">
         <label class="nav-bar-item-sub" for="phenotypes">Patient Phenotypes</label>
-        <textarea class="nav-bar-item-sub" type="textarea" name="phenotypes"></textarea>
-        <button class="nav-bar-item-sub">save</button>
+        <textarea class="nav-bar-item-sub" name="phenotypes" v-model="phenotypesOfInterestText"></textarea>
+        <button class="nav-bar-item-sub" @click="sendPOI">save</button>
       </div>
 
       <div class="nav-bar-item-wrapper">
         <label class="nav-bar-item-sub" for="genesOfInterest">Genes of Interest</label>
-        <textarea class="nav-bar-item-sub" type="textarea" name="genesOfInterest"></textarea>
-        <button class="nav-bar-item-sub">save</button>
+        <textarea class="nav-bar-item-sub" name="genesOfInterest" v-model="genesOfInterestText"></textarea>
+        <button class="nav-bar-item-sub" @click="sendGOI">save</button>
       </div>
 
       <button>Select Data</button>
@@ -27,11 +27,23 @@
   },
   data () {
     return {
+      genesOfInterestText: '',
+      phenotypesOfInterestText: '',
     }
   },
   mounted () {
   },
   methods: {
+    sendGOI() {
+      //send out genes of interest to the app (allow split on ';', ',', or ' ')
+      let genesOfInterest = this.genesOfInterestText.split(/[;, ]+/);
+      this.$emit('updateGenesOfInterest', genesOfInterest)
+    },
+    sendPOI() {
+      //send out phenotypes of interest to the app (allow split on ';', ',', or ' ')
+      let phenotypesOfInterest = this.phenotypesOfInterestText.split(/[;, ]+/);
+      this.$emit('updatePhenotypesOfInterest', phenotypesOfInterest)
+    }
   },
   computed: {
   },

@@ -6,6 +6,7 @@
           :zoomZone="selectedArea"
           :focusedVariant="focusedVariant"
           :needsFocus="needsFocus"
+          :genesOfInterest="genesOfInterest"
           @circos-zoom-event="circosZoomFired"/>
     </div>
   </template>
@@ -21,7 +22,8 @@
   props: {
     svList: Array,
     selectedArea: Object,
-    focusedVariant: Object
+    focusedVariant: Object,
+    genesOfInterest: Array,
   },
   data () {
     return {

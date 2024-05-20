@@ -1,7 +1,9 @@
 <template>
   <div id="main-container">
     <div id="upper-bar-container">
-      <NavBar />
+      <NavBar 
+        @updateGenesOfInterest="updateGenesOfInterest"
+        @updatePhenotypesOfInterest="updatePhenotypesOfInterest"/>
       <!-- <UpperChromBar
         :svList="svList"
         :zoomZone="selectedArea"
@@ -25,6 +27,7 @@
           :svList="svList"
           :selectedArea="selectedArea"
           :focusedVariant="focusedVariant"
+          :genesOfInterest="genesOfInterest"
           @circos-zoom-event="circosZoomFired"/>
         <RightSection 
           :variantOfInterest="focusedVariant"/>
@@ -56,17 +59,12 @@
         svList: [],
         focusedVariant: null,
         selectedArea: null,
-        variantListBarOpen: true
+        variantListBarOpen: true,
+        genesOfInterest: [],
+        phenotypesOfInterest: [],
       }
     },
     mounted() {
-      //http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz
-      // fetch('http://localhost:3000/vcfJson')
-      //   .then(response => response.json())
-      //   .then(data => {
-      //     this.svList = data.map(item => new Sv(item))
-      //   });
-
       fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz')
         .then(response => response.json())
         .then(data => {
@@ -88,6 +86,14 @@
       },
       circosZoomFired(zoomZone) {
         this.selectedArea = zoomZone
+      }, 
+      updateGenesOfInterest(newGOI) {
+        this.genesOfInterest = newGOI;
+        console.log(this.genesOfInterest)
+      },
+      updatePhenotypesOfInterest(newPOI) {
+        this.phenotypesOfInterest = newPOI;
+        console.log(this.phenotypesOfInterest)
       }
     },
   }
