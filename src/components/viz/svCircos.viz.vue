@@ -3,7 +3,8 @@
 </template>
 
 <script>
-import svCircos from '../../d3/svCircos.js'
+import svCircos from '../../d3/svCircos.js';
+import Sv from '../../models/Sv.js';
 import * as d3 from 'd3';
 
 export default {
@@ -18,7 +19,10 @@ export default {
   },
   data () {
     return {
-      vcfData: null,
+      vcfDataPro: null,
+      vcfDataPar1: null,
+      vcfDataPar2: null,
+      vcfAltCallerData: null,
       circosChart: null,
       centromeres: null,
       bands: null,
@@ -59,6 +63,27 @@ export default {
       .then(response => response.json())
       .then(data => {
         this.genes = data;
+        //there are about 28k genes
+      });
+
+    // //fetch the vcf data
+    // fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz')
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     this.vcfDataPro = data;
+    //     console.log('vcfData', this.vcfDataPro)
+    //   });
+    //fetch the vcf data
+    fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-02_svafotate_output.filteredaf.vcf.gz')
+      .then(response => response.json())
+      .then(data => {
+        this.vcfDataPar1 = data.map(item => new Sv(item)); 
+      });  
+    //fetch the vcf data
+    fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-03_svafotate_output.filteredaf.vcf.gz')
+      .then(response => response.json())
+      .then(data => {
+        this.vcfDataPar2 = data.map(item => new Sv(item)); 
       });
   },
   beforeDestroy() {
@@ -79,7 +104,7 @@ export default {
         centromeres: this.centromeres,
         bands: this.bands,
         zoomZone: this.zoomZone,
-        zoomCallback: this.emitZoomEvent
+        zoomCallback: this.emitZoomEvent,
       }
 
       if (this.needsFocus && this.focusedVariant) {
@@ -90,6 +115,16 @@ export default {
         options.genes = this.genes
       }
 
+      if (this.vcfDataPar1) {
+        options.parent1Data = this.vcfDataPar1
+      }
+      if (this.vcfDataPar2) {
+        options.parent2Data = this.vcfDataPar2
+      }
+      if (this.vcfAltCallerData) {
+        options.altCallerData = this.vcfAltCallerData
+      }
+      
       //remove anything from the container
       this.circosChart = new svCircos(containerTag, this.chromosomes, this.svListSorted, options)
 

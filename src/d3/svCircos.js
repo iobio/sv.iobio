@@ -7,6 +7,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     let centromeres = null;
     let bands = null;
     let genes = null;
+    let parent1Data = null;
+    let parent2Data = null;
+    let altCallerData = null;
 
     //Zoom Variables
     let zoomedCallback = null;
@@ -113,6 +116,20 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         if (options.genes) {
             genes = options.genes;
         }
+
+        //if we have a parent1
+        if (options.parent1Data) {
+            parent1Data = options.parent1Data
+        }
+        //if we have a parent2
+        if (options.parent2Data) {
+            parent2Data = options.parent2Data
+        }
+        //if we have an altCaller
+        if (options.altCallerData) {
+            altCallerData = options.altCallerData
+        }
+
     }
 
     _setBaseStyles();
@@ -184,9 +201,18 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
             //clear all the tracks and render the new tracks
             _renderProbTrack([zoomedSection.start, zoomedSection.end], svData);
-            _renderPar1Track([zoomedSection.start, zoomedSection.end], svData);
-            _renderPar2Track([zoomedSection.start, zoomedSection.end], svData);
-            _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], svData);
+
+            if (parent1Data) {
+                _renderPar1Track([zoomedSection.start, zoomedSection.end], parent1Data);
+            }
+
+            if (parent2Data) {
+                _renderPar2Track([zoomedSection.start, zoomedSection.end], parent2Data);
+            }
+
+            if (altCallerData) {
+                _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], altCallerData);
+            } 
 
             //clear all the chromosomes and render the new chromosomes
             svg.selectAll('.chromosome').remove();
@@ -237,10 +263,16 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     //TODO: If we were able to specify options on the track such as minRadius, maxRadius, color, background (on/off), label etc we could make this more dynamic and have one function
     _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
     _renderProbTrack([zoomedSection.start, zoomedSection.end], svData);
-    _renderPar1Track([zoomedSection.start, zoomedSection.end], svData);
-    _renderPar2Track([zoomedSection.start, zoomedSection.end], svData);
-    _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], svData);
+    if (parent1Data) {
+        _renderPar1Track([zoomedSection.start, zoomedSection.end], parent1Data);
+    }
 
+    if (parent2Data) {
+        _renderPar2Track([zoomedSection.start, zoomedSection.end], parent2Data);
+    }
+    if (altCallerData) {
+        _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], altCallerData);
+    }  
     if (genes) {
         _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
     }
@@ -335,23 +367,25 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('font-size', '9px')
         .raise();
 
-    //same for altCaller at .60
-    let altCallerLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-    let altCallerLabelRadius = maxRadius * .60;
+    if (altCallerData) {
+        //same for altCaller at .60
+        let altCallerLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+        let altCallerLabelRadius = maxRadius * .60;
 
-    let altCallerLabelX = (center.x) + ((altCallerLabelRadius) * Math.cos(altCallerLabelAngle));
-    let altCallerLabelY = (center.y) + ((altCallerLabelRadius) * Math.sin(altCallerLabelAngle));
+        let altCallerLabelX = (center.x) + ((altCallerLabelRadius) * Math.cos(altCallerLabelAngle));
+        let altCallerLabelY = (center.y) + ((altCallerLabelRadius) * Math.sin(altCallerLabelAngle));
 
-    svg.append('text')
-        .attr('x', altCallerLabelX)
-        .attr('y', altCallerLabelY)
-        .attr('fill', 'black')
-        .attr('text-anchor', 'middle')
-        .attr('font-weight', 'bold')
-        .attr('alignment-baseline', 'middle')
-        .text('AltCaller')
-        .attr('font-size', '9px')
-        .raise();
+        svg.append('text')
+            .attr('x', altCallerLabelX)
+            .attr('y', altCallerLabelY)
+            .attr('fill', 'black')
+            .attr('text-anchor', 'middle')
+            .attr('font-weight', 'bold')
+            .attr('alignment-baseline', 'middle')
+            .text('AltCaller')
+            .attr('font-size', '9px')
+            .raise();
+    }
 
 //HELPER FUNCTIONS
     function _setBaseStyles() {
@@ -550,9 +584,16 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     //clear all the tracks and render the new tracks
                     svg.selectAll('line').remove();
                     _renderProbTrack([zoomedSection.start, zoomedSection.end], svData);
-                    _renderPar1Track([zoomedSection.start, zoomedSection.end], svData);
-                    _renderPar2Track([zoomedSection.start, zoomedSection.end], svData);
-                    _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], svData);
+                    if (parent1Data) {
+                        _renderPar1Track([zoomedSection.start, zoomedSection.end], parent1Data);
+                    }
+        
+                    if (parent2Data) {
+                        _renderPar2Track([zoomedSection.start, zoomedSection.end], parent2Data);
+                    }
+                    if (altCallerData) {
+                        _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], altCallerData);
+                    } 
 
                     _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
 
@@ -818,9 +859,16 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     //clear all the tracks and render the new tracks
                     svg.selectAll('line').remove();
                     _renderProbTrack([zoomedSection.start, zoomedSection.end], svData);
-                    _renderPar1Track([zoomedSection.start, zoomedSection.end], svData);
-                    _renderPar2Track([zoomedSection.start, zoomedSection.end], svData);
-                    _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], svData);
+                    if (parent1Data) {
+                        _renderPar1Track([zoomedSection.start, zoomedSection.end], parent1Data);
+                    }
+        
+                    if (parent2Data) {
+                        _renderPar2Track([zoomedSection.start, zoomedSection.end], parent2Data);
+                    }
+                    if (altCallerData) {
+                        _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], altCallerData);
+                    } 
 
                     _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
 
@@ -909,8 +957,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         let varPosMap = {};
 
         for (let variant of data) {
-            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['start'];
-            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['end'];
+            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['start']);
+            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['end']);
 
             let varStartAngle = angleScale(accStart);
             let varEndAngle = angleScale(accEnd);
@@ -1034,6 +1082,14 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     function _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range) {
         //if there are already arcs remove them before redrawing
         svg.selectAll('.gene-arc').remove();
+
+        //if the range is larger than the largest chromosome (290,000,000 bases) only render genes of interest
+        let size = range[1] - range[0]
+
+        if (size > 290000000) {
+            //TODO: later we will return genes of interest if there are any
+            return
+        }
 
         let tracMap = {
             1: false,
@@ -1262,8 +1318,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         let varPosMap = {};
 
         for (let variant of data) {
-            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['start'];
-            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['end'];
+            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['start']);
+            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['end']);
 
             let varStartAngle = angleScale(accStart);
             let varEndAngle = angleScale(accEnd);
@@ -1423,8 +1479,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         let varPosMap = {};
 
         for (let variant of data) {
-            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['start'];
-            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['end'];
+            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['start']);
+            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['end']);
 
             let varStartAngle = angleScale(accStart);
             let varEndAngle = angleScale(accEnd);
@@ -1583,6 +1639,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         let varPosMap = {};
 
         for (let variant of data) {
+
             let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['start'];
             let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + variant['end'];
 

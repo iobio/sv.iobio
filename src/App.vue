@@ -60,12 +60,17 @@
       }
     },
     mounted() {
-      fetch('http://localhost:3000/vcfJson')
+      //http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz
+      // fetch('http://localhost:3000/vcfJson')
+      //   .then(response => response.json())
+      //   .then(data => {
+      //     this.svList = data.map(item => new Sv(item))
+      //   });
+
+      fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz')
         .then(response => response.json())
         .then(data => {
-          for (let i = 0; i < data.length; i++) {
-            this.svList.push(new Sv(data[i]))
-          }
+          this.svList = data.map(item => new Sv(item))
         });
     },
     methods: {

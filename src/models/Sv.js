@@ -11,15 +11,27 @@ class Sv {
             this.assembly = input.genomeAssembly;
             this.type = input.type;
             this.effect = input.variantEffect;
-            this.info = this.parseInfo(input.vcfInfo);
+
+            //if we get vcfInfo then parse otherwise don't
+            if (input.vcfInfo != '') {
+                this.info = this.parseInfo(input.vcfInfo);
+            } else {
+                this.info = []
+            }
+
             this.rank = input.rank;
             this.gene = input.gene;
             this.exomiserCombScore = input.exomiserCombScore;
             this.exomiserPval = input.exomiserPval;
             this.exomiserPriorityScore = input.exomiserPriorityScore;
 
-            let array = this.parseExomiser(this.info.Exomiser);
-            this.info.Exomiser = array;
+            if (this.info.Exomiser) {
+                let array = this.parseExomiser(this.info.Exomiser);
+                this.info.Exomiser = array;
+            } else {
+                this.info.Exomiser = []
+            }
+
             this.otherGenes = input.otherGenes;
         } else {
             //This wont run (at least not now)
