@@ -1481,8 +1481,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             }
             );
         }
-        //render last because I want them on top
-        _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range)
+        //render last because they need to be on top of other genes
+        if (genesOfInterest) {
+            _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range)
+        }
     }
 
     function _renderPar1Track(range, data) {

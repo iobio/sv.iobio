@@ -91,8 +91,7 @@
         this.genesOfInterest = newGOI;
       },
       updatePhenotypesOfInterest(newPOI) {
-        this.phenotypesOfInterest = newPOI;
-        console.log(this.phenotypesOfInterest)
+        this.phenotypesOfInterest = newPOI;        
       }
     },
   }
