@@ -1273,6 +1273,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     }
 
     function _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range) {
+        let localGenes = {...genes}
         //if there are already arcs remove them before redrawing
         svg.selectAll('.gene-arc').remove();
 
@@ -1296,7 +1297,13 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
         let genePosMap = {};
 
-        for (let gene of Object.values(genes)) {
+        if (genesOfInterest) {
+            for (let gene of genesOfInterest){
+                delete localGenes[gene.gene_symbol]
+            }
+        }
+
+        for (let gene of Object.values(localGenes)) {
             let geneChr = gene['chr'].replace('chr', '');
             //if the gene is not in a chromosome in the map then skip it
             if (!chromosomeAccumulatedMap.has(geneChr)) {

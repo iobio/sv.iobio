@@ -89,7 +89,6 @@
       }, 
       updateGenesOfInterest(newGOI) {
         this.genesOfInterest = newGOI;
-        console.log(this.genesOfInterest)
       },
       updatePhenotypesOfInterest(newPOI) {
         this.phenotypesOfInterest = newPOI;
