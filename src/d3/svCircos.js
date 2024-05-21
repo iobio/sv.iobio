@@ -113,8 +113,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 end: focusedEnd,
                 size: focusedSize
             };
-
-            console.log(zoomedSection)
             //call the zoomed callback
             zoomedCallback(zoomedSection);
         }
