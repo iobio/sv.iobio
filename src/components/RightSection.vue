@@ -2,7 +2,6 @@
     <div id="right-section">
       <div v-if="!variantOfInterest" class="alt-section-text explore">Explore Section</div>
       <div id="voi-container" v-else>
-        <!-- <div>{{ variantOfInterest }}</div> -->
 
         <div>Chromosome: {{ variantOfInterest.chromosome }}</div>
         <div>Start: {{ variantOfInterest.start }}</div>
@@ -44,61 +43,53 @@
 </script>
   
 <style lang="sass">
-  #right-section
+  #right-section-container
+    &.collapsed
+      #right-section
+        width: 0px
+        overflow: hidden
+  #voi-container
     display: flex
     flex-direction: column
     align-items: flex-start
     justify-content: flex-start
-    padding-top: 10px
-    padding-bottom: 10px
-    flex-grow: .4
+    width: 100%
     height: 100%
-    max-width: 40%
     box-sizing: border-box
-    border-left: 1px solid #F5F5F5
-    overflow: hidden
-    #voi-container
+    overflow-y: auto
+    overflow-x: hidden
+    div
+      margin-top: 5px
+      margin-bottom: 5px
+      width: 100%
+      height: fit-content
+      box-sizing: border-box
+    .gene-container
+      width: 100%
       display: flex
       flex-direction: column
       align-items: flex-start
       justify-content: flex-start
-      width: 100%
-      height: 100%
+      height: fit-content
       box-sizing: border-box
-      overflow-y: auto
-      overflow-x: hidden
+      border-bottom: 1px solid #F5F5F5
+      padding: 5px
       div
         margin-top: 5px
         margin-bottom: 5px
         width: 100%
         height: fit-content
         box-sizing: border-box
-      .gene-container
-        width: 100%
-        display: flex
-        flex-direction: column
-        align-items: flex-start
-        justify-content: flex-start
-        height: fit-content
-        box-sizing: border-box
-        border-bottom: 1px solid #F5F5F5
-        padding: 5px
-        div
-          margin-top: 5px
-          margin-bottom: 5px
-          width: 100%
-          height: fit-content
-          box-sizing: border-box
-    
-  .alt-section-text.explore
-    font-size: 25px
-    font-weight: bold
-    color: #1F68C1
-    width: 100%
-    text-align: center
+  
+.alt-section-text.explore
+  font-size: 25px
+  font-weight: bold
+  color: #1F68C1
+  width: 100%
+  text-align: center
 
-  .red
-    color: red
-    font-weight: bold
-    border: 1px solid red
+.red
+  color: red
+  font-weight: bold
+  border: 1px solid red
 </style>

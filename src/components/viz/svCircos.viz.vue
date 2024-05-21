@@ -40,7 +40,9 @@ export default {
 
         if (this.chromosomes) {
           this.resizeObserver = new ResizeObserver( () => {
-            this.drawCircos()
+            setTimeout(() => {
+              this.drawCircos()
+            }, 550)
           });
 
           this.resizeObserver.observe(document.getElementById('svCircos'));
@@ -187,7 +189,7 @@ export default {
     background-color: none
     border-radius: 5px
     border: none
-    // box-sizing: border-box
+    box-sizing: border-box
     display: flex
     flex-direction: column
     height: 100%
