@@ -94,9 +94,14 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
             let chrom = focusedVariant.chromosome;
             let chromStart = chromosomeAccumulatedMap.get(chrom).start;
-            let varStartAbs = focusedVariant.start + chromStart;
-            let varEndAbs = focusedVariant.end + chromStart;
+            let varStartAbs = parseInt(focusedVariant.start) + chromStart;
+            let varEndAbs = parseInt(focusedVariant.end) + chromStart;
             let varSize = varEndAbs - varStartAbs;
+
+            if (varSize < 50) {
+                varSize = 50
+            }
+            
             let halfSize = varSize / 2;
 
             let focusedStart = varStartAbs - halfSize;
@@ -109,6 +114,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 size: focusedSize
             };
 
+            console.log(zoomedSection)
             //call the zoomed callback
             zoomedCallback(zoomedSection);
         }
