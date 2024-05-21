@@ -68,10 +68,10 @@
     padding-top: 10px
     padding-bottom: 10px
     flex-grow: 1
-    flex-basis: 0
     height: 100%
     box-sizing: border-box
     transition: all 0.5s
+    overflow: hidden
   
   #focus-chart-btn
     position: absolute

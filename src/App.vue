@@ -21,17 +21,22 @@
         @variant-clicked="updateFocusedVariant"/>
       </div>
 
+      <LeftTracksSection 
+        :svList="svList"
+        :selectedArea="selectedArea"
+        :focusedVariant="focusedVariant"
+        :genesOfInterest="genesOfInterest"
+        @circos-zoom-event="circosZoomFired"/>
 
-      <div id="lower-sections-container">
-        <LeftTracksSection 
-          :svList="svList"
-          :selectedArea="selectedArea"
-          :focusedVariant="focusedVariant"
-          :genesOfInterest="genesOfInterest"
-          @circos-zoom-event="circosZoomFired"/>
+      <div id="right-section-container" :class="{collapsed: !rightSectionOpen}">
+        <button id="right-section-toggle-btn" @click="rightSectionOpen = !rightSectionOpen">
+        <img v-if="rightSectionOpen" src="/arrow-expand-right.svg" alt="close">
+        <img v-else src="/arrow-expand-left.svg" alt="open">
+        </button>
         <RightSection 
-          :variantOfInterest="focusedVariant"/>
-      </div>
+        :variantOfInterest="focusedVariant"/>
+      </div> 
+
     </div>
 
   </div>
@@ -60,6 +65,7 @@
         focusedVariant: null,
         selectedArea: null,
         variantListBarOpen: true,
+        rightSectionOpen: false,
         genesOfInterest: [],
         phenotypesOfInterest: [],
       }
@@ -110,27 +116,20 @@
     flex-direction: column
     height: 100vh
     width: 100%
-  
-  #lower-block-container 
-    display: flex
-    flex-direction: row
-    flex-grow: 1
-    justify-content: center
-    width: 100%
-    overflow: hidden
 
   #upper-bar-container
     display: flex
     flex-direction: column
     height: fit-content
     width: 100%
-  
-  #lower-sections-container
+
+  #lower-block-container 
     display: flex
     flex-direction: row
-    height: 100%
+    flex: 1 1 auto
     justify-content: center
-    flex-grow: 1
+    width: 100%
+    box-sizing: border-box
     overflow: hidden
 
   img 
@@ -146,13 +145,53 @@
     padding: 0px
     margin: 0px
     width: 250px
+    min-width: 250px
     transition: width 0.5s
     &.collapsed
       width: 0px
+      min-width: 0px
+
   #var-list-bar-toggle-btn
     position: absolute
     top: 5px
     right: -35px
+    z-index: 2
+    padding: 3px
+    margin: 0px
+    border-radius: 50%
+    display: flex
+    justify-content: center
+    align-items: center
+    border: 2px solid #2A65B7
+    background-color: #C1D1EA
+    &:hover
+      cursor: pointer
+      opacity: 0.8
+    img
+      height: 23px
+      width: 23px
+      display: flex 
+      justify-content: center
+      align-items: center
+      transform: translate(0px, 0px)
+
+  #right-section-container
+    position: relative
+    display: flex
+    padding-top: 10px
+    padding-bottom: 10px
+    height: 100%
+    width: 35%
+    box-sizing: border-box
+    border-left: 1px solid #F5F5F5
+    transition: all 0.5s
+    &.collapsed
+      width: 0px
+      min-width: 0px
+  #right-section-toggle-btn
+    position: absolute
+    top: 5px
+    left: -35px
     z-index: 2
     padding: 3px
     margin: 0px
