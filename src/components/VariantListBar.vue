@@ -57,7 +57,7 @@
       align-items: flex-start
       justify-content: flex-start
       padding-bottom: 10px
-      width: 250px
+      width: 100%
       min-width: 250px
       height: 100%
       box-sizing: border-box

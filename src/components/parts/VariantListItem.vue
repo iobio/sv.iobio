@@ -195,4 +195,6 @@
                     flex-direction: column
                     overflow-y: auto
                     overflow-x: hidden
+                    &:first-of-type
+                        flex-grow: 1
   </style>

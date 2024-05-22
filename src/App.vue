@@ -143,7 +143,7 @@
     height: 100%
     padding: 0px
     margin: 0px
-    width: 250px
+    width: 25%
     min-width: 250px
     transition: width 0.5s
     &.collapsed
