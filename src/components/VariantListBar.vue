@@ -3,6 +3,7 @@
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
         <div>Chr</div>
         <div>Loc.</div>
+        <div>Size</div>
         <div>Type</div>
       </div>
       <VariantListItem 
@@ -67,7 +68,7 @@
       transition: width 0.5s, min-width 0.5s, overflow 0.5s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: 1fr 1.5fr 1fr
+        grid-template-columns: 1fr 1.5fr 1fr 1fr
         font-size: .8em
         width: 100%
         height: 50px
