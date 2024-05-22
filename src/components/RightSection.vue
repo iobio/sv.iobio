@@ -25,7 +25,6 @@
   components: {
   },
   props: {
-    variantOfInterest: Object,
   },
   data () {
     return {

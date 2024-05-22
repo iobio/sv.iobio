@@ -33,8 +33,7 @@
         <img v-if="rightSectionOpen" src="/arrow-expand-right.svg" alt="close">
         <img v-else src="/arrow-expand-left.svg" alt="open">
         </button>
-        <RightSection 
-        :variantOfInterest="focusedVariant"/>
+        <RightSection />
       </div> 
 
     </div>
