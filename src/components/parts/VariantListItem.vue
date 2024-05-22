@@ -5,11 +5,10 @@
             <div class="location-text">st: {{ variant.start }} end: {{ variant.end }}</div>
             <div class="size-text">{{ (variant.end + 1) - variant.start }} bp</div>
             <div class="type-text" :class="{red: variant.type === 'DEL'}">{{ variant.type }}</div>
-            <div v-if="variant.info.Exomiser.some(gene => gene.significance == 'PATHOGENIC')"><span>P</span></div>
         </div>
         <div v-if="showMore && overlappedGenes" class="more-info">
             <div class="gene-row" v-for="gene in overlappedGenes">
-                <span>{{ gene.gene_symbol }}</span>
+                <span class="gene-symbol-span">{{ gene.gene_symbol }}</span>
                 <div class="gene-information-section">
                     <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
                         <span v-for="phenotype in gene.phenotypes">{{ phenotype.term_id }}</span>
@@ -181,6 +180,11 @@
             max-height: 200px
             display: flex
             flex-direction: column
+            .gene-symbol-span
+                width: 100%
+                text-align: center
+                border-bottom: 1px solid #C1D1EA
+                border-top: 1px solid #C1D1EA
             .gene-information-section
                 display: flex
                 flex-grow: 1
