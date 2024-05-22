@@ -7,8 +7,8 @@
             <div class="type-text" :class="{red: variant.type === 'DEL'}">{{ variant.type }}</div>
             <div v-if="variant.info.Exomiser.some(gene => gene.significance == 'PATHOGENIC')"><span>P</span></div>
         </div>
-        <div v-if="showMore" class="more-info">
-            <div><span>Genes Overlapped:</span></div>
+        <div v-if="showMore && overlappedGenes" class="more-info">
+            <div v-for="gene in overlappedGenes"><span>{{ gene.gene_symbol }}</span></div>
         </div>
     </div>
   </template>
@@ -23,7 +23,8 @@
   },
   data () {
     return {
-        showMore: false
+        showMore: false,
+        overlappedGenes: null
     }
   },
   mounted () {
@@ -35,12 +36,20 @@
         return Math.round(score * 1000) / 1000
     }, 
     variantClicked() {
+        this.getOverlappedGenes()
         this.showMore = !this.showMore
         if (this.showMore) {
             this.$emit('variant-clicked', this.variant, 'show')
         } else {
             this.$emit('variant-clicked', this.variant, 'hide')
         }
+    },
+    getOverlappedGenes() {
+        fetch(`http://localhost:3000/genes/region?build=hg38&source=refseq&startChr=${'chr'+this.variant.chromosome}&startPos=${this.variant.start}&endChr=${'chr'+this.variant.chromosome}&endPos=${this.variant.end}`)
+        .then(response => response.json())
+        .then(data => {
+            this.overlappedGenes = data;
+        });
     }
   },
   computed: {
