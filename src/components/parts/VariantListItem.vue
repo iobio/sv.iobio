@@ -1,13 +1,15 @@
 <template>
     <div id="variant-list-item">
         <div class="preview" :class="{opened: showMore}" @click="variantClicked">
+            <span v-if="variant.overlappedGenes" class="num-genes-tip">{{ numberOfGenes }}</span>
+            <span v-if="variant.overlappedGenes" class="num-phens-tip">{{ cumulativeNumOfPhenotypes }}</span>
             <div>{{ variant.chromosome }}</div>
-            <div class="location-text">st: {{ variant.start }} end: {{ variant.end }}</div>
+            <div class="location-text">S: {{ variant.start }} E: {{ variant.end }}</div>
             <div class="size-text">{{ (variant.end + 1) - variant.start }} bp</div>
             <div class="type-text" :class="{red: variant.type === 'DEL'}">{{ variant.type }}</div>
         </div>
-        <div v-if="showMore && overlappedGenes" class="more-info">
-            <div class="gene-row" v-for="gene in overlappedGenes">
+        <div v-if="showMore && variant.overlappedGenes" class="more-info">
+            <div class="gene-row" v-for="gene in variant.overlappedGenes">
                 <span class="gene-symbol-span">{{ gene.gene_symbol }}</span>
                 <div class="gene-information-section">
                     <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
@@ -28,12 +30,12 @@
   components: {
   },
   props: {
-    variant: Object
+    variant: Object,
+    patientPhenotypes: Array,
   },
   data () {
     return {
         showMore: false,
-        overlappedGenes: null
     }
   },
   mounted () {
@@ -45,7 +47,7 @@
         return Math.round(score * 1000) / 1000
     }, 
     variantClicked() {
-        this.getOverlappedGenes()
+        console.log(this.variant)
         this.showMore = !this.showMore
         if (this.showMore) {
             this.$emit('variant-clicked', this.variant, 'show')
@@ -53,39 +55,26 @@
             this.$emit('variant-clicked', this.variant, 'hide')
         }
     },
-    getOverlappedGenes() {
-        fetch(`http://localhost:3000/genes/region?build=hg38&source=refseq&startChr=${'chr'+this.variant.chromosome}&startPos=${this.variant.start}&endChr=${'chr'+this.variant.chromosome}&endPos=${this.variant.end}`)
-        .then(response => response.json())
-        .then(data => {
-            let overlappedGenes = data;
-            let promises = [];
-
-            Object.values(overlappedGenes).forEach(gene => {
-                let phenPromise = fetch(`http://localhost:3000/genePhenotypes?gene=${gene.gene_symbol}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        gene.phenotypes = data;
-                    });
-
-                promises.push(phenPromise);
-
-                let genePromise = fetch(`http://localhost:3000/geneDiseases?gene=${gene.gene_symbol}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        gene.diseases = data;
-                    })
-                promises.push(genePromise);
-            })
-
-            Promise.all(promises)
-            .then(() => {
-                this.overlappedGenes = overlappedGenes;
-            })
-
-        });    
-    }
   },
   computed: {
+    numberOfGenes(){
+        if (this.variant.overlappedGenes && Object.keys(this.variant.overlappedGenes).length > 0) {
+            return Object.keys(this.variant.overlappedGenes).length
+        } else {
+            return 0;
+        }  
+    },
+    cumulativeNumOfPhenotypes(){
+        if (this.variant.overlappedGenes && Object.values(this.variant.overlappedGenes).length > 0){
+            let num = 0;
+            for (let gene of Object.values(this.variant.overlappedGenes)) {
+                num += Object.keys(gene.phenotypes).length
+            }
+            return num
+        } else {
+            return 0;
+        }
+    }
   },
   watch: {
   },
@@ -100,8 +89,9 @@
     #variant-list-item
         width: 100%
         .preview
+            position: relative
             display: grid
-            grid-template-columns: 1fr 1.5fr 1fr 1fr
+            grid-template-columns: 1fr 1.5fr 1fr .5fr
             grid-template-rows: 1fr
             padding: 5px
             width: 100%
@@ -111,6 +101,28 @@
                 box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
                 background-color: #DEE9F7
                 border-bottom: 1px solid #DEE9F7
+            .num-genes-tip
+                position: absolute
+                top: 2px
+                left: 2px
+                height: 10px
+                padding: 1px 2px
+                font-size: .7em
+                border-radius: 3px
+                background-color: #FECA86
+                text-align: center
+                line-height: 1em
+            .num-phens-tip
+                position: absolute
+                top: 15px
+                left: 2px
+                height: 10px
+                padding: 1px 2px
+                font-size: .7em
+                border-radius: 3px
+                background-color: #5CA3FF
+                text-align: center
+                line-height: 1em
             .rank-text
                 color: #2A65B7
                 font-weight: bold
@@ -140,6 +152,8 @@
             justify-content: flex-start
             padding: 5px
             width: 100%
+            overflow-y: auto
+            max-height: 800px
             box-sizing: border-box
             border-bottom: 1px solid #F5F5F5
             div

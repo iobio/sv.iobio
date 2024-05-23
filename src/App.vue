@@ -18,6 +18,8 @@
         </button>
         <VariantListBar 
         :svList="svList"
+        :patientPhenotypes="phenotypesOfInterest"
+        @updateSvAtIndex="updateSvList"
         @variant-clicked="updateFocusedVariant"/>
       </div>
 
@@ -69,12 +71,40 @@
         phenotypesOfInterest: [],
       }
     },
-    mounted() {
-      fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz')
-        .then(response => response.json())
-        .then(data => {
-          this.svList = data.map(item => new Sv(item))
-        });
+    async mounted() {
+      let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz');
+      let svList = await svListRes.json();
+
+      this.svList = svList.map(sv => new Sv(sv));
+
+      let svListCopy = [...this.svList];
+      let batchSize = 250;
+      let lessNum = 0;
+
+      for (let i = 0; i < svListCopy.length; i += batchSize) {
+        let batchSvs = svListCopy.slice(i, i + batchSize);
+
+        let batchPromises = await Promise.all(batchSvs.map(sv => this.getOverlappedGenes(sv)));
+
+        for (let [index, newSv] of batchPromises.entries()) {
+          let originalIndex = i + index; // Calculate the original index
+
+          if (Object.keys(newSv.overlappedGenes).length == 0) {
+            // Remove this item at this index and push this new SV so it ends up at the end
+            this.svList.splice(originalIndex - lessNum, 1);
+            this.svList.push(newSv);
+            lessNum += 1;
+          } else if (!this.hasPhenotypes(newSv.overlappedGenes)) {
+            // Remove this item at this index and push this new SV so it ends up at the end
+            this.svList.splice(originalIndex - lessNum, 1);
+            this.svList.push(newSv);
+            lessNum += 1;
+          } else {
+            // Update the current index with the new SV
+            this.svList[originalIndex - lessNum] = newSv;
+          }
+        }
+      }
     },
     methods: {
       updateFocusedVariant(variant, flag) {
@@ -85,6 +115,54 @@
         } else {
           this.focusedVariant = variant
         }
+      },
+      hasPhenotypes(overlappedGenes) {
+        return Object.values(overlappedGenes).some(gene => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0);
+      },
+      async getOverlappedGenes(variant) {
+        let updatedVariant = {...variant}
+
+        let genesJson = await fetch(`http://localhost:3000/genes/region?build=hg38&source=refseq&startChr=${'chr'+variant.chromosome}&startPos=${variant.start}&endChr=${'chr'+variant.chromosome}&endPos=${variant.end}`);
+        let genesData = await genesJson.json();
+
+        let overlappedGenes = genesData;
+
+        if (Object.keys(overlappedGenes).length == 0) {
+          updatedVariant.overlappedGenes = overlappedGenes;
+          return updatedVariant;
+        }
+
+        let overlappedGenesKeys = Object.keys(overlappedGenes);
+        let batchSize = 200;
+
+        for (let i = 0; i < overlappedGenesKeys.length; i += batchSize) {
+          let batch = overlappedGenesKeys.slice(i, i + batchSize);
+          let batchString = batch.join(',');
+
+          let associationsRes = await fetch(`http://localhost:3000/geneAssociations?genes=${batchString}`);
+          let { phenToGene, diseaseToGene } = await associationsRes.json();
+
+          //Nested for but because I'm only iterating over a limited and sliced set we should be okay
+          for (let gene_symbol of batch ) {
+            let gene = overlappedGenes[gene_symbol];
+
+            //Phenotypes
+            if (!phenToGene.hasOwnProperty(gene_symbol)) {
+              gene.phenotypes = {};
+            } else {
+              gene.phenotypes = phenToGene[gene_symbol]
+            }
+
+            //Diseases
+            if (!diseaseToGene.hasOwnProperty(gene_symbol)) {
+              gene.diseases = {};
+            } else {
+              gene.diseases = diseaseToGene[gene_symbol]
+            }
+          }
+        }
+        updatedVariant.overlappedGenes = overlappedGenes;
+        return updatedVariant;
       },
       areaSelected(selectedArea) {
         this.selectedArea = selectedArea
@@ -97,6 +175,10 @@
       },
       updatePhenotypesOfInterest(newPOI) {
         this.phenotypesOfInterest = newPOI;        
+      },
+      updateSvList(index, sv) {
+        console.log(sv)
+        this.svList[index] = sv;
       }
     },
   }
