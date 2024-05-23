@@ -78,7 +78,7 @@
       this.svList = svList.map(sv => new Sv(sv));
 
       let svListCopy = [...this.svList];
-      let batchSize = 250;
+      let batchSize = 200;
       let lessNum = 0;
 
       for (let i = 0; i < svListCopy.length; i += batchSize) {
