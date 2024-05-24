@@ -127,6 +127,13 @@
 
         let overlappedGenes = genesData;
 
+        if (this.genesOfInterest && this.genesOfInterest.length < 0) {
+          let geneSet = new Set(Object.keys(overlappedGenes));
+          updatedVariant.genesInCommon = this.genesOfInterest.filter(geneSymbol => geneSet.has(geneSymbol));
+        } else {
+          updatedVariant.genesInCommon = [];
+        }
+
         if (Object.keys(overlappedGenes).length == 0) {
           updatedVariant.overlappedGenes = overlappedGenes;
           return updatedVariant;
@@ -149,8 +156,14 @@
             //Phenotypes
             if (!phenToGene.hasOwnProperty(gene_symbol)) {
               gene.phenotypes = {};
+              gene.phensInCommon = [];
             } else {
-              gene.phenotypes = phenToGene[gene_symbol]
+              gene.phenotypes = phenToGene[gene_symbol];
+              if (this.patientPhenotypes && this.patientPhenotypes.length < 0 ) {
+                //If this turns out to be very unbalenced we could check to see which was shorter
+                let phenotypeSet = new Set(Object.keys(gene.phenotypes));
+                gene.phenotypesInCommon = this.patientPhenotypes.filter(hpoId => phenotypeSet.has(hpoId));
+              }
             }
 
             //Diseases
@@ -172,9 +185,11 @@
       }, 
       updateGenesOfInterest(newGOI) {
         this.genesOfInterest = newGOI;
+        //TODO: here we will need to update genes in common on change
       },
       updatePhenotypesOfInterest(newPOI) {
-        this.phenotypesOfInterest = newPOI;        
+        this.phenotypesOfInterest = newPOI;
+        //TODO: here we will need to update phenotypes in common on change        
       },
       updateSvList(index, sv) {
         console.log(sv)

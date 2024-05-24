@@ -2,6 +2,7 @@
     <div id="variant-list-item">
         <div class="preview" :class="{opened: showMore}" @click="variantClicked">
             <span v-if="variant.overlappedGenes" class="num-genes-tip">{{ numberOfGenes }}</span>
+            <span v-if="variant.overlappedGenes" class="num-genes-common-tip">{{ numberOfGenesInCommon }}</span>
             <span v-if="variant.overlappedGenes" class="num-phens-tip">{{ cumulativeNumOfPhenotypes }}</span>
             <div>{{ variant.chromosome }}</div>
             <div class="location-text">S: {{ variant.start }} E: {{ variant.end }}</div>
@@ -74,6 +75,11 @@
         } else {
             return 0;
         }
+    }, 
+    numberOfGenesInCommon() {
+        if (this.variant.genesInCommon) {
+            return this.variant.genesInCommon.length
+        }
     }
   },
   watch: {
@@ -110,6 +116,17 @@
                 font-size: .7em
                 border-radius: 3px
                 background-color: #FECA86
+                text-align: center
+                line-height: 1em
+            .num-genes-common-tip
+                position: absolute
+                top: 2px
+                left: 32px
+                height: 10px
+                padding: 1px 2px
+                font-size: .7em
+                border-radius: 3px
+                background-color: #67F56E
                 text-align: center
                 line-height: 1em
             .num-phens-tip
