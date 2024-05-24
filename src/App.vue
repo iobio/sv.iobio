@@ -17,14 +17,14 @@
           <img v-else src="/arrow-expand-right.svg" alt="open">
         </button>
         <VariantListBar 
-        :svList="svList"
+        :svList="svListChart"
         :patientPhenotypes="phenotypesOfInterest"
         @updateSvAtIndex="updateSvList"
         @variant-clicked="updateFocusedVariant"/>
       </div>
 
       <LeftTracksSection 
-        :svList="svList"
+        :svList="svListChart"
         :selectedArea="selectedArea"
         :focusedVariant="focusedVariant"
         :genesOfInterest="genesOfInterest"
@@ -62,22 +62,24 @@
     },
     data() {
       return {
-        svList: [],
+        svListChart: [],
+        svListVariantBar: [],
         focusedVariant: null,
         selectedArea: null,
         variantListBarOpen: true,
         rightSectionOpen: false,
         genesOfInterest: [],
         phenotypesOfInterest: [],
+        ofInterestStopIndex: 0,
       }
     },
     async mounted() {
       let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz');
       let svList = await svListRes.json();
 
-      this.svList = svList.map(sv => new Sv(sv));
+      this.svListChart = svList.map(sv => new Sv(sv));
 
-      let svListCopy = [...this.svList];
+      let svListCopy = [...this.svListChart];
       let batchSize = 200;
       let lessNum = 0;
 
@@ -89,19 +91,30 @@
         for (let [index, newSv] of batchPromises.entries()) {
           let originalIndex = i + index; // Calculate the original index
 
+          //Before we sort anything down the list make sure we dont want to swap this to the top
+          if (newSv.genesInCommon.length > 0) {
+            //if we have genes in common perform a swap
+            let temp = this.svListChart[this.ofInterestStopIndex] //whatever is at the 'stop' index
+            this.svListChart[this.ofInterestStopIndex] = newSv;
+            this.svListChart[originalIndex - lessNum] = temp
+
+            this.ofInterestStopIndex ++;
+            continue;
+          }
+
           if (Object.keys(newSv.overlappedGenes).length == 0) {
             // Remove this item at this index and push this new SV so it ends up at the end
-            this.svList.splice(originalIndex - lessNum, 1);
-            this.svList.push(newSv);
+            this.svListChart.splice(originalIndex - lessNum, 1);
+            this.svListChart.push(newSv);
             lessNum += 1;
           } else if (!this.hasPhenotypes(newSv.overlappedGenes)) {
             // Remove this item at this index and push this new SV so it ends up at the end
-            this.svList.splice(originalIndex - lessNum, 1);
-            this.svList.push(newSv);
+            this.svListChart.splice(originalIndex - lessNum, 1);
+            this.svListChart.push(newSv);
             lessNum += 1;
           } else {
             // Update the current index with the new SV
-            this.svList[originalIndex - lessNum] = newSv;
+            this.svListChart[originalIndex - lessNum] = newSv;
           }
         }
       }
@@ -127,9 +140,10 @@
 
         let overlappedGenes = genesData;
 
-        if (this.genesOfInterest && this.genesOfInterest.length < 0) {
+        if (this.genesOfInterest && this.genesOfInterest.length > 0) {
           let geneSet = new Set(Object.keys(overlappedGenes));
-          updatedVariant.genesInCommon = this.genesOfInterest.filter(geneSymbol => geneSet.has(geneSymbol));
+          let genesInCommon = this.genesOfInterest.filter(geneSymbol => geneSet.has(geneSymbol));
+          updatedVariant.genesInCommon = genesInCommon;
         } else {
           updatedVariant.genesInCommon = [];
         }
@@ -186,14 +200,39 @@
       updateGenesOfInterest(newGOI) {
         this.genesOfInterest = newGOI;
         //TODO: here we will need to update genes in common on change
+        this.svListChart.forEach((sv, index) => {
+          if (sv?.overlappedGenes && Object.keys(sv.overlappedGenes).length > 0){
+            let geneSet = new Set(Object.keys(sv.overlappedGenes));
+            let genesInCommon = this.genesOfInterest.filter(geneSymbol => geneSet.has(geneSymbol));
+            sv.genesInCommon = genesInCommon;
+
+            if (genesInCommon.length > 0) {
+              //if we have genes in common perform a swap
+              let temp = this.svListChart[this.ofInterestStopIndex]
+              this.svListChart[this.ofInterestStopIndex] = this.svListChart[index]
+              this.svListChart[index] = temp
+
+              this.ofInterestStopIndex ++;
+            }
+          } else if (!sv.genesInCommon){
+            sv.genesInCommon = [];
+          }
+        })
       },
       updatePhenotypesOfInterest(newPOI) {
         this.phenotypesOfInterest = newPOI;
-        //TODO: here we will need to update phenotypes in common on change        
+        //TODO: here we will need to update phenotypes in common on change
+
+        //One we want to pull genes associated with these phenotypes so we know "possible genes of interest"
+
+        //Then we also want to check our variants and see if they overlap any of these phenotypeRelatedGenes
+
+        //We want to give a phens in common to reflect the number of phenotypes in common represented by the genes overlapped cumulatively 
+
       },
       updateSvList(index, sv) {
         console.log(sv)
-        this.svList[index] = sv;
+        this.svListChart[index] = sv;
       }
     },
   }
