@@ -198,6 +198,11 @@
         this.selectedArea = zoomZone
       }, 
       updateGenesOfInterest(newGOI) {
+        //if it is the same list we dont need to do anything
+        if (newGOI.length == this.genesOfInterest.length && newGOI.every((v, i) => v === this.genesOfInterest[i])) {
+          return;
+        }
+        
         this.genesOfInterest = newGOI;
         //TODO: here we will need to update genes in common on change
         this.svListChart.forEach((sv, index) => {
