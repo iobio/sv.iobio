@@ -73,6 +73,8 @@
         candidatePhenGenes: [],
         overlappedPhenGenes: [],
         ofInterestStopIndex: 0,
+        phensCoveredStopIndex: 0,
+        genesCoveredStopIndex: 0,
       }
     },
     async mounted() {
@@ -251,7 +253,7 @@
         if (newPOI == this.phenotypesOfInterest) {
           return;
         }
-        
+
         //if we have them then we need to call the /phenotypeGenes endpoint with the new list of hpoIds
         let hpoIds = newPOI.join(',');
         fetch(`http://localhost:3000/phenotypeGenes?phenotypes=${hpoIds}`)

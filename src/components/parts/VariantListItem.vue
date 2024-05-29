@@ -1,9 +1,9 @@
 <template>
     <div id="variant-list-item">
         <div class="preview" :class="{opened: showMore}" @click="variantClicked">
-            <span v-if="variant.overlappedGenes" class="num-genes-tip">{{ numberOfGenes }}</span>
             <span v-if="variant.overlappedGenes && variant.overlappedPhenGenes" class="num-genes-common-tip">{{ numberOfGenesInCommon }}</span>
-            <span v-if="variant.overlappedGenes" class="num-phens-tip">{{ cumulativeNumOfPhenotypes }}</span>
+            <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-tip">{{ numPhensAccountedFor }}</span>
+            <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">{{ Math.round((numPhensAccountedFor/this.patientPhenotypes.length)*100) }}%</span>
             <div>{{ variant.chromosome }}</div>
             <div class="location-text">S: {{ variant.start }} E: {{ variant.end }}</div>
             <div class="size-text">{{ (variant.end + 1) - variant.start }} bp</div>
@@ -81,7 +81,20 @@
         if (this.variant.genesInCommon) {
             return this.variant.genesInCommon.length + this.variant.overlappedPhenGenes.length
         }
-    }
+    },
+    numPhensAccountedFor() {
+        //if there are patient phenotypes we can see how many of the overlapped phenotypes are accounted for
+        if (this.patientPhenotypes && this.patientPhenotypes.length > 0 && this.variant.overlappedGenes && Object.values(this.variant.overlappedGenes).length > 0) {
+            let inCommonOverlappedPhens = [];
+            for (let gene of Object.values(this.variant.overlappedGenes)) {
+                inCommonOverlappedPhens.push(...Object.keys(gene.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype)))
+            }
+            inCommonOverlappedPhens = new Set(inCommonOverlappedPhens)
+            return inCommonOverlappedPhens.size;
+        } else {
+            return 0;
+        }   
+    },
   },
   watch: {
   },
@@ -108,21 +121,21 @@
                 box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
                 background-color: #DEE9F7
                 border-bottom: 1px solid #DEE9F7
-            .num-genes-tip
+            .num-genes-common-tip
                 position: absolute
                 top: 2px
-                left: 2px
+                left: 5px
                 height: 10px
                 padding: 1px 2px
                 font-size: .7em
                 border-radius: 3px
-                background-color: #FECA86
+                background-color: #F0C86C
                 text-align: center
                 line-height: 1em
-            .num-genes-common-tip
+            .num-phens-accounted-tip
                 position: absolute
-                top: 2px
-                left: 32px
+                top: 15px
+                left: 5px
                 height: 10px
                 padding: 1px 2px
                 font-size: .7em
@@ -130,15 +143,15 @@
                 background-color: #67F56E
                 text-align: center
                 line-height: 1em
-            .num-phens-tip
+            .num-phens-accounted-perc-tip
                 position: absolute
                 top: 15px
-                left: 2px
+                left: 25px
                 height: 10px
                 padding: 1px 2px
                 font-size: .7em
                 border-radius: 3px
-                background-color: #5CA3FF
+                background-color: #67F56E
                 text-align: center
                 line-height: 1em
             .rank-text
