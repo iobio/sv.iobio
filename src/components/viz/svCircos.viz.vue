@@ -128,8 +128,6 @@ export default {
         }
       }
       
-
-
       if (this.vcfDataPar1) {
         options.parent1Data = this.vcfDataPar1
       }
