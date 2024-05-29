@@ -67,11 +67,12 @@
     },
     cumulativeNumOfPhenotypes(){
         if (this.variant.overlappedGenes && Object.values(this.variant.overlappedGenes).length > 0){
-            let num = 0;
+            let overlappedPhens = [];
             for (let gene of Object.values(this.variant.overlappedGenes)) {
-                num += Object.keys(gene.phenotypes).length
+                overlappedPhens.push(...Object.keys(gene.phenotypes)) 
             }
-            return num
+            overlappedPhens = new Set(overlappedPhens)
+            return overlappedPhens.size;
         } else {
             return 0;
         }
