@@ -50,6 +50,7 @@
   import VariantListBar from './components/VariantListBar.vue';
   import NavBar from './components/NavBar.vue';
   import Sv from './models/Sv.js'
+import { timeHours } from 'd3';
 
   export default {
     name: 'app',
@@ -97,16 +98,28 @@
             //If we have both phenotypes of interest and overlappedGenes we can see how many phenotypes are accounted for
             if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0 && newSv.overlappedGenes && Object.values(newSv.overlappedGenes).length > 0) {
               let num = this.numPhensAccountedFor(this.phenotypesOfInterest, newSv.overlappedGenes);
+
+              //----------------SORTING------------------------------------//
               /**
                * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
                * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
                */
               if (num > 0) {
+                if (originalIndex > this.interestStopIndex) {
+                  let temp = this.svListVariantBar[this.interestStopIndex];
+                  this.svListVariantBar[this.interestStopIndex] = newSv;
+                  this.svListVariantBar[originalIndex] = temp;
 
+                  this.interestStopIndex++;
+                } else if (originalIndex == this.interestStopIndex) {
+                  this.interestStopIndex++;
+                } 
+              } else {
+                this.svListVariantBar[originalIndex] = newSv;
               }
+            } else {
+              this.svListVariantBar[originalIndex] = newSv;
             }
-
-            this.svListVariantBar[originalIndex] = newSv;
         }
       }
     },
@@ -269,12 +282,22 @@
                 //if we do have overlapped genes and now we have phentypes of interest we can check the accounted for
                 if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
                   let num = this.numPhensAccountedFor(this.patientPhenotypes, sv.overlappedGenes);
+
+                  //----------------SORTING------------------------------------//
                   /**
                    * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
                    * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
                    */
                   if (num > 0) {
-                
+                    if (index > this.interestStopIndex) {
+                      let temp = this.svListVariantBar[this.interestStopIndex];
+                      this.svListVariantBar[this.interestStopIndex] = sv;
+                      this.svListVariantBar[index] = temp;
+
+                      this.interestStopIndex++;
+                    } else if (index == this.interestStopIndex) {
+                      this.interestStopIndex++;
+                    } 
                   }
                 }
 
