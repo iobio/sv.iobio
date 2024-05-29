@@ -14,7 +14,7 @@
                 <span class="gene-symbol-span">{{ gene.gene_symbol }}</span>
                 <div class="gene-information-section">
                     <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
-                        <span v-for="phenotype in gene.phenotypes">{{ phenotype.term_id }}</span>
+                        <span v-for="phenotype in sortByInPatientPhens(gene.phenotypes)" :class="{green: patientPhenotypes.includes(phenotype)}">{{ phenotype }}</span>
                     </p>
                     <p class="column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
                         <span v-for="disease in gene.diseases">{{ disease.disease_id }}</span>
@@ -50,12 +50,50 @@
     variantClicked() {
         console.log(this.variant)
         this.showMore = !this.showMore
+
+        //sort the genes and phenotypes with the sortVariantInformation function
+        this.variant.overlappedGenes = this.sortVariantInformation()
+
         if (this.showMore) {
             this.$emit('variant-clicked', this.variant, 'show')
         } else {
             this.$emit('variant-clicked', this.variant, 'hide')
         }
     },
+    sortVariantInformation(){
+        /**
+         * When the variant is clicked we will call this function that sorts through this variant's genes and phenotypes
+         * If we have patient phenotypes then the genes that go to the top should be the genes with the most number of phens in common with the patient
+         */
+        if (this.patientPhenotypes && this.patientPhenotypes.length > 0 && this.variant.overlappedGenes && Object.values(this.variant.overlappedGenes).length > 0) {
+            let overlappedGenes = Object.values(this.variant.overlappedGenes)
+            overlappedGenes.sort((a, b) => {
+                let aPhens = Object.keys(a.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype))
+                let bPhens = Object.keys(b.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype))
+                return bPhens.length - aPhens.length
+            });
+            return overlappedGenes
+        } else {
+            return this.variant.overlappedGenes
+        }
+    },
+    sortByInPatientPhens(phenotypesObj) {
+        /**
+         * Turns a phenotypes object into an array of the phenotypes which are the keys 
+         * the array is sorted by if that phenotype is in the patient phenotypes
+         */
+        let phenotypes = Object.keys(phenotypesObj)
+        phenotypes.sort((a, b) => {
+            if (this.patientPhenotypes.includes(a) && !this.patientPhenotypes.includes(b)) {
+                return -1
+            } else if (!this.patientPhenotypes.includes(a) && this.patientPhenotypes.includes(b)) {
+                return 1
+            } else {
+                return 0
+            }
+        })
+        return phenotypes
+    }
   },
   computed: {
     numberOfGenes(){
@@ -246,4 +284,9 @@
                     overflow-x: hidden
                     &:first-of-type
                         flex-grow: 1
+    .green
+        color: green
+        background-color: #C7E1B7
+        border: 1px solid green
+        border-radius: 5px
   </style>
