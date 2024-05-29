@@ -73,7 +73,6 @@
         candidatePhenGenes: [],
         overlappedPhenGenes: [],
         interestStopIndex: 0, //Used to keep track of how many SVs have been moved to the front
-        lessNum: 0, //used to keep track of how many SVs have been moved to the end
       }
     },
     async mounted() {
@@ -84,7 +83,6 @@
 
       let svListCopy = [...this.svListChart];
       let batchSize = 200;
-      let lessNum = 0;
 
       for (let i = 0; i < svListCopy.length; i += batchSize) {
         let batchSvs = svListCopy.slice(i, i + batchSize);
@@ -98,9 +96,13 @@
             //If we have both phenotypes of interest and overlappedGenes we can see how many phenotypes are accounted for
             if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0 && newSv.overlappedGenes && Object.values(newSv.overlappedGenes).length > 0) {
               let num = this.numPhensAccountedFor(this.phenotypesOfInterest, newSv.overlappedGenes);
+              /**
+               * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
+               * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
+               */
             }
 
-            this.svListChart[originalIndex - lessNum] = newSv;
+            this.svListChart[originalIndex] = newSv;
         }
       }
     },
@@ -253,12 +255,22 @@
             //We will iterate over the svListChart and update the overlappedPhenGenes for each SV
             this.svListChart.forEach((sv, index) => {
 
-              //If an sv already has overlappedGenes calculated we can check them against the candidatePhenGenes
+              //If an sv already has overlappedGenes calculated we can check them against the candidatePhenGenes to get the phenGenes that have some overlap with the sv
               if (sv?.overlappedGenes && Object.keys(sv.overlappedGenes).length > 0){
                 let geneSet = new Set(Object.keys(sv.overlappedGenes));
                 let candidateGenesOverlapped = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
                 sv.overlappedPhenGenes = candidateGenesOverlapped;
                 overlappedLocal.push(...candidateGenesOverlapped);
+
+                //if we do have overlapped genes and now we have phentypes of interest we can check the accounted for
+                if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
+                  let num = this.numPhensAccountedFor(this.patientPhenotypes, sv.overlappedGenes);
+                  /**
+                   * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
+                   * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
+                   */
+                }
+
               } else if (!sv.overlappedGenes || Object.keys(sv.overlappedGenes).length == 0) {
                 sv.overlappedPhenGenes = [];
               } 
