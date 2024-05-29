@@ -17,7 +17,7 @@
           <img v-else src="/arrow-expand-right.svg" alt="open">
         </button>
         <VariantListBar 
-        :svList="svListChart"
+        :svList="svListVariantBar"
         :patientPhenotypes="phenotypesOfInterest"
         @updateSvAtIndex="updateSvList"
         @variant-clicked="updateFocusedVariant"/>
@@ -79,9 +79,10 @@
       let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz');
       let svList = await svListRes.json();
 
+      this.svListVariantBar = svList.map(sv => new Sv(sv));
       this.svListChart = svList.map(sv => new Sv(sv));
 
-      let svListCopy = [...this.svListChart];
+      let svListCopy = [...this.svListVariantBar];
       let batchSize = 200;
 
       for (let i = 0; i < svListCopy.length; i += batchSize) {
@@ -100,9 +101,12 @@
                * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
                * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
                */
+              if (num > 0) {
+
+              }
             }
 
-            this.svListChart[originalIndex] = newSv;
+            this.svListVariantBar[originalIndex] = newSv;
         }
       }
     },
@@ -218,7 +222,7 @@
         this.genesOfInterest = newGOI;
 
         //Iterate over the svListChart and update the genesInCommon given the new genesOfInterest
-        this.svListChart.forEach((sv, index) => {
+        this.svListVariantBar.forEach((sv, index) => {
 
           //If an sv has a list of overlapped genes to look at then check them against the genesOfInterest
           if (sv?.overlappedGenes && Object.keys(sv.overlappedGenes).length > 0){
@@ -253,7 +257,7 @@
             let overlappedLocal = [];
 
             //We will iterate over the svListChart and update the overlappedPhenGenes for each SV
-            this.svListChart.forEach((sv, index) => {
+            this.svListVariantBar.forEach((sv, index) => {
 
               //If an sv already has overlappedGenes calculated we can check them against the candidatePhenGenes to get the phenGenes that have some overlap with the sv
               if (sv?.overlappedGenes && Object.keys(sv.overlappedGenes).length > 0){
@@ -269,6 +273,9 @@
                    * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
                    * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
                    */
+                  if (num > 0) {
+                
+                  }
                 }
 
               } else if (!sv.overlappedGenes || Object.keys(sv.overlappedGenes).length == 0) {
@@ -295,7 +302,7 @@
       },
       updateSvList(index, sv) {
         console.log(sv)
-        this.svListChart[index] = sv;
+        this.svListVariantBar[index] = sv;
       }
     },
   }
