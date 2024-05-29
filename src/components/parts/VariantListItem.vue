@@ -2,7 +2,7 @@
     <div id="variant-list-item">
         <div class="preview" :class="{opened: showMore}" @click="variantClicked">
             <span v-if="variant.overlappedGenes" class="num-genes-tip">{{ numberOfGenes }}</span>
-            <span v-if="variant.overlappedGenes" class="num-genes-common-tip">{{ numberOfGenesInCommon }}</span>
+            <span v-if="variant.overlappedGenes && variant.overlappedPhenGenes" class="num-genes-common-tip">{{ numberOfGenesInCommon }}</span>
             <span v-if="variant.overlappedGenes" class="num-phens-tip">{{ cumulativeNumOfPhenotypes }}</span>
             <div>{{ variant.chromosome }}</div>
             <div class="location-text">S: {{ variant.start }} E: {{ variant.end }}</div>
@@ -78,7 +78,7 @@
     }, 
     numberOfGenesInCommon() {
         if (this.variant.genesInCommon) {
-            return this.variant.genesInCommon.length
+            return this.variant.genesInCommon.length + this.variant.overlappedPhenGenes.length
         }
     }
   },

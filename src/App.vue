@@ -5,7 +5,7 @@
         @updateGenesOfInterest="updateGenesOfInterest"
         @updatePhenotypesOfInterest="updatePhenotypesOfInterest"/>
       <!-- <UpperChromBar
-        :svList="svList"
+        :svList="svListChart"
         :zoomZone="selectedArea"
         @area-selected="areaSelected"/> -->
     </div>
@@ -70,6 +70,8 @@
         rightSectionOpen: false,
         genesOfInterest: [],
         phenotypesOfInterest: [],
+        candidatePhenGenes: [],
+        overlappedPhenGenes: [],
         ofInterestStopIndex: 0,
       }
     },
@@ -94,6 +96,14 @@
           //Before we sort anything down the list make sure we dont want to swap this to the top
           if (newSv.genesInCommon.length > 0) {
             //if we have genes in common perform a swap
+            let temp = this.svListChart[this.ofInterestStopIndex] //whatever is at the 'stop' index
+            this.svListChart[this.ofInterestStopIndex] = newSv;
+            this.svListChart[originalIndex - lessNum] = temp
+
+            this.ofInterestStopIndex ++;
+            continue;
+          } else if (newSv.overlappedPhenGenes.length > 0) {
+            //if we have overlappedPhenotype genes perform a swap even if we dont have the other GOI in common
             let temp = this.svListChart[this.ofInterestStopIndex] //whatever is at the 'stop' index
             this.svListChart[this.ofInterestStopIndex] = newSv;
             this.svListChart[originalIndex - lessNum] = temp
@@ -146,6 +156,18 @@
           updatedVariant.genesInCommon = genesInCommon;
         } else {
           updatedVariant.genesInCommon = [];
+        }
+
+        if (this.candidatePhenGenes && this.candidatePhenGenes.length > 0) {
+          //essentially if the gene didnt have phenotypes when we checked earlier we want a chance to update it and the overlappedPhenGenes
+          let geneSet = new Set(Object.keys(overlappedGenes));
+          let genesInCommon = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
+          updatedVariant.overlappedPhenGenes = genesInCommon;
+          this.overlappedPhenGenes.push(...genesInCommon);
+          this.overlappedPhenGenes = [...new Set(this.overlappedPhenGenes)];
+        } else {
+          //if we dont have candidatePhenGenes then we dont need to update overlappedPhenGenes
+          updatedVariant.overlappedPhenGenes = [];
         }
 
         if (Object.keys(overlappedGenes).length == 0) {
@@ -226,14 +248,39 @@
       },
       updatePhenotypesOfInterest(newPOI) {
         this.phenotypesOfInterest = newPOI;
-        //TODO: here we will need to update phenotypes in common on change
+        //if we have them then we need to call the /phenotypeGenes endpoint with the new list of hpoIds
+        let hpoIds = newPOI.join(',');
+        fetch(`http://localhost:3000/phenotypeGenes?phenotypes=${hpoIds}`)
+          .then(res => res.json())
+          .then(data => {
+            //we are getting an object but we just want the list of the keys
+            this.candidatePhenGenes = Object.keys(data);
 
-        //One we want to pull genes associated with these phenotypes so we know "possible genes of interest"
+            let overlappedLocal = [];
+            //now we need to update the overlappedPhenGenes
+            this.svListChart.forEach((sv, index) => {
+              //If a gene overlaps with the candidatePhenGenes then we want to update this.overlappedPhenGenes with that gene
+              if (sv?.overlappedGenes && Object.keys(sv.overlappedGenes).length > 0){
+                let geneSet = new Set(Object.keys(sv.overlappedGenes));
+                let genesInCommon = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
+                sv.overlappedPhenGenes = genesInCommon;
+                overlappedLocal.push(...genesInCommon);
 
-        //Then we also want to check our variants and see if they overlap any of these phenotypeRelatedGenes
+                if (genesInCommon.length > 0 && sv.genesInCommon.length == 0) {
+                  //if we have no other genes in common but we have overlappedPhenGenes perform a swap
+                  //skipping the genesInCommon because those are already sorted to the top
+                  let temp = this.svListChart[this.ofInterestStopIndex]
+                  this.svListChart[this.ofInterestStopIndex] = this.svListChart[index]
+                  this.svListChart[index] = temp
 
-        //We want to give a phens in common to reflect the number of phenotypes in common represented by the genes overlapped cumulatively 
-
+                  this.ofInterestStopIndex ++;
+                }
+              } else if (!sv.overlappedPhenGenes){
+                sv.overlappedPhenGenes = [];
+              }
+            })
+            this.overlappedPhenGenes = [...new Set(overlappedLocal)];
+          })
       },
       updateSvList(index, sv) {
         console.log(sv)
