@@ -28,6 +28,7 @@
         :selectedArea="selectedArea"
         :focusedVariant="focusedVariant"
         :genesOfInterest="genesOfInterest"
+        :phenRelatedGenes="overlappedPhenGenes"
         @circos-zoom-event="circosZoomFired"/>
 
       <div id="right-section-container" :class="{collapsed: !rightSectionOpen}">

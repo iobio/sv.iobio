@@ -17,6 +17,7 @@ export default {
     focusedVariant: Object,
     needsFocus: Boolean,
     genesOfInterest: Array,
+    phenRelatedGenes: Array,
   },
   data () {
     return {
@@ -120,6 +121,10 @@ export default {
         if (this.genesOfInterest) {
           options.genesOfInterest = this.genesOfInterest.map(gene => this.genes[gene])
           options.genesOfInterest.filter(gene => gene !== undefined);
+        }
+        if (this.phenRelatedGenes) {
+          options.phenRelatedGenes = this.phenRelatedGenes.map(gene => this.genes[gene])
+          options.phenRelatedGenes.filter(gene => gene !== undefined);
         }
       }
       
