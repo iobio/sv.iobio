@@ -140,7 +140,7 @@
                 padding: 1px 2px
                 font-size: .7em
                 border-radius: 3px
-                background-color: #67F56E
+                background-color: #48BA4E
                 text-align: center
                 line-height: 1em
             .num-phens-accounted-perc-tip
