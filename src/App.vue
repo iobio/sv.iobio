@@ -94,7 +94,7 @@
           let originalIndex = i + index; // Calculate the original index
 
           //Before we sort anything down the list make sure we dont want to swap this to the top
-          if (newSv.genesInCommon.length > 0) {
+          if (newSv.genesInCommon.length > 0 && (newSv.overlappedPhenGenes.length == 0 || !newSv.overlappedPhenGenes)) {
             //if we have genes in common perform a swap
             let temp = this.svListChart[this.ofInterestStopIndex] //whatever is at the 'stop' index
             this.svListChart[this.ofInterestStopIndex] = newSv;
@@ -233,7 +233,7 @@
             let genesInCommon = this.genesOfInterest.filter(geneSymbol => geneSet.has(geneSymbol));
             sv.genesInCommon = genesInCommon;
 
-            if (genesInCommon.length > 0) {
+            if (genesInCommon.length > 0 && sv.overlappedPhenGenes.length == 0) {
               //if we have genes in common perform a swap
               let temp = this.svListChart[this.ofInterestStopIndex]
               this.svListChart[this.ofInterestStopIndex] = this.svListChart[index]
@@ -248,6 +248,10 @@
       },
       updatePhenotypesOfInterest(newPOI) {
         this.phenotypesOfInterest = newPOI;
+        if (newPOI == this.phenotypesOfInterest) {
+          return;
+        }
+        
         //if we have them then we need to call the /phenotypeGenes endpoint with the new list of hpoIds
         let hpoIds = newPOI.join(',');
         fetch(`http://localhost:3000/phenotypeGenes?phenotypes=${hpoIds}`)
