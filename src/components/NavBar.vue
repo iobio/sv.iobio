@@ -1,5 +1,6 @@
 <template>
     <div id="nav-bar">
+      <button>Filter Variants</button>
       <!-- file input -->
       <div class="nav-bar-item-wrapper">
         <label class="nav-bar-item-sub" for="phenotypes">Patient Phenotypes</label>
