@@ -280,8 +280,8 @@ import { timeHours } from 'd3';
                 overlappedLocal.push(...candidateGenesOverlapped);
 
                 //if we do have overlapped genes and now we have phentypes of interest we can check the accounted for
-                if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
-                  let num = this.numPhensAccountedFor(this.patientPhenotypes, sv.overlappedGenes);
+                if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0) {
+                  let num = this.numPhensAccountedFor(this.phenotypesOfInterest, sv.overlappedGenes);
 
                   //----------------SORTING------------------------------------//
                   /**
