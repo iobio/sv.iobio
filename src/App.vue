@@ -94,48 +94,8 @@
 
         for (let [index, newSv] of batchPromises.entries()) {
           let originalIndex = i + index; // Calculate the original index
-
-          //--------------SWAP UP LOGIC----------------//
-          //TODO: This is a bit of a mess and could be cleaned up
-          //if we have genes in common but no overlappedPhenGenes we swap solely based on genesInCommon
-          if (newSv.genesInCommon.length > 0 && (newSv.overlappedPhenGenes.length == 0 || !newSv.overlappedPhenGenes)) {
-            let temp = this.svListChart[this.ofInterestStopIndex] //whatever is at the 'stop' index
-            this.svListChart[this.ofInterestStopIndex] = newSv;
-            this.svListChart[originalIndex - lessNum] = temp
-
-            this.ofInterestStopIndex ++;
-            continue;
-
-          //If we do have overlappedPhenGenes we swap SV based on that as well
-          } else if (newSv.overlappedPhenGenes.length > 0) {
-            let temp = this.svListChart[this.ofInterestStopIndex] //whatever is at the 'stop' index
-            this.svListChart[this.ofInterestStopIndex] = newSv;
-            this.svListChart[originalIndex - lessNum] = temp
-
-            this.ofInterestStopIndex ++;
-            continue;
-          }
-
-          //--------------PUT AT END LOGIC----------------//
-          //If we have no overlappedGenes at all put this SV at the end
-          if (Object.keys(newSv.overlappedGenes).length == 0) {
-            // Remove this item at this index and push this new SV so it ends up at the end
-            this.svListChart.splice(originalIndex - lessNum, 1);
-            this.svListChart.push(newSv);
-            lessNum += 1;
-
-          //If we have overlappedGenes but no phenotypes at all put this SV at the end
-          } else if (!this.hasPhenotypes(newSv.overlappedGenes)) {
-            // Remove this item at this index and push this new SV so it ends up at the end
-            this.svListChart.splice(originalIndex - lessNum, 1);
-            this.svListChart.push(newSv);
-            lessNum += 1;
-
-          //otherwise we just update the SV in place
-          } else {
             // Update the current index with the new SV
             this.svListChart[originalIndex - lessNum] = newSv;
-          }
         }
       }
     },
@@ -258,22 +218,6 @@
             let geneSet = new Set(Object.keys(sv.overlappedGenes));
             let genesInCommon = this.genesOfInterest.filter(geneSymbol => geneSet.has(geneSymbol));
             sv.genesInCommon = genesInCommon;
-
-            //---------------------------------SWAP UP LOGIC---------------------------------//
-            //If there are genes in common and we don't have any overlappedPhenGenes we want to swap this SV up
-            if (genesInCommon.length > 0 && sv.overlappedPhenGenes.length == 0) {
-              let temp = this.svListChart[this.ofInterestStopIndex]
-              this.svListChart[this.ofInterestStopIndex] = this.svListChart[index]
-              this.svListChart[index] = temp
-              this.ofInterestStopIndex ++;
-
-            //If we have have overlappedPhenGenes we want to swap this SV up 
-            } else if (sv?.overlappedPhenGenes && sv.overlappedPhenGenes.length > 0) {
-              let temp = this.svListChart[this.ofInterestStopIndex]
-              this.svListChart[this.ofInterestStopIndex] = this.svListChart[index]
-              this.svListChart[index] = temp
-              this.ofInterestStopIndex ++;
-            }
           } else if (!sv.overlappedGenes) {
             sv.genesInCommon = [];
           }
@@ -310,16 +254,6 @@
                 let candidateGenesOverlapped = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
                 sv.overlappedPhenGenes = candidateGenesOverlapped;
                 overlappedLocal.push(...candidateGenesOverlapped);
-
-                //---------------------------------SWAP UP LOGIC---------------------------------//
-                //If we have overlappedPhenGenes but no genesInCommon we want to swap up if we had genesInCommon we'd already be up
-                if (candidateGenesOverlapped.length > 0 && sv.genesInCommon.length == 0) {
-                  let temp = this.svListChart[this.ofInterestStopIndex]
-                  this.svListChart[this.ofInterestStopIndex] = this.svListChart[index]
-                  this.svListChart[index] = temp
-
-                  this.ofInterestStopIndex ++;
-                }
               } else if (!sv.overlappedPhenGenes){
                 sv.overlappedPhenGenes = [];
               } 
