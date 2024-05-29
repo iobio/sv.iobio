@@ -7,6 +7,7 @@
           :focusedVariant="focusedVariant"
           :needsFocus="needsFocus"
           :genesOfInterest="genesOfInterest"
+          :phenRelatedGenes="phenRelatedGenes"
           @circos-zoom-event="circosZoomFired"/>
     </div>
   </template>
@@ -17,13 +18,14 @@
   export default {
   name: "LeftTracksSection",
   components: {
-    svCircos
+    svCircos,
   },
   props: {
     svList: Array,
     selectedArea: Object,
     focusedVariant: Object,
     genesOfInterest: Array,
+    phenRelatedGenes: Array,
   },
   data () {
     return {

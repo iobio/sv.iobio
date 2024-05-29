@@ -8,6 +8,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     let bands = null;
     let genes = null;
     let genesOfInterest = null;
+    let phenRelatedGenes = null;
     let parent1Data = null;
     let parent2Data = null;
     let altCallerData = null;
@@ -126,6 +127,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 //lookup each gene name from genes and add it to a list
                 genesOfInterest = options.genesOfInterest;
             }
+
+            if (options.phenRelatedGenes){
+                phenRelatedGenes = options.phenRelatedGenes;
+            }
         }
 
         //if we have a parent1
@@ -140,9 +145,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         if (options.altCallerData) {
             altCallerData = options.altCallerData
         }
-
-
-
     }
 
     _setBaseStyles();
@@ -1097,6 +1099,205 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         }
     }
 
+    function _renderPhenRelatedGenes(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range) {
+        //if there are already arcs remove them before redrawing
+        svg.selectAll('.phen-related-gene-arc').remove();
+
+        let tracMap = {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false,
+        };
+
+        let genePosMap = {};
+
+        for (let gene of Object.values(genes)) {
+            let geneChr = null;
+
+            if (gene?.chr) {
+                geneChr = gene['chr'].replace('chr', '');
+            }
+
+            //if the gene is not in a chromosome in the map then skip it
+            if (!geneChr || !chromosomeAccumulatedMap.has(geneChr)) {
+                continue;
+            }
+
+            let accStart = chromosomeAccumulatedMap.get(geneChr).start + gene['start'];
+            let accEnd = chromosomeAccumulatedMap.get(geneChr).start + gene['end'];
+
+            let newStartEnd = _getStartEndForRange(accStart, accEnd, range);
+
+            if (!newStartEnd) {
+                //dont render this gene at all
+                continue;
+            }
+
+            accStart = newStartEnd.start;
+            accEnd = newStartEnd.end;
+
+            let geneStartAngle = angleScale(accStart);
+            let geneEndAngle = angleScale(accEnd);
+
+            //the minimum arc needs to be 1 pixel
+            if (geneEndAngle - geneStartAngle < 0.001) {
+                geneEndAngle += 0.001;
+            }
+
+            let currentTrac = 0;
+            let radiusOffset = 0;
+
+            //is the gene in the genePosMap
+            if (!genePosMap[`${accStart}-${accEnd}`]) {
+                genePosMap[`${accStart}-${accEnd}`] = [gene];
+
+                for (let x of Object.keys(tracMap)) {
+                    if (tracMap[x] === false || (accStart > tracMap[x])) {
+                        tracMap[x] = accEnd;
+                        currentTrac = x;
+                        break;
+                    } 
+                }
+                
+                radiusOffset = (currentTrac - 1) * 4;
+                let radius = (maxRadius * 0.93) - radiusOffset;
+
+                //use gene start and end angel to create an arc
+                let arc = d3.arc()
+                    .innerRadius(radius - 2)
+                    .outerRadius(radius)
+                    .startAngle(geneStartAngle)
+                    .endAngle(geneEndAngle)
+                    .padAngle(0)
+                    .cornerRadius(0);
+
+                svg.append('path')
+                    .datum({startAngle: geneStartAngle, endAngle: geneEndAngle})
+                    .attr('d', arc)
+                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                    .attr('fill', 'blue')
+                    .attr('class', 'phen-related-gene-arc')
+                    .on('mouseover', function (event, d) {
+                        console.log('gene: ', gene);
+                        d3.select(this)
+                            .style('fill', '#DA44B4')
+                            .style('cursor', 'pointer');
+
+                        //append a tooltip that is absolutely positioned to the mouse position
+                        let tooltip = d3.select('body').append('div')
+                            .attr('class', 'tooltip-hover-gene')
+                            .style('position', 'absolute')
+                            .style('background-color', 'white')
+                            .style('border', '1px solid black')
+                            .style('padding', '5px')
+                            .style('border-radius', '5px')
+                            .style('pointer-events', 'none')
+                            .style('overflow-y', 'auto')
+                            .style('max-height', '200px')
+                            .style('max-width', '100px');
+
+                        //put it in the right position
+                        let x = event.clientX;
+                        let y = event.clientY;
+
+                        tooltip.style('left', `${x + 10}px`)
+                            .style('top', `${y + 10}px`);
+
+                        //append the data to the tooltip
+                        tooltip.append('p')
+                            .text(`gene: ${gene.gene_symbol} | source: ${gene.annotation_source} | strand: ${gene.strand}`);
+
+                    }
+                )
+                .on('mouseout', function (event, d) {
+                    d3.select(this)
+                        .style('fill', 'blue')
+                        .style('cursor', 'default');
+                    
+                    //remove the tooltip
+                    d3.select('.tooltip-hover-gene').remove();
+                });
+            } else {
+                genePosMap[`${accStart}-${accEnd}`].push(gene);
+                //dont render the same gene twice
+                continue;
+            }
+
+            //add a text that can only be seen if we are zoomed in enough it needs to be scaled and in the middle of the gene
+            let geneLabel = gene.gene_symbol;
+            let geneLabelAngle = ((geneStartAngle + geneEndAngle) / 2) - Math.PI / 2; // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+            let geneLabelRadius = (maxRadius * 0.909) - radiusOffset;
+            let geneLabelX = (center.x) + ((geneLabelRadius) * Math.cos(geneLabelAngle));
+            let geneLabelY = (center.y) + ((geneLabelRadius) * Math.sin(geneLabelAngle));
+            let fontSize = 8;
+            //if we are at the whole genome level then dont render the gene labels
+            if (range[1] === bpGenomeSize) {
+                continue;
+            }
+            //add a little rectangle behind the text to make it more readable in white but transparent to a certain degree
+            svg.append('rect')
+                .attr('x', geneLabelX - 10)
+                .attr('y', geneLabelY - 5)
+                .attr('width', 20)
+                .attr('height', 10)
+                .attr('fill', 'white')
+                .attr('opacity', 0.6)
+                .attr('class', 'gene-label')
+                .style('pointer-events', 'none');
+
+            //label for the gene
+            let label = svg.append('text')
+                .attr('x', geneLabelX)
+                .attr('y', geneLabelY)
+                .attr('class', 'gene-label')
+                .attr('fill', 'blue')
+                .attr('font-weight', 'bold')
+                .attr('text-anchor', 'middle')
+                .attr('alignment-baseline', 'middle')
+                .text(geneLabel)
+                .attr('font-size', `${fontSize}px`)
+                .on('mouseover', function (event, d) {
+                    //make the cursor a pointer
+                    d3.select(this).style('cursor', 'pointer');
+
+                    //append a tooltip that is absolutely positioned to the mouse position
+                    let tooltip = d3.select('body').append('div')
+                        .attr('class', 'tooltip-hover-gene')
+                        .style('position', 'absolute')
+                        .style('background-color', 'white')
+                        .style('border', '1px solid black')
+                        .style('padding', '5px')
+                        .style('border-radius', '5px')
+                        .style('pointer-events', 'none')
+                        .style('overflow-y', 'auto')
+                        .style('max-height', '200px')
+                        .style('max-width', '100px');
+
+                    //put it in the right position
+                    let x = event.clientX;
+                    let y = event.clientY;
+
+                    tooltip.style('left', `${x + 10}px`)
+                        .style('top', `${y + 10}px`);
+
+                    //append the data to the tooltip
+                    tooltip.append('p')
+                        .text(`gene: ${gene.gene_symbol} | source: ${gene.annotation_source} | strand: ${gene.strand}`);
+                }
+            )
+            .on('mouseout', function (event, d) {           
+                //make the cursor the default
+                d3.select(this).style('cursor', 'default');
+
+                //remove the tooltip
+                d3.select('.tooltip-hover-gene').remove();
+            }
+            );
+        }
+    }
+
     function _renderGenesOfInterest(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range) {
         //if there are already arcs remove them before redrawing
         svg.selectAll('.gene-of-interest-arc').remove();
@@ -1230,6 +1431,18 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             let geneLabelX = (center.x) + ((geneLabelRadius) * Math.cos(geneLabelAngle));
             let geneLabelY = (center.y) + ((geneLabelRadius) * Math.sin(geneLabelAngle));
             let fontSize = 8;
+            
+            //add a little rectangle behind the text to make it more readable in white but transparent to a certain degree
+            svg.append('rect')
+                .attr('x', geneLabelX - 10)
+                .attr('y', geneLabelY - 5)
+                .attr('width', 20)
+                .attr('height', 10)
+                .attr('fill', 'white')
+                .attr('opacity', 0.6)
+                .attr('class', 'gene-label')
+                .style('pointer-events', 'none');
+        
             //label for the gene
             let label = svg.append('text')
                 .attr('x', geneLabelX)
@@ -1290,6 +1503,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         let size = range[1] - range[0]
 
         if (size > 290000000 && genesOfInterest) {
+            if (phenRelatedGenes) {
+                _renderPhenRelatedGenes(phenRelatedGenes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
+            }
             _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
             return
         } else if (size > 290000000) {
@@ -1308,6 +1524,11 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
         if (genesOfInterest) {
             for (let gene of genesOfInterest){
+                delete localGenes[gene.gene_symbol]
+            }
+        }
+        if (phenRelatedGenes) {
+            for (let gene of phenRelatedGenes){
                 delete localGenes[gene.gene_symbol]
             }
         }
@@ -1492,6 +1713,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         }
         //render last because they need to be on top of other genes
         if (genesOfInterest) {
+            if (phenRelatedGenes) {
+                _renderPhenRelatedGenes(phenRelatedGenes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
+            }
             _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range)
         }
     }
