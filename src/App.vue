@@ -307,9 +307,9 @@
               //If an sv already has overlappedGenes calculated we can check them against the candidatePhenGenes
               if (sv?.overlappedGenes && Object.keys(sv.overlappedGenes).length > 0){
                 let geneSet = new Set(Object.keys(sv.overlappedGenes));
-                let genesInCommon = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
-                sv.overlappedPhenGenes = genesInCommon;
-                overlappedLocal.push(...genesInCommon);
+                let candidateGenesOverlapped = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
+                sv.overlappedPhenGenes = candidateGenesOverlapped;
+                overlappedLocal.push(...candidateGenesOverlapped);
 
                 //---------------------------------SWAP UP LOGIC---------------------------------//
                 //If we have overlappedPhenGenes but no genesInCommon we want to swap up if we had genesInCommon we'd already be up
