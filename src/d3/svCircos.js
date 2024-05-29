@@ -1112,9 +1112,14 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         let genePosMap = {};
 
         for (let gene of Object.values(genes)) {
-            let geneChr = gene['chr'].replace('chr', '');
+            let geneChr = null;
+
+            if (gene?.chr) {
+                geneChr = gene['chr'].replace('chr', '');
+            }
+
             //if the gene is not in a chromosome in the map then skip it
-            if (!chromosomeAccumulatedMap.has(geneChr)) {
+            if (!geneChr || !chromosomeAccumulatedMap.has(geneChr)) {
                 continue;
             }
 

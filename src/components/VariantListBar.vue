@@ -1,15 +1,16 @@
 <template>
     <div id="variant-list-bar">
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
-        <div>Rank</div>
         <div>Chr</div>
         <div>Loc.</div>
+        <div>Size</div>
         <div>Type</div>
       </div>
       <VariantListItem 
         v-for="(variant, index ) in svList" 
         :key="index" 
         :variant="variant"
+        :patientPhenotypes="patientPhenotypes"
         @variant-clicked="variantClicked"/>
     </div>
   </template>
@@ -23,20 +24,20 @@
     VariantListItem
   },
   props: {
-    svList: Array
+    svList: Array,
+    patientPhenotypes: Array,
   },
   data () {
     return {
-      open: true
+      open: true,
     }
   },
   mounted () {
-
   },
   methods: {
-    variantClicked(variant, flag) {
+    async variantClicked(variant, flag) {
       this.$emit('variant-clicked', variant, flag)
-    }
+    },
   },
   computed: {
   },
@@ -57,7 +58,7 @@
       align-items: flex-start
       justify-content: flex-start
       padding-bottom: 10px
-      width: 250px
+      width: 100%
       min-width: 250px
       height: 100%
       box-sizing: border-box
@@ -68,7 +69,7 @@
       transition: width 0.5s, min-width 0.5s, overflow 0.5s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: 1fr 1fr 1.5fr 1fr
+        grid-template-columns: 1fr 1.5fr 1fr 1fr
         font-size: .8em
         width: 100%
         height: 50px
@@ -76,14 +77,14 @@
         padding-top: 5px
         padding-bottom: 5px
         box-sizing: border-box
-        border-radius: 5px 5px 0px 0px
         position: sticky
         top: 0
-        background-color: #C1D1EA
+        background-color: white
         color: #2A65B7
-        border: 1px solid #2A65B7
+        border-bottom: 1px solid #2A65B7
         font-weight: bold
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
+        z-index: 1
         div
           text-align: center
   </style>

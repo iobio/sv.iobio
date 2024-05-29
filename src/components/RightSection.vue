@@ -1,21 +1,6 @@
 <template>
     <div id="right-section">
-      <div v-if="!variantOfInterest" class="alt-section-text explore">Explore Section</div>
-      <div id="voi-container" v-else>
-
-        <div>Chromosome: {{ variantOfInterest.chromosome }}</div>
-        <div>Start: {{ variantOfInterest.start }}</div>
-        <div>End: {{ variantOfInterest.end }}</div>
-        <div>Type: {{ variantOfInterest.type }}</div>
-
-        <div class="gene-container" v-for="(gene, index) in variantOfInterest.info.Exomiser">
-          <div>Gene Symbol: {{ gene.geneSymbol }}</div>
-          <div>Gene Rank: {{ gene.geneRank}}</div>
-          <div>Gene ID: {{ gene.geneId }}</div>
-          <div v-if="gene.omim !== '' && gene.omim != ' '">Omim: {{ gene.omim }}</div>
-          <div v-if="gene.disease !== '' && gene.disease != ' '">Disease: {{ gene.disease}}</div>
-        </div>
-      </div>
+      <div class="alt-section-text explore">Explore Section</div>
     </div>
   </template>
   
@@ -25,7 +10,6 @@
   components: {
   },
   props: {
-    variantOfInterest: Object,
   },
   data () {
     return {
