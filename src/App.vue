@@ -72,9 +72,8 @@
         phenotypesOfInterest: [],
         candidatePhenGenes: [],
         overlappedPhenGenes: [],
-        ofInterestStopIndex: 0,
-        phensCoveredStopIndex: 0,
-        genesCoveredStopIndex: 0,
+        interestStopIndex: 0, //Used to keep track of how many SVs have been moved to the front
+        lessNum: 0, //used to keep track of how many SVs have been moved to the end
       }
     },
     async mounted() {
@@ -95,6 +94,12 @@
         for (let [index, newSv] of batchPromises.entries()) {
           let originalIndex = i + index; // Calculate the original index
             // Update the current index with the new SV
+
+            //If we have both phenotypes of interest and overlappedGenes we can see how many phenotypes are accounted for
+            if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0 && newSv.overlappedGenes && Object.values(newSv.overlappedGenes).length > 0) {
+              let num = this.numPhensAccountedFor(this.phenotypesOfInterest, newSv.overlappedGenes);
+            }
+
             this.svListChart[originalIndex - lessNum] = newSv;
         }
       }
@@ -254,7 +259,7 @@
                 let candidateGenesOverlapped = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
                 sv.overlappedPhenGenes = candidateGenesOverlapped;
                 overlappedLocal.push(...candidateGenesOverlapped);
-              } else if (!sv.overlappedPhenGenes){
+              } else if (!sv.overlappedGenes || Object.keys(sv.overlappedGenes).length == 0) {
                 sv.overlappedPhenGenes = [];
               } 
             })
