@@ -371,7 +371,7 @@
 
   #var-list-bar-toggle-btn
     position: absolute
-    top: 35px
+    bottom: 10px
     right: -35px
     z-index: 2
     padding: 3px
