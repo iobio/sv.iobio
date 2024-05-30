@@ -182,6 +182,9 @@ export default {
     genesOfInterest: function(){
       this.drawCircos()
     },
+    phenRelatedGenes: function(){
+      this.drawCircos()
+    }
   }
 }
 </script>
