@@ -11,45 +11,25 @@
     components: {
     },
     props: {
-      svList: Array,
-      selectedArea: Object
+      selectedArea: Object,
+      bands: Array,
+      centromeres: Array,
+      chromosomes: Array,
     },
     data () {
       return {
-        chromosomes: null,
-        centromeres: null,
-        bands: null,
         chromSelectBarChart: null,
         resizeObserver: null,
       }
     },
     mounted () {
-      fetch('http://localhost:3000/chromosomes?build=hg38')
-        .then(response => response.json())
-        .then(data => {
-          this.chromosomes = data;
-          this.drawChromSelectBar()
-
-          if (this.chromosomes) {
+      if (this.chromosomes) {
             this.resizeObserver = new ResizeObserver( () => {
               this.drawChromSelectBar()
             });
 
             this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
           }
-      });
-
-      fetch('http://localhost:3000/centromeres?build=hg38')
-        .then(response => response.json())
-        .then(data => {
-          this.centromeres = data;
-        });
-
-      fetch('http://localhost:3000/bands?build=hg38')
-        .then(response => response.json())
-        .then(data => {
-          this.bands = data;
-        });
     },
     onUpdated() {
     },
@@ -72,7 +52,6 @@
           centromeres: this.centromeres, 
           bands: this.bands,
           brush: true,
-          pointsOfInterest: this.svListSorted,
           selection: this.selectedArea,
           selectionCallback: this.areaSelected
         };
@@ -89,16 +68,8 @@
     },
     computed: {
       hasAllOptions() {
-        return this.chromosomes && this.centromeres && this.bands && (this.svListSorted && this.svListSorted.length > 0);
+        return this.chromosomes && this.centromeres && this.bands;
       }, 
-      svListSorted() {
-        return [...this.svList].sort((a, b) => {
-          if (a.chromosome === b.chromosome) {
-            return a.start - b.start;
-          }
-          return a.chromosome - b.chromosome;
-        });
-      }
     },
     watch: {
       //if any of the options change, redraw the chart

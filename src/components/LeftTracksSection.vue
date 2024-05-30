@@ -1,9 +1,11 @@
 <template>
     <div id="left-tracks-section">
       <div id="chrom-select-bar-div">
-        <ChromSelectBarViz
-        :svList="svList"
+        <ChromSelectBarViz v-if="chromSelectBarDataReady"
         :selectedArea="selectedArea"
+        :centromeres="centromeres"
+        :bands="bands"
+        :chromosomes="chromosomes"
         @area-selected="circosZoomFired"/>
       </div>
       <!-- if is global view is true then we put a radio for circos/linear -->
@@ -137,8 +139,11 @@
       this.genes && 
       this.vcfDataPar1 && 
       this.vcfDataPar2;
-      
+
       return ready
+    },
+    chromSelectBarDataReady() {
+      return this.chromosomes && this.centromeres && this.bands
     }
   },
   watch: {
