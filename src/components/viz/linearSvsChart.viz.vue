@@ -9,6 +9,9 @@ export default {
   components: {
   },
   props: {
+    svList: Array,
+    selectedArea: Object,
+    chromosomes: Array,
   },
   data () {
     return {
@@ -17,6 +20,7 @@ export default {
   mounted () {
   },
   methods: {
+    draw
   }
 }
 </script>

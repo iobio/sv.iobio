@@ -19,77 +19,32 @@ export default {
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     batchNum: Number,
+    vcfDataPro: Array,
+    vcfDataPar1: Array,
+    vcfDataPar2: Array,
+    centromeres: Array,
+    bands: Array,
+    chromosomes: Array,
+    genes: {
+      type: Object,
+      default: () => {}
+    }
   },
   data () {
     return {
-      vcfDataPro: null,
-      vcfDataPar1: null,
-      vcfDataPar2: null,
-      vcfAltCallerData: null,
       circosChart: null,
-      centromeres: null,
-      bands: null,
-      chromosomes: null,
-      genes: null,
     }
   },
   mounted () {
-    fetch('http://localhost:3000/chromosomes?build=hg38')
-      .then(response => response.json())
-      .then(data => {
-        this.chromosomes = data;
-        this.drawCircos()
-
-        if (this.chromosomes) {
-          this.resizeObserver = new ResizeObserver( () => {
-            setTimeout(() => {
-              this.drawCircos()
-            }, 550)
-          });
-
-          this.resizeObserver.observe(document.getElementById('svCircos'));
-        }
-    });
-
-    fetch('http://localhost:3000/centromeres?build=hg38')
-      .then(response => response.json())
-      .then(data => {
-        this.centromeres = data;
+    if (this.chromosomes) {
+      this.resizeObserver = new ResizeObserver( () => {
+        setTimeout(() => {
+          this.drawCircos()
+        }, 550)
       });
 
-    fetch('http://localhost:3000/bands?build=hg38')
-      .then(response => response.json())
-      .then(data => {
-        this.bands = data;
-      });
-    
-    //fetch all the genes for the circos chart
-    fetch('http://localhost:3000/genes?build=hg38&source=refseq')
-      .then(response => response.json())
-      .then(data => {
-        this.genes = data;
-        //there are about 28k genes
-      });
-
-    // //fetch the vcf data
-    // fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz')
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     this.vcfDataPro = data;
-    //     console.log('vcfData', this.vcfDataPro)
-    //   });
-    //fetch the vcf data
-    fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-02_svafotate_output.filteredaf.vcf.gz')
-      .then(response => response.json())
-      .then(data => {
-        this.vcfDataPar1 = data.map(item => new Sv(item)); 
-      });  
-    //fetch the vcf data
-    fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-03_svafotate_output.filteredaf.vcf.gz')
-      .then(response => response.json())
-      .then(data => {
-        this.vcfDataPar2 = data.map(item => new Sv(item)); 
-      });
+      this.resizeObserver.observe(document.getElementById('svCircos'));
+    }
   },
   beforeDestroy() {
     this.resizeObserver.unobserve(document.getElementById('svCircos'));
@@ -134,9 +89,6 @@ export default {
       }
       if (this.vcfDataPar2) {
         options.parent2Data = this.vcfDataPar2
-      }
-      if (this.vcfAltCallerData) {
-        options.altCallerData = this.vcfAltCallerData
       }
 
       //remove anything from the container

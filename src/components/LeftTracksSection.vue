@@ -15,6 +15,7 @@
       </div>
       <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
         <svCircos 
+          v-if="globalView === 'circos' && circosDataReady"
           :svList="svList"
           :zoomZone="selectedArea"
           :focusedVariant="focusedVariant"
@@ -22,12 +23,20 @@
           :genesOfInterest="genesOfInterest"
           :phenRelatedGenes="phenRelatedGenes"
           :batchNum="batchNum"
+          :vcfDataPro="vcfDataPro"
+          :vcfDataPar1="vcfDataPar1"
+          :vcfDataPar2="vcfDataPar2"
+          :centromeres="centromeres"
+          :bands="bands"
+          :chromosomes="chromosomes"
+          :genes="genes"
           @circos-zoom-event="circosZoomFired"/>
     </div>
   </template>
   
 <script>
   import svCircos from './viz/svCircos.viz.vue';
+  import Sv from '../models/Sv.js';
   import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
 
   export default {
@@ -48,10 +57,55 @@
     return {
       needsFocus: false,
       showButton: false,
-      globalView: 'circos'
+      globalView: 'circos',
+      vcfDataPro: null,
+      vcfDataPar1: null,
+      vcfDataPar2: null,
+      centromeres: null,
+      bands: null,
+      chromosomes: null,
+      genes: null,
     }
   },
   mounted () {
+    fetch('http://localhost:3000/chromosomes?build=hg38')
+      .then(response => response.json())
+      .then(data => {
+        this.chromosomes = data;
+    });
+
+    fetch('http://localhost:3000/centromeres?build=hg38')
+      .then(response => response.json())
+      .then(data => {
+        this.centromeres = data;
+      });
+
+    fetch('http://localhost:3000/bands?build=hg38')
+      .then(response => response.json())
+      .then(data => {
+        this.bands = data;
+      });
+    
+    //fetch all the genes for the circos chart
+    fetch('http://localhost:3000/genes?build=hg38&source=refseq')
+      .then(response => response.json())
+      .then(data => {
+        this.genes = data;
+      });
+
+    //fetch the vcf data
+    fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-02_svafotate_output.filteredaf.vcf.gz')
+      .then(response => response.json())
+      .then(data => {
+        this.vcfDataPar1 = data.map(item => new Sv(item)); 
+      });  
+
+    //fetch the vcf data
+    fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-03_svafotate_output.filteredaf.vcf.gz')
+      .then(response => response.json())
+      .then(data => {
+        this.vcfDataPar2 = data.map(item => new Sv(item)); 
+      });
   },
   methods: {
     circosZoomFired(zoomZone) {
@@ -75,6 +129,16 @@
       } else {
         return true
       }
+    },
+    circosDataReady() {
+      let ready = this.chromosomes && 
+      this.centromeres && 
+      this.bands && 
+      this.genes && 
+      this.vcfDataPar1 && 
+      this.vcfDataPar2;
+      
+      return ready
     }
   },
   watch: {
