@@ -8,6 +8,7 @@
           :needsFocus="needsFocus"
           :genesOfInterest="genesOfInterest"
           :phenRelatedGenes="phenRelatedGenes"
+          :batchNum="batchNum"
           @circos-zoom-event="circosZoomFired"/>
     </div>
   </template>
@@ -26,6 +27,7 @@
     focusedVariant: Object,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
+    batchNum: Number,
   },
   data () {
     return {

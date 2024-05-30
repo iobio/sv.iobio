@@ -18,6 +18,7 @@ export default {
     needsFocus: Boolean,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
+    batchNum: Number,
   },
   data () {
     return {
@@ -182,7 +183,7 @@ export default {
     genesOfInterest: function(){
       this.drawCircos()
     },
-    phenRelatedGenes: function(){
+    batchNum: function() {
       this.drawCircos()
     }
   }

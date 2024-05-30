@@ -29,6 +29,7 @@
         :focusedVariant="focusedVariant"
         :genesOfInterest="genesOfInterest"
         :phenRelatedGenes="overlappedPhenGenes"
+        :batchNum="batchNum"
         @circos-zoom-event="circosZoomFired"/>
 
     </div>
@@ -62,6 +63,7 @@
         phenotypesOfInterest: [],
         candidatePhenGenes: [],
         overlappedPhenGenes: [],
+        batchNum: 0,
         interestStopIndex: 0, //Used to keep track of how many SVs have been moved to the front
       }
     },
@@ -76,6 +78,7 @@
       let batchSize = 200;
 
       for (let i = 0; i < svListCopy.length; i += batchSize) {
+        this.batchNum++;
         let batchSvs = svListCopy.slice(i, i + batchSize);
 
         let batchPromises = await Promise.all(batchSvs.map(sv => this.getOverlappedGenes(sv)));
@@ -297,6 +300,8 @@
 
             //update our list of overlappedPhenGenes
             this.overlappedPhenGenes = [...new Set(overlappedLocal)];
+            //the value of the batchNum is not important but we need to update it to trigger a re-render so either this finishes or every 200 SVs
+            this.batchNum = 0;
           })
       },
       numPhensAccountedFor(patientPhenotypes, overlappedGenes) {

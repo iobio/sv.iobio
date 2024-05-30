@@ -128,7 +128,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 genesOfInterest = options.genesOfInterest;
             }
 
-            if (options.phenRelatedGenes){
+            if (options.phenRelatedGenes && options.phenRelatedGenes.length > 0){
                 phenRelatedGenes = options.phenRelatedGenes;
             }
         }
@@ -1502,11 +1502,13 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         //if the range is larger than the largest chromosome (290,000,000 bases) only render genes of interest
         let size = range[1] - range[0]
 
-        if (size > 290000000 && genesOfInterest) {
+        if (size > 290000000) {
             if (phenRelatedGenes) {
                 _renderPhenRelatedGenes(phenRelatedGenes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
             }
-            _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
+            if (genesOfInterest) {
+                _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
+            }
             return
         } else if (size > 290000000) {
             return
@@ -1527,6 +1529,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 delete localGenes[gene.gene_symbol]
             }
         }
+
         if (phenRelatedGenes) {
             for (let gene of phenRelatedGenes){
                 delete localGenes[gene.gene_symbol]
@@ -1712,11 +1715,11 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             );
         }
         //render last because they need to be on top of other genes
+        if (phenRelatedGenes) {
+            _renderPhenRelatedGenes(phenRelatedGenes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
+        }
         if (genesOfInterest) {
-            if (phenRelatedGenes) {
-                _renderPhenRelatedGenes(phenRelatedGenes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
-            }
-            _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range)
+            _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
         }
     }
 
