@@ -89,7 +89,7 @@
   
   #focus-chart-btn
     position: absolute
-    top: 10px
+    top: 40px
     right: 40px
     padding: 5px 5px
     background-color: #C1D1EA
