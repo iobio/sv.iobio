@@ -6,6 +6,13 @@
         :selectedArea="selectedArea"
         @area-selected="circosZoomFired"/>
       </div>
+      <!-- if is global view is true then we put a radio for circos/linear -->
+      <div id="global-view-select-radios" v-if="isGlobalView">
+        <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
+        <label for="circos-view">Circos</label>
+        <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
+        <label for="linear-view">Linear</label>
+      </div>
       <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
         <svCircos 
           :svList="svList"
@@ -40,7 +47,8 @@
   data () {
     return {
       needsFocus: false,
-      showButton: false
+      showButton: false,
+      globalView: 'circos'
     }
   },
   mounted () {
@@ -61,6 +69,13 @@
     }
   },
   computed: {
+    isGlobalView() {
+      if (this.selectedArea) {
+        return this.selectedArea.start === 0 && this.selectedArea.end > 3000000000
+      } else {
+        return true
+      }
+    }
   },
   watch: {
     focusedVariant() {
@@ -103,4 +118,12 @@
       opacity: 0.7
   #chrom-select-bar-div
     height: 27px
+  #global-view-select-radios
+    position: absolute
+    width: fit-content
+    top: 40px
+    left: 10px
+    padding: 5px 5px
+    border: 2px solid #2A65B7
+    border-radius: 5px
 </style>
