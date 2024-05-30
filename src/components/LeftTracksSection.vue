@@ -124,9 +124,10 @@
     top: 40px
     left: 10px
     padding: 5px 5px
-    border: 2px solid #2A65B7
+    color: #2A65B7
+    border: 1px solid #2A65B7
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
     border-radius: 5px
-    input[type="radio"]
+    input, label
       cursor: pointer
 </style>
