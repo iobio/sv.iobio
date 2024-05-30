@@ -39,18 +39,15 @@
 <script>
   import UpperChromBar from './components/UpperChromBar.vue'
   import LeftTracksSection from './components/LeftTracksSection.vue';
-  import RightSection from './components/RightSection.vue';
   import VariantListBar from './components/VariantListBar.vue';
   import NavBar from './components/NavBar.vue';
   import Sv from './models/Sv.js'
-import { timeHours } from 'd3';
 
   export default {
     name: 'app',
     components: {
       UpperChromBar,
       LeftTracksSection,
-      RightSection,
       VariantListBar,
       NavBar
     },
