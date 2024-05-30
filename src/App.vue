@@ -31,14 +31,6 @@
         :phenRelatedGenes="overlappedPhenGenes"
         @circos-zoom-event="circosZoomFired"/>
 
-      <div id="right-section-container" :class="{collapsed: !rightSectionOpen}">
-        <button id="right-section-toggle-btn" @click="rightSectionOpen = !rightSectionOpen">
-        <img v-if="rightSectionOpen" src="/arrow-expand-right.svg" alt="close">
-        <img v-else src="/arrow-expand-left.svg" alt="open">
-        </button>
-        <RightSection />
-      </div> 
-
     </div>
 
   </div>
@@ -69,7 +61,6 @@ import { timeHours } from 'd3';
         focusedVariant: null,
         selectedArea: null,
         variantListBarOpen: true,
-        rightSectionOpen: false,
         genesOfInterest: [],
         phenotypesOfInterest: [],
         candidatePhenGenes: [],
@@ -384,43 +375,6 @@ import { timeHours } from 'd3';
     position: absolute
     top: 5px
     right: -35px
-    z-index: 2
-    padding: 3px
-    margin: 0px
-    border-radius: 50%
-    display: flex
-    justify-content: center
-    align-items: center
-    border: 2px solid #2A65B7
-    background-color: #C1D1EA
-    &:hover
-      cursor: pointer
-      opacity: 0.8
-    img
-      height: 23px
-      width: 23px
-      display: flex 
-      justify-content: center
-      align-items: center
-      transform: translate(0px, 0px)
-
-  #right-section-container
-    position: relative
-    display: flex
-    padding-top: 10px
-    padding-bottom: 10px
-    height: 100%
-    width: 35%
-    box-sizing: border-box
-    border-left: 1px solid #F5F5F5
-    transition: all 0.5s
-    &.collapsed
-      width: 0px
-      min-width: 0px
-  #right-section-toggle-btn
-    position: absolute
-    top: 5px
-    left: -35px
     z-index: 2
     padding: 3px
     margin: 0px
