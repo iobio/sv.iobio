@@ -1510,8 +1510,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 _renderGenesOfInterest(genesOfInterest, chromosomeAccumulatedMap, angleScale, maxRadius, svg, range);
             }
             return
-        } else if (size > 290000000) {
-            return
         }
 
         let tracMap = {
