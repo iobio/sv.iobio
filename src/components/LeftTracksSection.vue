@@ -1,5 +1,10 @@
 <template>
     <div id="left-tracks-section">
+      <div id="chrom-select-bar-div">
+        <ChromSelectBarViz
+        :svList="svList"
+        :selectedArea="selectedArea"/>
+      </div>
       <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
         <svCircos 
           :svList="svList"
@@ -15,11 +20,13 @@
   
 <script>
   import svCircos from './viz/svCircos.viz.vue';
+  import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
 
   export default {
   name: "LeftTracksSection",
   components: {
     svCircos,
+    ChromSelectBarViz
   },
   props: {
     svList: Array,
@@ -91,5 +98,6 @@
     &:hover
       cursor: pointer
       opacity: 0.7
-
+  #chrom-select-bar-div
+    height: 55px
 </style>
