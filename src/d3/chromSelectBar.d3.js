@@ -36,7 +36,6 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     let selection = null;
 
     //zoom variables
-    let zoomZone = null;
     let zoomedSelection = null;
 
     if (options) {
@@ -96,7 +95,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         }
     }
 
-    const margin = {top: 20, right: 10, bottom: 20, left: 10};
+    const margin = {top: 5, right: 10, bottom: 5, left: 10};
 
     const svg = d3.create('svg')
         .attr('viewBox', [0, 0, width, height])
@@ -112,20 +111,11 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         size: genomeSize
     }
 
-    if (selection) {
-        if (selection.end - selection.start >= genomeSize) {
-            zoomedSelection = originZoom;
-            selection = null;
-        } else {
-            zoomedSelection = {
-                start: selection.start,
-                end: selection.end,
-                size: selection.end - selection.start
-            }
-            selection = null; //setting selection to null so that we can keep zooming if we like
-        }
-    } else {
-        zoomedSelection = originZoom;
+    zoomedSelection = originZoom;
+
+    //if the selection is the origin zoom then we want to set the selection to null
+    if (selection && selection.start == 0 && selection.end == genomeSize) {
+        selection = null;
     }
 
     let x = d3.scaleLinear()
@@ -331,7 +321,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top - 2)
+                .attr('y', height - margin.bottom - margin.top - 3)
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
@@ -350,24 +340,29 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let endPixel = x(end);
             
             let brush = d3.brushX()
-                .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
+                .extent([[0, 0], [width, height]])
                 .on('end', brushed);
 
+            //this is the acutal brushable area
             svg.append('g')
-                .attr('height', height - margin.bottom - margin.top)
                 .attr('class', 'brush-area')
                 .call(brush)
                 .raise();
             
             //set the brush to the selection but dont fire the callback
             svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
+
+            //get the selection and setits styles
+            let brushRec = svg.select('.brush-area').select('.selection');
+            brushRec.attr('fill', 'red')
+                .attr('fill-opacity', 0.2)
+                .attr('stroke', 'red');
         } else {
             let brush = d3.brushX()
-                .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
+                .extent([[0, 0], [width, height]])
                 .on('end', brushed);
 
             svg.append('g')
-                .attr('height', height - margin.bottom - margin.top)
                 .attr('class', 'brush-area')
                 .call(brush)
                 .raise();

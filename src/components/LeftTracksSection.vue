@@ -3,7 +3,8 @@
       <div id="chrom-select-bar-div">
         <ChromSelectBarViz
         :svList="svList"
-        :selectedArea="selectedArea"/>
+        :selectedArea="selectedArea"
+        @area-selected="circosZoomFired"/>
       </div>
       <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
         <svCircos 
@@ -101,5 +102,5 @@
       cursor: pointer
       opacity: 0.7
   #chrom-select-bar-div
-    height: 55px
+    height: 27px
 </style>
