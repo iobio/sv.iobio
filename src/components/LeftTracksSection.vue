@@ -76,6 +76,8 @@
 <style lang="sass">
   #left-tracks-section
     position: relative
+    display: flex
+    flex-direction: column
     padding-top: 10px
     padding-bottom: 10px
     flex-grow: 1

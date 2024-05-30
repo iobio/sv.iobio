@@ -199,7 +199,7 @@ export default {
     box-sizing: border-box
     display: flex
     flex-direction: column
-    height: 100%
+    flex-grow: 1
     justify-content: center
     width: 100%
 </style>

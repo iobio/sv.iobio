@@ -34,7 +34,6 @@
 </template>
 
 <script>
-  import UpperChromBar from './components/UpperChromBar.vue'
   import LeftTracksSection from './components/LeftTracksSection.vue';
   import VariantListBar from './components/VariantListBar.vue';
   import NavBar from './components/NavBar.vue';
@@ -43,7 +42,6 @@
   export default {
     name: 'app',
     components: {
-      UpperChromBar,
       LeftTracksSection,
       VariantListBar,
       NavBar

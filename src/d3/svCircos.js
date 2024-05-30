@@ -240,35 +240,44 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             //also reset the image to the dna.svg
             zoomOutButtonGroup.select('image')
                 .attr('xlink:href', '/dna.svg')
-                .attr('x', width - (width - 70) - 10)
-                .attr('y', height - (height - 70) - 10)
+                .attr('x', width/2 - 10)
+                .attr('y', 10)
                 .attr('width', 20)
-                .attr('height', 20);
+                .attr('height', 20)
+                .attr('pointer-events', 'none');
         });
 
     //Upper left side of the circle will be that button
     zoomOutButtonGroup.append('circle')
-        .attr('cx', width - (width - 70))
-        .attr('cy', height - (height - 70))
+        .attr('cx', width/2)
+        .attr('cy', 20)
         .attr('r', 15)
-        .attr('fill', '#1F68C1');
+        .attr('fill', '#1F68C1')
+        .on('mouseover', function (event, d) {
+            d3.select(this).attr('fill', '#A63D40');
+        })
+        .on('mouseout', function (event, d) {
+            d3.select(this).attr('fill', '#1F68C1');
+        });
     
     if (zoomedSection.size !== bpGenomeSize) {
         //get our centerSymbolGroup and change the symbol to our magnify-out.svg
         zoomOutButtonGroup.append('image')
         .attr('xlink:href', '/magnify-out.svg')
-        .attr('x', width - (width - 70) - 10)
-        .attr('y', height - (height - 70) - 10)
+        .attr('x', width/2 - 10)
+        .attr('y', 10)
         .attr('width', 20)
-        .attr('height', 20);
+        .attr('height', 20)
+        .attr('pointer-events', 'none');
     } else {
         //on top of this circle we will render the dna.svg that we have /dna.svg
         zoomOutButtonGroup.append('image')
             .attr('xlink:href', '/dna.svg')
-            .attr('x', width - (width - 70) -10)
-            .attr('y', height - (height - 70) -10)
+            .attr('x', width/2 - 10)
+            .attr('y', 10)
             .attr('width', 20)
-            .attr('height', 20);
+            .attr('height', 20)
+            .attr('pointer-events', 'none');
     }
 
     //iterate over the chromosomes and create the arcs
