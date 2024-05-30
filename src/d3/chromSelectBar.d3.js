@@ -36,7 +36,6 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     let selection = null;
 
     //zoom variables
-    let zoomZone = null;
     let zoomedSelection = null;
 
     if (options) {
@@ -96,7 +95,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         }
     }
 
-    const margin = {top: 20, right: 10, bottom: 20, left: 10};
+    const margin = {top: 5, right: 10, bottom: 5, left: 10};
 
     const svg = d3.create('svg')
         .attr('viewBox', [0, 0, width, height])
@@ -112,148 +111,18 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         size: genomeSize
     }
 
-    if (selection) {
-        if (selection.end - selection.start >= genomeSize) {
-            zoomedSelection = originZoom;
-            selection = null;
-        } else {
-            zoomedSelection = {
-                start: selection.start,
-                end: selection.end,
-                size: selection.end - selection.start
-            }
-            selection = null; //setting selection to null so that we can keep zooming if we like
-        }
-    } else {
-        zoomedSelection = originZoom;
+    zoomedSelection = originZoom;
+
+    //if the selection is the origin zoom then we want to set the selection to null
+    if (selection && selection.start == 0 && selection.end == genomeSize) {
+        selection = null;
     }
 
     let x = d3.scaleLinear()
     .domain([zoomedSelection.start, zoomedSelection.end])
     .range([margin.left, width - margin.right]);
 
-    let xAxis = g => g
-        .attr('transform', `translate(0, ${height - margin.bottom})`)
-        .call(d3.axisBottom(x)
-            .ticks(width / 80)
-            .tickSizeOuter(0)
-            .tickFormat(d => `${d / 1000000}Mb`));
-
-    svg.append('g')
-        .call(xAxis);
-
     _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
-
-    //if there are points of interest render them
-    if (pointsOfInterest) {
-        _renderPointsOfInterest([zoomedSelection.start, zoomedSelection.end]);
-    }
-
-    function _renderPointsOfInterest(range) {
-        let tracMap = {
-            1: false,
-            2: false,
-            3: false,
-            4: false,
-            5: false,
-            6: false,
-        };
-
-        let poiMap = {};
-
-        //iterate over the points of interest and render them
-        for (let sv of pointsOfInterest) {
-            //get the chromosome and position
-            let chr = sv.chromosome;
-            let start = sv.start;
-            let end = sv.end;
-
-            //get the corresponding chromosome from the accumulated map
-            let chromosome = chromosomeMap.get(chr);
-            let absoluteStart = chromosome.start + start;
-            let absoluteEnd = chromosome.start + end;
-
-            let startUpdated = absoluteStart;
-            let endUpdated = absoluteEnd;
-
-            let startX = null; //no sense in setting these yet
-            let endX = null;
-
-            //check and see if the point of interest is in the zoomed selection
-            let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
-
-            if (!newStartEnd) {
-                //if we get nothing back we dont render this point of interest at all
-                continue;
-            } else {
-                //we will either get back the truncated start/ends or the original start/ends depending on if the point of interest is in the range
-                startUpdated = newStartEnd.start;
-                endUpdated = newStartEnd.end;
-
-                startX = x(startUpdated);
-                endX = x(endUpdated);
-            }
-
-            let pointColor = d3.interpolate('#1F68C1', '#A63D40')(absoluteEnd / genomeSize);
-
-            //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
-            if (!poiMap[`${absoluteStart}-${absoluteEnd}`]) {
-                poiMap[`${absoluteStart}-${absoluteEnd}`] = [sv];
-
-                //create a new group for this point of interest
-                let pointGroup = svg.append('g')
-                    .attr('transform', `translate(${startX - margin.left}, 25)`)
-                    .attr('class', 'point-group')
-                    .attr('id', `poi-${chr}-${start}-${end}-group`);
-
-                let currentTrac = 0;
-            
-                for (let x of Object.keys(tracMap)) {
-                    if (tracMap[x] != false && (startX > tracMap[x])) {
-                        tracMap[x] = endX;
-                        currentTrac = x;
-                        break;
-                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
-                        continue;
-                    }
-
-                    if (tracMap[x] == false) {
-                        tracMap[x] = endX;
-                        currentTrac = x;
-                        break;
-                    }
-                }
-                
-                let translateY = (currentTrac - 1) * 2;
-
-                pointGroup.append('rect')
-                    .attr('x', 0 + margin.left)
-                    .attr('width', function() {
-                        //if the block is too small to see make it 2 pixels wide
-                        if (endX - startX < 2) {
-                            return 2;
-                        }
-                        return endX - startX;
-                    })
-                    .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 1)
-                    .attr('fill', function(){
-                        //should be red if it's a deletion
-                        if (sv.type == 'DEL') {
-                            return 'red';
-                        } else {
-                            return '#1F68C1';
-                        }
-                    });
-
-            } else {
-                //dont render the point of interest if it already exists
-                poiMap[`${absoluteStart}-${absoluteEnd}`].push(sv);
-            }
-    
-
-        }
-    }
 
     function _genChromosomeAccumulatedMap(chromosomeList){
         /**
@@ -452,7 +321,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top - 2)
+                .attr('y', height - margin.bottom - margin.top - 3)
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
@@ -471,24 +340,29 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let endPixel = x(end);
             
             let brush = d3.brushX()
-                .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
+                .extent([[0, 0], [width, height]])
                 .on('end', brushed);
 
+            //this is the acutal brushable area
             svg.append('g')
-                .attr('height', height - margin.bottom - margin.top)
                 .attr('class', 'brush-area')
                 .call(brush)
                 .raise();
             
             //set the brush to the selection but dont fire the callback
             svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
+
+            //get the selection and setits styles
+            let brushRec = svg.select('.brush-area').select('.selection');
+            brushRec.attr('fill', 'red')
+                .attr('fill-opacity', 0.2)
+                .attr('stroke', 'red');
         } else {
             let brush = d3.brushX()
-                .extent([[margin.left, margin.bottom - height], [width - margin.right, height]])
+                .extent([[0, 0], [width, height]])
                 .on('end', brushed);
 
             svg.append('g')
-                .attr('height', height - margin.bottom - margin.top)
                 .attr('class', 'brush-area')
                 .call(brush)
                 .raise();

@@ -4,10 +4,6 @@
       <NavBar 
         @updateGenesOfInterest="updateGenesOfInterest"
         @updatePhenotypesOfInterest="updatePhenotypesOfInterest"/>
-      <!-- <UpperChromBar
-        :svList="svListChart"
-        :zoomZone="selectedArea"
-        @area-selected="areaSelected"/> -->
     </div>
 
     <div id="lower-block-container">
@@ -38,7 +34,6 @@
 </template>
 
 <script>
-  import UpperChromBar from './components/UpperChromBar.vue'
   import LeftTracksSection from './components/LeftTracksSection.vue';
   import VariantListBar from './components/VariantListBar.vue';
   import NavBar from './components/NavBar.vue';
@@ -47,7 +42,6 @@
   export default {
     name: 'app',
     components: {
-      UpperChromBar,
       LeftTracksSection,
       VariantListBar,
       NavBar
@@ -375,12 +369,13 @@
 
   #var-list-bar-toggle-btn
     position: absolute
-    top: 5px
+    bottom: 10px
     right: -35px
     z-index: 2
     padding: 3px
     margin: 0px
     border-radius: 50%
+    opacity: 0.8
     display: flex
     justify-content: center
     align-items: center
@@ -388,7 +383,7 @@
     background-color: #C1D1EA
     &:hover
       cursor: pointer
-      opacity: 0.8
+      opacity: 1
     img
       height: 23px
       width: 23px
