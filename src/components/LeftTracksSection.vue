@@ -33,6 +33,12 @@
           :chromosomes="chromosomes"
           :genes="genes"
           @circos-zoom-event="circosZoomFired"/>
+
+        <LinearSvChartViz
+          v-if="globalView === 'linear'"
+          :svList="svList"
+          :selectedArea="selectedArea"
+          :chromosomes="chromosomes"/>
     </div>
   </template>
   
@@ -40,12 +46,14 @@
   import svCircos from './viz/svCircos.viz.vue';
   import Sv from '../models/Sv.js';
   import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
+  import LinearSvChartViz from './viz/linearSvChart.viz.vue';
 
   export default {
   name: "LeftTracksSection",
   components: {
     svCircos,
-    ChromSelectBarViz
+    ChromSelectBarViz,
+    LinearSvChartViz
   },
   props: {
     svList: Array,

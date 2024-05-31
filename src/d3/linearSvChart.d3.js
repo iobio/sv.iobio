@@ -1,8 +1,6 @@
 import * as d3 from 'd3';
 
-export default function linearSvChart(parentElementTag, refChromosomes, data=null, options=null) {
-    let parentElement = d3.select(parentElementTag);
-
+export default function linearSvChart(parentElement, refChromosomes, data=null, options=null) {
     let width = parentElement.node().clientWidth;
     let height = parentElement.node().clientHeight;
     let chromosomes = refChromosomes;

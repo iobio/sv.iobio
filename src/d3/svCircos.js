@@ -152,9 +152,14 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
     const container = d3.select(parentTag);
 
-    // width and height of the container will be the width and height of the svg
-    let width = container.node().clientWidth;
-    let height = container.node().clientHeight;
+    // width and height of the container will be the width and height of the svg if it exists otherwise it will be 0
+    let width = 0;
+    let height = 0;
+
+    if (container.node()) {
+        width = container.node().clientWidth;
+        height = container.node().clientHeight;
+    }
 
     const svg = d3.create('svg')
         .attr('viewBox', [0, 0, width, height])

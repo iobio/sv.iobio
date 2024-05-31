@@ -4,7 +4,6 @@
 
 <script>
 import svCircos from '../../d3/svCircos.js';
-import Sv from '../../models/Sv.js';
 import * as d3 from 'd3';
 
 export default {
@@ -99,7 +98,9 @@ export default {
         return;
       }
 
-      container.node().appendChild(this.circosChart);
+      if (container.node() && this.circosChart) {
+        container.node().appendChild(this.circosChart);
+      }
     },
     emitZoomEvent(zoomLevel) {
       this.$emit('circos-zoom-event', zoomLevel)
