@@ -12,14 +12,24 @@ export default {
   props: {
     svList: Array,
     selectedArea: Object,
-    chromosomes: Array,
+    chromosomes: Array
   },
   data () {
     return {
+      resizeObserver: null,
     }
   },
   mounted () {
     this.drawLinearSvChart();
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.drawLinearSvChart()
+    });
+
+    this.resizeObserver.observe(this.$refs.linearChartContainer);
+  },
+  beforeDestroy() {
+    this.resizeObserver.unobserve(this.$refs.linearChartContainer);
   },
   methods: {
     drawLinearSvChart() {
