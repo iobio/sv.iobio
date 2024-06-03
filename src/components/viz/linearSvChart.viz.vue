@@ -4,7 +4,7 @@
 
 <script>
   import linearSvChart from '../../d3/linearSvChart.d3.js';
-  import * as d3 from 'd3';
+
 export default {
   name: 'LinearSvChartViz',
   components: {
@@ -19,6 +19,7 @@ export default {
     }
   },
   mounted () {
+    this.drawLinearSvChart();
   },
   methods: {
     drawLinearSvChart() {
@@ -43,7 +44,7 @@ export default {
       this.linearSvChart = new linearSvChart(container, this.chromosomes, this.svList,  options);
 
       //grab the container and append the chart
-      container.appendChild(this.linearSvChart.chart);
+      container.appendChild(this.linearSvChart);
     },
   }
 }
@@ -53,6 +54,5 @@ export default {
   .linear-sv-chart 
     height: 200px
     width: 100%
-    border: 1px solid black
     box-sizing: border-box
 </style>

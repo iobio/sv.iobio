@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
 
 export default function linearSvChart(parentElement, refChromosomes, data=null, options=null) {
-    let width = parentElement.node().clientWidth;
-    let height = parentElement.node().clientHeight;
+    let width = parentElement.clientWidth;
+    let height = parentElement.clientHeight;
     let chromosomes = refChromosomes;
     let svs = data;
     let selectionCallback = null;
