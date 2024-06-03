@@ -9,7 +9,7 @@
         @area-selected="circosZoomFired"/>
       </div>
       <!-- if is global view is true then we put a radio for circos/linear -->
-      <div id="global-view-select-radios" v-if="isGlobalView">
+      <div id="global-view-select-radios">
         <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
         <label for="circos-view">Circos</label>
         <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">

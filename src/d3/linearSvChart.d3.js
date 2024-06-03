@@ -41,7 +41,21 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         size: genomeSize
     }
 
-    zoomedSelection = originZoom;
+    if (selection) {
+        if (selection.end - selection.start >= genomeSize) {
+            zoomedSelection = originZoom;
+            selection = null;
+        } else {
+            zoomedSelection = {
+                start: selection.start,
+                end: selection.end,
+                size: selection.end - selection.start
+            }
+            selection = null; //setting selection to null so that we can keep zooming if we like
+        }
+    } else {
+        zoomedSelection = originZoom;
+    }
 
     //if the selection is the origin zoom then we want to set the selection to null
     if (selection && selection.start == 0 && selection.end == genomeSize) {
