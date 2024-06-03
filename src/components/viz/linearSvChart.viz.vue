@@ -1,5 +1,8 @@
 <template>
-    <div ref="linearChartContainer" class="linear-sv-chart"></div>
+    <div class="linear-sv-chart-wrapper">
+      <p v-if="title">{{ title }}</p>
+      <div ref="linearChartContainer" class="linear-sv-chart"></div>
+    </div>
 </template>
 
 <script>
@@ -12,7 +15,8 @@ export default {
   props: {
     svList: Array,
     selectedArea: Object,
-    chromosomes: Array
+    chromosomes: Array,
+    title: String
   },
   data () {
     return {
@@ -61,9 +65,20 @@ export default {
 </script>
 
 <style lang="sass">
+  .linear-sv-chart-wrapper
+    margin-top: 38px
+    border-radius: 5px
+    p
+      font-weight: bold
+      color: #2A65B7
+      margin-left: 10px
+      width: 100%
+      box-sizing: border-box
+      text-align: center
   .linear-sv-chart 
-    height: 200px
+    height: 120px
     width: 100%
     box-sizing: border-box
-    margin-top: 35px
+  .linear-sv-chart-d3
+    border-bottom: none
 </style>

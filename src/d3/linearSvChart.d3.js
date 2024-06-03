@@ -29,7 +29,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
     const svg = d3.create('svg')
         .attr('viewBox', [0, 0, width, height])
-        .attr('class', 'chrom-select-bar-d3')
+        .attr('class', 'linear-sv-chart-d3')
         .attr('width', width)
         .attr('height', height);
 
@@ -52,17 +52,18 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
 
-    //the x axis is the base pair axis
-    let xAxis = d3.axisBottom(x)
-        .ticks(10)
-        .tickSize(0)
-        .tickPadding(6);
+    let xAxis = g => g
+        .attr('transform', `translate(0, ${height - margin.bottom - 20})`)
+        .call(d3.axisBottom(x)
+            .ticks(width / 80)
+            .tickSizeOuter(0)
+            .tickFormat(d => `${d / 1000000}Mb`));
 
     svg.append('g')
-        .attr('transform', `translate(0, ${height - margin.bottom})`)
         .call(xAxis);
 
     _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
+    _renderSVs([zoomedSelection.start, zoomedSelection.end])
 
     function _genChromosomeAccumulatedMap(chromosomeList){
         /**
@@ -121,12 +122,13 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 
             //add the chromosome bar
             chromosomeGroup.append('rect')
-                .attr('x', 1)
+                .attr('x', 0)
                 .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
-                .attr('height', height - margin.bottom - margin.top + 5)
-                .attr('fill', chromosomeColor)
-                .attr('stroke', 'white')
-                .attr('fill-opacity', 0.3);
+                .attr('height', '20px')
+                .attr('fill', 'white')
+                .attr('stroke', chromosomeColor)
+                .attr('stroke-opacity', 0.3)
+                .attr('rx', '3px');
 
             //add the labels
             chromosomeGroup.append('text')
@@ -137,11 +139,114 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top - 3)
+                .attr('y', margin.top + 10)
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
         };
+    }
+
+    function _renderSVs(range) {
+        //TODO: I think I can borrow a more dynamic way of rendering this from my side project
+        let tracMap = {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false,
+            6: false,
+        };
+
+        let svMap = {};
+
+        //iterate over the svs
+        for (let sv of svs) {
+            //get the chromosome and position
+            let chr = sv.chromosome;
+            let start = sv.start;
+            let end = sv.end;
+
+            //get the corresponding chromosome from the accumulated map
+            let chromosome = chromosomeMap.get(chr);
+            let absoluteStart = chromosome.start + start;
+            let absoluteEnd = chromosome.start + end;
+
+            let startUpdated = absoluteStart;
+            let endUpdated = absoluteEnd;
+
+            let startX = null; //no sense in setting these yet
+            let endX = null;
+
+            //check and see if the point of interest is in the zoomed selection
+            let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
+
+            if (!newStartEnd) {
+                //if we get nothing back we dont render this point of interest at all
+                continue;
+            } else {
+                //we will either get back the truncated start/ends or the original start/ends depending on if the point of interest is in the range
+                startUpdated = newStartEnd.start;
+                endUpdated = newStartEnd.end;
+
+                startX = x(startUpdated);
+                endX = x(endUpdated);
+            }
+
+            //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
+            if (!svMap[`${absoluteStart}-${absoluteEnd}`]) {
+                svMap[`${absoluteStart}-${absoluteEnd}`] = [sv];
+
+                //create a new group for this point of interest
+                let pointGroup = svg.append('g')
+                    .attr('transform', `translate(${startX - margin.left}, 30)`)
+                    .attr('class', 'point-group')
+                    .attr('id', `poi-${chr}-${start}-${end}-group`);
+
+                let currentTrac = 0;
+
+                for (let x of Object.keys(tracMap)) {
+                    if (tracMap[x] != false && (startX > tracMap[x])) {
+                        tracMap[x] = endX;
+                        currentTrac = x;
+                        break;
+                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
+                        continue;
+                    }
+
+                    if (tracMap[x] == false) {
+                        tracMap[x] = endX;
+                        currentTrac = x;
+                        break;
+                    }
+                }
+
+                let translateY = (currentTrac - 1) * 8;
+
+                pointGroup.append('rect')
+                    .attr('x', 0 + margin.left)
+                    .attr('width', function() {
+                        //if the block is too small to see make it 2 pixels wide
+                        if (endX - startX < 1) {
+                            return 1;
+                        }
+                        return endX - startX;
+                    })
+                    .attr('transform', `translate(0, ${translateY})`)
+                    .attr('height', 5)
+                    .attr('fill', function(){
+                        //should be red if it's a deletion
+                        if (sv.type == 'DEL') {
+                            return 'red';
+                        } else {
+                            return '#1F68C1';
+                        }
+                    });
+
+            } else {
+                //dont render the point of interest if it already exists
+                svMap[`${absoluteStart}-${absoluteEnd}`].push(sv);
+            }
+        }
     }
 
     //render brush later so it's on top

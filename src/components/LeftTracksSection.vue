@@ -37,6 +37,21 @@
         <LinearSvChartViz
           v-if="globalView === 'linear'"
           :svList="svList"
+          :title="'Proband'"
+          :selectedArea="selectedArea"
+          :chromosomes="chromosomes"/>
+
+        <LinearSvChartViz
+          v-if="globalView === 'linear' && vcfDataPar1"
+          :svList="vcfDataPar1"
+          :title="'Parent 1'"
+          :selectedArea="selectedArea"
+          :chromosomes="chromosomes"/>
+
+        <LinearSvChartViz
+          v-if="globalView === 'linear' && vcfDataPar2"
+          :svList="vcfDataPar2"
+          :title="'Parent 2'"
           :selectedArea="selectedArea"
           :chromosomes="chromosomes"/>
     </div>
@@ -173,6 +188,7 @@
     flex-direction: column
     padding-top: 10px
     padding-bottom: 10px
+    padding: 10px
     flex-grow: 1
     height: 100%
     box-sizing: border-box
