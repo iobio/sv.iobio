@@ -1,48 +1,50 @@
 <template>
-    <div class="linear-sv-chart-wrapper">
+    <div class="linear-gene-chart-wrapper">
       <p v-if="title">{{ title }}</p>
-      <div ref="linearChartContainer" class="linear-sv-chart"></div>
+      <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
     </div>
 </template>
 
 <script>
-  import linearSvChart from '../../d3/linearSvChart.d3.js';
+  import linearGeneChart from '../../d3/linearGeneChart.d3.js';
 
 export default {
-  name: 'LinearSvChartViz',
+  name: 'LinearGeneChartViz',
   components: {
   },
   props: {
-    svList: Array,
+    genesList: Object,
     selectedArea: Object,
     chromosomes: Array,
-    title: String
+    genesOfInterest: Array,
+    phenRelatedGenes: Array,
   },
   data () {
     return {
       resizeObserver: null,
+      title: 'Genes'
     }
   },
   mounted () {
-    this.drawLinearSvChart();
+    this.drawLinearGeneChart();
 
     this.resizeObserver = new ResizeObserver(() => {
-      this.drawLinearSvChart()
+      this.drawLinearGeneChart()
     });
 
-    this.resizeObserver.observe(this.$refs.linearChartContainer);
+    this.resizeObserver.observe(this.$refs.linearGeneChartContainer);
   },
   beforeDestroy() {
-    this.resizeObserver.unobserve(this.$refs.linearChartContainer);
+    this.resizeObserver.unobserve(this.$refs.linearGeneChartContainer);
   },
   methods: {
-    drawLinearSvChart() {
+    drawLinearGeneChart() {
       //Grab the container by ref
-      let container = this.$refs.linearChartContainer; 
+      let container = this.$refs.linearGeneChartContainer; 
       //remove anything in the container
       container.innerHTML = '';
 
-      if (!this.svList || !this.chromosomes) {
+      if (!this.genesList || !this.chromosomes) {
         return;
       }
 
@@ -55,15 +57,15 @@ export default {
         selection: this.selectedArea,
         selectionCallback: this.areaSelected
       };
-      this.linearSvChart = new linearSvChart(container, this.chromosomes, this.svList,  options);
+      this.linearGeneChart = new linearGeneChart(container, this.chromosomes, this.genesList,  options);
 
       //grab the container and append the chart
-      container.appendChild(this.linearSvChart);
+      container.appendChild(this.linearGeneChart);
     },
   },
   watch: {
     selectedArea(){
-      this.drawLinearSvChart();
+      this.drawLinearGeneChart();
     }
 
   }
@@ -71,12 +73,11 @@ export default {
 </script>
 
 <style lang="sass">
-  .linear-sv-chart-wrapper
+  .linear-gene-chart-wrapper
     margin-top: 10px
     border-radius: 5px
     padding: 5px
     box-shadow: 0 0 5px 0 rgba(0,0,0,0.2)
-    border: 1px solid #ccc
     p
       font-weight: bold
       color: #2A65B7
@@ -84,10 +85,10 @@ export default {
       width: 100%
       box-sizing: border-box
       text-align: center
-  .linear-sv-chart 
+  .linear-gene-chart 
     height: 120px
     width: 100%
     box-sizing: border-box
-  .linear-sv-chart-d3
+  .linear-gene-chart-d3
     border-bottom: none
 </style>

@@ -1,21 +1,25 @@
 <template>
     <div id="left-tracks-section">
-      <div id="chrom-select-bar-div">
-        <ChromSelectBarViz v-if="chromSelectBarDataReady"
-        :selectedArea="selectedArea"
-        :centromeres="centromeres"
-        :bands="bands"
-        :chromosomes="chromosomes"
-        @area-selected="circosZoomFired"/>
+      <div class="upper-track-selectors-bar">
+        <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
+
+        <div id="global-view-select-radios">
+          <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
+          <label for="circos-view">Circos</label>
+          <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
+          <label for="linear-view">Linear</label>
+        </div>
       </div>
-      <!-- if is global view is true then we put a radio for circos/linear -->
-      <div id="global-view-select-radios">
-        <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
-        <label for="circos-view">Circos</label>
-        <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
-        <label for="linear-view">Linear</label>
-      </div>
-      <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
+      <div class="wrapper-95">
+        <div id="chrom-select-bar-div">
+          <ChromSelectBarViz v-if="chromSelectBarDataReady"
+          :selectedArea="selectedArea"
+          :centromeres="centromeres"
+          :bands="bands"
+          :chromosomes="chromosomes"
+          @area-selected="circosZoomFired"/>
+        </div>
+
         <svCircos 
           v-show="globalView === 'circos' && circosDataReady"
           :svList="svList"
@@ -54,6 +58,15 @@
           :title="'Parent 2'"
           :selectedArea="selectedArea"
           :chromosomes="chromosomes"/>
+
+        <LinearGeneChartViz
+          v-if="globalView === 'linear' && genes && !isGlobalView"
+          :genesList="genes"
+          :selectedArea="selectedArea"
+          :chromosomes="chromosomes"
+          />        
+      </div>
+
     </div>
   </template>
   
@@ -62,13 +75,15 @@
   import Sv from '../models/Sv.js';
   import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
   import LinearSvChartViz from './viz/linearSvChart.viz.vue';
+  import LinearGeneChartViz from './viz/linearGeneChart.viz.vue'
 
   export default {
   name: "LeftTracksSection",
   components: {
     svCircos,
     ChromSelectBarViz,
-    LinearSvChartViz
+    LinearSvChartViz,
+    LinearGeneChartViz
   },
   props: {
     svList: Array,
@@ -182,13 +197,24 @@
 </script>
 
 <style lang="sass">
+  .upper-track-selectors-bar
+    width: 100%
+    display: flex
+    justify-content: space-between
+    align-items: center
+    padding: 5px
+    box-sizing: border-box
+    height: fit-content
+  .wrapper-95
+    flex-grow: 1
+    width: 100%
+    display: flex
+    flex-direction: column
   #left-tracks-section
     position: relative
     display: flex
     flex-direction: column
-    padding-top: 10px
-    padding-bottom: 10px
-    padding: 10px
+    padding: 5px 10px
     flex-grow: 1
     height: 100%
     box-sizing: border-box
@@ -196,8 +222,7 @@
     overflow: hidden
   
   #focus-chart-btn
-    position: absolute
-    top: 40px
+    top: 0px
     right: 40px
     padding: 5px 5px
     background-color: #C1D1EA
@@ -212,9 +237,8 @@
   #chrom-select-bar-div
     height: 27px
   #global-view-select-radios
-    position: absolute
     width: fit-content
-    top: 40px
+    top: 0px
     left: 10px
     padding: 5px 5px
     color: #2A65B7
