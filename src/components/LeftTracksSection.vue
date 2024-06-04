@@ -17,7 +17,7 @@
       </div>
       <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
         <svCircos 
-          v-if="globalView === 'circos' && circosDataReady"
+          v-show="globalView === 'circos' && circosDataReady"
           :svList="svList"
           :zoomZone="selectedArea"
           :focusedVariant="focusedVariant"
@@ -35,21 +35,21 @@
           @circos-zoom-event="circosZoomFired"/>
 
         <LinearSvChartViz
-          v-if="globalView === 'linear'"
+          v-show="globalView === 'linear'"
           :svList="svList"
           :title="'Proband'"
           :selectedArea="selectedArea"
           :chromosomes="chromosomes"/>
 
         <LinearSvChartViz
-          v-if="globalView === 'linear' && vcfDataPar1"
+          v-show="globalView === 'linear' && vcfDataPar1"
           :svList="vcfDataPar1"
           :title="'Parent 1'"
           :selectedArea="selectedArea"
           :chromosomes="chromosomes"/>
 
         <LinearSvChartViz
-          v-if="globalView === 'linear' && vcfDataPar2"
+          v-show="globalView === 'linear' && vcfDataPar2"
           :svList="vcfDataPar2"
           :title="'Parent 2'"
           :selectedArea="selectedArea"

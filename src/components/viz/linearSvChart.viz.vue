@@ -60,6 +60,12 @@ export default {
       //grab the container and append the chart
       container.appendChild(this.linearSvChart);
     },
+  },
+  watch: {
+    selectedArea(){
+      this.drawLinearSvChart();
+    }
+
   }
 }
 </script>
