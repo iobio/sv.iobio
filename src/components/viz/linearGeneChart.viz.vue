@@ -41,15 +41,14 @@ export default {
     drawLinearGeneChart() {
       //Grab the container by ref
       let container = this.$refs.linearGeneChartContainer; 
+      //if we dont have a parent element, dont draw the chart
+      if (!container || !container.clientWidth) {
+        return;
+      }
       //remove anything in the container
       container.innerHTML = '';
 
       if (!this.genesList || !this.chromosomes) {
-        return;
-      }
-
-      //if we dont have a parent element, dont draw the chart
-      if (!container) {
         return;
       }
 

@@ -39,15 +39,14 @@ export default {
     drawLinearSvChart() {
       //Grab the container by ref
       let container = this.$refs.linearChartContainer; 
+      //if we dont have a parent element, dont draw the chart
+      if (!container || !container.clientWidth) {
+        return;
+      }
       //remove anything in the container
       container.innerHTML = '';
 
       if (!this.svList || !this.chromosomes) {
-        return;
-      }
-
-      //if we dont have a parent element, dont draw the chart
-      if (!container) {
         return;
       }
 

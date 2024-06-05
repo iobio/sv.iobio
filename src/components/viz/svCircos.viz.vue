@@ -52,6 +52,9 @@ export default {
     async drawCircos() {
       let containerTag = '#svCircos';
       let container = d3.select(containerTag);
+      if (!container.node() || !container.node().clientWidth) {
+        return;
+      }
       container.selectAll("*").remove(); //remove before redrawing
 
       //if we dont have centromeres, bands, or chromosomes dont draw the chart
