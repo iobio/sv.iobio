@@ -1,7 +1,7 @@
 <template>
     <div draggable="true" class="linear-gene-chart-wrapper">
       <p v-if="title">{{ title }}</p>
-      <div class="drag-handle">. . .</div>
+      <div class="drag-handle" @mousedown="dragChartStart">. . .</div>
       <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
     </div>
 </template>
@@ -61,6 +61,12 @@ export default {
 
       //grab the container and append the chart
       container.appendChild(this.linearGeneChart);
+    },
+    dragChartStart(){
+      //We need to get the root element and allow it to be dragged
+      let rootContainer = this.$refs.rootDraggableContainer;
+      //allow it to be dragged
+      rootContainer.setAttribute('draggable', true);
     },
   },
   watch: {

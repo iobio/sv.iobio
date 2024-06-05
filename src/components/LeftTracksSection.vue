@@ -37,13 +37,15 @@
           :chromosomes="chromosomes"
           :genes="genes"
           @circos-zoom-event="circosZoomFired"/>
-        <div id="linear-section-container" v-show="globalView === 'linear'" @dragover="handleChartDrag" @drop="dropChart">
+        <div id="linear-section-container" v-show="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <component
             v-for="(chartData, index) in chartsData"
             :key="index"
             :is="chartData.component"
             v-bind="chartData.props"
             v-show="chartData.component !== 'LinearGeneChartViz' || !isGlobalView"
+            @dragstart="handleDragStart(index, $event)"
+            class="draggable-chart"
           />
         </div>
        
@@ -180,7 +182,31 @@
     focusOnVariant() {
       this.needsFocus = true
       this.showButton = false
-    }   
+    },
+    handleDragStart(index, event) {
+      this.draggedIndex = index;
+      event.dataTransfer.setData('text', index);
+    },
+    handleDragOver(event) {
+      event.preventDefault();
+    },
+    handleDrop(event) {
+      event.preventDefault();
+      const targetIndex = Array.from(event.currentTarget.children).indexOf(event.target.closest('.draggable-chart'));
+      if (targetIndex !== -1 && targetIndex !== this.draggedIndex) {
+        this.reorderCharts(this.draggedIndex, targetIndex);
+        this.draggedIndex = null;
+      }
+      //When dragged and dropped get all the .draggable-chart elements and set them not draggable again
+      const draggableCharts = document.querySelectorAll('.draggable-chart');
+      draggableCharts.forEach(chart => {
+        chart.setAttribute('draggable', false);
+      });
+    },
+    reorderCharts(fromIndex, toIndex) {
+      const chartToMove = this.chartsData.splice(fromIndex, 1)[0];
+      this.chartsData.splice(toIndex, 0, chartToMove);
+    },
   },
   computed: {
     isGlobalView() {

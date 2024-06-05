@@ -1,7 +1,7 @@
 <template>
     <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
       <p v-if="title">{{ title }}</p>
-      <div class="drag-handle" @mousedown="dragChartStart" @mouseup="dragChartStop">. . .</div>
+      <div class="drag-handle" @mousedown="dragChartStart">. . .</div>
       <div ref="linearChartContainer" class="linear-sv-chart"></div>
     </div>
 </template>
@@ -65,12 +65,6 @@ export default {
       let rootContainer = this.$refs.rootDraggableContainer;
       //allow it to be dragged
       rootContainer.setAttribute('draggable', true);
-    },
-    dragChartStop(){
-      //We need to get the root element and allow it to be dragged
-      let rootContainer = this.$refs.rootDraggableContainer;
-      //allow it to be dragged
-      rootContainer.setAttribute('draggable', false);
     },
   },
   watch: {
