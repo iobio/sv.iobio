@@ -71,11 +71,10 @@ export default {
 
 <style lang="sass">
   .linear-sv-chart-wrapper
-    margin-top: 10px
-    border-radius: 5px
+    margin-top: 2px
     padding: 5px
-    box-shadow: 0 0 5px 0 rgba(0,0,0,0.2)
-    border: 1px solid #ccc
+    border-radius: 5px
+    border: 2px solid #ccc
     p
       font-weight: bold
       color: #2A65B7
@@ -87,6 +86,4 @@ export default {
     height: 120px
     width: 100%
     box-sizing: border-box
-  .linear-sv-chart-d3
-    border-bottom: none
 </style>
