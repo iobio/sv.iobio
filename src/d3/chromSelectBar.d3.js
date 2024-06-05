@@ -92,6 +92,12 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         if (options.selection && options.selection !== null) {
             //we want to automatically brush to the selection
             selection = options.selection;
+            //ensure that the selection.start is less than the selection.end if not then swap them
+            if (selection.start > selection.end) {
+                let temp = selection.start;
+                selection.start = selection.end;
+                selection.end = temp;
+            }
         }
     }
 

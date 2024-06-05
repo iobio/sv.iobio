@@ -75,6 +75,12 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         }
         if (options.zoomZone) {
             zoomZone = options.zoomZone;
+            //Ensure that start is less than end if not swap them
+            if (zoomZone.start > zoomZone.end) {
+                let temp = zoomZone.start;
+                zoomZone.start = zoomZone.end;
+                zoomZone.end = temp;
+            }
 
             let zoomStart = zoomZone.start;
             let zoomEnd = zoomZone.end;

@@ -22,6 +22,12 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         if (options.selection && options.selection !== null) {
             //we want to automatically brush to the selection
             selection = options.selection;
+            //Ensure that selection.start is less than selection.end
+            if (selection.start > selection.end) {
+                let temp = selection.start;
+                selection.start = selection.end;
+                selection.end = temp;
+            }
         }
     }
 
