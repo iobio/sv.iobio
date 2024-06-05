@@ -84,11 +84,12 @@ export default {
 <style lang="sass">
   .linear-sv-chart-wrapper
     position: relative
-    margin-top: 2px
+    margin-top: 10px
     padding: 5px
     border-radius: 5px
-    border: 2px solid #ccc
+    border: 1px solid #2A65B7
     background-color: white
+    box-shadow: 0px 0px 5px 0px #2A65B7
     p
       font-weight: bold
       color: #2A65B7
@@ -96,19 +97,21 @@ export default {
       width: 100%
       box-sizing: border-box
       text-align: center
+      margin: 5px
     .drag-handle
       height: 40px
-      width: 10px
+      width: 15px
       border: 2px solid #2A65B7
       background-color: white
       position: absolute
-      top: 40%
-      left: -7px
+      top: 35%
+      left: -10px
+      font-weight: bold
       border-radius: 5px
       cursor: move
       writing-mode: vertical-rl
       text-align: center
-      line-height: .15em
+      line-height: .3em
       color: #2A65B7
   .linear-sv-chart 
     height: 120px
