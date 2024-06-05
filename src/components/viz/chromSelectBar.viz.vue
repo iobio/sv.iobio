@@ -4,7 +4,6 @@
   
 <script>
   import chromSelectBar from '../../d3/chromSelectBar.d3.js';
-  import * as d3 from 'd3';
 
   export default {
     name: "ChromSelectBarViz",

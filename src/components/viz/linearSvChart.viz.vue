@@ -113,6 +113,9 @@ export default {
       text-align: center
       line-height: .3em
       color: #2A65B7
+      &:hover
+        box-shadow: 0px 0px 5px 0px #2A65B7
+        background-color: #C1D1EA
   .linear-sv-chart 
     height: 120px
     width: 100%

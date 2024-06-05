@@ -1,14 +1,14 @@
 <template>
     <div id="left-tracks-section">
       <div class="upper-track-selectors-bar">
-        <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
-
         <div id="global-view-select-radios">
           <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
           <label for="circos-view">Circos</label>
           <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
           <label for="linear-view">Linear</label>
         </div>
+
+        <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
       </div>
       <div class="wrapper-95">
         <div id="chrom-select-bar-div">
@@ -303,6 +303,9 @@
       opacity: 0.7
   #chrom-select-bar-div
     height: 27px
+    padding: 8px 0px 2px 0px
+    border-radius: 5px
+    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
   #global-view-select-radios
     width: fit-content
     top: 0px
