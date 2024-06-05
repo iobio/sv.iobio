@@ -1,6 +1,7 @@
 <template>
     <div class="linear-sv-chart-wrapper">
       <p v-if="title">{{ title }}</p>
+      <div class="drag-handle">. . .</div>
       <div ref="linearChartContainer" class="linear-sv-chart"></div>
     </div>
 </template>
@@ -71,6 +72,7 @@ export default {
 
 <style lang="sass">
   .linear-sv-chart-wrapper
+    position: relative
     margin-top: 2px
     padding: 5px
     border-radius: 5px
@@ -82,6 +84,20 @@ export default {
       width: 100%
       box-sizing: border-box
       text-align: center
+    .drag-handle
+      height: 40px
+      width: 10px
+      border: 2px solid #2A65B7
+      background-color: white
+      position: absolute
+      top: 40%
+      left: -7px
+      border-radius: 5px
+      cursor: move
+      writing-mode: vertical-rl
+      text-align: center
+      line-height: .15em
+      color: #2A65B7
   .linear-sv-chart 
     height: 120px
     width: 100%
