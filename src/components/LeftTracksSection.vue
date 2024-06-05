@@ -37,34 +37,16 @@
           :chromosomes="chromosomes"
           :genes="genes"
           @circos-zoom-event="circosZoomFired"/>
-
-        <LinearSvChartViz
-          v-show="globalView === 'linear'"
-          :svList="svList"
-          :title="'Proband'"
-          :selectedArea="selectedArea"
-          :chromosomes="chromosomes"/>
-
-        <LinearSvChartViz
-          v-show="globalView === 'linear' && vcfDataPar1"
-          :svList="vcfDataPar1"
-          :title="'Parent 1'"
-          :selectedArea="selectedArea"
-          :chromosomes="chromosomes"/>
-
-        <LinearSvChartViz
-          v-show="globalView === 'linear' && vcfDataPar2"
-          :svList="vcfDataPar2"
-          :title="'Parent 2'"
-          :selectedArea="selectedArea"
-          :chromosomes="chromosomes"/>
-
-        <LinearGeneChartViz
-          v-if="globalView === 'linear' && genes && !isGlobalView"
-          :genesList="genes"
-          :selectedArea="selectedArea"
-          :chromosomes="chromosomes"
-          />        
+        <div id="linear-section-container" v-show="globalView === 'linear'" @dragover="handleChartDrag" @drop="dropChart">
+          <component
+            v-for="(chartData, index) in chartsData"
+            :key="index"
+            :is="chartData.component"
+            v-bind="chartData.props"
+            v-show="chartData.component !== 'LinearGeneChartViz' || !isGlobalView"
+          />
+        </div>
+       
       </div>
 
     </div>
@@ -105,6 +87,17 @@
       bands: null,
       chromosomes: null,
       genes: null,
+      chartsData: [
+        {
+          component: 'LinearSvChartViz',
+          props: {
+            svList: this.svList,
+            title: 'Proband',
+            selectedArea: this.selectedArea,
+            chromosomes: this.chromosomes
+          }
+        }
+      ],
     }
   },
   mounted () {
@@ -131,20 +124,47 @@
       .then(response => response.json())
       .then(data => {
         this.genes = data;
+        this.chartsData.push({
+          component: 'LinearGeneChartViz',
+          props: {
+            genesList: this.genes,
+            title: 'Genes',
+            selectedArea: this.selectedArea,
+            chromosomes: this.chromosomes
+          }
+        })
       });
 
     //fetch the vcf data
     fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-02_svafotate_output.filteredaf.vcf.gz')
       .then(response => response.json())
       .then(data => {
-        this.vcfDataPar1 = data.map(item => new Sv(item)); 
+        this.vcfDataPar1 = data.map(item => new Sv(item));
+        this.chartsData.push({
+          component: 'LinearSvChartViz',
+          props: {
+            svList: this.vcfDataPar1,
+            title: 'Parent 1',
+            selectedArea: this.selectedArea,
+            chromosomes: this.chromosomes
+          }
+        }) 
       });  
 
     //fetch the vcf data
     fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-03_svafotate_output.filteredaf.vcf.gz')
       .then(response => response.json())
       .then(data => {
-        this.vcfDataPar2 = data.map(item => new Sv(item)); 
+        this.vcfDataPar2 = data.map(item => new Sv(item));
+        this.chartsData.push({
+          component: 'LinearSvChartViz',
+          props: {
+            svList: this.vcfDataPar2,
+            title: 'Parent 2',
+            selectedArea: this.selectedArea,
+            chromosomes: this.chromosomes,
+          }
+        })
       });
   },
   methods: {
@@ -160,7 +180,7 @@
     focusOnVariant() {
       this.needsFocus = true
       this.showButton = false
-    }
+    }   
   },
   computed: {
     isGlobalView() {
@@ -192,6 +212,27 @@
         this.showButton = false
       }
     },
+    svList: {
+      handler() {
+        //We are watching this because the svList used for the proband is sometimes updated and asynchonous
+        const probandChart = this.chartsData.find(chart => chart.props.title === 'Proband');
+        if (probandChart) {
+          probandChart.props.svList = this.svList;
+          probandChart.props.selectedArea = this.selectedArea;
+          probandChart.props.chromosomes = this.chromosomes;
+          probandChart.props.title = 'Proband';
+        }
+      },
+      deep: true
+    },
+    selectedArea: {
+      handler() {
+        this.chartsData.forEach(chart => {
+          chart.props.selectedArea = this.selectedArea;
+        });
+      },
+      deep: true
+    }
   },
   }
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <div class="linear-gene-chart-wrapper">
+    <div draggable="true" class="linear-gene-chart-wrapper">
       <p v-if="title">{{ title }}</p>
       <div class="drag-handle">. . .</div>
       <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
@@ -19,11 +19,11 @@ export default {
     chromosomes: Array,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
+    title: String
   },
   data () {
     return {
       resizeObserver: null,
-      title: 'Genes'
     }
   },
   mounted () {
@@ -66,8 +66,10 @@ export default {
   watch: {
     selectedArea(){
       this.drawLinearGeneChart();
-    }
-
+    },
+    genesList(){
+      this.drawLinearGeneChart();
+    },
   }
 }
 </script>
@@ -79,6 +81,7 @@ export default {
     padding: 5px
     border-radius: 5px
     border: 2px solid #ccc
+    background-color: white
     p
       font-weight: bold
       color: #2A65B7

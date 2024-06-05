@@ -1,7 +1,7 @@
 <template>
-    <div class="linear-sv-chart-wrapper">
+    <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
       <p v-if="title">{{ title }}</p>
-      <div class="drag-handle">. . .</div>
+      <div class="drag-handle" @mousedown="dragChartStart" @mouseup="dragChartStop">. . .</div>
       <div ref="linearChartContainer" class="linear-sv-chart"></div>
     </div>
 </template>
@@ -60,12 +60,29 @@ export default {
       //grab the container and append the chart
       container.appendChild(this.linearSvChart);
     },
+    dragChartStart(){
+      //We need to get the root element and allow it to be dragged
+      let rootContainer = this.$refs.rootDraggableContainer;
+      //allow it to be dragged
+      rootContainer.setAttribute('draggable', true);
+    },
+    dragChartStop(){
+      //We need to get the root element and allow it to be dragged
+      let rootContainer = this.$refs.rootDraggableContainer;
+      //allow it to be dragged
+      rootContainer.setAttribute('draggable', false);
+    },
   },
   watch: {
     selectedArea(){
       this.drawLinearSvChart();
+    },
+    svList: {
+      handler() {
+        this.drawLinearSvChart();
+      },
+      deep: true
     }
-
   }
 }
 </script>
@@ -77,6 +94,7 @@ export default {
     padding: 5px
     border-radius: 5px
     border: 2px solid #ccc
+    background-color: white
     p
       font-weight: bold
       color: #2A65B7

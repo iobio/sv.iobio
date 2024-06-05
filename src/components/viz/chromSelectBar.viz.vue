@@ -1,5 +1,5 @@
 <template>
-    <div id="chrom-select-bar"></div>
+    <div ref="cromSelectBarContainer" id="chrom-select-bar"></div>
   </template>
   
 <script>
@@ -41,7 +41,13 @@
     methods: {
       drawChromSelectBar() {
         let containerTag = '#chrom-select-bar';
-        d3.select(containerTag).selectAll("*").remove(); //remove before redrawing
+        //select the container
+        let container = this.$refs.cromSelectBarContainer;
+        //if the container doesnt exist, dont draw the chart or if it doesnt have a width
+        if (!container || !container.clientWidth) {
+          return;
+        }
+        container.innerHTML = '';
 
         //if we dont have chromosomes, centromeres, or bands, dont draw the chart
         if (!this.hasAllOptions) {
@@ -58,8 +64,7 @@
         this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes, options);
         
         //get the container and append the chart
-        let container = d3.select(containerTag);
-        container.node().append(this.chromSelectBarChart);
+        container.appendChild(this.chromSelectBarChart);
 
       },
       areaSelected(selection){
