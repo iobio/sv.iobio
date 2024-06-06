@@ -17,7 +17,9 @@ export default {
     svList: Array,
     selectedArea: Object,
     chromosomes: Array,
-    title: String
+    title: String,
+    focusedVariant: Object,
+    needsFocus: Boolean,
   },
   data () {
     return {

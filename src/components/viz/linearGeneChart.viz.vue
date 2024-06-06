@@ -19,7 +19,9 @@ export default {
     chromosomes: Array,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
-    title: String
+    title: String,
+    focusedVariant: Object,
+    needsFocus: Boolean,
   },
   data () {
     return {

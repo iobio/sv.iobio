@@ -98,7 +98,9 @@
             svList: this.svList,
             title: 'Proband',
             selectedArea: this.selectedArea,
-            chromosomes: this.chromosomes
+            chromosomes: this.chromosomes,
+            focusedVariant: this.focusedVariant,
+            needsFocus: this.needsFocus
           }
         }
       ],
@@ -134,7 +136,9 @@
             genesList: this.genes,
             title: 'Genes',
             selectedArea: this.selectedArea,
-            chromosomes: this.chromosomes
+            chromosomes: this.chromosomes,
+            focusedVariant: this.focusedVariant,
+            needsFocus: this.needsFocus
           }
         })
       });
@@ -150,7 +154,9 @@
             svList: this.vcfDataPar1,
             title: 'Parent 1',
             selectedArea: this.selectedArea,
-            chromosomes: this.chromosomes
+            chromosomes: this.chromosomes,
+            focusedVariant: this.focusedVariant,
+            needsFocus: this.needsFocus
           }
         }) 
       });  
@@ -167,6 +173,8 @@
             title: 'Parent 2',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
+            focusedVariant: this.focusedVariant,
+            needsFocus: this.needsFocus
           }
         })
       });
