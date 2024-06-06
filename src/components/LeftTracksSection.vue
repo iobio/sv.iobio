@@ -9,6 +9,7 @@
         </div>
 
         <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
+        <button v-if="zoomHistory.length > 1" @click="focusOnPrevious">Prev. Zoom</button>
       </div>
       <div class="wrapper-95">
         <div id="chrom-select-bar-div">
@@ -89,6 +90,7 @@
       chromosomes: null,
       chromosomeAccumulatedMap: null,
       genes: null,
+      zoomHistory: [],
       chartsData: [
         {
           component: 'LinearSvChartViz',
@@ -217,6 +219,12 @@
       return zoomedSection;
     },
     selectAreaEventFired(zoomZone) {
+      //if the zoomZone is not the whole genome we push it to the zoomHistory
+      if (zoomZone.start !== 0 && !(zoomZone.end > 3000000000)) {
+        this.zoomHistory.push(zoomZone);
+      } else {
+        this.zoomHistory = [];
+      }
       this.$emit('zoomEvent', zoomZone)
     },
     focusOnVariant() {
@@ -224,6 +232,12 @@
       //We can get the focusedVariant and calculate the appropriate selectedArea for it
       let zoomZone = this.findZoomFromFocus();
       //Then we just emit that and trickle down the selectedArea to the other components
+      this.$emit('zoomEvent', zoomZone)
+    },
+    focusOnPrevious() {
+      //We want to go to the -2 but only pop the last element
+      this.zoomHistory.pop();
+      let zoomZone = this.zoomHistory.slice(-1)[0];
       this.$emit('zoomEvent', zoomZone)
     },
     handleDragStart(index, event) {
