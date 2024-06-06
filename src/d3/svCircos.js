@@ -184,49 +184,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             zoomedSection = originZoom;
             //call the zoomed callback
             zoomedCallback(zoomedSection);
-
-            //reset the charts angle scale
-            angleScale = d3.scaleLinear()
-                .domain([zoomedSection.start, zoomedSection.end])
-                .range([startAngleRad, endAngleRad]);
-
-            //get selected-chromosome and remove it if
-            let selected = d3.select('.selected-chromosome');
-            if (selected) {
-                selected.classed('selected-chromosome', false);
-            }
-
-            //clear all the tracks and render the new tracks
-            _renderProbTrack([zoomedSection.start, zoomedSection.end], svData);
-
-            if (parent1Data) {
-                _renderPar1Track([zoomedSection.start, zoomedSection.end], parent1Data);
-            }
-
-            if (parent2Data) {
-                _renderPar2Track([zoomedSection.start, zoomedSection.end], parent2Data);
-            }
-
-            if (altCallerData) {
-                _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], altCallerData);
-            } 
-
-            //clear all the chromosomes and render the new chromosomes
-            svg.selectAll('.chromosome').remove();
-            //clear all the chromosome labels
-            svg.selectAll('.chromosome-label').remove();
-            _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
-
-            _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
-
-            //also reset the image to the dna.svg
-            zoomOutButtonGroup.select('image')
-                .attr('xlink:href', '/dna.svg')
-                .attr('x', width/2 - 10)
-                .attr('y', 10)
-                .attr('width', 20)
-                .attr('height', 20)
-                .attr('pointer-events', 'none');
         });
 
     //Upper left side of the circle will be that button
@@ -580,44 +537,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
                     //Send the zoomed section outside of the chart
                     zoomedCallback(zoomedSection);
-
-                    //reset the charts angle scale
-                    angleScale = d3.scaleLinear()
-                        .domain([zoomedSection.start, zoomedSection.end])
-                        .range([startAngleRad, endAngleRad]);
-
-                    //clear all the chromosomes and render the new chromosomes
-                    svg.selectAll('.chromosome').remove();
-                    //clear all the chromosome labels
-                    svg.selectAll('.chromosome-label').remove();
-                    _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
-
-                    //clear all the tracks and render the new tracks
-                    svg.selectAll('line').remove();
-                    _renderProbTrack([zoomedSection.start, zoomedSection.end], svData);
-                    if (parent1Data) {
-                        _renderPar1Track([zoomedSection.start, zoomedSection.end], parent1Data);
-                    }
-        
-                    if (parent2Data) {
-                        _renderPar2Track([zoomedSection.start, zoomedSection.end], parent2Data);
-                    }
-                    if (altCallerData) {
-                        _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], altCallerData);
-                    } 
-
-                    _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
-
-                    //get our centerSymbolGroup and change the symbol to our magnify-out.svg
-                    zoomOutButtonGroup.select('image')
-                        .attr('xlink:href', '/magnify-out.svg')
-                        .attr('x', width - (width - 70) - 10)
-                        .attr('y', height - (height - 70) - 10)
-                        .attr('width', 20)
-                        .attr('height', 20);
-
-                    //remove the brush
-                    d3.select('.arc-brush').remove();
                 });
 
             g.call(arcDrag);
@@ -851,45 +770,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
                     //Send the zoomed section outside of the chart
                     zoomedCallback(zoomedSection);
-
-                    //reset the charts angle scale
-                    angleScale = d3.scaleLinear()
-                        .domain([zoomedSection.start, zoomedSection.end])
-                        .range([startAngleRad, endAngleRad]);
-
-                    //clear all the chromosomes and render the new chromosomes
-                    svg.selectAll('.chromosome').remove();
-                    //clear all the chromosome labels
-                    svg.selectAll('.chromosome-label').remove();
-                    _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomeList);
-
-                    //get the event target and set class list to selected-chromosome
-                    let target = event.target;
-                    target.classList.add('selected-chromosome');
-
-                    //clear all the tracks and render the new tracks
-                    svg.selectAll('line').remove();
-                    _renderProbTrack([zoomedSection.start, zoomedSection.end], svData);
-                    if (parent1Data) {
-                        _renderPar1Track([zoomedSection.start, zoomedSection.end], parent1Data);
-                    }
-        
-                    if (parent2Data) {
-                        _renderPar2Track([zoomedSection.start, zoomedSection.end], parent2Data);
-                    }
-                    if (altCallerData) {
-                        _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], altCallerData);
-                    } 
-
-                    _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
-
-                    //get our centerSymbolGroup and change the symbol to our magnify-out.svg
-                    zoomOutButtonGroup.select('image')
-                        .attr('xlink:href', '/magnify-out.svg')
-                        .attr('x', width - (width - 70) - 10)
-                        .attr('y', height - (height - 70) - 10)
-                        .attr('width', 20)
-                        .attr('height', 20);
                 })
                 .on('mouseover', function (event, d) {
                     d3.select(this).attr('stroke', color);
