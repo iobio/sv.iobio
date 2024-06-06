@@ -24,8 +24,6 @@
           v-show="globalView === 'circos' && circosDataReady"
           :svList="svList"
           :zoomZone="selectedArea"
-          :focusedVariant="focusedVariant"
-          :needsFocus="needsFocus"
           :genesOfInterest="genesOfInterest"
           :phenRelatedGenes="phenRelatedGenes"
           :batchNum="batchNum"
@@ -90,6 +88,7 @@
       centromeres: null,
       bands: null,
       chromosomes: null,
+      chromosomeAccumulatedMap: null,
       genes: null,
       chartsData: [
         {
@@ -99,8 +98,6 @@
             title: 'Proband',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
-            focusedVariant: this.focusedVariant,
-            needsFocus: this.needsFocus
           }
         }
       ],
@@ -111,7 +108,11 @@
       .then(response => response.json())
       .then(data => {
         this.chromosomes = data;
-    });
+      })
+      .then(() => {
+        //create a map of the chromosomes to accumulate the length of each chromosome
+        this.chromosomeAccumulatedMap = this.createCromosomeAccumulatedMap(this.chromosomes);
+      })
 
     fetch('http://localhost:3000/centromeres?build=hg38')
       .then(response => response.json())
@@ -137,8 +138,6 @@
             title: 'Genes',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
-            focusedVariant: this.focusedVariant,
-            needsFocus: this.needsFocus
           }
         })
       });
@@ -155,8 +154,6 @@
             title: 'Parent 1',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
-            focusedVariant: this.focusedVariant,
-            needsFocus: this.needsFocus
           }
         }) 
       });  
@@ -173,13 +170,53 @@
             title: 'Parent 2',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
-            focusedVariant: this.focusedVariant,
-            needsFocus: this.needsFocus
           }
         })
       });
   },
   methods: {
+    createCromosomeAccumulatedMap(chromosomeList) {
+        //iterate over the chromosomes and create the arcs
+        let accumulatedBP = 0;
+        let chromosomeAccumulatedMap = new Map();
+
+        for (let chromosome of chromosomeList) {
+            let chromStart = accumulatedBP;
+
+            accumulatedBP += chromosome.length;
+
+            let chromEnd = accumulatedBP;
+            chromosomeAccumulatedMap.set(chromosome.chr, {start: chromStart, end: chromEnd});
+        }
+
+        return chromosomeAccumulatedMap;
+    },
+    findZoomFromFocus() {
+      let focusedVariant = this.focusedVariant;
+
+      let chrom = focusedVariant.chromosome;
+      let chromStart = this.chromosomeAccumulatedMap.get(chrom).start;
+      let varStartAbs = parseInt(focusedVariant.start) + chromStart;
+      let varEndAbs = parseInt(focusedVariant.end) + chromStart;
+      let varSize = varEndAbs - varStartAbs;
+
+      if (varSize < 50) {
+          varSize = 50
+      }
+
+      let halfSize = varSize / 2;
+
+      let focusedStart = varStartAbs - halfSize;
+      let focusedEnd = varEndAbs + halfSize;
+      let focusedSize = focusedEnd - focusedStart;
+
+      let zoomedSection = {
+          start: focusedStart,
+          end: focusedEnd,
+          size: focusedSize
+      };
+      return zoomedSection;
+    },
     selectAreaEventFired(zoomZone) {
       if (this.needsFocus) {
         this.needsFocus = false
@@ -189,8 +226,11 @@
       this.$emit('zoomEvent', zoomZone)
     },
     focusOnVariant() {
-      this.needsFocus = true
       this.showButton = false
+      //We can get the focusedVariant and calculate the appropriate selectedArea for it
+      let zoomZone = this.findZoomFromFocus();
+      //Then we just emit that and trickle down the selectedArea to the other components
+      this.$emit('zoomEvent', zoomZone)
     },
     handleDragStart(index, event) {
       this.draggedIndex = index;

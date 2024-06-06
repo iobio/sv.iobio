@@ -95,35 +95,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             zoomedSection = originZoom;
         }
 
-        //the focused variant will take precedence over the zoom zone so we will do this after the zoom zone
-        if (options.focusedVariant) {
-            let focusedVariant = options.focusedVariant;
-
-            let chrom = focusedVariant.chromosome;
-            let chromStart = chromosomeAccumulatedMap.get(chrom).start;
-            let varStartAbs = parseInt(focusedVariant.start) + chromStart;
-            let varEndAbs = parseInt(focusedVariant.end) + chromStart;
-            let varSize = varEndAbs - varStartAbs;
-
-            if (varSize < 50) {
-                varSize = 50
-            }
-            
-            let halfSize = varSize / 2;
-
-            let focusedStart = varStartAbs - halfSize;
-            let focusedEnd = varEndAbs + halfSize;
-            let focusedSize = focusedEnd - focusedStart;
-
-            zoomedSection = {
-                start: focusedStart,
-                end: focusedEnd,
-                size: focusedSize
-            };
-            //call the zoomed callback
-            zoomedCallback(zoomedSection);
-        }
-
         //if there are genes in the options then set the genes
         if (options.genes) {
             genes = options.genes;

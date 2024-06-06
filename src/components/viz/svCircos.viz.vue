@@ -13,8 +13,6 @@ export default {
   props: {
     svList: Array,
     zoomZone: Object,
-    focusedVariant: Object,
-    needsFocus: Boolean,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     batchNum: Number,
@@ -67,10 +65,6 @@ export default {
         bands: this.bands,
         zoomZone: this.zoomZone,
         zoomCallback: this.emitZoomEvent,
-      }
-
-      if (this.needsFocus && this.focusedVariant) {
-        options.focusedVariant = this.focusedVariant
       }
 
       if (this.genes) {
@@ -131,11 +125,6 @@ export default {
     zoomZone: function() {
       this.drawCircos()
     }, 
-    needsFocus: function() {
-      if (this.needsFocus && this.focusedVariant) {
-        this.drawCircos()
-      }
-    },
     genesOfInterest: function(){
       this.drawCircos()
     },

@@ -20,8 +20,6 @@ export default {
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     title: String,
-    focusedVariant: Object,
-    needsFocus: Boolean,
   },
   data () {
     return {

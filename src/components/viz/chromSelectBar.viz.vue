@@ -14,8 +14,6 @@
       bands: Array,
       centromeres: Array,
       chromosomes: Array,
-      focusedVariant: Object,
-      needsFocus: Boolean,
     },
     data () {
       return {

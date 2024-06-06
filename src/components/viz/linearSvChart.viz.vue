@@ -18,8 +18,6 @@ export default {
     selectedArea: Object,
     chromosomes: Array,
     title: String,
-    focusedVariant: Object,
-    needsFocus: Boolean,
   },
   data () {
     return {
