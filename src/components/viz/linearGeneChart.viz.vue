@@ -83,7 +83,7 @@ export default {
 <style lang="sass">
   .linear-gene-chart-wrapper
     position: relative
-    margin-top: 10px
+    margin-top: 5px
     padding: 5px
     border-radius: 5px
     border: 1px solid #2A65B7
@@ -99,7 +99,7 @@ export default {
     .drag-handle
       height: 40px
       width: 15px
-      border: 2px solid grey
+      border: 2px solid #2A65B7
       background-color: white
       position: absolute
       top: 40%
@@ -111,6 +111,9 @@ export default {
       font-weight: bold
       line-height: .3em
       color: #2A65B7
+      &:hover
+        box-shadow: 0px 0px 5px 0px #2A65B7
+        background-color: #C1D1EA
   .linear-gene-chart 
     height: 120px
     width: 100%

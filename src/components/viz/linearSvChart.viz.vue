@@ -84,7 +84,7 @@ export default {
 <style lang="sass">
   .linear-sv-chart-wrapper
     position: relative
-    margin-top: 10px
+    margin-top: 5px
     padding: 5px
     border-radius: 5px
     border: 1px solid #2A65B7
