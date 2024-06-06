@@ -17,7 +17,7 @@
           :centromeres="centromeres"
           :bands="bands"
           :chromosomes="chromosomes"
-          @area-selected="circosZoomFired"/>
+          @selectAreaEvent="selectAreaEventFired"/>
         </div>
 
         <svCircos 
@@ -36,7 +36,7 @@
           :bands="bands"
           :chromosomes="chromosomes"
           :genes="genes"
-          @circos-zoom-event="circosZoomFired"/>
+          @selectAreaEvent="selectAreaEventFired"/>
 
         <div id="linear-section-container" v-show="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <component
@@ -46,6 +46,7 @@
             v-bind="chartData.props"
             v-show="chartData.component !== 'LinearGeneChartViz' || !isGlobalView"
             @dragstart="handleDragStart(index, $event)"
+            @selectAreaEvent="selectAreaEventFired"
             class="draggable-chart"
           />
         </div>
@@ -171,13 +172,13 @@
       });
   },
   methods: {
-    circosZoomFired(zoomZone) {
+    selectAreaEventFired(zoomZone) {
       if (this.needsFocus) {
         this.needsFocus = false
       } else {
         this.showButton = true
       }
-      this.$emit('circos-zoom-event', zoomZone)
+      this.$emit('zoomEvent', zoomZone)
     },
     focusOnVariant() {
       this.needsFocus = true

@@ -106,7 +106,7 @@ export default {
       }
     },
     emitZoomEvent(zoomLevel) {
-      this.$emit('circos-zoom-event', zoomLevel)
+      this.$emit('selectAreaEvent', zoomLevel)
     }
   },
   computed: {

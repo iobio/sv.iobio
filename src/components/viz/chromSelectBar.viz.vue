@@ -67,7 +67,7 @@
 
       },
       areaSelected(selection){
-        this.$emit('area-selected', selection);
+        this.$emit('selectAreaEvent', selection);
       }
     },
     computed: {

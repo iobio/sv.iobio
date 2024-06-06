@@ -26,7 +26,7 @@
         :genesOfInterest="genesOfInterest"
         :phenRelatedGenes="overlappedPhenGenes"
         :batchNum="batchNum"
-        @circos-zoom-event="circosZoomFired"/>
+        @zoomEvent="zoomFired"/>
 
     </div>
 
@@ -203,7 +203,7 @@
       areaSelected(selectedArea) {
         this.selectedArea = selectedArea
       },
-      circosZoomFired(zoomZone) {
+      zoomFired(zoomZone) {
         this.selectedArea = zoomZone
       }, 
       updateGenesOfInterest(newGOI) {

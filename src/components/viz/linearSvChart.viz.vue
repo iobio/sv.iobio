@@ -47,7 +47,7 @@ export default {
       //remove anything in the container
       container.innerHTML = '';
 
-      if (!this.svList || !this.chromosomes) {
+      if (!this.hasAllOptions) {
         return;
       }
 
@@ -66,6 +66,11 @@ export default {
       //allow it to be dragged
       rootContainer.setAttribute('draggable', true);
     },
+  },
+  computed: {
+    hasAllOptions(){
+      return this.chromosomes && this.svList && this.svList.length > 0;
+    }
   },
   watch: {
     selectedArea(){
