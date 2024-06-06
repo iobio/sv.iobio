@@ -37,6 +37,7 @@
           :chromosomes="chromosomes"
           :genes="genes"
           @circos-zoom-event="circosZoomFired"/>
+
         <div id="linear-section-container" v-show="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <component
             v-for="(chartData, index) in chartsData"
@@ -176,7 +177,6 @@
       } else {
         this.showButton = true
       }
-
       this.$emit('circos-zoom-event', zoomZone)
     },
     focusOnVariant() {

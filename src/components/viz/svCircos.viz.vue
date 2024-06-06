@@ -52,7 +52,7 @@ export default {
     async drawCircos() {
       let containerTag = '#svCircos';
       let container = d3.select(containerTag);
-      if (!container.node() || !container.node().clientWidth) {
+      if (!container.node()) {
         return;
       }
       container.selectAll("*").remove(); //remove before redrawing
@@ -141,7 +141,7 @@ export default {
     },
     batchNum: function() {
       this.drawCircos()
-    }
+    },
   }
 }
 </script>

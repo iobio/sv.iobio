@@ -159,8 +159,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     const container = d3.select(parentTag);
 
     // width and height of the container will be the width and height of the svg if it exists otherwise it will be 0
-    let width = 0;
-    let height = 0;
+    let width = 1;
+    let height = 1;
 
     if (container.node()) {
         width = container.node().clientWidth;
