@@ -321,6 +321,8 @@
 </script>
 
 <style lang="sass">
+  #linear-section-container
+    padding-left: 10px
   .upper-track-selectors-bar
     width: 100%
     display: flex
