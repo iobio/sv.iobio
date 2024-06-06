@@ -22,7 +22,7 @@
         </div>
 
         <svCircos 
-          v-show="globalView === 'circos' && circosDataReady"
+          v-if="globalView === 'circos' && circosDataReady"
           :svList="svList"
           :zoomZone="selectedArea"
           :genesOfInterest="genesOfInterest"
@@ -37,7 +37,7 @@
           :genes="genes"
           @selectAreaEvent="selectAreaEventFired"/>
 
-        <div id="linear-section-container" v-show="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
+        <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <component
             v-for="(chartData, index) in chartsData"
             :key="index"
