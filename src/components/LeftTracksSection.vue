@@ -79,7 +79,6 @@
   },
   data () {
     return {
-      needsFocus: false,
       showButton: false,
       globalView: 'circos',
       vcfDataPro: null,
@@ -218,11 +217,6 @@
       return zoomedSection;
     },
     selectAreaEventFired(zoomZone) {
-      if (this.needsFocus) {
-        this.needsFocus = false
-      } else {
-        this.showButton = true
-      }
       this.$emit('zoomEvent', zoomZone)
     },
     focusOnVariant() {
