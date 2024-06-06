@@ -98,7 +98,6 @@ export default {
     p
       font-weight: bold
       color: #2A65B7
-      margin-left: 10px
       width: 100%
       box-sizing: border-box
       text-align: center

@@ -92,10 +92,10 @@ export default {
     p
       font-weight: bold
       color: #2A65B7
-      margin-left: 10px
       width: 100%
       box-sizing: border-box
       text-align: center
+      margin: 5px
     .drag-handle
       height: 40px
       width: 15px
