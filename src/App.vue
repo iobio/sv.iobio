@@ -362,7 +362,7 @@
     margin: 0px
     width: 25%
     min-width: 250px
-    transition: width 0.5s
+    transition: width 0.4s, min-width 0.4s
     &.collapsed
       width: 0px
       min-width: 0px

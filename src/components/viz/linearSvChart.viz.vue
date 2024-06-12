@@ -7,7 +7,6 @@
 </template>
 
 <script>
-  import { brush } from 'd3';
 import linearSvChart from '../../d3/linearSvChart.d3.js';
 
 export default {
@@ -28,8 +27,9 @@ export default {
   mounted () {
     this.drawLinearSvChart();
 
+    let debouncedDraw = this.debounce(this.drawLinearSvChart, 100);
     this.resizeObserver = new ResizeObserver(() => {
-      this.drawLinearSvChart()
+      debouncedDraw();
     });
 
     this.resizeObserver.observe(this.$refs.linearChartContainer);
@@ -70,7 +70,14 @@ export default {
     },
     selectedAreaCallback(selectedArea){
       this.$emit('selectAreaEvent', selectedArea);
-    }
+    },
+    debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+      },
   },
   computed: {
     hasAllOptions(){
@@ -129,4 +136,5 @@ export default {
     height: 120px
     width: 100%
     box-sizing: border-box
+    overflow: hidden
 </style>

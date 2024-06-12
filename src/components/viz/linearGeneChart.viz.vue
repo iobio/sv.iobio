@@ -29,8 +29,9 @@ export default {
   mounted () {
     this.drawLinearGeneChart();
 
+    let debouncedDraw = this.debounce(this.drawLinearGeneChart, 100);
     this.resizeObserver = new ResizeObserver(() => {
-      this.drawLinearGeneChart()
+      debouncedDraw();
     });
 
     this.resizeObserver.observe(this.$refs.linearGeneChartContainer);
@@ -73,7 +74,14 @@ export default {
     },
     selectedAreaCallback(selectedArea){
       this.$emit('selectAreaEvent', selectedArea);
-    }
+    },
+    debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+      },
   },
   watch: {
     selectedArea(){
@@ -136,5 +144,6 @@ export default {
     height: 120px
     width: 100%
     box-sizing: border-box
+    overflow: hidden
 
 </style>

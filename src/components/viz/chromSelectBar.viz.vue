@@ -23,8 +23,9 @@
     },
     mounted () {
       if (this.chromosomes) {
+          let debouncedDraw = this.debounce(this.drawChromSelectBar, 100);
             this.resizeObserver = new ResizeObserver( () => {
-              this.drawChromSelectBar()
+              debouncedDraw();
             });
 
             this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
@@ -68,7 +69,14 @@
       },
       areaSelected(selection){
         this.$emit('selectAreaEvent', selection);
-      }
+      },
+      debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+      },
     },
     computed: {
       hasAllOptions() {
@@ -94,4 +102,5 @@
     margin: 0
     padding: 0
     background-color: inherit
+    overflow: hidden
 </style>
