@@ -45,7 +45,40 @@
 
     //the initial thumb size will be the size of the scrollSelection[1] / svList.length * 100
     let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
-    thumb.style.height = (this.scrollSelection[1] / this.svList.length * 100) + '%';
+    thumb.style.height = (this.scrollSelection[1] / this.svList.length * 100) + '%'
+
+    let sudoScrollBar = document.getElementById('variant-list-bar-sudo-scroll');
+    sudoScrollBar.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    })
+
+    let onMouseMove = (event) => {
+      event.preventDefault();
+      //get the mouse y position
+      let mouseY = event.clientY;
+      //what percent of the sudo scroll bar is the mouse at
+      let percent = (mouseY - sudoScrollBar.getBoundingClientRect().top) / sudoScrollBar.clientHeight;
+      let scrollSelection = [Math.floor(percent * this.svList.length), Math.floor(percent * this.svList.length) + 40]
+
+      //if the scroll selection is less than 0, set it to 0
+      if (scrollSelection[0] < 0) {
+        scrollSelection[0] = 0;
+        scrollSelection[1] = 40;
+      }
+      //if the scroll selection is greater than the svList length, set it to the svList length
+      if (scrollSelection[1] > this.svList.length) {
+        scrollSelection[0] = this.svList.length - 40;
+        scrollSelection[1] = this.svList.length;
+      }
+      this.handleScrollDrag(scrollSelection)
+    }
+    let onMouseUp = function(event) {
+      event.preventDefault();
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
   },
   methods: {
     async variantClicked(variant, flag) {
@@ -76,6 +109,11 @@
         thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
 
       }
+    },
+    handleScrollDrag(scrollSelection) {
+      this.scrollSelection = scrollSelection;
+      let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
+      thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%'
     }
   },
   computed: {
@@ -84,6 +122,14 @@
     }
   },
   watch: {
+    svList: {
+      handler: function() {
+        this.scrollSelection = [0, 40]
+        let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
+        thumb.style.height = (this.scrollSelection[1] / this.svList.length * 100) + '%'
+      },
+      deep: true
+    }
   },
   }
   </script>
