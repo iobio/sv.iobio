@@ -43,7 +43,6 @@
             :key="index"
             :is="chartData.component"
             v-bind="chartData.props"
-            v-show="chartData.component !== 'LinearGeneChartViz' || !isGlobalView"
             @dragstart="handleDragStart(index, $event)"
             @selectAreaEvent="selectAreaEventFired"
             class="draggable-chart"
@@ -139,6 +138,8 @@
             title: 'Genes',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
+            phenRelatedGenes: this.phenRelatedGenes,
+            genesOfInterest: this.genesOfInterest,
           }
         })
       });
@@ -315,7 +316,25 @@
         });
       },
       deep: true
-    }
+    },
+    genesOfInterest: {
+      handler() {
+        const genesChart = this.chartsData.find(chart => chart.props.title === 'Genes');
+        if (genesChart) {
+          genesChart.props.genesOfInterest = this.genesOfInterest;
+        }
+      },
+      deep: true
+    },
+    phenRelatedGenes: {
+      handler() {
+        const genesChart = this.chartsData.find(chart => chart.props.title === 'Genes');
+        if (genesChart) {
+          genesChart.props.phenRelatedGenes = this.phenRelatedGenes;
+        }
+      },
+      deep: true
+    },
   },
   }
 </script>

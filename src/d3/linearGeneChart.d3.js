@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-export default function linearGeneChart(parentElement, refChromosomes, data=null, options=null) {
+export default function linearGeneChart(parentElement, refChromosomes, data, options=null) {
     let width = parentElement.clientWidth;
     let height = parentElement.clientHeight;
     let chromosomes = refChromosomes;
@@ -8,10 +8,12 @@ export default function linearGeneChart(parentElement, refChromosomes, data=null
     let selectionCallback = null;
     let brush = false;
     let selection = null;
+    let genesOfInterest = null;
+    let phenRelatedGenes = null;   
 
     //zoom variables
     let zoomedSelection = null;
-
+    
     if (options) {
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
@@ -28,6 +30,16 @@ export default function linearGeneChart(parentElement, refChromosomes, data=null
                 selection.start = selection.end;
                 selection.end = temp;
             }
+        }
+        if (options.genesOfInterest && options.genesOfInterest.length > 0) {
+            genesOfInterest = options.genesOfInterest;
+            genesOfInterest = genesOfInterest.map(gene => genes[gene])
+            genesOfInterest.filter(gene => gene !== undefined);
+          }
+        if (options.phenRelatedGenes && options.phenRelatedGenes.length > 0) {
+            phenRelatedGenes = options.phenRelatedGenes;
+            phenRelatedGenes = phenRelatedGenes.map(gene => genes[gene])
+            phenRelatedGenes.filter(gene => gene !== undefined);
         }
     }
 
@@ -167,6 +179,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data=null
     }
 
     function _renderGenes(range) {
+        let localGenes = {...genes};
         //TODO: I think I can borrow a more dynamic way of rendering this from my side project
         let tracMap = {
             1: false,
@@ -178,9 +191,34 @@ export default function linearGeneChart(parentElement, refChromosomes, data=null
         };
 
         let genesMap = {};
+        //if the range is the whole genome then we dont need to render the genes
+        if (range[0] == 0 && range[1] == genomeSize) {
+            //If there are genes of interest then we want to render them
+            if (genesOfInterest && genesOfInterest.length > 0) {
+                _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
+            }
+            if (phenRelatedGenes && phenRelatedGenes.length > 0) {
+                _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
+            }
+            return;
+        }
+
+        //otherwise we still render the genes of interest and phen related genes but we also remove that gene from our typical genes
+        if (genesOfInterest && genesOfInterest.length > 0) {
+            _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
+            for (let gene of genesOfInterest) {
+                delete localGenes[gene.gene_symbol];
+            }
+        }
+        if (phenRelatedGenes && phenRelatedGenes.length > 0) {
+            _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
+            for (let gene of phenRelatedGenes) {
+                delete localGenes[gene.gene_symbol];
+            }
+        }
 
         //iterate over the genes
-        for (let gene of Object.values(genes)) {
+        for (let gene of Object.values(localGenes)) {
             //get the chromosome and position
             let chr = gene.chr.replace('chr', '');
             
@@ -330,6 +368,245 @@ export default function linearGeneChart(parentElement, refChromosomes, data=null
 
         if (selectionCallback) {
             selectionCallback({start, end});
+        }
+    }
+
+    function _renderPhenRelatedGenes(genes, chromosomeMap, range, svg) {
+        //TODO: I think I can borrow a more dynamic way of rendering this from my side project
+        let tracMap = {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false,
+            6: false,
+            7: false,
+        };
+
+        let genesMap = {};
+
+        //iterate over the genes
+        for (let gene of Object.values(genes)) {
+            //get the chromosome and position
+            let chr = gene.chr.replace('chr', '');
+            
+            let start = gene.start;
+            let end = gene.end;
+
+            //get the corresponding chromosome from the accumulated map
+            let chromosome = chromosomeMap.get(chr);
+            if (!chromosome) {
+                continue;
+            }
+            let absoluteStart = chromosome.start + start;
+            let absoluteEnd = chromosome.start + end;
+
+            let startUpdated = absoluteStart;
+            let endUpdated = absoluteEnd;
+
+            let startX = null; //no sense in setting these yet
+            let endX = null;
+
+            //check and see if the point of interest is in the zoomed selection
+            let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
+
+            if (!newStartEnd) {
+                //if we get nothing back we dont render this point of interest at all
+                continue;
+            } else {
+                //we will either get back the truncated start/ends or the original start/ends depending on if the point of interest is in the range
+                startUpdated = newStartEnd.start;
+                endUpdated = newStartEnd.end;
+
+                startX = x(startUpdated);
+                endX = x(endUpdated);
+            }
+
+            //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
+            if (!genesMap[`${absoluteStart}-${absoluteEnd}`]) {
+                genesMap[`${absoluteStart}-${absoluteEnd}`] = [gene];
+
+                //create a new group for this point of interest
+                let pointGroup = svg.append('g')
+                    .attr('transform', `translate(${startX - margin.left}, 30)`)
+                    .attr('class', 'point-group')
+                    .attr('id', `poi-${chr}-${start}-${end}-group`);
+
+                let currentTrac = 0;
+
+                for (let x of Object.keys(tracMap)) {
+                    if (tracMap[x] != false && (startX > tracMap[x])) {
+                        tracMap[x] = endX;
+                        currentTrac = x;
+                        break;
+                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
+                        continue;
+                    }
+
+                    if (tracMap[x] == false) {
+                        tracMap[x] = endX;
+                        currentTrac = x;
+                        break;
+                    }
+                }
+
+                let translateY = (currentTrac - 1) * 8;
+
+                pointGroup.append('rect')
+                    .attr('x', 0 + margin.left)
+                    .attr('width', function() {
+                        //if the block is too small to see make it 2 pixels wide
+                        if (endX - startX < 1) {
+                            return 1;
+                        }
+                        return endX - startX;
+                    })
+                    .attr('transform', `translate(0, ${translateY})`)
+                    .attr('height', 3)
+                    .attr('fill', 'blue');
+                
+                //we dont show labels for these at the global level
+                
+                if (range[0] !== 0 && range[1] !== genomeSize) {
+                    //add a white background for the text
+                    pointGroup.append('rect')
+                        .attr('x', 0)
+                        .attr('width', '20px')
+                        .attr('transform', `translate(0, ${translateY})`)
+                        .attr('height', 8)
+                        .attr('fill', 'white');
+                    //add the labels
+                    pointGroup.append('text')
+                        .attr('x', 0 + margin.left)
+                        .attr('y', margin.top + 10)
+                        .text(gene.gene_symbol)
+                        .attr('font-size', "8px")
+                        .attr('fill', 'blue')
+                        .attr('transform', `translate(0, ${translateY})`);
+                }
+
+
+            } else {
+                //dont render the point of interest if it already exists
+                genesMap[`${absoluteStart}-${absoluteEnd}`].push(gene);
+            }
+        }
+    }
+
+    function _renderGenesOfInterest(genes, chromosomeMap, range, svg) {
+        //TODO: I think I can borrow a more dynamic way of rendering this from my side project
+        let tracMap = {
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false,
+            6: false,
+            7: false,
+        };
+
+        let genesMap = {};
+
+        //iterate over the genes
+        for (let gene of Object.values(genes)) {
+            //get the chromosome and position
+            let chr = gene.chr.replace('chr', '');
+            
+            let start = gene.start;
+            let end = gene.end;
+
+            //get the corresponding chromosome from the accumulated map
+            let chromosome = chromosomeMap.get(chr);
+            if (!chromosome) {
+                continue;
+            }
+            let absoluteStart = chromosome.start + start;
+            let absoluteEnd = chromosome.start + end;
+
+            let startUpdated = absoluteStart;
+            let endUpdated = absoluteEnd;
+
+            let startX = null; //no sense in setting these yet
+            let endX = null;
+
+            //check and see if the point of interest is in the zoomed selection
+            let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
+
+            if (!newStartEnd) {
+                //if we get nothing back we dont render this point of interest at all
+                continue;
+            } else {
+                //we will either get back the truncated start/ends or the original start/ends depending on if the point of interest is in the range
+                startUpdated = newStartEnd.start;
+                endUpdated = newStartEnd.end;
+
+                startX = x(startUpdated);
+                endX = x(endUpdated);
+            }
+
+            //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
+            if (!genesMap[`${absoluteStart}-${absoluteEnd}`]) {
+                genesMap[`${absoluteStart}-${absoluteEnd}`] = [gene];
+
+                //create a new group for this point of interest
+                let pointGroup = svg.append('g')
+                    .attr('transform', `translate(${startX - margin.left}, 30)`)
+                    .attr('class', 'point-group')
+                    .attr('id', `poi-${chr}-${start}-${end}-group`);
+
+                let currentTrac = 0;
+
+                for (let x of Object.keys(tracMap)) {
+                    if (tracMap[x] != false && (startX > tracMap[x])) {
+                        tracMap[x] = endX;
+                        currentTrac = x;
+                        break;
+                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
+                        continue;
+                    }
+
+                    if (tracMap[x] == false) {
+                        tracMap[x] = endX;
+                        currentTrac = x;
+                        break;
+                    }
+                }
+
+                let translateY = (currentTrac - 1) * 8;
+
+                pointGroup.append('rect')
+                    .attr('x', 0 + margin.left)
+                    .attr('width', function() {
+                        //if the block is too small to see make it 2 pixels wide
+                        if (endX - startX < 1) {
+                            return 1;
+                        }
+                        return endX - startX;
+                    })
+                    .attr('transform', `translate(0, ${translateY})`)
+                    .attr('height', 3)
+                    .attr('fill', 'red');
+
+                //add a white background for the text
+                pointGroup.append('rect')
+                    .attr('x', 0 + margin.left)
+                    .attr('width', '20px')
+                    .attr('transform', `translate(0, ${translateY})`)
+                    .attr('height', 8)
+                    .attr('fill', 'white');
+                //add the labels
+                pointGroup.append('text')
+                    .attr('x', 0)
+                    .attr('y', margin.top + 10)
+                    .text(gene.gene_symbol)
+                    .attr('font-size', "8px")
+                    .attr('fill', 'red')
+                    .attr('transform', `translate(0, ${translateY})`);
+
+            } else {
+                //dont render the point of interest if it already exists
+                genesMap[`${absoluteStart}-${absoluteEnd}`].push(gene);
+            }
         }
     }
 

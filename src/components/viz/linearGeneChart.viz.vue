@@ -55,7 +55,9 @@ export default {
 
       let options = {
         selection: this.selectedArea,
-        selectionCallback: this.areaSelected
+        selectionCallback: this.areaSelected,
+        genesOfInterest: this.genesOfInterest,
+        phenRelatedGenes: this.phenRelatedGenes,
       };
       this.linearGeneChart = new linearGeneChart(container, this.chromosomes, this.genesList,  options);
 
@@ -76,6 +78,18 @@ export default {
     genesList(){
       this.drawLinearGeneChart();
     },
+    genesOfInterest: {
+      handler(){
+        this.drawLinearGeneChart();
+      },
+      deep: true
+    },
+    phenRelatedGenes: {
+      handler(){
+        this.drawLinearGeneChart();
+      },
+      deep: true
+    }
   }
 }
 </script>
