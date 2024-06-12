@@ -37,12 +37,24 @@
   methods: {
     sendGOI() {
       //send out genes of interest to the app (allow split on ';', ',', or ' ')
+      //trim any whitespace
+      this.genesOfInterestText = this.genesOfInterestText.trim();
       let genesOfInterest = this.genesOfInterestText.split(/[;, ]+/);
+      //if genesOfInterest is empty, send an empty array
+      if (genesOfInterest.length === 1 && genesOfInterest[0] === '') {
+        genesOfInterest = [];
+      }
       this.$emit('updateGenesOfInterest', genesOfInterest)
     },
     sendPOI() {
       //send out phenotypes of interest to the app (allow split on ';', ',', or ' ')
+      //trim any whitespace
+      this.phenotypesOfInterestText = this.phenotypesOfInterestText.trim();
       let phenotypesOfInterest = this.phenotypesOfInterestText.split(/[;, ]+/);
+      //if phenotypesOfInterest is empty, send an empty array
+      if (phenotypesOfInterest.length === 1 && phenotypesOfInterest[0] === '') {
+        phenotypesOfInterest = [];
+      }
       this.$emit('updatePhenotypesOfInterest', phenotypesOfInterest)
     }
   },

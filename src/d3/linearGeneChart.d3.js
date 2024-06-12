@@ -179,7 +179,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     }
 
     function _renderGenes(range) {
-        let localGenes = {...genes};
+        let localGenes = JSON.parse(JSON.stringify(genes));
         //TODO: I think I can borrow a more dynamic way of rendering this from my side project
         let tracMap = {
             1: false,
@@ -205,13 +205,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
         //otherwise we still render the genes of interest and phen related genes but we also remove that gene from our typical genes
         if (phenRelatedGenes && phenRelatedGenes.length > 0) {
-            _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
             for (let gene of phenRelatedGenes) {
                 delete localGenes[gene.gene_symbol];
             }
         }
         if (genesOfInterest && genesOfInterest.length > 0) {
-            _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
             for (let gene of genesOfInterest) {
                 delete localGenes[gene.gene_symbol];
             }
@@ -319,7 +317,13 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         .attr('fill', 'black')
                         .attr('transform', `translate(0, ${translateY})`);
                 }
-
+                //otherwise we still render the genes of interest and phen related genes but we also remove that gene from our typical genes
+                if (phenRelatedGenes && phenRelatedGenes.length > 0) {
+                    _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
+                }
+                if (genesOfInterest && genesOfInterest.length > 0) {
+                    _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
+                }
             } else {
                 //dont render the point of interest if it already exists
                 genesMap[`${absoluteStart}-${absoluteEnd}`].push(gene);
