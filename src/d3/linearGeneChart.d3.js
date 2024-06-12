@@ -193,26 +193,26 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         let genesMap = {};
         //if the range is the whole genome then we dont need to render the genes
         if (range[0] == 0 && range[1] == genomeSize) {
+            if (phenRelatedGenes && phenRelatedGenes.length > 0) {
+                _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
+            }
             //If there are genes of interest then we want to render them
             if (genesOfInterest && genesOfInterest.length > 0) {
                 _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
-            }
-            if (phenRelatedGenes && phenRelatedGenes.length > 0) {
-                _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
             }
             return;
         }
 
         //otherwise we still render the genes of interest and phen related genes but we also remove that gene from our typical genes
-        if (genesOfInterest && genesOfInterest.length > 0) {
-            _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
-            for (let gene of genesOfInterest) {
-                delete localGenes[gene.gene_symbol];
-            }
-        }
         if (phenRelatedGenes && phenRelatedGenes.length > 0) {
             _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
             for (let gene of phenRelatedGenes) {
+                delete localGenes[gene.gene_symbol];
+            }
+        }
+        if (genesOfInterest && genesOfInterest.length > 0) {
+            _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
+            for (let gene of genesOfInterest) {
                 delete localGenes[gene.gene_symbol];
             }
         }
@@ -296,6 +296,29 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     .attr('transform', `translate(0, ${translateY})`)
                     .attr('height', 3)
                     .attr('fill', 'black');
+
+                if (range[1] - range[0] < chromosomeMap.get('1').end) {
+                    //text width
+                    let textWidth = gene.gene_symbol.length * 6;
+
+                    //add a white background for the text
+                    pointGroup.append('rect')
+                        .attr('x', 0 + margin.left - 3)
+                        .attr('y', 0)
+                        .attr('width', `${textWidth}px`)
+                        .attr('transform', `translate(0, ${translateY})`)
+                        .attr('height', 8)
+                        .attr('fill', 'white')
+                        .attr('fill-opacity', 0.75);
+                    //add the labels
+                    pointGroup.append('text')
+                        .attr('x', 0 + margin.left)
+                        .attr('y', 4)
+                        .text(gene.gene_symbol)
+                        .attr('font-size', "8px")
+                        .attr('fill', 'black')
+                        .attr('transform', `translate(0, ${translateY})`);
+                }
 
             } else {
                 //dont render the point of interest if it already exists
@@ -468,19 +491,21 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 //we dont show labels for these at the global level
                 
                 if (range[0] !== 0 && range[1] !== genomeSize) {
+                    //text width
+                    let textWidth = gene.gene_symbol.length * 6;
                     //add a white background for the text
                     pointGroup.append('rect')
-                        .attr('x', 0 + margin.left)
-                        .attr('y', margin.top + 10)
-                        .attr('width', '20px')
+                        .attr('x', margin.left - 3)
+                        .attr('y', 0)
+                        .attr('width', `${textWidth}px`)
                         .attr('transform', `translate(0, ${translateY})`)
                         .attr('height', 8)
                         .attr('fill', 'white')
-                        .attr('fill-opacity', 0.5);
+                        .attr('fill-opacity', 0.75);
                     //add the labels
                     pointGroup.append('text')
                         .attr('x', 0 + margin.left)
-                        .attr('y', margin.top + 10)
+                        .attr('y', 4)
                         .text(gene.gene_symbol)
                         .attr('font-size', "8px")
                         .attr('fill', 'blue')
@@ -588,19 +613,22 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     .attr('transform', `translate(0, ${translateY})`)
                     .attr('height', 3)
                     .attr('fill', 'red');
-
+                
+                //Text width
+                let textWidth = gene.gene_symbol.length * 6;
                 //add a white background for the text
                 pointGroup.append('rect')
                     .attr('x', 0 + margin.left)
-                    .attr('y', margin.top + 10)
-                    .attr('width', '20px')
+                    .attr('y', 0)
+                    .attr('width', `${textWidth}px`)
                     .attr('transform', `translate(0, ${translateY})`)
                     .attr('height', 8)
-                    .attr('fill', 'white');
+                    .attr('fill', 'white')
+                    .attr('fill-opacity', 0.75);
                 //add the labels
                 pointGroup.append('text')
                     .attr('x', 0)
-                    .attr('y', margin.top + 10)
+                    .attr('y', 4)
                     .text(gene.gene_symbol)
                     .attr('font-size', "8px")
                     .attr('fill', 'red')
