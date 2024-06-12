@@ -55,7 +55,8 @@ export default {
 
       let options = {
         selection: this.selectedArea,
-        selectionCallback: this.areaSelected,
+        selectionCallback: this.selectedAreaCallback,
+        brush: true,
         genesOfInterest: this.genesOfInterest,
         phenRelatedGenes: this.phenRelatedGenes,
       };
@@ -70,6 +71,9 @@ export default {
       //allow it to be dragged
       rootContainer.setAttribute('draggable', true);
     },
+    selectedAreaCallback(selectedArea){
+      this.$emit('selectAreaEvent', selectedArea);
+    }
   },
   watch: {
     selectedArea(){

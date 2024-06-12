@@ -470,11 +470,13 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 if (range[0] !== 0 && range[1] !== genomeSize) {
                     //add a white background for the text
                     pointGroup.append('rect')
-                        .attr('x', 0)
+                        .attr('x', 0 + margin.left)
+                        .attr('y', margin.top + 10)
                         .attr('width', '20px')
                         .attr('transform', `translate(0, ${translateY})`)
                         .attr('height', 8)
-                        .attr('fill', 'white');
+                        .attr('fill', 'white')
+                        .attr('fill-opacity', 0.5);
                     //add the labels
                     pointGroup.append('text')
                         .attr('x', 0 + margin.left)
@@ -590,6 +592,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 //add a white background for the text
                 pointGroup.append('rect')
                     .attr('x', 0 + margin.left)
+                    .attr('y', margin.top + 10)
                     .attr('width', '20px')
                     .attr('transform', `translate(0, ${translateY})`)
                     .attr('height', 8)

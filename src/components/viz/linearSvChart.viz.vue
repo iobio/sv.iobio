@@ -7,7 +7,8 @@
 </template>
 
 <script>
-  import linearSvChart from '../../d3/linearSvChart.d3.js';
+  import { brush } from 'd3';
+import linearSvChart from '../../d3/linearSvChart.d3.js';
 
 export default {
   name: 'LinearSvChartViz',
@@ -53,7 +54,8 @@ export default {
 
       let options = {
         selection: this.selectedArea,
-        selectionCallback: this.areaSelected
+        selectionCallback: this.selectedAreaCallback,
+        brush: true,
       };
       this.linearSvChart = new linearSvChart(container, this.chromosomes, this.svList,  options);
 
@@ -66,6 +68,9 @@ export default {
       //allow it to be dragged
       rootContainer.setAttribute('draggable', true);
     },
+    selectedAreaCallback(selectedArea){
+      this.$emit('selectAreaEvent', selectedArea);
+    }
   },
   computed: {
     hasAllOptions(){
