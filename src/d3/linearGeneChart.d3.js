@@ -179,6 +179,9 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     }
 
     function _renderGenes(range) {
+        //grab all the point-group groups and remove them before rendering the new ones
+        svg.selectAll('.point-group').remove();
+
         let localGenes = JSON.parse(JSON.stringify(genes));
         //TODO: I think I can borrow a more dynamic way of rendering this from my side project
         let tracMap = {
@@ -292,28 +295,33 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         return endX - startX;
                     })
                     .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 3)
+                    .attr('height', 2)
                     .attr('fill', 'black');
 
                 if (range[1] - range[0] < chromosomeMap.get('1').end) {
-                    //text width
-                    let textWidth = gene.gene_symbol.length * 6;
+                    //the font needs to be scaled based on the size of the zoomed section inversely proportional to the size of the zoomed section
+                    let zoomedSize = range[1] - range[0];
+                    let baseFontSize = 20;
 
-                    //add a white background for the text
-                    pointGroup.append('rect')
-                        .attr('x', 0 + margin.left - 3)
-                        .attr('y', 0)
-                        .attr('width', `${textWidth}px`)
-                        .attr('transform', `translate(0, ${translateY})`)
-                        .attr('height', 8)
-                        .attr('fill', 'white')
-                        .attr('fill-opacity', 0.75);
+                    // Ensure zoomedSize is at least 1 to avoid taking the logarithm of 0 or a negative number.
+                    if (zoomedSize < 1) {
+                        zoomedSize = 1;
+                    }
+
+                    let bpGenomeSize = originZoom.size;
+
+                    // Normalize zoomedSize logarithmically
+                    let normalized_window = Math.log(zoomedSize) / Math.log(bpGenomeSize);
+
+                    // Calculate the scaled font size
+                    let scaledFontSize = baseFontSize * (1 - normalized_window);
+
                     //add the labels
                     pointGroup.append('text')
                         .attr('x', 0 + margin.left)
-                        .attr('y', 4)
+                        .attr('y', `${scaledFontSize + 2}`)
                         .text(gene.gene_symbol)
-                        .attr('font-size', "8px")
+                        .attr('font-size', `${scaledFontSize}` + "px")
                         .attr('fill', 'black')
                         .attr('transform', `translate(0, ${translateY})`);
                 }
@@ -399,6 +407,9 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     }
 
     function _renderPhenRelatedGenes(genes, chromosomeMap, range, svg) {
+        //Remove all the point-group-phenrelated groups before rendering the new ones
+        svg.selectAll('.point-group-phenrelated').remove();
+        
         //TODO: I think I can borrow a more dynamic way of rendering this from my side project
         let tracMap = {
             1: false,
@@ -456,7 +467,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 //create a new group for this point of interest
                 let pointGroup = svg.append('g')
                     .attr('transform', `translate(${startX - margin.left}, 30)`)
-                    .attr('class', 'point-group')
+                    .attr('class', 'point-group-phenrelated')
                     .attr('id', `poi-${chr}-${start}-${end}-group`);
 
                 let currentTrac = 0;
@@ -489,27 +500,27 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         return endX - startX;
                     })
                     .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 3)
-                    .attr('fill', 'blue');
+                    .attr('height', 2)
+                    .attr('fill', 'blue')
+                    .attr('fill-opacity', 0.75);
                 
                 //we dont show labels for these at the global level
                 
                 if (range[0] !== 0 && range[1] !== genomeSize) {
-                    //text width
-                    let textWidth = gene.gene_symbol.length * 6;
-                    //add a white background for the text
+                    //add a rectangle that is the width of the text
+                    let textWidth = gene.gene_symbol.length * 5;
                     pointGroup.append('rect')
-                        .attr('x', margin.left - 3)
-                        .attr('y', 0)
-                        .attr('width', `${textWidth}px`)
-                        .attr('transform', `translate(0, ${translateY})`)
+                        .attr('x', 0 + margin.left)
+                        .attr('width', textWidth)
+                        .attr('transform', `translate(0, ${translateY + 2})`)
                         .attr('height', 8)
                         .attr('fill', 'white')
-                        .attr('fill-opacity', 0.75);
+                        .attr('fill-opacity', 0.85);
+
                     //add the labels
                     pointGroup.append('text')
                         .attr('x', 0 + margin.left)
-                        .attr('y', 4)
+                        .attr('y', 9)
                         .text(gene.gene_symbol)
                         .attr('font-size', "8px")
                         .attr('fill', 'blue')
@@ -525,6 +536,9 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     }
 
     function _renderGenesOfInterest(genes, chromosomeMap, range, svg) {
+        //Remove all the point-group-geneofinterest groups before rendering the new ones
+        svg.selectAll('.point-group-geneofinterest').remove();
+
         //TODO: I think I can borrow a more dynamic way of rendering this from my side project
         let tracMap = {
             1: false,
@@ -582,7 +596,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 //create a new group for this point of interest
                 let pointGroup = svg.append('g')
                     .attr('transform', `translate(${startX - margin.left}, 30)`)
-                    .attr('class', 'point-group')
+                    .attr('class', 'point-group-geneofinterest')
                     .attr('id', `poi-${chr}-${start}-${end}-group`);
 
                 let currentTrac = 0;
@@ -615,24 +629,13 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         return endX - startX;
                     })
                     .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 3)
+                    .attr('height', 2)
                     .attr('fill', 'red');
-                
-                //Text width
-                let textWidth = gene.gene_symbol.length * 6;
-                //add a white background for the text
-                pointGroup.append('rect')
-                    .attr('x', 0 + margin.left)
-                    .attr('y', 0)
-                    .attr('width', `${textWidth}px`)
-                    .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 8)
-                    .attr('fill', 'white')
-                    .attr('fill-opacity', 0.75);
+            
                 //add the labels
                 pointGroup.append('text')
                     .attr('x', 0)
-                    .attr('y', 4)
+                    .attr('y', 9)
                     .text(gene.gene_symbol)
                     .attr('font-size', "8px")
                     .attr('fill', 'red')

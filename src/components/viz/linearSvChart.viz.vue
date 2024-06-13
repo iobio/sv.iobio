@@ -72,12 +72,12 @@ export default {
       this.$emit('selectAreaEvent', selectedArea);
     },
     debounce(func, delay) {
-        let timeout;
-        return function(...args) {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-      },
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    },
   },
   computed: {
     hasAllOptions(){

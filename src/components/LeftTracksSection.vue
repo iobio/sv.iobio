@@ -140,6 +140,7 @@
             chromosomes: this.chromosomes,
             phenRelatedGenes: this.phenRelatedGenes,
             genesOfInterest: this.genesOfInterest,
+            batchNum: this.batchNum
           }
         })
       });
@@ -289,6 +290,12 @@
     }
   },
   watch: {
+    batchNum() {
+      const genesChart = this.chartsData.find(chart => chart.props.title === 'Genes');
+      if (genesChart) {
+        genesChart.props.batchNum = this.batchNum;
+      }
+    },
     focusedVariant() {
       if (this.focusedVariant) {
         this.showButton = true

@@ -20,6 +20,7 @@ export default {
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     title: String,
+    batchNum: Number,
   },
   data () {
     return {
@@ -84,11 +85,20 @@ export default {
       },
   },
   watch: {
-    selectedArea(){
-      this.drawLinearGeneChart();
+    batchNum(newVal, oldVal){
+      if (newVal !== oldVal) {
+        this.drawLinearGeneChart();
+      }
     },
-    genesList(){
-      this.drawLinearGeneChart();
+    selectedArea(newVal, oldVal){
+      if (newVal !== oldVal) {
+        this.drawLinearGeneChart();
+      } 
+    },
+    genesList(newVal, oldVal){
+      if (newVal !== oldVal) {
+        this.drawLinearGeneChart();
+      }
     },
     genesOfInterest: {
       handler(){
@@ -96,12 +106,6 @@ export default {
       },
       deep: true
     },
-    phenRelatedGenes: {
-      handler(){
-        this.drawLinearGeneChart();
-      },
-      deep: true
-    }
   }
 }
 </script>

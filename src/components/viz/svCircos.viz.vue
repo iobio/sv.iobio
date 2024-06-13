@@ -34,10 +34,9 @@ export default {
   },
   mounted () {
     if (this.chromosomes) {
+      let debouncedDraw = this.debounce(this.drawCircos, 100);
       this.resizeObserver = new ResizeObserver( () => {
-        setTimeout(() => {
-          this.drawCircos()
-        }, 550)
+        debouncedDraw();
       });
 
       this.resizeObserver.observe(document.getElementById('svCircos'));
@@ -47,6 +46,13 @@ export default {
     this.resizeObserver.unobserve(document.getElementById('svCircos'));
   },
   methods: {
+    debounce(func, delay) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    },
     async drawCircos() {
       let containerTag = '#svCircos';
       let container = d3.select(containerTag);
@@ -119,17 +125,25 @@ export default {
     }
   },
   watch: {
-    hasAllOptions: function() {
-      this.drawCircos()
+    hasAllOptions: function(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.drawCircos()
+      }
     },
-    zoomZone: function() {
-      this.drawCircos()
+    zoomZone: function(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.drawCircos()
+      } 
     }, 
-    genesOfInterest: function(){
-      this.drawCircos()
+    genesOfInterest: function(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.drawCircos()
+      }
     },
-    batchNum: function() {
-      this.drawCircos()
+    batchNum: function(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.drawCircos()
+      }
     },
   }
 }
