@@ -8,7 +8,7 @@
         <div>Type</div>
       </div>
       <VariantListItem 
-        v-for="(variant, index ) in svListSection" 
+        v-for="(variant, index ) in svListSelection" 
         :key="index" 
         :variant="variant"
         :patientPhenotypes="patientPhenotypes"
@@ -87,48 +87,44 @@
     handleScroll(event) {
       let variantListBar = event.target;
       if (variantListBar.scrollTop + variantListBar.clientHeight >= variantListBar.scrollHeight && this.scrollSelection[1] < this.svList.length) {
-        this.scrollSelection[0] = this.scrollSelection[0] + 3;
-        this.scrollSelection[1] = this.scrollSelection[1] + 3;
+        this.scrollSelection[0] = this.scrollSelection[0] + 1;
+        this.scrollSelection[1] = this.scrollSelection[1] + 1;
         //increment the scroll just a little so that we can keep the scroll bar at the bottom and it seems natural
         variantListBar.scrollTop = variantListBar.scrollTop - 1;
 
         //the thumb top position will be the scrollSelection[0] / svList.length * 100
         let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
         thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
-
       }
       //if we are at the top also load more variants in the opposite direction
       if (variantListBar.scrollTop === 0 && this.scrollSelection[0] > 0) {
-        this.scrollSelection[0] = this.scrollSelection[0] - 3;
-        this.scrollSelection[1] = this.scrollSelection[1] - 3;
+        this.scrollSelection[0] = this.scrollSelection[0] - 1;
+        this.scrollSelection[1] = this.scrollSelection[1] - 1;
         
         variantListBar.scrollTop = 1;
 
         //the thumb top position will be the scrollSelection[0] / svList.length * 100
         let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
         thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
-
       }
     },
     handleScrollDrag(scrollSelection) {
       this.scrollSelection = scrollSelection;
       let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
-      thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%'
+      thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
     }
   },
   computed: {
-    svListSection() {
+    svListSelection() {
       return this.svList.slice(this.scrollSelection[0], this.scrollSelection[1])
     }
   },
   watch: {
-    svList: {
-      handler: function() {
-        this.scrollSelection = [0, 40]
+    svList(newVal, oldVal) {
+      if (oldVal.length === 0 && newVal !== oldVal) {
         let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
         thumb.style.height = (this.scrollSelection[1] / this.svList.length * 100) + '%'
-      },
-      deep: true
+      }
     }
   },
   }
