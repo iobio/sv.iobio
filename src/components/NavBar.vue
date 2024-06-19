@@ -1,6 +1,6 @@
 <template>
     <div id="nav-bar">
-      <button>Filter Variants</button>
+      <button @click="this.$emit('toggleFilterDataSection')">Filter Variants</button>
       <!-- file input -->
       <div class="nav-bar-item-wrapper">
         <label class="nav-bar-item-sub" for="phenotypes">Patient Phenotypes</label>
@@ -14,7 +14,7 @@
         <button class="nav-bar-item-sub" @click="sendGOI">save</button>
       </div>
 
-      <button>Select Data</button>
+      <button @click="this.$emit('toggleSelectDataSection')">Select Data</button>
 
     </div>
   </template>
@@ -76,6 +76,7 @@
       box-sizing: border-box
       background-color: #0D60C3
       color: white
+      z-index: 4
       button
         border: 1px solid #0B4B99 
         border-radius: 3px

@@ -95,7 +95,7 @@
           component: 'LinearSvChartViz',
           props: {
             svList: this.svList,
-            title: 'Proband',
+            title: 'PBSV (Hifi Long Reads Revio)',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
           }
@@ -154,7 +154,7 @@
           component: 'LinearSvChartViz',
           props: {
             svList: this.vcfDataPar1,
-            title: 'Parent 1',
+            title: 'Manta 1',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
           }
@@ -170,7 +170,7 @@
           component: 'LinearSvChartViz',
           props: {
             svList: this.vcfDataPar2,
-            title: 'Parent 2',
+            title: 'Manta 2',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
           }
@@ -306,12 +306,12 @@
     svList: {
       handler() {
         //We are watching this because the svList used for the proband is sometimes updated and asynchonous
-        const probandChart = this.chartsData.find(chart => chart.props.title === 'Proband');
+        const probandChart = this.chartsData.find(chart => chart.props.title === 'PBSV (Hifi Long Reads Revio)');
         if (probandChart) {
           probandChart.props.svList = this.svList;
           probandChart.props.selectedArea = this.selectedArea;
           probandChart.props.chromosomes = this.chromosomes;
-          probandChart.props.title = 'Proband';
+          probandChart.props.title = 'PBSV (Hifi Long Reads Revio)';
         }
       },
       deep: true

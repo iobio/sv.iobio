@@ -1,10 +1,15 @@
 <template>
   <div id="main-container">
     <div id="upper-bar-container">
-      <NavBar 
+      <NavBar
+        @toggleSelectDataSection="selectDataSectionOpen = !selectDataSectionOpen"
+        @toggleFilterDataSection="filterDataSectionOpen = !filterDataSectionOpen" 
         @updateGenesOfInterest="updateGenesOfInterest"
         @updatePhenotypesOfInterest="updatePhenotypesOfInterest"/>
     </div>
+
+    <SelectDataSection :show="selectDataSectionOpen"/>
+    <FilterDataSection :show="filterDataSectionOpen"/>
 
     <div id="lower-block-container">
       <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
@@ -38,13 +43,17 @@
   import VariantListBar from './components/VariantListBar.vue';
   import NavBar from './components/NavBar.vue';
   import Sv from './models/Sv.js'
+  import SelectDataSection from './components/SelectDataSection.vue'
+  import FilterDataSection from './components/FilterDataSection.vue'
 
   export default {
     name: 'app',
     components: {
       LeftTracksSection,
       VariantListBar,
-      NavBar
+      NavBar,
+      SelectDataSection,
+      FilterDataSection,
     },
     data() {
       return {
@@ -59,10 +68,13 @@
         overlappedPhenGenes: [],
         batchNum: 0,
         interestStopIndex: 0, //Used to keep track of how many SVs have been moved to the front
+        selectDataSectionOpen: false,
+        filterDataSectionOpen: false,
       }
     },
     async mounted() {
-      let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-01_svafotate_output.filteredaf.vcf.gz');
+      // let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/A1099-1024/A1099-1024_svafotate_output.filteredaf.vcf.gz');
+      let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/PBSV/HG002_PBSV_output.filteredaf.vcf.gz');
       let svList = await svListRes.json();
 
       this.svListVariantBar = svList.map(sv => new Sv(sv));
