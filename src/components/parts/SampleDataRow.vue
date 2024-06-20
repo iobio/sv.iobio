@@ -1,6 +1,9 @@
 <template>
     <div class="sample-data-row" :class="{collapse: collapse}">
-        <button class="collapse-row-btn" @click="toggleCollapse">$</button>
+        <button class="collapse-row-btn" @click="toggleCollapse">
+            <img v-if="collapse" src="/public/arrow-down-circle.svg" alt="open">
+            <img v-else src="/public/arrow-up-circle.svg" alt="close">
+        </button>
         <div class="sample-row-info-form" v-if="!collapse">
             <div class="label-input-wrapper">
                 <label for="sample-id">Sample Name:</label>
@@ -70,15 +73,23 @@ export default {
         &.collapse
             height: 50px
         .collapse-row-btn
+            display: flex
+            justify-content: center
+            align-items: center
             background-color: #2A65B7
             color: white
             border: none
             border-radius: 50%
-            height: 20px
-            width: 20px
+            height: 25px
+            width: 25px
+            padding: 0px
             cursor: pointer
             &:hover
                 background-color: #1A4B97
+            img
+                height: 25px
+                width: 25px
+                transform: translate(0px, 0px)
         .sample-row-info-form
             flex-grow: 1
             display: flex
