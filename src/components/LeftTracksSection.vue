@@ -76,6 +76,7 @@
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     batchNum: Number,
+    samples: Array
   },
   data () {
     return {
@@ -149,11 +150,11 @@
     fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-02_svafotate_output.filteredaf.vcf.gz')
       .then(response => response.json())
       .then(data => {
-        this.vcfDataPar1 = data.map(item => new Sv(item));
+        let svData = data.map(item => new Sv(item));
         this.chartsData.push({
           component: 'LinearSvChartViz',
           props: {
-            svList: this.vcfDataPar1,
+            svList: svData,
             title: 'Manta 1',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
@@ -165,11 +166,11 @@
     fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-03_svafotate_output.filteredaf.vcf.gz')
       .then(response => response.json())
       .then(data => {
-        this.vcfDataPar2 = data.map(item => new Sv(item));
+        let svData = data.map(item => new Sv(item));
         this.chartsData.push({
           component: 'LinearSvChartViz',
           props: {
-            svList: this.vcfDataPar2,
+            svList: svData,
             title: 'Manta 2',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,

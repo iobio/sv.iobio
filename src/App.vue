@@ -8,7 +8,11 @@
         @updatePhenotypesOfInterest="updatePhenotypesOfInterest"/>
     </div>
 
-    <SelectDataSection :show="selectDataSectionOpen"/>
+    <SelectDataSection 
+    :show="selectDataSectionOpen"
+    :samples="samples"
+    @update-samples="updateSamples"
+    @toggle-show="selectDataSectionOpen = false"/>
     <FilterDataSection :show="filterDataSectionOpen"/>
 
     <div id="lower-block-container">
@@ -24,7 +28,8 @@
         @variant-clicked="updateFocusedVariant"/>
       </div>
 
-      <LeftTracksSection 
+      <LeftTracksSection
+        :samples="samples" 
         :svList="svListChart"
         :selectedArea="selectedArea"
         :focusedVariant="focusedVariant"
@@ -70,58 +75,77 @@
         interestStopIndex: 0, //Used to keep track of how many SVs have been moved to the front
         selectDataSectionOpen: false,
         filterDataSectionOpen: false,
+        samples: [
+          {
+            name: 'Sample 1',
+            vcf: '',
+            tbi: '',
+            bam: '',
+            bai: '',
+            svList: [],
+          }
+        ]
       }
     },
     async mounted() {
       // let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/A1099-1024/A1099-1024_svafotate_output.filteredaf.vcf.gz');
-      let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/PBSV/HG002_PBSV_output.filteredaf.vcf.gz');
-      let svList = await svListRes.json();
+      this.loadData();
+    },
+    methods: {
+      async loadData() {
+        if (this.samples[0].vcf == '') {
+          //open the select data section too
+          this.selectDataSectionOpen = true;
+          return;
+        }
+        let url = this.samples[0].vcf;
+        let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=' + url);
+        let svList = await svListRes.json();
 
-      this.svListVariantBar = svList.map(sv => new Sv(sv));
-      this.svListChart = svList.map(sv => new Sv(sv));
+        this.svListVariantBar = svList.map(sv => new Sv(sv));
+        this.svListChart = svList.map(sv => new Sv(sv));
 
-      let svListCopy = [...this.svListVariantBar];
-      let batchSize = 200;
+        let svListCopy = [...this.svListVariantBar];
+        let batchSize = 200;
 
-      for (let i = 0; i < svListCopy.length; i += batchSize) {
-        this.batchNum++;
-        let batchSvs = svListCopy.slice(i, i + batchSize);
+        for (let i = 0; i < svListCopy.length; i += batchSize) {
+          this.batchNum++;
+          let batchSvs = svListCopy.slice(i, i + batchSize);
 
-        let batchPromises = await Promise.all(batchSvs.map(sv => this.getOverlappedGenes(sv)));
+          let batchPromises = await Promise.all(batchSvs.map(sv => this.getOverlappedGenes(sv)));
 
-        for (let [index, newSv] of batchPromises.entries()) {
-          let originalIndex = i + index; // Calculate the original index
-            // Update the current index with the new SV
+          for (let [index, newSv] of batchPromises.entries()) {
+            let originalIndex = i + index; // Calculate the original index
+              // Update the current index with the new SV
 
-            //If we have both phenotypes of interest and overlappedGenes we can see how many phenotypes are accounted for
-            if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0 && newSv.overlappedGenes && Object.values(newSv.overlappedGenes).length > 0) {
-              let num = this.numPhensAccountedFor(this.phenotypesOfInterest, newSv.overlappedGenes);
+              //If we have both phenotypes of interest and overlappedGenes we can see how many phenotypes are accounted for
+              if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0 && newSv.overlappedGenes && Object.values(newSv.overlappedGenes).length > 0) {
+                let num = this.numPhensAccountedFor(this.phenotypesOfInterest, newSv.overlappedGenes);
 
-              //----------------SORTING------------------------------------//
-              /**
-               * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
-               * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
-               */
-              if (num > 0) {
-                if (originalIndex > this.interestStopIndex) {
-                  let temp = this.svListVariantBar[this.interestStopIndex];
-                  this.svListVariantBar[this.interestStopIndex] = newSv;
-                  this.svListVariantBar[originalIndex] = temp;
+                //----------------SORTING------------------------------------//
+                /**
+                 * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
+                 * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
+                 */
+                if (num > 0) {
+                  if (originalIndex > this.interestStopIndex) {
+                    let temp = this.svListVariantBar[this.interestStopIndex];
+                    this.svListVariantBar[this.interestStopIndex] = newSv;
+                    this.svListVariantBar[originalIndex] = temp;
 
-                  this.interestStopIndex++;
-                } else if (originalIndex == this.interestStopIndex) {
-                  this.interestStopIndex++;
-                } 
+                    this.interestStopIndex++;
+                  } else if (originalIndex == this.interestStopIndex) {
+                    this.interestStopIndex++;
+                  } 
+                } else {
+                  this.svListVariantBar[originalIndex] = newSv;
+                }
               } else {
                 this.svListVariantBar[originalIndex] = newSv;
               }
-            } else {
-              this.svListVariantBar[originalIndex] = newSv;
-            }
+          }
         }
-      }
-    },
-    methods: {
+      },
       updateFocusedVariant(variant, flag) {
         if (this.focusedVariant === variant) {
           this.focusedVariant = null
@@ -137,6 +161,16 @@
          */
 
         return Object.values(overlappedGenes).some(gene => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0);
+      },
+      updateSamples(samples) {
+        //if samples @ 0 is the same as the old samples @ 0 then we dont need to load data again but 
+        //if the vcf is different we do
+        if (samples[0].vcf == this.samples[0].vcf) {
+          this.samples = samples
+          return;
+        }
+        this.samples = samples
+        this.loadData()
       },
       async getOverlappedGenes(variant) {
         /**
@@ -326,6 +360,16 @@
       updateSvList(index, sv) {
         console.log(sv)
         this.svListVariantBar[index] = sv;
+      }
+    },
+    watch: {
+      samples: {
+        handler(newVal, oldVal) {
+          if (newVal[0].vcf !== oldVal[0].vcf) {
+            this.loadData();
+          }
+        },
+        deep: true
       }
     },
   }
