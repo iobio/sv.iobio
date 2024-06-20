@@ -1,7 +1,7 @@
 <template>
     <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
       <p v-if="title">{{ title }}</p>
-      <div class="drag-handle" @mousedown="dragChartStart">. . .</div>
+      <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart">. . .</div>
       <div ref="linearChartContainer" class="linear-sv-chart"></div>
     </div>
 </template>
@@ -18,6 +18,10 @@ export default {
     selectedArea: Object,
     chromosomes: Array,
     title: String,
+    isProband: {
+      type: Boolean,
+      default: false
+    },
   },
   data () {
     return {

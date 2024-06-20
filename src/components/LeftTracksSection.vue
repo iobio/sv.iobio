@@ -38,9 +38,17 @@
           :genes="genes"
           @selectAreaEvent="selectAreaEventFired"/> -->
 
-        <div id="linear-section-container" v-if="globalView === 'linear' && chartsData[0].props.svList.length > 0" @dragover.prevent="handleDragOver" @drop="handleDrop">
+        <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
+          <LinearSvChartViz 
+            :svList="samples.proband.svList"
+            :title="samples.proband.name"
+            :chromosomes="this.chromosomes"
+            :selectedArea="this.selectedArea"
+            :isProband="true"
+            @selectAreaEvent="selectAreaEventFired"/>
+
           <component
-            v-for="(chartData, index) in chartsData"
+            v-for="(chartData, index) in chartsData.filter(chart => !chart.props.svList || chart.props.svList.length > 0)"
             :key="index"
             :is="chartData.component"
             v-bind="chartData.props"
@@ -77,7 +85,7 @@
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     batchNum: Number,
-    samples: Array
+    samples: Object
   },
   data () {
     return {
@@ -92,17 +100,7 @@
       chromosomeAccumulatedMap: null,
       genes: null,
       zoomHistory: [],
-      chartsData: [
-        {
-          component: 'LinearSvChartViz',
-          props: {
-            svList: this.svList,
-            title: 'PBSV (Hifi Long Reads Revio)',
-            selectedArea: this.selectedArea,
-            chromosomes: this.chromosomes,
-          }
-        }
-      ],
+      chartsData: [],
     }
   },
   mounted () {
@@ -147,39 +145,28 @@
         })
       });
 
-    //fetch the vcf data
-    fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-02_svafotate_output.filteredaf.vcf.gz')
-      .then(response => response.json())
-      .then(data => {
-        let svData = data.map(item => new Sv(item));
-        this.chartsData.push({
-          component: 'LinearSvChartViz',
-          props: {
-            svList: svData,
-            title: 'Manta 1',
-            selectedArea: this.selectedArea,
-            chromosomes: this.chromosomes,
-          }
-        }) 
-      });  
-
-    //fetch the vcf data
-    fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/3002-03_svafotate_output.filteredaf.vcf.gz')
-      .then(response => response.json())
-      .then(data => {
-        let svData = data.map(item => new Sv(item));
-        this.chartsData.push({
-          component: 'LinearSvChartViz',
-          props: {
-            svList: svData,
-            title: 'Manta 2',
-            selectedArea: this.selectedArea,
-            chromosomes: this.chromosomes,
-          }
-        })
-      });
+    this.fetchSamples();
   },
   methods: {
+    fetchSamples() {
+      this.chartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
+      for (let sample of this.samples.comparrisons) {
+        fetch(`http://localhost:3000/dataFromVcf?vcfPath=${sample.vcf}`)
+          .then(response => response.json())
+          .then(data => {
+            let svData = data.map(item => new Sv(item));
+            this.chartsData.push({
+              component: 'LinearSvChartViz',
+              props: {
+                svList: svData,
+                title: sample.name,
+                selectedArea: this.selectedArea,
+                chromosomes: this.chromosomes,
+              }
+            })
+          });
+      }
+    },
     createCromosomeAccumulatedMap(chromosomeList) {
         //iterate over the chromosomes and create the arcs
         let accumulatedBP = 0;
@@ -344,6 +331,12 @@
       },
       deep: true
     },
+    samples: {
+      handler(newVal, oldVal) {
+        this.fetchSamples();
+      },
+      deep: true
+    }
   },
   }
 </script>

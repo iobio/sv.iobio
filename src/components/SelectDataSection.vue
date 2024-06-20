@@ -1,6 +1,7 @@
 <template>
     <div class="select-data-section" :class="{hidden: !show}">
-        <SampleDataRow v-for="(sample, index) in samplesLocal" :key="index" :sample="sample"/>
+        <SampleDataRow v-if="samplesLocal.proband" :sample="samplesLocal.proband"/>
+        <SampleDataRow v-for="(sample, index) in samplesLocal.comparrisons" :key="index" :sample="sample"/>
         <button class="add-btn" @click="addNewSample">+</button>
         <button class="go-btn" @click="sendSamples">GO</button>
     </div>
@@ -15,11 +16,11 @@ export default {
     },
     props: {
         show: Boolean,
-        samples: Array,
+        samples: Object,
     },
     data () {
         return {
-            samplesLocal: [],
+            samplesLocal: {},
         }
     },
     mounted () {
@@ -27,7 +28,7 @@ export default {
     },
     methods: {
         addNewSample () {
-            this.samplesLocal.push({
+            this.samplesLocal.comparrisons.push({
                 name: '',
                 vcf: '',
                 tbi: '',
@@ -37,8 +38,7 @@ export default {
             })
         },
         sendSamples () {
-            console.log(this.samplesLocal)
-            this.$emit('update-samples', this.samplesLocal)
+            this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)))
             this.$emit('toggle-show')
         }
     },

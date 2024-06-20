@@ -75,35 +75,36 @@
         interestStopIndex: 0, //Used to keep track of how many SVs have been moved to the front
         selectDataSectionOpen: false,
         filterDataSectionOpen: false,
-        samples: [
-          {
-            name: 'Sample 1',
+        samples: {
+          proband: {
+            name: 'Proband',
             vcf: '',
             tbi: '',
             bam: '',
             bai: '',
             svList: [],
-          }
-        ]
+          },
+          comparrisons: []
+        }
       }
     },
     async mounted() {
-      // let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=/Users/emerson/Documents/Data/SV.iobio_testData/svpipe_results/Manta/A1099-1024/A1099-1024_svafotate_output.filteredaf.vcf.gz');
       this.loadData();
     },
     methods: {
       async loadData() {
-        if (this.samples[0].vcf == '') {
+        if (this.samples.proband.vcf == '') {
           //open the select data section too
           this.selectDataSectionOpen = true;
           return;
         }
-        let url = this.samples[0].vcf;
+        let url = this.samples.proband.vcf;
         let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=' + url);
         let svList = await svListRes.json();
 
         this.svListVariantBar = svList.map(sv => new Sv(sv));
         this.svListChart = svList.map(sv => new Sv(sv));
+        this.samples.proband.svList = this.svListChart;
 
         let svListCopy = [...this.svListVariantBar];
         let batchSize = 200;
@@ -162,15 +163,20 @@
 
         return Object.values(overlappedGenes).some(gene => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0);
       },
-      updateSamples(samples) {
+      async updateSamples(samples) {
         //if samples @ 0 is the same as the old samples @ 0 then we dont need to load data again but 
         //if the vcf is different we do
-        if (samples[0].vcf == this.samples[0].vcf) {
-          this.samples = samples
+        if (samples.proband.vcf == this.samples.proband.vcf) {
+          let svListTemp = this.samples.proband.svList;
+          this.samples.proband = samples.proband;
+          this.samples.proband.svList = svListTemp;
+          this.samples.comparrisons = samples.comparrisons;
           return;
+        } else {
+          this.samples.proband = samples.proband;
+          this.loadData();
         }
-        this.samples = samples
-        this.loadData()
+        this.samples.comparrisons = samples.comparrisons;
       },
       async getOverlappedGenes(variant) {
         /**
@@ -365,7 +371,7 @@
     watch: {
       samples: {
         handler(newVal, oldVal) {
-          if (newVal[0].vcf !== oldVal[0].vcf) {
+          if (newVal.proband.vcf !== oldVal.proband.vcf) {
             this.loadData();
           }
         },
