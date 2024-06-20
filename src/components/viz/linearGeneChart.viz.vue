@@ -1,5 +1,5 @@
 <template>
-    <div draggable="true" class="linear-gene-chart-wrapper">
+    <div draggable="true" class="linear-gene-chart-wrapper" ref="rootDraggableContainer">
       <p v-if="title">{{ title }}</p>
       <div class="drag-handle" @mousedown="dragChartStart">. . .</div>
       <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
@@ -132,13 +132,13 @@ export default {
       border: 2px solid #2A65B7
       background-color: white
       position: absolute
-      top: 40%
+      top: 35%
       left: -10px
+      font-weight: bold
       border-radius: 5px
       cursor: move
       writing-mode: vertical-rl
       text-align: center
-      font-weight: bold
       line-height: .3em
       color: #2A65B7
       &:hover
