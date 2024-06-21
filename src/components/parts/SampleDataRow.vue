@@ -1,5 +1,6 @@
 <template>
     <div class="sample-data-row" :class="{collapse: collapse}">
+        <div v-if="!isProband" class="close-btn"><img src="/public/close-circle-outline.svg" alt="" @click="this.$emit('close-row')"></div>
         <button class="collapse-row-btn" @click="toggleCollapse">
             <img v-if="collapse" src="/public/arrow-down-circle.svg" alt="open">
             <img v-else src="/public/arrow-up-circle.svg" alt="close">
@@ -38,6 +39,10 @@ export default {
     },
     props: {
         sample: Object,
+        isProband: {
+            type: Boolean,
+            default: false
+        }
     },
     data () {
         return {
@@ -61,6 +66,7 @@ export default {
 <style lang="sass">
     .sample-data-row
         width: 100%
+        position: relative
         display: flex
         border-radius: 5px
         margin: 5px 0px
@@ -119,4 +125,26 @@ export default {
         .collapsed-alt-text
             width: 100%
             text-align: center
+        .close-btn
+            position: absolute
+            top: -10px
+            left: -10px
+            padding: 0px
+            width: 25px
+            height: 25px
+            cursor: pointer
+            background-color: white
+            border-radius: 50%
+            display: flex
+            justify-content: center
+            align-items: center
+            img
+                height: 25px
+                width: 25px
+                border-radius: 50%
+                transform: translate(0px, 0px)
+                transition: box-shadow 0.25s ease-in-out, background-color 0.25s ease-in-out
+                &:hover
+                    background-color: #F0F0F0
+                    box-shadow: 0px 0px 5px 0px #2A65B7
 </style>
