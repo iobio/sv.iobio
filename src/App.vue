@@ -13,7 +13,12 @@
     :samples="samples"
     @update-samples="updateSamples"
     @toggle-show="selectDataSectionOpen = false"/>
-    <FilterDataSection :show="filterDataSectionOpen"/>
+
+    <FilterDataSection 
+    :show="filterDataSectionOpen"
+    :filters="filters"
+    @toggleFilterDataSection="filterDataSectionOpen = false"
+    @updateFilters="updateDataFilters"/>
 
     <div id="lower-block-container">
       <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
@@ -75,6 +80,9 @@
         interestStopIndex: 0, //Used to keep track of how many SVs have been moved to the front
         selectDataSectionOpen: false,
         filterDataSectionOpen: false,
+        filters: {
+          geneOverlap: false
+        },
         samples: {
           proband: {
             name: 'Proband',
@@ -155,6 +163,9 @@
         } else {
           this.focusedVariant = variant
         }
+      },
+      updateDataFilters(filters) {
+        this.filters = filters
       },
       hasPhenotypes(overlappedGenes) {
         /**

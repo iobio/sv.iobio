@@ -40,6 +40,7 @@
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <LinearSvChartViz 
+            class="proband-chart"
             :svList="samples.proband.svList"
             :title="samples.proband.name"
             :chromosomes="this.chromosomes"
@@ -342,32 +343,41 @@
 </script>
 
 <style lang="sass">
-  #linear-section-container
-    padding-left: 10px
-  .upper-track-selectors-bar
-    width: 100%
-    display: flex
-    justify-content: space-between
-    align-items: center
-    padding: 5px
-    box-sizing: border-box
-    height: fit-content
-  .wrapper-95
-    flex-grow: 1
-    width: 100%
-    display: flex
-    flex-direction: column
   #left-tracks-section
-    position: relative
+    box-sizing: border-box
     display: flex
     flex-direction: column
-    padding: 5px 10px
     flex-grow: 1
     height: 100%
-    box-sizing: border-box
-    transition: all 0.5s
     overflow: hidden
-  
+    padding: 5px 10px
+    position: relative
+    transition: all 0.5s
+    .upper-track-selectors-bar
+      align-items: center
+      box-sizing: border-box
+      display: flex
+      height: fit-content
+      justify-content: space-between
+      padding: 5px
+      width: 100%
+    .wrapper-95
+      box-sizing: border-box
+      display: flex
+      flex-direction: column
+      flex-grow: 1
+      overflow: hidden
+      padding: 2px
+      width: 100%
+      #linear-section-container
+        box-sizing: border-box
+        flex: 1 1 auto
+        overflow-y: auto
+        padding-left: 10px
+        .proband-chart
+          position: sticky
+          top: 2px
+          z-index: 1
   #focus-chart-btn
     top: 0px
     right: 40px
