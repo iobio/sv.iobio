@@ -13,22 +13,22 @@
             <div class="label-input-wrapper link">
                 <label for="vcf">VCF:</label>
                 <input type="text" id="vcf" v-model="sample.vcf" placeholder="Paste a link or select a local file..."/>
-                <button class="select-vcf-btn">Select Local File</button>
+                <button @click="openFileSelect($event)">Choose Local</button>
             </div>
             <div class="label-input-wrapper link">
                 <label for="tbi">VCF tbi (opt.):</label>
                 <input type="text" id="tbi" v-model="sample.tbi" placeholder="Paste a link or select a local file..."/>
-                <button class="select-tbi-btn">Select Local File</button>
+                <button @click="openFileSelect($event)">Choose Local</button>
             </div>
             <div class="label-input-wrapper link">
                 <label for="bam">BAM (opt.): </label>
                 <input type="text" id="bam" v-model="sample.bam" placeholder="Paste a link or select a local file..."/>
-                <button class="select-bam-btn">Select Local File</button>
+                <button @click="openFileSelect($event)">Choose Local</button>
             </div>
             <div class="label-input-wrapper link">
                 <label for="bai">BAI (if BAM):</label>
                 <input type="text" id="bai" v-model="sample.bai" placeholder="Paste a link or select a local file..."/>
-                <button class="select-bai-btn">Select Local File</button>
+                <button @click="openFileSelect($event)">Choose Local</button>
             </div>
         </div>
         <div class="collapsed-alt-text" v-else>{{ sample.name }}</div>
@@ -36,17 +36,18 @@
 </template>
 
 <script>
-//Emtpy base template
+
 export default {
     name: 'SampleDataRow',
     components: {
     },
     props: {
         sample: Object,
+        wagateActive: Boolean,
         isProband: {
             type: Boolean,
             default: false
-        }
+        },
     },
     data () {
         return {
@@ -58,9 +59,42 @@ export default {
     methods: {
         toggleCollapse () {
             this.collapse = !this.collapse
+        },
+        async openFileSelect (event) {
+            //Start waygate
+            if (!this.waygateActive) {
+                this.$emit('open-waygate')
+            }
+
+            //Get files here
+            const files = await new Promise((resolve, reject) => {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.hidden = true;
+                fileInput.multiple = false;
+                document.body.appendChild(fileInput);
+
+                fileInput.addEventListener('change', (event) => {
+                    resolve(event.target.files);
+                    document.body.removeChild(fileInput);
+                });
+
+                fileInput.click();
+            });
+
+            //get the file type from the input field's id
+            let fileType = event.target.previousElementSibling.id;
+            //give the files to the parent
+            this.$emit('update-sample-files', files, this.sample.name, fileType)
         }
     },
     watch: {
+        sample: {
+            handler: function (val) {
+                this.$emit('update-sample', val)
+            },
+            deep: true
+        }
     },
     computed: {
     }

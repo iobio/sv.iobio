@@ -1,11 +1,20 @@
 <template>
     <div class="select-data-section" :class="{hidden: !show}">
-        <SampleDataRow v-if="samplesLocal.proband" :sample="samplesLocal.proband" :isProband="true"/>
+        <SampleDataRow 
+            v-if="samplesLocal.proband" 
+            :sample="samplesLocal.proband" 
+            :isProband="true"
+            @open-waygate="startWaygate"
+            @update-sample-files="addFileToWaygate"/>
+
         <SampleDataRow 
             v-for="(sample, index) in samplesLocal.comparrisons" 
             :key="index" 
             :sample="sample"
-            @close-row="removeRow(index)"/>
+            @close-row="removeRow(index)"
+            @open-waygate="startWaygate"
+            @update-sample-files="addFileToWaygate"/>
+
         <button class="add-btn" @click="addNewSample">+</button>
         <button class="go-btn" @click="sendSamples">GO</button>
     </div>
@@ -13,6 +22,8 @@
 
 <script>
     import SampleDataRow from './parts/SampleDataRow.vue'
+    import waygateJs from 'waygate-js';
+
 export default {
     name: 'SelectDataSection',
     components: {
@@ -25,6 +36,10 @@ export default {
     data () {
         return {
             samplesLocal: {},
+            //waygate items
+            waygateActive: false,
+            waygateDirTree: null,
+            waygateTunnelDomain: null,
         }
     },
     mounted () {
@@ -47,6 +62,36 @@ export default {
         },
         removeRow (index) {
             this.samplesLocal.comparrisons.splice(index, 1)
+        },
+        async startWaygate () {
+            this.waygateActive = true
+            this.dirTree = waygateJs.openDirectory();
+
+            const listener = await waygateJs.listen({
+                serverDomain: 'waygate.iobio.io',
+                tunnelType: 'websocket',
+            })
+
+            this.waygateTunnelDomain = listener.getDomain();
+            //serve the directory tree
+            waygateJs.serve(listener, waygateJs.directoryTreeHandler(this.dirTree));
+        },
+        addFileToWaygate (files, sampleName, fileType) {
+            //use the dirTree to add files
+            this.dirTree.addFiles(files)
+
+            //Really there should only be one file for each sample's specific file type
+            const file = files[0]
+            //Construct the uri
+            let uri = `https://${this.waygateTunnelDomain}/${file.name}`;
+            //Add the uri to the appropriate sample
+            if (sampleName === this.samplesLocal.proband.name) {
+               this.samplesLocal.proband[fileType] = uri
+            } else {
+               //find the sample with this name in comparrisons
+                let sample = this.samplesLocal.comparrisons.find(sample => sample.name === sampleName)
+                sample[fileType] = uri
+            }
         }
     },
     watch: {
