@@ -2,6 +2,7 @@
     <div id="variant-list-item">
         <div class="preview" :class="{opened: showMore}" @click="variantClicked">
             <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">{{ Math.round((numPhensAccountedFor/this.patientPhenotypes.length)*100) }}%</span>
+            <span v-else class="num-genes-overlapped-tip">{{ numberOfGenes }} genes</span>
             <div>{{ variant.chromosome }}</div>
             <div class="location-text">S: {{ variant.start }} E: {{ variant.end }}</div>
             <div class="size-text">{{ (variant.end + 1) - variant.start }} bp</div>
@@ -155,6 +156,17 @@
                 background-color: #DEE9F7
                 border-bottom: 1px solid #DEE9F7
             .num-phens-accounted-perc-tip
+                position: absolute
+                top: 10px
+                left: 5px
+                height: 10px
+                padding: 1px 2px
+                font-size: .7em
+                border-radius: 3px
+                background-color: #67F56E
+                text-align: center
+                line-height: 1em
+            .num-genes-overlapped-tip
                 position: absolute
                 top: 10px
                 left: 5px

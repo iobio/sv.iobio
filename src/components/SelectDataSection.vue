@@ -88,7 +88,7 @@ export default {
             if (sampleName === this.samplesLocal.proband.name) {
                this.samplesLocal.proband[fileType] = uri
             } else {
-               //find the sample with this name in comparrisons
+                //find the sample with this name in comparrisons
                 let sample = this.samplesLocal.comparrisons.find(sample => sample.name === sampleName)
                 sample[fileType] = uri
             }
