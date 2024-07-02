@@ -1,9 +1,9 @@
 <template>
     <div class="sample-data-row" :class="{collapse: collapse}">
-        <div v-if="!isProband" class="close-btn"><img src="/public/close-circle-outline.svg" alt="" @click="this.$emit('close-row')"></div>
+        <div v-if="!isProband" class="close-btn"><img src="/close-circle-outline.svg" alt="" @click="this.$emit('close-row')"></div>
         <button class="collapse-row-btn" @click="toggleCollapse">
-            <img v-if="collapse" src="/public/arrow-down-circle.svg" alt="open">
-            <img v-else src="/public/arrow-up-circle.svg" alt="close">
+            <img v-if="collapse" src="/arrow-down-circle.svg" alt="open">
+            <img v-else src="/arrow-up-circle.svg" alt="close">
         </button>
         <div class="sample-row-info-form" v-if="!collapse">
             <div class="label-input-wrapper">
