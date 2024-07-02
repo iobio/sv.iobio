@@ -12,19 +12,23 @@
             </div>
             <div class="label-input-wrapper link">
                 <label for="vcf">VCF:</label>
-                <input type="text" id="vcf" v-model="sample.vcf"/>
+                <input type="text" id="vcf" v-model="sample.vcf" placeholder="Paste a link or select a local file..."/>
+                <button class="select-vcf-btn">Select Local File</button>
             </div>
             <div class="label-input-wrapper link">
                 <label for="tbi">VCF tbi (opt.):</label>
-                <input type="text" id="tbi" v-model="sample.tbi"/>
+                <input type="text" id="tbi" v-model="sample.tbi" placeholder="Paste a link or select a local file..."/>
+                <button class="select-tbi-btn">Select Local File</button>
             </div>
             <div class="label-input-wrapper link">
                 <label for="bam">BAM (opt.): </label>
-                <input type="text" id="bam" v-model="sample.bam"/>
+                <input type="text" id="bam" v-model="sample.bam" placeholder="Paste a link or select a local file..."/>
+                <button class="select-bam-btn">Select Local File</button>
             </div>
             <div class="label-input-wrapper link">
                 <label for="bai">BAI (if BAM):</label>
-                <input type="text" id="bai" v-model="sample.bai"/>
+                <input type="text" id="bai" v-model="sample.bai" placeholder="Paste a link or select a local file..."/>
+                <button class="select-bai-btn">Select Local File</button>
             </div>
         </div>
         <div class="collapsed-alt-text" v-else>{{ sample.name }}</div>
@@ -122,6 +126,28 @@ export default {
                     border-radius: 5px
                     box-sizing: border-box
                     flex-grow: 1
+                    //standard-modern
+                    &::placeholder
+                        font-style: italic
+                    // firefox
+                    &:-moz-placeholder
+                        font-style: italic
+                    // safari
+                    &::-webkit-input-placeholder
+                        font-style: italic
+                    // edge
+                    &:-ms-input-placeholder
+                        font-style: italic
+                button
+                    background-color: #2A65B7
+                    color: white
+                    border: none
+                    border-radius: 5px
+                    padding: 5px 10px
+                    cursor: pointer
+                    margin-left: 10px
+                    &:hover
+                        background-color: #1A4B97
         .collapsed-alt-text
             width: 100%
             text-align: center
