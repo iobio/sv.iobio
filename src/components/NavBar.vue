@@ -1,6 +1,6 @@
 <template>
     <div id="nav-bar">
-      <button @click="this.$emit('toggleFilterDataSection')">Filter Variants</button>
+      <button @click="this.$emit('toggleFilterDataSection')" :class="{highlight: filterDataOpen}">Filter Variants</button>
       <!-- file input -->
       <div class="nav-bar-item-wrapper">
         <label class="nav-bar-item-sub" for="phenotypes">Patient Phenotypes</label>
@@ -14,7 +14,7 @@
         <button class="nav-bar-item-sub" @click="sendGOI">save</button>
       </div>
 
-      <button @click="this.$emit('toggleSelectDataSection')">Select Data</button>
+      <button @click="this.$emit('toggleSelectDataSection')" :class="{highlight: selectDataOpen}">Select Data</button>
 
     </div>
   </template>
@@ -25,6 +25,8 @@
   components: {
   },
   props: {
+    selectDataOpen: Boolean,
+    filterDataOpen: Boolean,
   },
   data () {
     return {
@@ -88,6 +90,10 @@
         &:hover
           filter: brightness(120%)
           border: 1px solid white
+        &.highlight
+          background-color: #0D60C3
+          border: 2px solid white
+          box-shadow: 0px 0px 5px 0px white
     .alt-section-text.nav
       color: white
       position: relative

@@ -2,6 +2,8 @@
   <div id="main-container">
     <div id="upper-bar-container">
       <NavBar
+        :selectDataOpen="selectDataSectionOpen"
+        :filterDataOpen="filterDataSectionOpen"
         @toggleSelectDataSection="selectDataSectionOpen = !selectDataSectionOpen; filterDataSectionOpen = false"
         @toggleFilterDataSection="filterDataSectionOpen = !filterDataSectionOpen; selectDataSectionOpen = false" 
         @updateGenesOfInterest="updateGenesOfInterest"

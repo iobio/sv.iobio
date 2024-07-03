@@ -206,7 +206,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             //if there are no genes of interest or phen related genes then we want to just put a text that says "Zoom in to see genes"
             if ((!phenRelatedGenes || phenRelatedGenes.length == 0) && (!genesOfInterest || genesOfInterest.length == 0)) {
                 svg.append('text')
-                    .attr('x', width/2 - 50)
+                    .attr('x', width/2 - 80)
                     .attr('y', height/2)
                     .text('Select an area to view genes')
                     .attr('font-size', '15px')
