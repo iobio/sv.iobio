@@ -208,7 +208,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 svg.append('text')
                     .attr('x', width/2 - 50)
                     .attr('y', height/2)
-                    .text('Zoom in to see genes')
+                    .text('Select an area to view genes')
                     .attr('font-size', '15px')
                     .attr('fill', '#2A65B7')
                     .attr('font-style', 'italic');
