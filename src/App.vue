@@ -71,7 +71,7 @@
         svListVariantBar: [],
         focusedVariant: null,
         selectedArea: null,
-        variantListBarOpen: true,
+        variantListBarOpen: false,
         genesOfInterest: [],
         phenotypesOfInterest: [],
         candidatePhenGenes: [],
@@ -111,6 +111,8 @@
         let svList = await svListRes.json();
 
         this.svListVariantBar = svList.map(sv => new Sv(sv));
+        this.variantListBarOpen = true;
+        
         this.svListChart = svList.map(sv => new Sv(sv));
         this.samples.proband.svList = this.svListChart;
 
