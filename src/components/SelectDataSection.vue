@@ -110,7 +110,7 @@ export default {
         align-items: center
         top: 0
         right: 0
-        width: 50%
+        width: 100%
         height: 100%
         padding: 60px 10px 10px 10px
         border-radius: 0px 0px 0px 5px
@@ -132,7 +132,6 @@ export default {
             padding: 5px 10px
             border-radius: 5px
             cursor: pointer
-            align-self: flex-end
             &:hover
                 background-color: darkgreen
                 color: white
@@ -140,7 +139,7 @@ export default {
             background-color: #2A65B7
             display: flex
             justify-content: center
-            align-self: flex-start
+            margin: 5px
             align-items: center
             font-size: 20px
             color: white

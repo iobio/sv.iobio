@@ -104,6 +104,7 @@ export default {
 <style lang="sass">
     .sample-data-row
         width: 100%
+        max-width: 1000px
         position: relative
         display: flex
         border-radius: 5px

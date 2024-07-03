@@ -51,7 +51,7 @@ export default {
         top: 0
         left: 0
         padding: 55px 10px 10px 10px
-        width: 50%
+        width: 30%
         height: 100%
         border-radius: 0px 0px 5px 0px
         background-color: rgba(255, 255, 255, 0.90)

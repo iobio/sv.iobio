@@ -2,8 +2,8 @@
   <div id="main-container">
     <div id="upper-bar-container">
       <NavBar
-        @toggleSelectDataSection="selectDataSectionOpen = !selectDataSectionOpen"
-        @toggleFilterDataSection="filterDataSectionOpen = !filterDataSectionOpen" 
+        @toggleSelectDataSection="selectDataSectionOpen = !selectDataSectionOpen; filterDataSectionOpen = false"
+        @toggleFilterDataSection="filterDataSectionOpen = !filterDataSectionOpen; selectDataSectionOpen = false" 
         @updateGenesOfInterest="updateGenesOfInterest"
         @updatePhenotypesOfInterest="updatePhenotypesOfInterest"/>
     </div>
@@ -112,7 +112,7 @@
 
         this.svListVariantBar = svList.map(sv => new Sv(sv));
         this.variantListBarOpen = true;
-        
+
         this.svListChart = svList.map(sv => new Sv(sv));
         this.samples.proband.svList = this.svListChart;
 

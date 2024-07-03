@@ -39,7 +39,8 @@
           @selectAreaEvent="selectAreaEventFired"/> -->
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
-          <LinearSvChartViz 
+          <LinearSvChartViz
+            v-if="samples.proband.svList.length > 0" 
             class="proband-chart"
             :svList="samples.proband.svList"
             :title="samples.proband.name"
