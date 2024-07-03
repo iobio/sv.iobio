@@ -203,6 +203,16 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             if (genesOfInterest && genesOfInterest.length > 0) {
                 _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
             }
+            //if there are no genes of interest or phen related genes then we want to just put a text that says "Zoom in to see genes"
+            if ((!phenRelatedGenes || phenRelatedGenes.length == 0) && (!genesOfInterest || genesOfInterest.length == 0)) {
+                svg.append('text')
+                    .attr('x', width/2 - 50)
+                    .attr('y', height/2)
+                    .text('Zoom in to see genes')
+                    .attr('font-size', '15px')
+                    .attr('fill', '#2A65B7')
+                    .attr('font-style', 'italic');
+            }
             return;
         }
 
