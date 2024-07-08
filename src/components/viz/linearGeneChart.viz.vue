@@ -17,6 +17,8 @@ export default {
     genesList: Object,
     selectedArea: Object,
     chromosomes: Array,
+    centromeres: Array,
+    bands: Array,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     title: String,
@@ -61,6 +63,8 @@ export default {
         brush: true,
         genesOfInterest: this.genesOfInterest,
         phenRelatedGenes: this.phenRelatedGenes,
+        centromeres: this.centromeres, 
+        bands: this.bands,
       };
       this.linearGeneChart = new linearGeneChart(container, this.chromosomes, this.genesList,  options);
 

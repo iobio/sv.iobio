@@ -45,6 +45,8 @@
             :svList="samples.proband.svList"
             :title="samples.proband.name"
             :chromosomes="this.chromosomes"
+            :centromeres="this.centromeres"
+            :bands="this.bands"
             :selectedArea="this.selectedArea"
             :isProband="true"
             @selectAreaEvent="selectAreaEventFired"/>
@@ -140,6 +142,8 @@
             title: 'Genes',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
+            centromeres: this.centromeres,
+            bands: this.bands,
             phenRelatedGenes: this.phenRelatedGenes,
             genesOfInterest: this.genesOfInterest,
             batchNum: this.batchNum
@@ -161,6 +165,8 @@
             title: sample.name,
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
+            centromeres: this.centromeres,
+            bands: this.bands,
             isProband: false
           }
         }

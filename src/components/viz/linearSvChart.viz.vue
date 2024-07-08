@@ -20,6 +20,8 @@ export default {
     svList: Array,
     selectedArea: Object,
     chromosomes: Array,
+    centromeres: Array,
+    bands: Array,
     title: String,
     isProband: {
       type: Boolean,
@@ -63,6 +65,8 @@ export default {
         selection: this.selectedArea,
         selectionCallback: this.selectedAreaCallback,
         brush: true,
+        centromeres: this.centromeres, 
+        bands: this.bands,
       };
       this.linearSvChart = new linearSvChart(container, this.chromosomes, this.svList,  options);
 

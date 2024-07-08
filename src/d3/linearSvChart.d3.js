@@ -8,6 +8,8 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
     let selectionCallback = null;
     let brush = false;
     let selection = null;
+    let centromeres = null;
+    let bands = null;
 
     //zoom variables
     let zoomedSelection = null;
@@ -28,6 +30,45 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 selection.start = selection.end;
                 selection.end = temp;
             }
+        }
+
+        if (options.centromeres) {
+            centromeres = options.centromeres;
+
+            //Convert the centromeres remove the chr from the chr field use that as the key
+            let newCentromeres = {};
+            for (let centromere of centromeres) {
+                let newKey = centromere.chr.replace('chr', '');
+                newCentromeres[newKey] = centromere;
+            }
+            centromeres = newCentromeres;
+        }
+        if (options.bands) {
+            bands = options.bands;
+
+            let newBands = [];
+            for (let band of bands) {
+                let newChr = band.chr.replace('chr', '');
+
+                //if the chr has a _ cut everything after it
+                if (newChr.includes('_')) {
+                    newChr = newChr.split('_')[0];
+                }
+
+                //if the new chr has a _ then skip it or if it's M or Un, or if the name doesnt have a . in it then skip it
+                if (newChr == 'M' || newChr == 'Un') {
+                    continue;
+                }
+
+                //if they are gneg they are going to be white so skip them ie they are not gpos
+                if (!band.gieStain.includes('gpos')) {
+                    continue;
+                }
+
+                band.chr = newChr;
+                newBands.push(band);
+            }
+            bands = newBands;
         }
     }
 
@@ -148,6 +189,33 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 chromEndUpdated = newStartEnd.end;
             }
 
+            //Centromeres setup
+            let centromere = false;
+            let centromereStart = null;
+            let centromereEnd = null;
+            let centromereCenter = null;
+
+            //set absolute centromere start, end, and center based on the chromosome start and end (original)
+            if (centromeres) { 
+                centromere = true;
+                centromereStart = chromosomeStart + centromeres[chr].start;
+                centromereEnd = chromosomeStart + centromeres[chr].end;
+                centromereCenter = (centromereEnd - centromereStart) / 2;
+
+                if (chromosomeStart != chromStartUpdated || chromosomeEnd != chromEndUpdated) {
+                    let newCentStartEnd = _getStartEndForRange(centromereStart, centromereEnd, range);
+
+                    if (!newCentStartEnd) {
+                        //this centrome is not in the range so we will not render it
+                        centromere = false;
+                    } else {
+                        centromereStart = newCentStartEnd.start;
+                        centromereEnd = newCentStartEnd.end;
+                        centromereCenter = (centromereEnd - centromereStart) / 2;
+                    }
+                }
+            }
+
             //create a new group for this chromosome
             let chromosomeGroup = svg.append('g')
                 .attr('transform', `translate(${x(chromStartUpdated)}, 0)`)
@@ -155,16 +223,111 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 .attr('id', `chr-${chr}-group`);
 
             let chromosomeColor = d3.interpolate('#1F68C1', '#A63D40')(chromosomeEnd / genomeSize);
+
+            let idioHeight = 10;
+            let idioPosOffset = 5;
+
+            if (!centromere) {
+                //add another rectangle slightly smaller and under the last one to start to make the idiograms
+                chromosomeGroup.append('rect')
+                    //class will be idiogram
+                    .attr('class', 'upper-idiogram')
+                    .attr('x', 1)
+                    .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
+                    .attr('height', idioHeight)
+                    .attr('transform', `translate(0, ${idioPosOffset})` )
+                    .attr('fill', 'white')
+                    .attr('stroke', chromosomeColor)
+                    //make the corners rounded
+                    .attr('rx', 3);
+            } else {
+                chromosomeGroup.append('rect')
+                    //class will be idiogram
+                    .attr('class', 'upper-idiogram-parm')
+                    .attr('x', 1)
+                    .attr('width', function(){
+                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                        return x(centromereStart + centromereCenter) - x(chromStartUpdated) - 1;
+                    })
+                    .attr('height', idioHeight)
+                    .attr('transform', `translate(0, ${idioPosOffset})` )
+                    .attr('fill', 'white')
+                    .attr('stroke', chromosomeColor)
+                    //make the corners rounded
+                    .attr('rx', 3);
                 
-            //add the chromosome bar
-            chromosomeGroup.append('rect')
-                .attr('x', 0)
-                .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
-                .attr('height', '20px')
-                .attr('fill', 'white')
-                .attr('stroke', chromosomeColor)
-                .attr('stroke-opacity', 0.3)
-                .attr('rx', '3px');
+                //now to make the q arm
+                chromosomeGroup.append('rect')
+                    //class will be idi
+                    .attr('class', 'lower-idiogram-qarm')
+                    .attr('x', function(){
+                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                        return x(centromereStart + centromereCenter) - x(chromStartUpdated);
+                    })
+                    .attr('width', function(){
+                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                        return x(chromEndUpdated) - x(centromereEnd - centromereCenter);
+                    })
+                    .attr('height', idioHeight)
+                    .attr('transform', `translate(0, ${idioPosOffset})` )
+                    .attr('fill', 'white')
+                    .attr('stroke', chromosomeColor)
+                    //make the corners rounded
+                    .attr('rx', 3);   
+            }
+            
+            //if there are bands filter for the bands that are in this chromosome
+            if (bands) {
+                let chrBands = bands.filter(band => band.chr == chr);
+
+                for (let band of chrBands) {
+                    //get the band start and end in the absolute base pair space for calculations
+                    let bandStartAbs = chromosomeStart + band.start;
+                    let bandEndAbs = chromosomeStart + band.end;
+
+                    //check and see if the band is in the zoomed selection
+                    let newBandStartEnd = _getStartEndForRange(bandStartAbs, bandEndAbs, range);
+
+                    if (!newBandStartEnd) {
+                        //if we get nothing back we dont render this band at all
+                        continue;
+                    } else {
+                        //we will either get back the truncated start/ends or the original start/ends depending on if the band is in the range
+                        bandStartAbs = newBandStartEnd.start;
+                        bandEndAbs = newBandStartEnd.end;
+                    }
+
+                    let bandStartX = x(bandStartAbs) - x(chromStartUpdated);
+                    let bandEndX = x(bandEndAbs) - x(chromStartUpdated);
+
+                    let bandHeight = 8;
+
+                    //get the intensity based on the gieStain number after gpos
+                    let intensity = band.gieStain.replace('gpos', '')/100;
+
+                    //create my band rectangle
+                    chromosomeGroup.append('rect')
+                        .attr('x', function(){
+                            return bandStartX;
+                        })
+                        .attr('width', function(){
+                            return bandEndX - bandStartX;
+                        })
+                        .attr('height', bandHeight)
+                        .attr('transform', `translate(0, 6)`)
+                        .attr('fill', chromosomeColor)
+                        .attr('fill-opacity', intensity)
+                        .raise();
+                }
+            }
+
+            chromosomeGroup.append('circle')
+                .attr('cx', function(){
+                    return (x(chromEndUpdated) - x(chromStartUpdated) +1)/2;
+                })
+                .attr('cy', 7)
+                .attr('r', 7)
+                .attr('fill', 'whitesmoke');
 
             //add the labels
             chromosomeGroup.append('text')
@@ -175,9 +338,10 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', margin.top + 10)
+                .attr('y', 12)
                 .text(chr)
                 .attr('font-size', "14px")
+                .attr('font-weight', 'bold')
                 .attr('fill', chromosomeColor);
         };
     }
