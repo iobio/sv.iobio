@@ -225,7 +225,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
             let chromosomeColor = d3.interpolate('#1F68C1', '#A63D40')(chromosomeEnd / genomeSize);
 
             let idioHeight = 10;
-            let idioPosOffset = 5;
+            let idioPosOffset = 10;
 
             if (!centromere) {
                 //add another rectangle slightly smaller and under the last one to start to make the idiograms
@@ -314,7 +314,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                             return bandEndX - bandStartX;
                         })
                         .attr('height', bandHeight)
-                        .attr('transform', `translate(0, 6)`)
+                        .attr('transform', `translate(0, 11)`)
                         .attr('fill', chromosomeColor)
                         .attr('fill-opacity', intensity)
                         .raise();
