@@ -439,6 +439,7 @@
     margin: 0px
     width: 25%
     min-width: 250px
+    max-width: 500px
     transition: width 0.4s, min-width 0.4s
     &.collapsed
       width: 0px
