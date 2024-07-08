@@ -335,12 +335,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
             chromosomeGroup.append('circle')
                 .attr('cx', function(){
-                    return (x(chromEndUpdated) - x(chromStartUpdated) +1)/2;
+                    return (x(chromEndUpdated) - x(chromStartUpdated) +2)/2;
                 })
-                .attr('cy', 6)
-                .attr('r', 7)
-                .attr('fill', 'white')
-                .attr('opacity', 0.8);
+                .attr('cy', 5)
+                .attr('r', 8)
+                .attr('fill', 'white');
 
             //add the labels
             chromosomeGroup.append('text')
@@ -351,7 +350,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', 11)
+                .attr('y', 10)
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('font-weight', 'bold')
