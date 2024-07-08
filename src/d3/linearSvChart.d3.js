@@ -77,7 +77,23 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         .call(d3.axisBottom(x)
             .ticks(width / 80)
             .tickSizeOuter(0)
-            .tickFormat(d => `${d / 1000000}Mb`));
+            .tickFormat(
+                function(d) {
+                    //At the whole genome level we can just show the base pair number
+                    if (zoomedSelection.size == genomeSize) {
+                        return `${d/1000000}Mb`;
+                    } else {
+                        for (let [chr, chromosome] of chromosomeMap) {
+                            if (d >= chromosome.start && d <= chromosome.end) {
+                                return `${chr}:${parseFloat(((d - chromosome.start)/1000000).toFixed(3))}Mb`;
+                            }
+                        }
+                    }
+                }
+            ))
+            //tics need to be rotated slightly so they don't overlap
+            .selectAll('text')
+            .attr('transform', 'rotate(10) translate(2, 0)');
 
     svg.append('g')
         .call(xAxis);
