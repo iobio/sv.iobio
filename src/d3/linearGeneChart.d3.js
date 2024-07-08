@@ -337,9 +337,10 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('cx', function(){
                     return (x(chromEndUpdated) - x(chromStartUpdated) +1)/2;
                 })
-                .attr('cy', 7)
+                .attr('cy', 6)
                 .attr('r', 7)
-                .attr('fill', 'whitesmoke');
+                .attr('fill', 'white')
+                .attr('opacity', 0.8);
 
             //add the labels
             chromosomeGroup.append('text')
@@ -350,7 +351,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', 12)
+                .attr('y', 11)
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('font-weight', 'bold')
