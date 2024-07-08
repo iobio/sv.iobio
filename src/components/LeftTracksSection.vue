@@ -40,7 +40,7 @@
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <LinearSvChartViz
-            v-if="samples.proband.svList.length > 0" 
+            v-if="samples.proband.svList && samples.proband.svList.length > 0" 
             class="proband-chart"
             :svList="samples.proband.svList"
             :title="samples.proband.name"
@@ -50,7 +50,7 @@
             @selectAreaEvent="selectAreaEventFired"/>
 
           <component
-            v-for="(chartData, index) in chartsData.filter(chart => !chart.props.svList || chart.props.svList.length > 0)"
+            v-for="(chartData, index) in chartsData"
             :key="index"
             :is="chartData.component"
             v-bind="chartData.props"
@@ -152,20 +152,26 @@
   methods: {
     fetchSamples() {
       this.chartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
+      let index = 1;
       for (let sample of this.samples.comparrisons) {
+        let newSample = {
+          component: 'LinearSvChartViz',
+          props: {
+            svList: [],
+            title: sample.name,
+            selectedArea: this.selectedArea,
+            chromosomes: this.chromosomes,
+            isProband: false
+          }
+        }
+        this.chartsData.push(newSample);
         fetch(`http://localhost:3000/dataFromVcf?vcfPath=${sample.vcf}`)
           .then(response => response.json())
           .then(data => {
             let svData = data.map(item => new Sv(item));
-            this.chartsData.push({
-              component: 'LinearSvChartViz',
-              props: {
-                svList: svData,
-                title: sample.name,
-                selectedArea: this.selectedArea,
-                chromosomes: this.chromosomes,
-              }
-            })
+            this.chartsData[index].props.svList = svData;
+
+            index++;
           });
       }
     },

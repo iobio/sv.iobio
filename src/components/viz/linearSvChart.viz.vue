@@ -1,8 +1,11 @@
 <template>
     <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
-      <p v-if="title">{{ title }}</p>
+      <p class="title" v-if="title">{{ title }}</p>
       <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart">. . .</div>
-      <div ref="linearChartContainer" class="linear-sv-chart"></div>
+      <div :class="{hidden: isLoading}" ref="linearChartContainer" class="linear-sv-chart"></div>
+      <div class="loading-message" v-if="isLoading">
+        <p>Loading...</p>
+      </div>
     </div>
 </template>
 
@@ -21,7 +24,7 @@ export default {
     isProband: {
       type: Boolean,
       default: false
-    },
+    }
   },
   data () {
     return {
@@ -86,6 +89,10 @@ export default {
   computed: {
     hasAllOptions(){
       return this.chromosomes && this.svList && this.svList.length > 0;
+    },
+    isLoading(){
+      //Based on whether the svList is empty or not
+      return this.svList.length === 0;
     }
   },
   watch: {
@@ -111,6 +118,10 @@ export default {
     border: 1px solid #2A65B7
     background-color: white
     box-shadow: 0px 0px 5px 0px #2A65B7
+    .title
+      box-sizing: border-box
+      padding: 0px
+      margin: 0px 0px 5px 0px
     p
       font-weight: bold
       color: #2A65B7
@@ -141,4 +152,26 @@ export default {
     width: 100%
     box-sizing: border-box
     overflow: hidden
+    &.hidden
+      display: none
+  .loading-message
+    display: flex
+    justify-content: center
+    align-items: center
+    width: 100%
+    height: 120px
+    box-sizing: border-box
+    padding: 5px 8px
+    p
+      font-weight: bold
+      color: #2A65B7
+      font-size: 1.25em
+      padding: 0px
+      margin: 0px
+      height: 100%
+      display: flex
+      align-items: center
+      justify-content: center
+      background: whitesmoke
+      border-radius: 5px
 </style>
