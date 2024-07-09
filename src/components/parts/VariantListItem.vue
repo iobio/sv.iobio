@@ -13,10 +13,10 @@
                 <span class="gene-symbol-span">{{ gene.gene_symbol }}</span>
                 <div class="gene-information-section">
                     <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
-                        <span v-for="phenotype in sortByInPatientPhens(gene.phenotypes)" :class="{green: patientPhenotypes.includes(phenotype)}">{{ phenotype }}</span>
+                        <span v-for="phenotype in sortByInPatientPhens(gene.phenotypes)" :class="{green: patientPhenotypes.includes(phenotype)}">{{ gene.phenotypes[phenotype].name + ` (${phenotype})` }}</span>
                     </p>
                     <p class="column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
-                        <span v-for="disease in gene.diseases">{{ disease.disease_id }}</span>
+                        <span v-for="disease in gene.diseases">{{ (disease.disease_name !== null ? disease.disease_name : 'No Name Found') +' ('+disease.disease_id +')' }}</span>
                     </p>
                 </div>
             </div>
