@@ -308,10 +308,11 @@
          * if this list changes we need to update the SVs.
          */
 
-        this.phenotypesOfInterest = newPOI;
-        if (newPOI == this.phenotypesOfInterest) {
+        if (newPOI.length == this.phenotypesOfInterest.length && newPOI.every((v, i) => v === this.phenotypesOfInterest[i])){
           return;
         }
+        
+        this.phenotypesOfInterest = newPOI;
 
         //If we have some phenotypes of interest we want to get any associated genes
         let hpoIds = newPOI.join(',');
