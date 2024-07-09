@@ -254,7 +254,8 @@
     },
     handleDrop(event) {
       event.preventDefault();
-      const targetIndex = Array.from(event.currentTarget.children).indexOf(event.target.closest('.draggable-chart'));
+      //Subtract one because the first element is the proband chart in this case
+      const targetIndex = Array.from(event.currentTarget.children).indexOf(event.target.closest('.draggable-chart')) - 1;
       if (targetIndex !== -1 && targetIndex !== this.draggedIndex) {
         this.reorderCharts(this.draggedIndex, targetIndex);
         this.draggedIndex = null;
