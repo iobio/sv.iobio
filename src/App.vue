@@ -112,13 +112,18 @@
         let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=' + url);
         let svList = await svListRes.json();
 
+        //We use a separate list for the variant bar so we can sort it differently
         this.svListVariantBar = svList.map(sv => new Sv(sv));
         this.variantListBarOpen = true;
 
+        //We use a separate list for the chart so we can sort it differently
         this.svListChart = svList.map(sv => new Sv(sv));
         this.samples.proband.svList = this.svListChart;
 
+        //Copying the bar list so we can sort it in batches and get information about the overlapped genes
         let svListCopy = [...this.svListVariantBar];
+
+        //the batch size we will send SVs in to get their associations
         let batchSize = 200;
 
         for (let i = 0; i < svListCopy.length; i += batchSize) {
@@ -137,10 +142,6 @@
                 let num = this.numPhensAccountedFor(this.phenotypesOfInterest, newSv.overlappedGenes);
 
                 //----------------SORTING------------------------------------//
-                /**
-                 * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
-                 * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
-                 */
                 if (num > 0) {
                   if (originalIndex > this.interestStopIndex) {
                     let temp = this.svListVariantBar[this.interestStopIndex];
@@ -155,6 +156,7 @@
                   this.svListVariantBar[originalIndex] = newSv;
                 }
               } else {
+                //if there are no overlappedGenes send to the bottom
                 this.svListVariantBar[originalIndex] = newSv;
               }
           }
