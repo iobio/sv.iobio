@@ -125,9 +125,10 @@
           this.batchNum++;
           let batchSvs = svListCopy.slice(i, i + batchSize);
 
-          let batchPromises = await Promise.all(batchSvs.map(sv => this.getOverlappedGenes(sv)));
-
-          for (let [index, newSv] of batchPromises.entries()) {
+          let newSvs = await this.getSVAssociations(batchSvs);
+          console.log('newSvs', newSvs)
+          //new svs is an array of Sv objects
+          for (let [index, newSv] of newSvs.entries()) {
             let originalIndex = i + index; // Calculate the original index
               // Update the current index with the new SV
 
@@ -175,7 +176,6 @@
         /**
          * Returns true if any of the overlappedGenes have phenotypes
          */
-
         return Object.values(overlappedGenes).some(gene => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0);
       },
       async updateSamples(samples) {
@@ -193,79 +193,52 @@
         }
         this.samples.comparrisons = samples.comparrisons;
       },
-      async getOverlappedGenes(variant) {
+      async getSVAssociations(variantBatch) {
         /**
-         * Fetches the overlapped genes for a given variant
+         * Fetches the genes and the associations that overlap a batch of SVs
          */
 
-        let updatedVariant = {...variant}
+        let batchJson = JSON.stringify({ variants: variantBatch });
+        let svsReturned = await fetch('http://localhost:3000/sv/info/batch?source=refseq&build=hg38', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: batchJson
+        });
 
-        let genesJson = await fetch(`http://localhost:3000/genes/region?build=hg38&source=refseq&startChr=${'chr'+variant.chromosome}&startPos=${variant.start}&endChr=${'chr'+variant.chromosome}&endPos=${variant.end}`);
-        let genesData = await genesJson.json();
-        let overlappedGenes = genesData;
+        let svs = await svsReturned.json();
+        let updatedSvs = [];
 
-        if (this.genesOfInterest && this.genesOfInterest.length > 0) {
-          let geneSet = new Set(Object.keys(overlappedGenes));
-          let genesInCommon = this.genesOfInterest.filter(geneSymbol => geneSet.has(geneSymbol));
-          updatedVariant.genesInCommon = genesInCommon;
-        } else {
-          updatedVariant.genesInCommon = [];
-        }
+        for (let sv of svs) {
+          //turn the sv into a Sv object we will have our overlappedgenes
+          let updatedVariant = new Sv(sv);
 
-        if (this.candidatePhenGenes && this.candidatePhenGenes.length > 0) {
-          //essentially if the gene didnt have phenotypes when we checked earlier we want a chance to update it and the overlappedPhenGenes
-          let geneSet = new Set(Object.keys(overlappedGenes));
-          let genesInCommon = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
-          updatedVariant.overlappedPhenGenes = genesInCommon;
-          this.overlappedPhenGenes.push(...genesInCommon);
-          this.overlappedPhenGenes = [...new Set(this.overlappedPhenGenes)];
-        } else {
-          //if we dont have candidatePhenGenes then we dont need to update overlappedPhenGenes
-          updatedVariant.overlappedPhenGenes = [];
-        }
-
-        if (Object.keys(overlappedGenes).length == 0) {
-          updatedVariant.overlappedGenes = overlappedGenes;
-          return updatedVariant;
-        }
-
-        let overlappedGenesKeys = Object.keys(overlappedGenes);
-        let batchSize = 200;
-
-        for (let i = 0; i < overlappedGenesKeys.length; i += batchSize) {
-          let batch = overlappedGenesKeys.slice(i, i + batchSize);
-          let batchString = batch.join(',');
-
-          let associationsRes = await fetch(`http://localhost:3000/geneAssociations?genes=${batchString}`);
-          let { phenToGene, diseaseToGene } = await associationsRes.json();
-
-          //Nested for but because I'm only iterating over a limited and sliced set we should be okay
-          for (let gene_symbol of batch ) {
-            let gene = overlappedGenes[gene_symbol];
-
-            //Phenotypes
-            if (!phenToGene.hasOwnProperty(gene_symbol)) {
-              gene.phenotypes = {};
-              gene.phensInCommon = [];
-            } else {
-              gene.phenotypes = phenToGene[gene_symbol];
-              if (this.patientPhenotypes && this.patientPhenotypes.length < 0 ) {
-                //If this turns out to be very unbalenced we could check to see which was shorter
-                let phenotypeSet = new Set(Object.keys(gene.phenotypes));
-                gene.phenotypesInCommon = this.patientPhenotypes.filter(hpoId => phenotypeSet.has(hpoId));
-              }
-            }
-
-            //Diseases
-            if (!diseaseToGene.hasOwnProperty(gene_symbol)) {
-              gene.diseases = {};
-            } else {
-              gene.diseases = diseaseToGene[gene_symbol]
-            }
+          //Checks for overlap with genes of interest in the overlappedGenes(sv)
+          if (this.genesOfInterest && this.genesOfInterest.length > 0) {
+            let geneSet = new Set(Object.keys(updatedVariant.overlappedGenes));
+            let genesInCommon = this.genesOfInterest.filter(geneSymbol => geneSet.has(geneSymbol));
+            updatedVariant.genesInCommon = genesInCommon;
+          } else {
+            updatedVariant.genesInCommon = [];
           }
+
+          if (this.candidatePhenGenes && this.candidatePhenGenes.length > 0) {
+            //essentially if the gene didnt have phenotypes when we checked earlier we want a chance to update it and the overlappedPhenGenes
+            let geneSet = new Set(Object.keys(updatedVariant.overlappedGenes));
+            let genesInCommon = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
+            updatedVariant.overlappedPhenGenes = genesInCommon;
+            this.overlappedPhenGenes.push(...genesInCommon);
+            this.overlappedPhenGenes = [...new Set(this.overlappedPhenGenes)];
+          } else {
+            //if we dont have candidatePhenGenes then we dont need to update overlappedPhenGenes
+            updatedVariant.overlappedPhenGenes = [];
+          }
+
+          updatedSvs.push(updatedVariant);
         }
-        updatedVariant.overlappedGenes = overlappedGenes;
-        return updatedVariant;
+        (updatedSvs)
+        return updatedSvs;
       },
       areaSelected(selectedArea) {
         this.selectedArea = selectedArea
@@ -380,7 +353,6 @@
         } 
       },
       updateSvList(index, sv) {
-        console.log(sv)
         this.svListVariantBar[index] = sv;
       }
     },
