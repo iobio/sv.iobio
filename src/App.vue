@@ -126,7 +126,7 @@
           let batchSvs = svListCopy.slice(i, i + batchSize);
 
           let newSvs = await this.getSVAssociations(batchSvs);
-          console.log('newSvs', newSvs)
+
           //new svs is an array of Sv objects
           for (let [index, newSv] of newSvs.entries()) {
             let originalIndex = i + index; // Calculate the original index
