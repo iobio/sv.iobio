@@ -19,20 +19,7 @@ class Sv {
                 this.info = []
             }
 
-            this.rank = input.rank;
-            this.gene = input.gene;
-            this.exomiserCombScore = input.exomiserCombScore;
-            this.exomiserPval = input.exomiserPval;
-            this.exomiserPriorityScore = input.exomiserPriorityScore;
-
-            if (this.info.Exomiser) {
-                let array = this.parseExomiser(this.info.Exomiser);
-                this.info.Exomiser = array;
-            } else {
-                this.info.Exomiser = []
-            }
-
-            this.otherGenes = input.otherGenes;
+            this.overlappedGenes = input.overlappedGenes || {};
         } else {
             //This wont run (at least not now)
         }
@@ -46,27 +33,6 @@ class Sv {
             infoObj[key] = value;
         });
         return infoObj;
-    }
-
-    parseExomiser(exomiserInfo) {
-        //take the curly braces off of each element
-        let array = exomiserInfo.split(',{');
-        array = array.map(geneListItem => geneListItem.split('|'));
-
-        //parse the array into an object
-        array = array.map(geneListItem => {
-            geneListItem = geneListItem.map(item => item.replace(/[{}'"\\\/]/g, '').replace(/_/g, ' '))
-            return {
-                geneRank: geneListItem[0],
-                geneSymbol: geneListItem[2],
-                geneId: geneListItem[3],
-                significance: geneListItem[14],
-                omim: geneListItem[16],
-                disease: geneListItem[17],
-            };
-        });
-
-        return array;
     }
 }
 
