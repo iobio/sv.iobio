@@ -9,8 +9,9 @@
       </div>
       <VariantListItem 
         v-for="(variant, index ) in svListSelection" 
-        :key="index" 
+        :key="`${variant.chromosome}-${variant.start}-${variant.end}`" 
         :variant="variant"
+        :openedSvSet="openedSvSet"
         :patientPhenotypes="patientPhenotypes"
         @variant-clicked="variantClicked"/>
     </div>   
@@ -35,7 +36,8 @@
   data () {
     return {
       open: true,
-      scrollSelection: [0, 40]
+      scrollSelection: [0, 40],
+      openedSvSet: {}
     }
   },
   mounted () {
@@ -82,6 +84,16 @@
   },
   methods: {
     async variantClicked(variant, flag) {
+
+      //add to openedSvSet
+      let key = `${variant.chromosome}-${variant.start}-${variant.end}`
+      if (key in this.openedSvSet) {
+        delete this.openedSvSet[key]
+      } else {
+        console.log('adding to openedSvSet')
+        this.openedSvSet[key] = true;
+      }
+
       this.$emit('variant-clicked', variant, flag)
     },
     handleScroll(event) {

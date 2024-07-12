@@ -32,6 +32,7 @@
   props: {
     variant: Object,
     patientPhenotypes: Array,
+    openedSvSet: Object
   },
   data () {
     return {
@@ -39,6 +40,10 @@
     }
   },
   mounted () {
+    let svKey = `${this.variant.chromosome}-${this.variant.start}-${this.variant.end}`
+    if (svKey in this.openedSvSet) {
+        this.showMore = true
+    }
   },
   methods: {
     roundScore(score) {
