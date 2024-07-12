@@ -16,9 +16,7 @@ export default {
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     batchNum: Number,
-    vcfDataPro: Array,
-    vcfDataPar1: Array,
-    vcfDataPar2: Array,
+    samples: Array,
     centromeres: Array,
     bands: Array,
     chromosomes: Array,
@@ -86,11 +84,10 @@ export default {
         }
       }
       
-      if (this.vcfDataPar1) {
-        options.parent1Data = this.vcfDataPar1
-      }
-      if (this.vcfDataPar2) {
-        options.parent2Data = this.vcfDataPar2
+      if (this.samples) {
+        console.log(this.samples)
+        options.parent1Data = this.samples[0].props.svList;
+        options.parent2Data = this.samples[1].props.svList;
       }
 
       //remove anything from the container

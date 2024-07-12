@@ -1,12 +1,12 @@
 <template>
     <div id="left-tracks-section">
       <div class="upper-track-selectors-bar">
-        <!-- <div id="global-view-select-radios">
+        <div id="global-view-select-radios">
           <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
           <label for="circos-view">Circos</label>
           <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
           <label for="linear-view">Linear</label>
-        </div> -->
+        </div>
 
         <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
         <button v-if="zoomHistory.length > 1" @click="focusOnPrevious">Prev. Zoom</button>
@@ -21,22 +21,19 @@
           @selectAreaEvent="selectAreaEventFired"/>
         </div>
 
-        <!-- <svCircos 
+        <svCircos 
           v-if="globalView === 'circos' && circosDataReady"
           :svList="svList"
           :zoomZone="selectedArea"
           :genesOfInterest="genesOfInterest"
           :phenRelatedGenes="phenRelatedGenes"
           :batchNum="batchNum"
-          :samples="samples"
-          :vcfDataPro="vcfDataPro"
-          :vcfDataPar1="vcfDataPar1"
-          :vcfDataPar2="vcfDataPar2"
+          :samples="this.chartsData.filter(chart => chart.props.title !== 'Genes')"
           :centromeres="centromeres"
           :bands="bands"
           :chromosomes="chromosomes"
           :genes="genes"
-          @selectAreaEvent="selectAreaEventFired"/> -->
+          @selectAreaEvent="selectAreaEventFired"/>
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <LinearSvChartViz
@@ -283,9 +280,7 @@
       let ready = this.chromosomes && 
       this.centromeres && 
       this.bands && 
-      this.genes && 
-      this.vcfDataPar1 && 
-      this.vcfDataPar2;
+      this.genes
 
       return ready
     },
