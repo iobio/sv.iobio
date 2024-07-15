@@ -89,12 +89,9 @@ export default {
           options.phenRelatedGenes.filter(gene => gene !== undefined);
         }
       }
-      
-      console.log(this.samples)
 
       if (this.samples && this.samples.length > 0) {
-        options.parent1Data = this.samples[0] && this.samples[0].props && this.samples[0].props.svList || [];
-        options.parent2Data = this.samples[1] && this.samples[1].props && this.samples[1].props.svList || [];
+        options.sampleLists = this.samples.map(sample => sample.props.svList)
       }
 
       //remove anything from the container
@@ -150,7 +147,7 @@ export default {
       }
     },
     samples: function(newVal, oldVal) {
-      if (newVal !== oldVal) {
+      if (newVal) {
         this.drawCircos()
       }
     }

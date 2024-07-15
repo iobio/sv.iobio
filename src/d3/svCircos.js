@@ -14,6 +14,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     let altCallerData = null;
     let probandTrackName = null;
     let sampleNames = [];
+    let sampleLists = [];
 
     //Zoom Variables
     let zoomedCallback = null;
@@ -78,6 +79,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         if (options.sampleNames) {
             sampleNames = options.sampleNames;
         }
+        if (options.sampleLists) {
+            sampleLists = options.sampleLists;
+        }
+
         if (options.zoomCallback) {
             zoomedCallback = options.zoomCallback;
         }
@@ -234,18 +239,27 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     //TODO: If we were able to specify options on the track such as minRadius, maxRadius, color, background (on/off), label etc we could make this more dynamic and have one function
     _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
     _renderProbTrack([zoomedSection.start, zoomedSection.end], svData);
-    if (parent1Data) {
-        _renderPar1Track([zoomedSection.start, zoomedSection.end], parent1Data);
-    }
 
-    if (parent2Data) {
-        _renderPar2Track([zoomedSection.start, zoomedSection.end], parent2Data);
-    }
-    if (altCallerData) {
-        _renderAltCallsTrack([zoomedSection.start, zoomedSection.end], altCallerData);
-    }  
     if (genes) {
         _renderGenesTrack(genes, chromosomeAccumulatedMap, angleScale, maxRadius, svg, [zoomedSection.start, zoomedSection.end]);
+    }
+
+    if (sampleLists.length > 0) {
+        let decNum = .08; //the difference in radius between each sample name
+        let startRadius = .86; //the starting radius at proband
+        let colors = ['white', '#FAFAFA']
+        let colorIndex = 0;
+        let tracNum = 1;
+        for (let svList of sampleLists) {
+            _renderAdditionalTracs([zoomedSection.start, zoomedSection.end], svList, (startRadius - decNum), colors[colorIndex], tracNum);
+            startRadius -= decNum;
+            if (colorIndex == 0) {
+                colorIndex = 1;
+            } else {
+                colorIndex = 0;
+            }
+            tracNum++;
+        }
     }
 
     //add the label "chromosome" starting at the trackLabelStart
@@ -794,7 +808,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
         //before beginning put a background on the track so that we can differentiate it from the other tracks more easily
         let trackBackground = d3.arc()
-            .innerRadius(maxRadius * 0.79)
+            .innerRadius(maxRadius * 0.76)
             .outerRadius(maxRadius * 0.86)
             .startAngle(0)
             .endAngle(360)
@@ -1569,334 +1583,16 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         }
     }
 
-    function _renderPar1Track(range, data) {
+    function _renderAdditionalTracs(range, data, radiusScaleFactor=null, color='white', tracNum=1) {
+        let bgWidthFactor = 0.08;
+        let tracStartOffset = 0.01;
         //remove the variant arcs if they exist
-        svg.selectAll('.par1-variant-arc').remove();
-
-        //for now our radius is 0.76 to 0.78 render our bottom background part in white
-        let par1Background = d3.arc()
-            .innerRadius(maxRadius * 0.69)
-            .outerRadius(maxRadius * 0.79)
-            .startAngle(0)
-            .endAngle(360)
-            .padAngle(0)
-            .cornerRadius(2);
-
-        svg.append('path')
-            .datum({startAngle: startAngleRad, endAngle: endAngleRad})
-            .attr('d', par1Background)
-            .attr('transform', `translate(${width / 2}, ${height / 2})`)
-            .attr('fill', 'white')
-            .attr('id', 'par1-track-background')
-            .on('mouseover', function (event, d) {
-                d3.select(this).attr('fill', '#F0F0F0');
-            })
-            .on('mouseout', function (event, d) {
-                d3.select(this).attr('fill', 'white');
-            });
-
-        let tracMap = {
-            1: false,
-            2: false,
-            3: false,
-            4: false,
-            5: false,
-        };
-
-        let varPosMap = {};
-
-        for (let variant of data) {
-            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['start']);
-            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['end']);
-
-            let varStartAngle = angleScale(accStart);
-            let varEndAngle = angleScale(accEnd);
-
-            //the minimum arc needs to be 1 pixel
-            if (varEndAngle - varStartAngle < 0.01) {
-                varEndAngle += 0.01;
-            }
-
-            let currentTrac = 0;
-            let radiusOffset = 0;
-
-            //if the variant is not in the range then truncate or skip it appropriately
-            let newStartEnd = _getStartEndForRange(accStart, accEnd, range);
-
-            if (!newStartEnd) {
-                //dont render this variant at all
-                continue;
-            } else {
-                accStart = newStartEnd.start;
-                accEnd = newStartEnd.end;
-                varStartAngle = angleScale(accStart);
-                varEndAngle = angleScale(accEnd);
-            }
-
-            //is the variant in the varPosMap
-            if (!varPosMap[`${accStart}-${accEnd}`]) {
-                varPosMap[`${accStart}-${accEnd}`] = [variant];
-
-                for (let x of Object.keys(tracMap)) {
-                    if (tracMap[x] === false || (accStart > tracMap[x])) {
-                        tracMap[x] = accEnd;
-                        currentTrac = x;
-                        break;
-                    } 
-                }
-                
-                radiusOffset = (currentTrac - 1) * 4;
-                let radius = (maxRadius * 0.78) - radiusOffset;
-
-                //if the arc is super small... just make it a bit bigger so that we can see it
-                if (varEndAngle - varStartAngle < 0.005) {
-                    varEndAngle += 0.005;
-                }
-
-                //use var start and end angel to create an arc
-                let arc = d3.arc()
-                    .innerRadius(radius - 2)
-                    .outerRadius(radius)
-                    .startAngle(varStartAngle)
-                    .endAngle(varEndAngle)
-                    .padAngle(0)
-                    .cornerRadius(0);
-
-                svg.append('path')
-                    .datum({startAngle: varStartAngle, endAngle: varEndAngle})
-                    .attr('d', arc)
-                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                    .attr('fill', function(d) {
-                        if (variant.type === 'DEL') {
-                            return 'red';
-                        } else {
-                            return '#1F68C1';
-                        }
-                    })
-                    .attr('class', 'par1-variant-arc')
-                    .on('mouseover', function (event, d) {
-                        console.log('variant: ', variant);
-                        d3.select(this)
-                            .style('fill', '#DA44B4')
-                            .style('cursor', 'pointer');
-
-                        //append a tooltip that is absolutely positioned to the mouse position
-                        let tooltip = d3.select('body').append('div')
-                            .attr('class', 'tooltip-hover-variant')
-                            .style('position', 'absolute')
-                            .style('background-color', 'white')
-                            .style('border', '1px solid black')
-                            .style('padding', '5px')
-                            .style('border-radius', '5px')
-                            .style('pointer-events', 'none')
-                            .style('overflow-y', 'auto')
-                            .style('max-height', '200px')
-                            .style('max-width', '100px');
-
-                        //put it in the right position
-                        let x = event.clientX;
-                        let y = event.clientY;
-
-                        tooltip.style('left', `${x + 10}px`)
-                            .style('top', `${y + 10}px`);
-
-                        //append the data to the tooltip
-                        tooltip.append('p')
-                            .text(`#${variant.rank} | Chr:${variant.chromosome} | st:${variant.start} en:${variant.end} | ${variant.type}`);
-
-                    })
-                    .on('mouseout', function (event, d) {
-                        d3.select(this)
-                            .style('fill', function(d) {
-                                if (variant.type === 'DEL') {
-                                    return 'red';
-                                } else {
-                                    return '#1F68C1';
-                                }
-                            })
-                            .style('cursor', 'default');
-                        
-                        //remove the tooltip
-                        d3.select('.tooltip-hover-variant').remove();
-                    });
-
-            } else {
-                varPosMap[`${accStart}-${accEnd}`].push(variant);
-                //dont render the same variant twice
-                continue;
-            }
-        }
-    }
-
-    function _renderPar2Track(range, data=null) {
-        //remove the background track if it exists
-        svg.selectAll('#par2-track-background').remove();
-        //remove the variant arcs if they exist
-        svg.selectAll('.par2-variant-arc').remove();
-
-        //for now our radius is 0.85 to 0.87 render our bottom background part
-        let par2Background = d3.arc()
-            .innerRadius(maxRadius * 0.72)
-            .outerRadius(maxRadius * 0.64)
-            .startAngle(0)
-            .endAngle(360)
-            .padAngle(0)
-            .cornerRadius(2);
-
-        svg.append('path')
-            .datum({startAngle: startAngleRad, endAngle: endAngleRad})
-            .attr('d', par2Background)
-            .attr('transform', `translate(${width / 2}, ${height / 2})`)
-            .attr('fill', '#FAFAFA')
-            .attr('id', 'par2-track-background')
-            .on('mouseover', function (event, d) {
-                d3.select(this).attr('fill', '#F0F0F0');
-            })
-            .on('mouseout', function (event, d) {
-                d3.select(this).attr('fill', '#FAFAFA');
-            });
-
-        let tracMap = {
-            1: false,
-            2: false,
-            3: false,
-            4: false,
-            5: false,
-        };
-
-        let varPosMap = {};
-
-        for (let variant of data) {
-            let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['start']);
-            let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['end']);
-
-            let varStartAngle = angleScale(accStart);
-            let varEndAngle = angleScale(accEnd);
-
-            //the minimum arc needs to be 1 pixel
-            if (varEndAngle - varStartAngle < 0.01) {
-                varEndAngle += 0.01;
-            }
-
-            let currentTrac = 0;
-            let radiusOffset = 0;
-
-            //if the variant is not in the range then truncate or skip it appropriately
-            let newStartEnd = _getStartEndForRange(accStart, accEnd, range);
-
-            if (!newStartEnd) {
-                //dont render this variant at all
-                continue;
-            } else {
-                accStart = newStartEnd.start;
-                accEnd = newStartEnd.end;
-                varStartAngle = angleScale(accStart);
-                varEndAngle = angleScale(accEnd);
-            }
-
-            //is the variant in the varPosMap
-            if (!varPosMap[`${accStart}-${accEnd}`]) {
-                varPosMap[`${accStart}-${accEnd}`] = [variant];
-
-                for (let x of Object.keys(tracMap)) {
-                    if (tracMap[x] === false || (accStart > tracMap[x])) {
-                        tracMap[x] = accEnd;
-                        currentTrac = x;
-                        break;
-                    } 
-                }
-                
-                radiusOffset = (currentTrac - 1) * 4;
-                let radius = (maxRadius * 0.71) - radiusOffset;
-
-                //if the arc is super small... just make it a bit bigger so that we can see it
-                if (varEndAngle - varStartAngle < 0.005) {
-                    varEndAngle += 0.005;
-                }
-
-                //use var start and end angel to create an arc
-                let arc = d3.arc()
-                    .innerRadius(radius - 2)
-                    .outerRadius(radius)
-                    .startAngle(varStartAngle)
-                    .endAngle(varEndAngle)
-                    .padAngle(0)
-                    .cornerRadius(0);
-
-                svg.append('path')
-                    .datum({startAngle: varStartAngle, endAngle: varEndAngle})
-                    .attr('d', arc)
-                    .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                    .attr('fill', function(d) {
-                        if (variant.type === 'DEL') {
-                            return 'red';
-                        } else {
-                            return '#1F68C1';
-                        }
-                    })
-                    .attr('class', 'par2-variant-arc')
-                    .on('mouseover', function (event, d) {
-                        console.log('variant: ', variant);
-                        d3.select(this)
-                            .style('fill', '#DA44B4')
-                            .style('cursor', 'pointer');
-
-                        //append a tooltip that is absolutely positioned to the mouse position
-                        let tooltip = d3.select('body').append('div')
-                            .attr('class', 'tooltip-hover-variant')
-                            .style('position', 'absolute')
-                            .style('background-color', 'white')
-                            .style('border', '1px solid black')
-                            .style('padding', '5px')
-                            .style('border-radius', '5px')
-                            .style('pointer-events', 'none')
-                            .style('overflow-y', 'auto')
-                            .style('max-height', '200px')
-                            .style('max-width', '100px');
-
-                        //put it in the right position
-                        let x = event.clientX;
-                        let y = event.clientY;
-
-                        tooltip.style('left', `${x + 10}px`)
-                            .style('top', `${y + 10}px`);
-
-                        //append the data to the tooltip
-                        tooltip.append('p')
-                            .text(`#${variant.rank} | Chr:${variant.chromosome} | st:${variant.start} en:${variant.end} | ${variant.type}`);
-
-                    })
-                    .on('mouseout', function (event, d) {
-                        d3.select(this)
-                            .style('fill', function(d) {
-                                if (variant.type === 'DEL') {
-                                    return 'red';
-                                } else {
-                                    return '#1F68C1';
-                                }
-                            })
-                            .style('cursor', 'default');
-                        
-                        //remove the tooltip
-                        d3.select('.tooltip-hover-variant').remove();
-                    });
-
-            } else {
-                varPosMap[`${accStart}-${accEnd}`].push(variant);
-                //dont render the same variant twice
-                continue;
-            }
-        }
-    }
-
-    function _renderAltCallsTrack(range, data) {
-        //remove the variant arcs if they exist
-        svg.selectAll('.altCalls-variant-arc').remove();
+        svg.selectAll(`.add-trac-var-${tracNum}`).remove();
 
         //for now our radius is from .60 to .52
         let altCallsBackground = d3.arc()
-            .innerRadius(maxRadius * 0.56)
-            .outerRadius(maxRadius * 0.64)
+            .innerRadius(maxRadius * (radiusScaleFactor - bgWidthFactor))
+            .outerRadius(maxRadius * radiusScaleFactor + tracStartOffset)
             .startAngle(0)
             .endAngle(360)
             .padAngle(0)
@@ -1906,14 +1602,14 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
             .datum({startAngle: startAngleRad, endAngle: endAngleRad})
             .attr('d', altCallsBackground)
             .attr('transform', `translate(${width / 2}, ${height / 2})`)
-            .attr('fill', 'white')
+            .attr('fill', color)
             .attr('id', 'altCalls-track-background')
             .on('mouseover', function (event, d) {
                 d3.select(this).attr('fill', '#F0F0F0');
             }
         )
         .on('mouseout', function (event, d) {
-            d3.select(this).attr('fill', 'white');
+            d3.select(this).attr('fill', color);
         });
 
         let tracMap = {
@@ -1968,7 +1664,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 }
                 
                 radiusOffset = (currentTrac - 1) * 4;
-                let radius = (maxRadius * 0.63) - radiusOffset;
+                let radius = (maxRadius * (radiusScaleFactor - tracStartOffset)) - radiusOffset;
 
                 //if the arc is super small... just make it a bit bigger so that we can see it
                 if (varEndAngle - varStartAngle < 0.005) {
@@ -1995,7 +1691,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                             return '#1F68C1';
                         }
                     })
-                    .attr('class', 'altCalls-variant-arc')
+                    .attr('class', `.add-trac-var-${tracNum}`)
                     .on('mouseover', function (event, d) {
                         console.log('variant: ', variant);
                         d3.select(this)

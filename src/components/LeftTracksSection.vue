@@ -92,7 +92,7 @@
   data () {
     return {
       showButton: false,
-      globalView: 'linear',
+      globalView: 'circos',
       vcfDataPro: null,
       vcfDataPar1: null,
       vcfDataPar2: null,
