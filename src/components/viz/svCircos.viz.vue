@@ -12,6 +12,10 @@ export default {
   },
   props: {
     svList: Array,
+    probandName: {
+      type: String,
+      default: 'Proband'
+    },
     zoomZone: Object,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
@@ -69,6 +73,7 @@ export default {
         bands: this.bands,
         zoomZone: this.zoomZone,
         zoomCallback: this.emitZoomEvent,
+        probandName: this.probandName,
       }
 
       if (this.genes) {
@@ -84,10 +89,11 @@ export default {
         }
       }
       
-      if (this.samples) {
-        console.log(this.samples)
-        options.parent1Data = this.samples[0].props.svList;
-        options.parent2Data = this.samples[1].props.svList;
+      console.log(this.samples)
+
+      if (this.samples && this.samples.length > 0) {
+        options.parent1Data = this.samples[0] && this.samples[0].props && this.samples[0].props.svList || [];
+        options.parent2Data = this.samples[1] && this.samples[1].props && this.samples[1].props.svList || [];
       }
 
       //remove anything from the container
@@ -142,6 +148,11 @@ export default {
         this.drawCircos()
       }
     },
+    samples: function(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.drawCircos()
+      }
+    }
   }
 }
 </script>

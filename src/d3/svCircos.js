@@ -12,6 +12,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     let parent1Data = null;
     let parent2Data = null;
     let altCallerData = null;
+    let probandTrackName = null;
 
     //Zoom Variables
     let zoomedCallback = null;
@@ -69,6 +70,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 newBands.push(band);
             }
             bands = newBands;
+        }
+        if (options.probandName) {
+            probandTrackName = options.probandName;
         }
         if (options.zoomCallback) {
             zoomedCallback = options.zoomCallback;
@@ -290,7 +294,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('text-anchor', 'middle')
         .attr('font-weight', 'bold')
         .attr('alignment-baseline', 'middle')
-        .text('Proband')
+        .text(probandTrackName)
         .attr('font-size', '9px')
         .raise();
 

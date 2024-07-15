@@ -24,6 +24,7 @@
         <svCircos 
           v-if="globalView === 'circos' && circosDataReady"
           :svList="svList"
+          :probandName="samples.proband.name"
           :zoomZone="selectedArea"
           :genesOfInterest="genesOfInterest"
           :phenRelatedGenes="phenRelatedGenes"
