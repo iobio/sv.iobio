@@ -74,6 +74,7 @@ export default {
         zoomZone: this.zoomZone,
         zoomCallback: this.emitZoomEvent,
         probandName: this.probandName,
+        sampleNames: this.samples && this.samples.length > 0 && this.samples.map(sample => sample.props.title) || [],
       }
 
       if (this.genes) {

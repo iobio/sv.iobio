@@ -13,6 +13,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     let parent2Data = null;
     let altCallerData = null;
     let probandTrackName = null;
+    let sampleNames = [];
 
     //Zoom Variables
     let zoomedCallback = null;
@@ -73,6 +74,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         }
         if (options.probandName) {
             probandTrackName = options.probandName;
+        }
+        if (options.sampleNames) {
+            sampleNames = options.sampleNames;
         }
         if (options.zoomCallback) {
             zoomedCallback = options.zoomCallback;
@@ -298,60 +302,29 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         .attr('font-size', '9px')
         .raise();
 
-    //same for the other at .76
-    let otherLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-    let otherLabelRadius = maxRadius * .76;
+    if (sampleNames.length > 0) {
+        let decNum = .08; //the difference in radius between each sample name
+        let startRadius = .84; //the starting radius at proband
+        for (let sampleName of sampleNames) {
+            let sampleLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
+            let sampleLabelRadius = maxRadius * ( startRadius - decNum );
 
-    let otherLabelX = (center.x) + ((otherLabelRadius) * Math.cos(otherLabelAngle));
-    let otherLabelY = (center.y) + ((otherLabelRadius) * Math.sin(otherLabelAngle));
+            let sampleLabelX = (center.x) + ((sampleLabelRadius) * Math.cos(sampleLabelAngle));
+            let sampleLabelY = (center.y) + ((sampleLabelRadius) * Math.sin(sampleLabelAngle));
 
-    svg.append('text')
-        .attr('x', otherLabelX)
-        .attr('y', otherLabelY)
-        .attr('fill', 'black')
-        .attr('text-anchor', 'middle')
-        .attr('font-weight', 'bold')
-        .attr('alignment-baseline', 'middle')
-        .text('Parent1')
-        .attr('font-size', '9px')
-        .raise();
-
-    //same for other2 at .68
-    let other2LabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-    let other2LabelRadius = maxRadius * .68;
-
-    let other2LabelX = (center.x) + ((other2LabelRadius) * Math.cos(other2LabelAngle));
-    let other2LabelY = (center.y) + ((other2LabelRadius) * Math.sin(other2LabelAngle));
-
-    svg.append('text')
-        .attr('x', other2LabelX)
-        .attr('y', other2LabelY)
-        .attr('fill', 'black')
-        .attr('text-anchor', 'middle')
-        .attr('font-weight', 'bold')
-        .attr('alignment-baseline', 'middle')
-        .text('Parent2')
-        .attr('font-size', '9px')
-        .raise();
-
-    if (altCallerData) {
-        //same for altCaller at .60
-        let altCallerLabelAngle = (trackLabelStart - ((360 * Math.PI/180) - trackLabelEnd)) - (Math.PI / 2); // -90 degrees to rotate the text because the text is horizontal and the arc is vertical
-        let altCallerLabelRadius = maxRadius * .60;
-
-        let altCallerLabelX = (center.x) + ((altCallerLabelRadius) * Math.cos(altCallerLabelAngle));
-        let altCallerLabelY = (center.y) + ((altCallerLabelRadius) * Math.sin(altCallerLabelAngle));
-
-        svg.append('text')
-            .attr('x', altCallerLabelX)
-            .attr('y', altCallerLabelY)
-            .attr('fill', 'black')
-            .attr('text-anchor', 'middle')
-            .attr('font-weight', 'bold')
-            .attr('alignment-baseline', 'middle')
-            .text('AltCaller')
-            .attr('font-size', '9px')
-            .raise();
+            svg.append('text')
+                .attr('x', sampleLabelX)
+                .attr('y', sampleLabelY)
+                .attr('fill', 'black')
+                .attr('text-anchor', 'middle')
+                .attr('font-weight', 'bold')
+                .attr('alignment-baseline', 'middle')
+                .text(sampleName)
+                .attr('font-size', '9px')
+                .raise();
+            
+            startRadius -= decNum;
+        }
     }
 
 //HELPER FUNCTIONS
