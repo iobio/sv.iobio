@@ -21,6 +21,7 @@ export default {
     phenRelatedGenes: Array,
     batchNum: Number,
     samples: Array,
+    samplesTitles: Array,
     centromeres: Array,
     bands: Array,
     chromosomes: Array,
@@ -74,7 +75,7 @@ export default {
         zoomZone: this.zoomZone,
         zoomCallback: this.emitZoomEvent,
         probandName: this.probandName,
-        sampleNames: this.samples && this.samples.length > 0 && this.samples.map(sample => sample.props.title) || [],
+        sampleNames: this.samplesTitles || [],
       }
 
       if (this.genes) {
@@ -91,7 +92,7 @@ export default {
       }
 
       if (this.samples && this.samples.length > 0) {
-        options.sampleLists = this.samples.map(sample => sample.props.svList)
+        options.sampleLists = this.samples;
       }
 
       //remove anything from the container
@@ -146,10 +147,13 @@ export default {
         this.drawCircos()
       }
     },
-    samples: function(newVal, oldVal) {
-      if (newVal) {
-        this.drawCircos()
-      }
+    samples: {
+      handler: function(newVal, oldVal) {
+        if (newVal) {
+          this.drawCircos()
+        }
+      },
+      deep: true
     }
   }
 }

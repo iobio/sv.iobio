@@ -29,7 +29,8 @@
           :genesOfInterest="genesOfInterest"
           :phenRelatedGenes="phenRelatedGenes"
           :batchNum="batchNum"
-          :samples="this.chartsData.filter(chart => chart.props.title !== 'Genes')"
+          :samples="samplesLists"
+          :samplesTitles="samplesTitles"
           :centromeres="centromeres"
           :bands="bands"
           :chromosomes="chromosomes"
@@ -93,9 +94,6 @@
     return {
       showButton: false,
       globalView: 'circos',
-      vcfDataPro: null,
-      vcfDataPar1: null,
-      vcfDataPar2: null,
       centromeres: null,
       bands: null,
       chromosomes: null,
@@ -103,6 +101,8 @@
       genes: null,
       zoomHistory: [],
       chartsData: [],
+      samplesTitles: [],
+      samplesLists: [],
     }
   },
   mounted () {
@@ -128,7 +128,7 @@
         this.bands = data;
       });
     
-    //fetch all the genes for the circos chart
+    //fetch all the genes
     fetch('http://localhost:3000/genes?build=hg38&source=refseq')
       .then(response => response.json())
       .then(data => {
@@ -152,9 +152,11 @@
     this.fetchSamples();
   },
   methods: {
-    fetchSamples() {
+    async fetchSamples() {
       this.chartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
       let index = 1;
+      this.samplesLists = [];
+      this.samplesTitles = [];
       for (let sample of this.samples.comparrisons) {
         let newSample = {
           component: 'LinearSvChartViz',
@@ -169,14 +171,16 @@
           }
         }
         this.chartsData.push(newSample);
-        fetch(`http://localhost:3000/dataFromVcf?vcfPath=${sample.vcf}`)
-          .then(response => response.json())
-          .then(data => {
-            let svData = data.map(item => new Sv(item));
-            this.chartsData[index].props.svList = svData;
+        
+        let res = await fetch(`http://localhost:3000/dataFromVcf?vcfPath=${sample.vcf}`)
+        let data = await res.json();
+        let svData = data.map(item => new Sv(item));
+        this.chartsData[index].props.svList = svData;
 
-            index++;
-          });
+        this.samplesLists.push(svData);
+        this.samplesTitles.push(sample.name);
+        
+        index++;
       }
     },
     createCromosomeAccumulatedMap(chromosomeList) {
