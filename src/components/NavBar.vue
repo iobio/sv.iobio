@@ -115,13 +115,19 @@
         align-items: center
         #disclaimer-text
           background-color: white
-          padding: 20px
+          padding: 40px
           border-radius: 5px
           max-width: 800px
+          box-sizing: border-box
+          display: flex
+          flex-direction: column
+          align-items: center
           p
             margin: 0px
             color: black
+            line-height: 1.5
           button
+            align-self: flex-end
             margin-top: 10px
             padding: 5px 10px
             border: 1px solid #0B4B99
@@ -132,7 +138,6 @@
             transition: all 0.15s ease
             &:hover
               filter: brightness(120%)
-              border: 1px solid white
       button
         border: 1px solid #0B4B99 
         border-radius: 3px
