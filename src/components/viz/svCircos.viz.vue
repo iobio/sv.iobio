@@ -1,4 +1,7 @@
 <template>
+    <div class="loading-div" v-if="!svList || svList.length == 0">
+      <p>Pending Data...</p>
+    </div>
     <div id="svCircos"></div>
 </template>
 
@@ -171,4 +174,13 @@ export default {
     flex-grow: 1
     justify-content: center
     width: 100%
+  .loading-div
+    align-items: center
+    display: flex
+    font-size: 1.5em
+    height: 100%
+    justify-content: center
+    width: 100% 
+    text-align: center
+    background-color: #f5f5f5
 </style>

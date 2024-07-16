@@ -285,7 +285,8 @@
       let ready = this.chromosomes && 
       this.centromeres && 
       this.bands && 
-      this.genes
+      this.genes &&
+      this.svList
 
       return ready
     },
