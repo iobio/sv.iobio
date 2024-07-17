@@ -2,7 +2,7 @@
     <div class="loading-div" v-if="!svList || svList.length == 0">
       <p>Pending Data...</p>
     </div>
-    <div id="svCircos" else ></div>
+    <div id="svCircos"></div>
 </template>
 
 <script>
@@ -41,7 +41,7 @@ export default {
   },
   mounted () {
     if (this.chromosomes) {
-      let debouncedDraw = this.debounce(this.drawCircos, 100);
+      let debouncedDraw = this.debounce(this.drawCircos, 50);
       this.resizeObserver = new ResizeObserver( () => {
         debouncedDraw();
       });
@@ -97,6 +97,13 @@ export default {
 
       if (this.samples && this.samples.length > 0) {
         options.sampleLists = this.samples;
+        
+        //if there is something wrong with the sampleLists, remove it
+        for (let sampleList of options.sampleLists) {
+          if (!sampleList || sampleList.length == 0) {
+            options.sampleLists = [];
+          }
+        }
       }
 
       //remove anything from the container

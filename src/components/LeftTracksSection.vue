@@ -105,7 +105,7 @@
       samplesLists: [],
     }
   },
-  mounted () {
+  async mounted () {
     fetch('http://localhost:3000/chromosomes?build=hg38')
       .then(response => response.json())
       .then(data => {
@@ -148,16 +148,17 @@
           }
         })
       });
-
-    this.fetchSamples();
+    
+    await this.fetchSamples();
   },
   methods: {
     async fetchSamples() {
       this.chartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
-      let index = 1;
-      this.samplesLists = [];
-      this.samplesTitles = [];
-      for (let sample of this.samples.comparrisons) {
+      this.samplesLists = new Array(this.samples.comparrisons.length);
+      this.samplesTitles = new Array(this.samples.comparrisons.length);
+
+      for (let i = 0; i < this.samples.comparrisons.length; i++) {
+        let sample = this.samples.comparrisons[i];
         let newSample = {
           component: 'LinearSvChartViz',
           props: {
@@ -169,18 +170,23 @@
             bands: this.bands,
             isProband: false
           }
-        }
-        this.chartsData.push(newSample);
-        
-        let res = await fetch(`http://localhost:3000/dataFromVcf?vcfPath=${sample.vcf}`)
-        let data = await res.json();
-        let svData = data.map(item => new Sv(item));
-        this.chartsData[index].props.svList = svData;
+        };
 
-        this.samplesLists.push(svData);
-        this.samplesTitles.push(sample.name);
-        
-        index++;
+        this.chartsData.push(newSample);
+        let index = this.chartsData.length - 1;
+
+        try {
+          let res = await fetch(`http://localhost:3000/dataFromVcf?vcfPath=${sample.vcf}`);
+          let data = await res.json();
+          let svData = data.map(item => new Sv(item));
+          this.chartsData[index].props.svList = svData;
+
+          this.samplesLists[i] = svData;
+          this.samplesTitles[i] = sample.name;
+
+        } catch (error) {
+          console.error(`Error fetching data for sample ${sample.name}:`, error);
+        }
       }
     },
     createCromosomeAccumulatedMap(chromosomeList) {
@@ -310,19 +316,6 @@
         this.showButton = false
       }
     },
-    svList: {
-      handler() {
-        //We are watching this because the svList used for the proband is sometimes updated and asynchonous
-        const probandChart = this.chartsData.find(chart => chart.props.title === 'PBSV (Hifi Long Reads Revio)');
-        if (probandChart) {
-          probandChart.props.svList = this.svList;
-          probandChart.props.selectedArea = this.selectedArea;
-          probandChart.props.chromosomes = this.chromosomes;
-          probandChart.props.title = 'PBSV (Hifi Long Reads Revio)';
-        }
-      },
-      deep: true
-    },
     selectedArea: {
       handler() {
         this.chartsData.forEach(chart => {
@@ -350,8 +343,8 @@
       deep: true
     },
     samples: {
-      handler(newVal, oldVal) {
-        this.fetchSamples();
+      async handler(newVal, oldVal) {
+        await this.fetchSamples();
       },
       deep: true
     }
