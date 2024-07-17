@@ -173,13 +173,12 @@
         };
 
         this.chartsData.push(newSample);
-        let index = this.chartsData.length - 1;
 
         try {
           let res = await fetch(`http://localhost:3000/dataFromVcf?vcfPath=${sample.vcf}`);
           let data = await res.json();
           let svData = data.map(item => new Sv(item));
-          this.chartsData[index].props.svList = svData;
+          this.chartsData[i + 1].props.svList = svData;
 
           this.samplesLists[i] = svData;
           this.samplesTitles[i] = sample.name;
