@@ -2,7 +2,7 @@
     <div class="loading-div" v-if="!svList || svList.length == 0">
       <p>Pending Data...</p>
     </div>
-    <div id="svCircos"></div>
+    <div id="svCircos" else ></div>
 </template>
 
 <script>
@@ -13,6 +13,7 @@ export default {
   name: 'svCircos',
   components: {
   },
+  emits: ['selectAreaEvent'],
   props: {
     svList: Array,
     probandName: {

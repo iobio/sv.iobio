@@ -461,7 +461,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
             let endPixel = x(end);
             
             let brush = d3.brushX()
-                .extent([[0, 0], [width, height]])
+                .extent([[0, 0], [width, 25]])
                 .on('end', brushed);
 
             //this is the acutal brushable area
@@ -480,7 +480,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 .attr('stroke', 'white');
         } else {
             let brush = d3.brushX()
-                .extent([[0, 0], [width, height]])
+                .extent([[0, 0], [width, 25]])
                 .on('end', brushed);
 
             svg.append('g')

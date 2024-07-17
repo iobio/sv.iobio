@@ -1,7 +1,7 @@
 <template>
     <div draggable="true" class="linear-gene-chart-wrapper" ref="rootDraggableContainer">
       <p v-if="title">{{ title }}</p>
-      <div class="drag-handle" @mousedown="dragChartStart">. . .</div>
+      <div class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">. . .</div>
       <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
     </div>
 </template>
@@ -71,11 +71,17 @@ export default {
       //grab the container and append the chart
       container.appendChild(this.linearGeneChart);
     },
-    dragChartStart(){
+    dragChartStart(event){
+      let obj = event.target;
+      obj.style.cursor = 'grabbing';
       //We need to get the root element and allow it to be dragged
       let rootContainer = this.$refs.rootDraggableContainer;
       //allow it to be dragged
       rootContainer.setAttribute('draggable', true);
+    },
+    changeCursorToGrab(event){
+      let obj = event.target;
+      obj.style.cursor = 'grab';
     },
     selectedAreaCallback(selectedArea){
       this.$emit('selectAreaEvent', selectedArea);
@@ -140,7 +146,7 @@ export default {
       left: -10px
       font-weight: bold
       border-radius: 5px
-      cursor: move
+      cursor: grab
       writing-mode: vertical-rl
       text-align: center
       line-height: .3em

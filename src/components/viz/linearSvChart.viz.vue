@@ -1,7 +1,7 @@
 <template>
     <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
       <p class="title" v-if="title">{{ title }}</p>
-      <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart">. . .</div>
+      <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">. . .</div>
       <div :class="{hidden: isLoading}" ref="linearChartContainer" class="linear-sv-chart"></div>
       <div class="loading-message" v-if="isLoading">
         <p>Loading...</p>
@@ -73,11 +73,16 @@ export default {
       //grab the container and append the chart
       container.appendChild(this.linearSvChart);
     },
-    dragChartStart(){
-      //We need to get the root element and allow it to be dragged
+    dragChartStart(event){
+      let obj = event.target;
+      obj.style.cursor = 'grabbing';
+
       let rootContainer = this.$refs.rootDraggableContainer;
-      //allow it to be dragged
       rootContainer.setAttribute('draggable', true);
+    },
+    changeCursorToGrab(event){
+      let obj = event.target;
+      obj.style.cursor = 'grab';
     },
     selectedAreaCallback(selectedArea){
       this.$emit('selectAreaEvent', selectedArea);
@@ -143,7 +148,7 @@ export default {
       left: -10px
       font-weight: bold
       border-radius: 5px
-      cursor: move
+      cursor: grab
       writing-mode: vertical-rl
       text-align: center
       line-height: .3em
