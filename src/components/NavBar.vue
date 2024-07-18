@@ -2,7 +2,7 @@
     <div id="nav-bar">
       <button v-if="loaded" @click="this.$emit('toggleFilterDataSection')" :class="{highlight: filterDataOpen}">Filter Variants</button>
       <div id="loading-container" disabled v-if="!loaded">
-        <p>Loading Associations {{ progressPercent }}%</p>
+        <p>Associations Loaded {{ progressPercent }}%</p>
         <div class="progress-bar"></div>
       </div>
       <!-- file input -->
