@@ -54,6 +54,7 @@
 </template>
 
 <script>
+  import * as dataHelper from './dataHelpers/dataHelpers.js';
   import LeftTracksSection from './components/LeftTracksSection.vue';
   import VariantListBar from './components/VariantListBar.vue';
   import NavBar from './components/NavBar.vue';
@@ -119,9 +120,8 @@
         this.loadedInitiallyComplete = false;
 
         let url = this.samples.proband.vcf;
-        let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=' + url);
-        let svList = await svListRes.json();
-
+        let svList = await dataHelper.getSVsFromVCF(url);
+        
         //We use a separate list for the variant bar so we can sort it differently
         this.svListVariantBar = svList.map(sv => new Sv(sv));
         this.svListData = svList;
@@ -214,21 +214,9 @@
         }
         this.samples.comparrisons = samples.comparrisons;
       },
-      async getSVAssociations(variantBatch) {
-        /**
-         * Fetches the genes and the associations that overlap a batch of SVs
-         */
+      async getSVAssociations(variantBatch, build='hg38', source='refseq') {
 
-        let batchJson = JSON.stringify({ variants: variantBatch });
-        let svsReturned = await fetch('http://localhost:3000/sv/info/batch?source=refseq&build=hg38', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: batchJson
-        });
-
-        let svs = await svsReturned.json();
+        let svs = await dataHelper.getSVBatchInfo(variantBatch, build, source);
         let updatedSvs = [];
 
         for (let sv of svs) {
@@ -294,7 +282,7 @@
           }
         })
       },
-      updatePhenotypesOfInterest(newPOI) {
+      async updatePhenotypesOfInterest(newPOI) {
         /**
          * Updates the phenotypes of interest
          * 
@@ -310,55 +298,53 @@
 
         //If we have some phenotypes of interest we want to get any associated genes
         let hpoIds = newPOI.join(',');
-        fetch(`http://localhost:3000/phenotypeGenes?phenotypes=${hpoIds}`)
-          .then(res => res.json())
-          .then(data => {
-            //we are getting an object but we just want the list of the keys
-            this.candidatePhenGenes = Object.keys(data);
-            let overlappedLocal = [];
+        let data = await dataHelper.getGenesForPhenotypes(hpoIds);
 
-            //We will iterate over the svListChart and update the overlappedPhenGenes for each SV
-            this.svListVariantBar.forEach((sv, index) => {
+        this.candidatePhenGenes = Object.keys(data);
 
-              //If an sv already has overlappedGenes calculated we can check them against the candidatePhenGenes to get the phenGenes that have some overlap with the sv
-              if (sv?.overlappedGenes && Object.keys(sv.overlappedGenes).length > 0){
-                let geneSet = new Set(Object.keys(sv.overlappedGenes));
-                let candidateGenesOverlapped = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
-                sv.overlappedPhenGenes = candidateGenesOverlapped;
-                overlappedLocal.push(...candidateGenesOverlapped);
+        let overlappedLocal = [];
 
-                //if we do have overlapped genes and now we have phentypes of interest we can check the accounted for
-                if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0) {
-                  let num = this.numPhensAccountedFor(this.phenotypesOfInterest, sv.overlappedGenes);
+        //We will iterate over the svListChart and update the overlappedPhenGenes for each SV
+        this.svListVariantBar.forEach((sv, index) => {
 
-                  //----------------SORTING------------------------------------//
-                  /**
-                   * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
-                   * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
-                   */
-                  if (num > 0) {
-                    if (index > this.interestStopIndex) {
-                      let temp = this.svListVariantBar[this.interestStopIndex];
-                      this.svListVariantBar[this.interestStopIndex] = sv;
-                      this.svListVariantBar[index] = temp;
+          //If an sv already has overlappedGenes calculated we can check them against the candidatePhenGenes to get the phenGenes that have some overlap with the sv
+          if (sv?.overlappedGenes && Object.keys(sv.overlappedGenes).length > 0){
+            let geneSet = new Set(Object.keys(sv.overlappedGenes));
+            let candidateGenesOverlapped = this.candidatePhenGenes.filter(geneSymbol => geneSet.has(geneSymbol));
+            sv.overlappedPhenGenes = candidateGenesOverlapped;
+            overlappedLocal.push(...candidateGenesOverlapped);
 
-                      this.interestStopIndex++;
-                    } else if (index == this.interestStopIndex) {
-                      this.interestStopIndex++;
-                    } 
-                  }
-                }
+            //if we do have overlapped genes and now we have phentypes of interest we can check the accounted for
+            if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0) {
+              let num = this.numPhensAccountedFor(this.phenotypesOfInterest, sv.overlappedGenes);
 
-              } else if (!sv.overlappedGenes || Object.keys(sv.overlappedGenes).length == 0) {
-                sv.overlappedPhenGenes = [];
-              } 
-            })
+              //----------------SORTING------------------------------------//
+              /**
+               * If the number is greater than zero and the index is greater than the interestStopIndex we can move to top and increment the interestStopIndex
+               * If the number is greater than zero and the index is the same as the interestStopIndex we just increment the interestStopIndex
+               */
+              if (num > 0) {
+                if (index > this.interestStopIndex) {
+                  let temp = this.svListVariantBar[this.interestStopIndex];
+                  this.svListVariantBar[this.interestStopIndex] = sv;
+                  this.svListVariantBar[index] = temp;
 
-            //update our list of overlappedPhenGenes
-            this.overlappedPhenGenes = [...new Set(overlappedLocal)];
-            //the value of the batchNum is not important but we need to update it to trigger a re-render so either this finishes or every 200 SVs
-            this.batchNum = 0;
-          })
+                  this.interestStopIndex++;
+                } else if (index == this.interestStopIndex) {
+                  this.interestStopIndex++;
+                } 
+              }
+            }
+
+          } else if (!sv.overlappedGenes || Object.keys(sv.overlappedGenes).length == 0) {
+            sv.overlappedPhenGenes = [];
+          } 
+        })
+
+        //update our list of overlappedPhenGenes
+        this.overlappedPhenGenes = [...new Set(overlappedLocal)];
+        //the value of the batchNum is not important but we need to update it to trigger a re-render so either this finishes or every 200 SVs
+        this.batchNum = 0;
       },
       numPhensAccountedFor(patientPhenotypes, overlappedGenes) {
         //if there are patient phenotypes we can see how many of the overlapped phenotypes are accounted for

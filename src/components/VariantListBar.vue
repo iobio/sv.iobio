@@ -90,7 +90,6 @@
       if (key in this.openedSvSet) {
         delete this.openedSvSet[key]
       } else {
-        console.log('adding to openedSvSet')
         this.openedSvSet[key] = true;
       }
 

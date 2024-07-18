@@ -69,6 +69,7 @@
   
 <script>
   import svCircos from './viz/svCircos.viz.vue';
+  import * as dataHelper from '../dataHelpers/dataHelpers.js';
   import Sv from '../models/Sv.js';
   import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
   import LinearSvChartViz from './viz/linearSvChart.viz.vue';
@@ -107,33 +108,39 @@
     }
   },
   async mounted () {
-    fetch('http://localhost:3000/chromosomes?build=hg38')
-      .then(response => response.json())
-      .then(data => {
+    await this.getBaseData();
+    await this.fetchSamples();
+  },
+  methods: {
+    async getBaseData(build='hg38', source='refseq') {
+      try {
+        let data = await dataHelper.getChromosomes(build);
         this.chromosomes = data;
-      })
-      .then(() => {
+
         //create a map of the chromosomes to accumulate the length of each chromosome
         this.chromosomeAccumulatedMap = this.createCromosomeAccumulatedMap(this.chromosomes);
-      })
+      } catch (error) {
+        console.error('Error fetching chromosomes:', error);
+      }
 
-    fetch('http://localhost:3000/centromeres?build=hg38')
-      .then(response => response.json())
-      .then(data => {
+      try {
+        let data = await dataHelper.getCentromeres(build);
         this.centromeres = data;
-      });
+      } catch (error) {
+        console.error('Error fetching centromeres:', error);
+      }
 
-    fetch('http://localhost:3000/bands?build=hg38')
-      .then(response => response.json())
-      .then(data => {
+      try {
+        let data = await dataHelper.getBands(build);
         this.bands = data;
-      });
-    
-    //fetch all the genes
-    fetch('http://localhost:3000/genes?build=hg38&source=refseq')
-      .then(response => response.json())
-      .then(data => {
+      } catch (error) {
+        console.error('Error fetching bands:', error);
+      }
+      
+      try {
+        let data = await dataHelper.getGenes(build, source);
         this.genes = data;
+
         this.chartsData.push({
           component: 'LinearGeneChartViz',
           props: {
@@ -148,11 +155,10 @@
             batchNum: this.batchNum
           }
         })
-      });
-    
-    await this.fetchSamples();
-  },
-  methods: {
+      } catch (error) {
+        console.error('Error fetching genes:', error);
+      }
+    },
     async fetchSamples() {
       this.chartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
       this.samplesLists = new Array(this.samples.comparrisons.length);
@@ -176,8 +182,7 @@
         this.chartsData.push(newSample);
 
         try {
-          let res = await fetch(`http://localhost:3000/dataFromVcf?vcfPath=${sample.vcf}`);
-          let data = await res.json();
+          let data = await dataHelper.getSVsFromVCF(sample.vcf);
           let svData = data.map(item => new Sv(item));
           this.chartsData[i + 1].props.svList = svData;
 
