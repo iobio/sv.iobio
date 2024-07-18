@@ -126,9 +126,7 @@ export default {
     margin-top: 5px
     padding: 5px
     border-radius: 5px
-    border: 1px solid #2A65B7
     background-color: white
-    box-shadow: 0px 0px 5px 0px #2A65B7
     p
       font-weight: bold
       color: #2A65B7

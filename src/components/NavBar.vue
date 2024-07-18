@@ -1,6 +1,10 @@
 <template>
     <div id="nav-bar">
-      <button @click="this.$emit('toggleFilterDataSection')" :class="{highlight: filterDataOpen}">Filter Variants</button>
+      <button v-if="loaded" @click="this.$emit('toggleFilterDataSection')" :class="{highlight: filterDataOpen}">Filter Variants</button>
+      <div id="loading-container" disabled v-if="!loaded">
+        <p>Loading Associations {{ progressPercent }}%</p>
+        <div class="progress-bar"></div>
+      </div>
       <!-- file input -->
       <div class="nav-bar-item-wrapper">
         <label class="nav-bar-item-sub" for="phenotypes">Patient Phenotypes</label>
@@ -47,6 +51,8 @@
   props: {
     selectDataOpen: Boolean,
     filterDataOpen: Boolean,
+    loaded: Boolean,
+    progressPercent: Number,
   },
   data () {
     return {
@@ -87,6 +93,12 @@
   computed: {
   },
   watch: {
+    progressPercent() {
+      let progressBar = document.querySelector('.progress-bar');
+      if (progressBar) {
+        progressBar.style.width = this.progressPercent + '%';
+      }
+    }
   },
   }
   </script>
@@ -103,6 +115,25 @@
       background-color: #0D60C3
       color: white
       z-index: 4
+      #loading-container
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: space-between
+        height: 100%
+        padding: 5px 10px
+        box-sizing: border-box
+        p
+          margin: 0px
+          font-size: .9em
+          border-bottom: 1px solid white
+          font-style: italic
+          padding: 0px 2px
+        .progress-bar
+          width: 1%
+          height: 5px
+          background-color: #CCE0D7
+          align-self: flex-start
       #disclaimer-overlay
         position: absolute
         top: 0px

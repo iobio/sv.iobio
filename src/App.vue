@@ -4,6 +4,8 @@
       <NavBar
         :selectDataOpen="selectDataSectionOpen"
         :filterDataOpen="filterDataSectionOpen"
+        :loaded="loadedInitiallyComplete"
+        :progressPercent="progressPercent"
         @toggleSelectDataSection="selectDataSectionOpen = !selectDataSectionOpen; filterDataSectionOpen = false"
         @toggleFilterDataSection="filterDataSectionOpen = !filterDataSectionOpen; selectDataSectionOpen = false" 
         @updateGenesOfInterest="updateGenesOfInterest"
@@ -19,6 +21,7 @@
     <FilterDataSection 
     :show="filterDataSectionOpen"
     :filters="filters"
+    :loaded="loadedInitiallyComplete"
     @toggleFilterDataSection="filterDataSectionOpen = false"
     @updateFilters="updateDataFilters"/>
 
@@ -69,8 +72,11 @@
     },
     data() {
       return {
+        svListData: [],
         svListChart: [],
         svListVariantBar: [],
+        loadedInitiallyComplete: false,
+        progressPercent: 0,
         focusedVariant: null,
         selectedArea: null,
         variantListBarOpen: false,
@@ -108,12 +114,17 @@
           this.selectDataSectionOpen = true;
           return;
         }
+        this.progressPercent = 0;
+        this.interestStopIndex = 0;
+        this.loadedInitiallyComplete = false;
+
         let url = this.samples.proband.vcf;
         let svListRes = await fetch('http://localhost:3000/dataFromVcf?vcfPath=' + url);
         let svList = await svListRes.json();
 
         //We use a separate list for the variant bar so we can sort it differently
         this.svListVariantBar = svList.map(sv => new Sv(sv));
+        this.svListData = svList;
         this.variantListBarOpen = true;
 
         //We use a separate list for the chart so we can sort it differently
@@ -125,8 +136,7 @@
 
         //the batch size we will send SVs in to get their associations
         let batchSize = 200;
-
-        for (let i = 0; i < svListCopy.length; i += batchSize) {
+        for (let i = 0; i < svListCopy.length; i += batchSize) {;
           this.batchNum++;
           let batchSvs = svListCopy.slice(i, i + batchSize);
 
@@ -160,7 +170,9 @@
                 this.svListVariantBar[originalIndex] = newSv;
               }
           }
+          this.progressPercent = Math.round((i + batchSize) / svListCopy.length * 100);
         }
+        this.loadedInitiallyComplete = true;
       },
       updateFocusedVariant(variant, flag) {
         if (this.focusedVariant === variant) {
@@ -173,6 +185,13 @@
       },
       updateDataFilters(filters) {
         this.filters = filters
+
+        if (filters.geneOverlap) {
+          this.svListVariantBar = this.svListVariantBar.filter(sv => Object.values(sv.overlappedGenes).length > 0);
+          this.svListChart = this.svListVariantBar;
+        } else {
+          this.loadData();
+        } 
       },
       hasPhenotypes(overlappedGenes) {
         /**

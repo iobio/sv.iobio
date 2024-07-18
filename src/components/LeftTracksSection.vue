@@ -7,9 +7,10 @@
           <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
           <label for="linear-view">Linear</label>
         </div>
-
-        <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
-        <button v-if="zoomHistory.length > 1" @click="focusOnPrevious">Prev. Zoom</button>
+        <div v-if="(showButton && focusedVariant) || zoomHistory.length > 1" id="buttons-container">
+          <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
+          <button v-if="zoomHistory.length > 1" @click="focusOnPrevious" id="prev-zoom-btn">Prev. Zoom</button>
+        </div>
       </div>
       <div class="wrapper-95">
         <div id="chrom-select-bar-div">
@@ -315,6 +316,10 @@
         this.showButton = false
       }
     },
+    svList(newVal){
+      //if the svList changes we need to update the samples.proband.svList
+      this.samples.proband.svList = newVal;
+    },
     selectedArea: {
       handler() {
         this.chartsData.forEach(chart => {
@@ -387,19 +392,35 @@
           position: sticky
           top: 2px
           z-index: 1
-  #focus-chart-btn
-    top: 0px
-    right: 40px
-    padding: 5px 5px
-    background-color: #C1D1EA
-    color: #2A65B7
-    border: 2px solid #2A65B7
-    border-radius: 5px
-    font-weight: bold
-    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
-    &:hover
-      cursor: pointer
-      opacity: 0.7
+  #buttons-container
+    display: flex
+    justify-content: space-between
+    width: fit-content
+    #focus-chart-btn
+      top: 0px
+      right: 40px
+      padding: 5px 5px
+      color: #2A65B7
+      border: 1px solid #2A65B7
+      margin-right: 10px
+      border-radius: 5px
+      font-weight: bold
+      box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+      &:hover
+        cursor: pointer
+        opacity: 0.7
+    #prev-zoom-btn
+      top: 0px
+      right: 10px
+      padding: 5px 5px
+      color: #2A65B7
+      border: 1px solid #2A65B7
+      border-radius: 5px
+      font-weight: bold
+      box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+      &:hover
+        cursor: pointer
+        opacity: 0.7
   #chrom-select-bar-div
     height: 27px
     padding: 8px 0px 2px 0px
