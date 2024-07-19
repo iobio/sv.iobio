@@ -7,5 +7,5 @@ export default defineConfig({
     port: 7476,
   },
   plugins: [vue()],
-  base: '/sv.iobio/frontend', //add a base path to the project
+  base: '/sv.iobio/frontend/', //add a base path to the project
 })
