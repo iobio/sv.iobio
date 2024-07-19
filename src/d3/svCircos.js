@@ -224,7 +224,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     } else {
         //on top of this circle we will render the dna.svg that we have /dna.svg
         zoomOutButtonGroup.append('image')
-            .attr('xlink:href', '/dna.svg')
+            .attr('xlink:href', '/sv.iobio/frontend/dna.svg')
             .attr('x', width/2 - 10)
             .attr('y', 10)
             .attr('width', 20)
