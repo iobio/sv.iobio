@@ -1,6 +1,6 @@
 
 // const BACKEND_URL_BASE = 'http://localhost:7477'; //Development
-const BACKEND_URL_BASE = 'http://mosaic-staging.chpc.utah.edu/sv.iobio/backend'; //Production
+const BACKEND_URL_BASE = 'https://mosaic-staging.chpc.utah.edu/sv.iobio/backend'; //Production
 
 //GET CROMOSOMES
 export async function getChromosomes(build='hg38') {
