@@ -215,7 +215,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     if (zoomedSection.size !== bpGenomeSize) {
         //get our centerSymbolGroup and change the symbol to our magnify-out.svg
         zoomOutButtonGroup.append('image')
-        .attr('xlink:href', '/magnify-out.svg')
+        .attr('xlink:href', '/sv.iobio/frontend/magnify-out.svg')
         .attr('x', width/2 - 10)
         .attr('y', 10)
         .attr('width', 20)
