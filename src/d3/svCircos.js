@@ -908,6 +908,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     })
                     .attr('class', 'prob-variant-arc')
                     .on('mouseover', function (event, d) {
+                        //if there is already a tooltip remove it
+                        d3.select('.tooltip-hover-variant').remove();
+
                         console.log('variant: ', variant);
                         d3.select(this)
                             .style('fill', '#DA44B4')
@@ -935,7 +938,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
                         //append the data to the tooltip
                         tooltip.append('p')
-                            .text(`#${variant.rank} | Chr:${variant.chromosome} | st:${variant.start} en:${variant.end} | ${variant.type}`);
+                            .text(`chr:${variant.chromosome} st:${variant.start} en:${variant.end} len:${variant.end - variant.start}bp (${variant.type})`);
 
                     })
                     .on('mouseout', function (event, d) {
