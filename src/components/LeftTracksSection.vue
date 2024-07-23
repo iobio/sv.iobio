@@ -1,11 +1,15 @@
 <template>
     <div id="left-tracks-section">
       <div class="upper-track-selectors-bar">
-        <div id="global-view-select-radios">
-          <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
-          <label for="circos-view">Circos</label>
-          <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
-          <label for="linear-view">Linear</label>
+        <div id="radios-tools-container">
+          <div id="global-view-select-radios">
+            <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
+            <label for="circos-view">Circos</label>
+            <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
+            <label for="linear-view">Linear</label>
+          </div>
+
+          <button @click="toggleLineTool" v-if="globalView == 'linear'" class="line-tool-btn">Line Tool</button>
         </div>
         <div v-if="(showButton && focusedVariant) || zoomHistory.length > 1" id="buttons-container">
           <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
@@ -39,6 +43,7 @@
           @selectAreaEvent="selectAreaEventFired"/>
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
+          <div id="linear-marker-line" v-if="tools.line"></div>
           <LinearSvChartViz
             v-if="samples.proband.svList && samples.proband.svList.length > 0" 
             class="proband-chart"
@@ -105,6 +110,9 @@
       chartsData: [],
       samplesTitles: [],
       samplesLists: [],
+      tools: {
+        line: false
+      },
     }
   },
   async mounted () {
@@ -112,6 +120,9 @@
     await this.fetchSamples();
   },
   methods: {
+    toggleLineTool() {
+      this.tools.line = !this.tools.line
+    },
     async getBaseData(build='hg38', source='refseq') {
       try {
         let data = await dataHelper.getChromosomes(build);
@@ -285,6 +296,36 @@
       const chartToMove = this.chartsData.splice(fromIndex, 1)[0];
       this.chartsData.splice(toIndex, 0, chartToMove);
     },
+    trackCursor() {
+      let cursorTrackingZone = document.getElementById('linear-section-container');
+      cursorTrackingZone.addEventListener('mousemove', this.moveMarkerLine); 
+    },
+    untrackCursor() {
+      let cursorTrackingZone = document.getElementById('linear-section-container');
+      cursorTrackingZone.removeEventListener('mousemove', this.moveMarkerLine);
+    },
+    moveMarkerLine(event) {
+      let line = document.getElementById('linear-marker-line');
+      if (line) {
+        let x = this.trackMouseX(event);
+        line.style.left = x + 'px';
+      }
+    },
+    trackMouseX(event) {
+      //we need to take into account the padding of the container
+      let container = document.getElementById('linear-section-container');
+      let containerPadding = parseInt(window.getComputedStyle(container).paddingLeft);
+      let containerRect = container.getBoundingClientRect();
+      let containerX = containerRect.x + 2;
+      let x = event.clientX - containerX;
+      if (x < 0) {
+        return 0;
+      } else if (x > containerRect.width) {
+        return containerRect.width;
+      } else {
+        return x;
+      }
+    },
   },
   computed: {
     isGlobalView() {
@@ -356,12 +397,38 @@
         await this.fetchSamples();
       },
       deep: true
-    }
+    }, 
+    tools: {
+      handler() {
+        if (this.tools.line) {
+          this.trackCursor();
+        } else {
+          this.untrackCursor();
+        }
+      },
+      deep: true
+    },
   },
   }
 </script>
 
 <style lang="sass">
+  #radios-tools-container
+    display: flex
+    justify-content: space-between
+    .line-tool-btn
+      top: 0px
+      right: 10px
+      padding: 5px 5px
+      margin-left: 10px
+      color: #2A65B7
+      border: 1px solid #2A65B7
+      border-radius: 5px
+      font-weight: bold
+      box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+      &:hover
+        cursor: pointer
+        opacity: 0.7
   #left-tracks-section
     box-sizing: border-box
     display: flex
@@ -393,6 +460,15 @@
         flex: 1 1 auto
         overflow-y: auto
         padding-left: 10px
+        position: relative
+        #linear-marker-line
+          position: absolute
+          top: 0px
+          left: 0px
+          width: 1px
+          height: 100%
+          background-color: red
+          z-index: 2
         .proband-chart
           position: sticky
           top: 2px
