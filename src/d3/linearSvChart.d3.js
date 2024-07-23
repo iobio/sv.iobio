@@ -440,7 +440,52 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                         } else {
                             return '#1F68C1';
                         }
-                    });
+                    })
+                    .on('mouseover', function(event, d) {
+                        //if there is already a tooltip remove it
+                        d3.select('.tooltip-hover-variant').remove();
+
+                        console.log('variant: ', sv);
+                        d3.select(this)
+                            .style('fill', '#DA44B4')
+                            .style('cursor', 'pointer');
+
+                        //append a tooltip that is absolutely positioned to the mouse position
+                        let tooltip = d3.select('body').append('div')
+                            .attr('class', 'tooltip-hover-variant')
+                            .style('position', 'absolute')
+                            .style('background-color', 'white')
+                            .style('border', '1px solid black')
+                            .style('padding', '5px')
+                            .style('border-radius', '5px')
+                            .style('pointer-events', 'none')
+                            .style('overflow-y', 'auto')
+                            .style('max-height', '200px')
+                            .style('max-width', '100px')
+                            .style('z-index', 1000);
+
+                        //put it in the right position
+                        let x = event.clientX;
+                        let y = event.clientY;
+
+                        tooltip.style('left', `${x + 10}px`)
+                            .style('top', `${y + 10}px`);
+
+                        //append the data to the tooltip
+                        tooltip.append('p')
+                            .text(`chr:${sv.chromosome} st:${sv.start} en:${sv.end} len:${sv.end - sv.start}bp (${sv.type})`);
+                    })
+                    .on('mouseout', function(event, d) {
+                        d3.select('.tooltip-hover-variant').remove();
+                        d3.select(this)
+                            .style('fill', function(){
+                                if (sv.type == 'DEL') {
+                                    return 'red';
+                                } else {
+                                    return '#1F68C1';
+                                }
+                            });
+                    })
 
             } else {
                 //dont render the point of interest if it already exists
