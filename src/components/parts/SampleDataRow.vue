@@ -15,12 +15,7 @@
                 <input type="text" id="vcf" v-model="sample.vcf" placeholder="Paste a link or select a local file..."/>
                 <button @click="openFileSelect($event)">Choose Local</button>
             </div>
-            <div class="label-input-wrapper link">
-                <label for="tbi">VCF tbi (opt.):</label>
-                <input type="text" id="tbi" v-model="sample.tbi" placeholder="Paste a link or select a local file..."/>
-                <button @click="openFileSelect($event)">Choose Local</button>
-            </div>
-            <div class="label-input-wrapper link">
+            <!-- <div class="label-input-wrapper link">
                 <label for="bam">BAM (opt.): </label>
                 <input type="text" id="bam" v-model="sample.bam" placeholder="Paste a link or select a local file..."/>
                 <button @click="openFileSelect($event)">Choose Local</button>
@@ -29,7 +24,7 @@
                 <label for="bai">BAI (if BAM):</label>
                 <input type="text" id="bai" v-model="sample.bai" placeholder="Paste a link or select a local file..."/>
                 <button @click="openFileSelect($event)">Choose Local</button>
-            </div>
+            </div> -->
         </div>
         <div class="collapsed-alt-text" v-else>{{ sample.name }}</div>
     </div>
