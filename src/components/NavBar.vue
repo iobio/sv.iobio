@@ -134,6 +134,7 @@
           height: 5px
           background-color: #CCE0D7
           align-self: flex-start
+          border-radius: 3px
       #disclaimer-overlay
         position: absolute
         top: 0px
