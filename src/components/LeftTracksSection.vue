@@ -314,7 +314,6 @@
     trackMouseX(event) {
       //we need to take into account the padding of the container
       let container = document.getElementById('linear-section-container');
-      let containerPadding = parseInt(window.getComputedStyle(container).paddingLeft);
       let containerRect = container.getBoundingClientRect();
       let containerX = containerRect.x + 2;
       let x = event.clientX - containerX;
