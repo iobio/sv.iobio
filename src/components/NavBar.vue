@@ -111,7 +111,6 @@
       justify-content: space-around
       padding: 10px 10px
       width: 100%
-      box-sizing: border-box
       background-color: #0D60C3
       color: white
       z-index: 4
@@ -122,7 +121,6 @@
         justify-content: space-between
         height: 100%
         padding: 5px 10px
-        box-sizing: border-box
         p
           margin: 0px
           font-size: .9em
@@ -150,7 +148,6 @@
           padding: 40px
           border-radius: 5px
           max-width: 800px
-          box-sizing: border-box
           display: flex
           flex-direction: column
           align-items: center
