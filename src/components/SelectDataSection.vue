@@ -101,7 +101,10 @@ export default {
             this.waygateTunnelDomain = listener.getDomain();
 
             if (!this.waygateTunnelDomain) {
-                console.error('Could not get tunnel domain')
+                this.$emit('emit-toast', {
+                    message: 'Error starting waygate',
+                    type: 'error'
+                })
                 return
             }
             

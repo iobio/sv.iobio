@@ -12,11 +12,18 @@
         @updatePhenotypesOfInterest="updatePhenotypesOfInterest"/>
     </div>
 
+    <ToastsSection
+      v-if="toasts.length > 0"
+      :toasts="toasts"
+      @remove-toast="removeToast"
+      @remove-all-toasts="removeAllToasts"/>
+
     <SelectDataSection 
     :show="selectDataSectionOpen"
     :samples="samples"
     @update-samples="updateSamples"
-    @toggle-show="selectDataSectionOpen = false"/>
+    @toggle-show="selectDataSectionOpen = false"
+    @emit-toast="addToast"/>
 
     <FilterDataSection 
     :show="filterDataSectionOpen"
@@ -61,6 +68,7 @@
   import Sv from './models/Sv.js'
   import SelectDataSection from './components/SelectDataSection.vue'
   import FilterDataSection from './components/FilterDataSection.vue'
+  import ToastsSection from './components/ToastsSection.vue'
 
   export default {
     name: 'app',
@@ -70,6 +78,7 @@
       NavBar,
       SelectDataSection,
       FilterDataSection,
+      ToastsSection,
     },
     data() {
       return {
@@ -102,7 +111,8 @@
             svList: [],
           },
           comparrisons: []
-        }
+        },
+        toasts: []
       }
     },
     async mounted() {
@@ -120,7 +130,22 @@
         this.loadedInitiallyComplete = false;
 
         let url = this.samples.proband.vcf;
-        let svList = await dataHelper.getSVsFromVCF(url);
+        let svList; 
+        
+        try {
+          svList = await dataHelper.getSVsFromVCF(url);
+
+          if (svList.length == 0) {
+            this.toasts.push({message: 'No SVs found in proband VCF', type: 'error'})
+            return;
+          }
+
+        } catch (error) {
+          svList = [];
+          
+          this.toasts.push({message: `Error loading proband svs: ${error}`, type: 'error'})
+          return;
+        }
         
         //We use a separate list for the variant bar so we can sort it differently
         this.svListVariantBar = svList.map(sv => new Sv(sv));
@@ -140,7 +165,22 @@
           this.batchNum++;
           let batchSvs = svListCopy.slice(i, i + batchSize);
 
-          let newSvs = await this.getSVAssociations(batchSvs);
+          let newSvs; 
+          
+          try{
+            newSvs = await this.getSVAssociations(batchSvs);
+
+            if (newSvs.length == 0) {
+              this.toasts.push({message: 'No SVs found in proband VCF', type: 'error'})
+              return;
+            }
+
+          } catch (error) {
+
+            newSvs = [];
+            this.toasts.push({message: `Error getting SV associations: ${error}`, type: 'error'})
+            return;
+          }
 
           //new svs is an array of Sv objects
           for (let [index, newSv] of newSvs.entries()) {
@@ -216,7 +256,20 @@
       },
       async getSVAssociations(variantBatch, build='hg38', source='refseq') {
 
-        let svs = await dataHelper.getSVBatchInfo(variantBatch, build, source);
+        let svs;
+        try {
+          svs = await dataHelper.getSVBatchInfo(variantBatch, build, source);
+
+          if (svs.length == 0) {
+            this.toasts.push({message: `No SV associations for the variant batch`, type: 'error'})
+            return;
+          }
+        } catch (error) {
+          svs = [];
+          this.toasts.push({message: `Error getting SV associations: ${error}`, type: 'error'})
+          return;
+        }
+
         let updatedSvs = [];
 
         for (let sv of svs) {
@@ -361,6 +414,15 @@
       },
       updateSvList(index, sv) {
         this.svListVariantBar[index] = sv;
+      },
+      removeToast(index) {
+        this.toasts.splice(index, 1)
+      },
+      removeAllToasts() {
+        this.toasts = []
+      },
+      addToast(toast) {
+        this.toasts.push(toast)
       }
     },
     watch: {
