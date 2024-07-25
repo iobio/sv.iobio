@@ -1,22 +1,42 @@
 <template>
     <div class="select-data-section" :class="{hidden: !show}">
-        <SampleDataRow 
-            v-if="samplesLocal.proband" 
-            :sample="samplesLocal.proband" 
-            :isProband="true"
-            @open-waygate="startWaygate"
-            @update-sample-files="addFileToWaygate"/>
+        <fieldset>
+            <legend>VCF Input Format</legend>
+            <input type="radio" id="joint" name="vcfs-format" value="joint" v-model="samplesFormat">
+            <label for="multiple">Joint-Called VCF</label>
+            <input type="radio" id="individual" name="vcfs-format" value="individual" v-model="samplesFormat">
+            <label for="individual">Seperate VCFs</label>
+        </fieldset>
 
-        <SampleDataRow 
-            v-for="(sample, index) in samplesLocal.comparrisons" 
-            :key="index" 
-            :sample="sample"
-            @close-row="removeRow(index)"
-            @open-waygate="startWaygate"
-            @update-sample-files="addFileToWaygate"/>
+        <div id="individual-samples-container" v-if="samplesFormat == 'individual'">
+            <SampleDataRow 
+                v-if="samplesLocal.proband" 
+                :sample="samplesLocal.proband" 
+                :isProband="true"
+                @open-waygate="startWaygate"
+                @update-sample-files="addFileToWaygate"/>
 
-        <button class="add-btn" @click="addNewSample">+</button>
-        <button class="go-btn" @click="sendSamples">GO</button>
+            <SampleDataRow 
+                v-for="(sample, index) in samplesLocal.comparrisons" 
+                :key="index" 
+                :sample="sample"
+                @close-row="removeRow(index)"
+                @open-waygate="startWaygate"
+                @update-sample-files="addFileToWaygate"/>            
+        </div>
+
+        <div id="joint-samples-container" v-if="samplesFormat == 'joint'">
+            <div class="label-input-wrapper">
+                <label for="vcf">VCF:</label>
+                <input type="text" id="vcf" placeholder="Paste a link or select a local file..."/>
+                <button @click="openFileSelect">Choose Local</button>
+            </div>
+            
+            <button>Fetch Samples</button>
+        </div>
+
+        <button class="add-btn" @click="addNewSample" v-if="samplesFormat == 'individual'">+</button>
+        <button class="go-btn" @click="sendSamples" v-if="samplesFormat == 'individual'">GO</button>
     </div>
 </template>
 
@@ -40,6 +60,9 @@ export default {
             waygateActive: false,
             waygateDirTree: null,
             waygateTunnelDomain: null,
+            samplesFormat: 'individual',
+            jointVcfHeaders: [],
+            jointVcfUrl: '',
         }
     },
     mounted () {
@@ -64,6 +87,9 @@ export default {
             this.samplesLocal.comparrisons.splice(index, 1)
         },
         async startWaygate () {
+            //if waygate is already active, don't start it again
+            if (this.waygateActive) return
+
             this.waygateActive = true
             this.dirTree = waygateJs.openDirectory();
 
@@ -73,6 +99,12 @@ export default {
             })
 
             this.waygateTunnelDomain = listener.getDomain();
+
+            if (!this.waygateTunnelDomain) {
+                console.error('Could not get tunnel domain')
+                return
+            }
+            
             //serve the directory tree
             waygateJs.serve(listener, waygateJs.directoryTreeHandler(this.dirTree));
         },
@@ -92,6 +124,33 @@ export default {
                 let sample = this.samplesLocal.comparrisons.find(sample => sample.name === sampleName)
                 sample[fileType] = uri
             }
+        },
+        async openFileSelect (event) {
+            //Start waygate
+            if (!this.waygateActive) {
+                this.startWaygate()
+            }
+
+            //Get files here
+            const files = await new Promise((resolve, reject) => {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.hidden = true;
+                fileInput.multiple = false;
+                document.body.appendChild(fileInput);
+
+                fileInput.addEventListener('change', (event) => {
+                    resolve(event.target.files);
+                    document.body.removeChild(fileInput);
+                });
+
+                fileInput.click();
+            });
+
+            //get the file type from the input field's id
+            let fileType = event.target.previousElementSibling.id;
+
+            //give the files to the parent
         }
     },
     watch: {
@@ -124,7 +183,52 @@ export default {
             height: 0px
             width: 0px
             overflow: hidden
-            padding: 0px   
+            padding: 0px
+        fieldset
+            border: 1px solid #2A65B7
+            border-radius: 5px
+            padding: 10px
+            margin: 10px
+            legend
+                color: #2A65B7
+                font-size: 20px
+                font-weight: bold
+            label
+                margin-right: 10px   
+        #individual-samples-container, #joint-samples-container
+            width: 100%
+            display: flex
+            flex-direction: column
+            align-items: center
+        #joint-samples-container
+            padding: 10px
+            .label-input-wrapper
+                display: flex
+                justify-content: center
+                align-items: center
+                width: 100%
+                margin: 5px
+                label
+                    margin-right: 10px
+                input
+                    margin: 5px
+                    padding: 5px
+                    border-radius: 5px
+                    border: 1px solid #2A65B7
+                    width: 20%
+                    min-width: 100px
+                    &:focus
+                        outline: none
+                button
+                    background-color: #2A65B7
+                    color: white
+                    border: none
+                    border-radius: 5px
+                    padding: 5px 10px
+                    cursor: pointer
+                    margin-left: 10px
+                    &:hover
+                        background-color: #1A4B97
         .go-btn
             background-color: green
             color: white
