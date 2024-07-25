@@ -505,6 +505,7 @@
     padding: 8px 0px 2px 0px
     border-radius: 5px
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+    box-sizing: content-box
   #global-view-select-radios
     width: fit-content
     top: 0px
