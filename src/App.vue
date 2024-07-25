@@ -136,7 +136,7 @@
           svList = await dataHelper.getSVsFromVCF(url);
 
           if (svList.length == 0) {
-            this.toasts.push({message: 'No SVs found in proband VCF', type: 'error'})
+            this.toasts.push({message: `No svs found in vcf ${url}`, type: 'warning'})
             return;
           }
 
@@ -351,7 +351,14 @@
 
         //If we have some phenotypes of interest we want to get any associated genes
         let hpoIds = newPOI.join(',');
-        let data = await dataHelper.getGenesForPhenotypes(hpoIds);
+        let data; 
+        try {
+          data = await dataHelper.getGenesForPhenotypes(hpoIds);
+        } catch (error) {
+          data = {};
+          this.toasts.push({message: `Error getting genes for phenotypes: ${error}`, type: 'error'})
+          return;
+        }
 
         this.candidatePhenGenes = Object.keys(data);
 

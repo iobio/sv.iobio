@@ -45,7 +45,8 @@
   
   <style lang="sass">
     #toasts-section
-        width: 20vw
+        width: 25vw
+        min-width: 250px
         position: absolute
         top: 54px
         right: -1px
@@ -85,17 +86,13 @@
             padding: 5px
             margin-bottom: 3px
             border-radius: 5px
+            max-width: 100%
             &.info
                 background-color: white
                 color: #2A65B7
                 border: 1px solid #2A65B7
                 button
                     background-color: #2A65B7
-                    color: white
-                    border: none
-                    border-radius: 50%
-                    padding: 5px
-                    cursor: pointer
                     &:hover
                         background-color: #5882C6
             &.warning
@@ -104,11 +101,6 @@
                 border: 1px solid #B87A00
                 button
                     background-color: #B87A00
-                    color: white
-                    border: none
-                    border-radius: 50%
-                    padding: 5px
-                    cursor: pointer
                     &:hover
                         background-color: #FFAD0A
             &.error
@@ -117,19 +109,22 @@
                 border: 1px solid #D8000C
                 button
                     background-color: #D8000C
-                    color: white
-                    border: none
-                    border-radius: 50%
-                    padding: 5px
-                    cursor: pointer
                     &:hover
                         background-color: #FF333D
             p
                 margin: 0px
+                word-wrap: break-word
+                overflow-wrap: break-word
+                overflow: hidden
+                padding-right: 2px
+                flex: 1 1 auto
             button
-                height: 25px
-                width: 25px
-                border: none
                 border-radius: 50%
-                padding: 5px
+                border: none
+                color: white
+                cursor: pointer
+                flex-shrink: 0
+                height: 25px
+                padding: 0px
+                width: 25px
   </style>
