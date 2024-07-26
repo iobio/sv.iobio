@@ -28,11 +28,37 @@
         <div id="joint-samples-container" v-if="samplesFormat == 'joint'">
             <div class="label-input-wrapper">
                 <label for="vcf">VCF:</label>
-                <input type="text" id="vcf" placeholder="Paste a link or select a local file..."/>
+                <input type="text" id="vcf" placeholder="Paste a link or select a local file..." v-model="jointVcfUrl"/>
                 <button @click="openFileSelect">Choose Local</button>
             </div>
             
-            <button>Fetch Samples</button>
+            <button @click="getSampleNames" id="fetch-samples-btn">Fetch Samples</button>
+
+            <div v-if="jointVcfHeaders.length > 0">
+                <fieldset>
+                    <legend>Proband Sample</legend>
+                    <div class="label-input-wrapper">
+                        <label for="proband">Proband Sample Id</label>
+                        <select id="proband" v-model="samplesLocal.proband.id">
+                            <option v-for="header in jointVcfHeaders" :key="header">{{header}}</option>
+                        </select>
+                    </div>
+                    <div class="label-input-wrapper">
+                        <label for="proband-name">Sample Name</label>
+                        <input type="text" id="proband-name" v-model="samplesLocal.proband.name"/>
+                    </div>
+                </fieldset>
+
+                <div class="label-input-wrapper" v-if="jointVcfHeaders.filter(id => id !== samplesLocal.proband.id).length > 0">
+                    <label for="comparrison-samples">Select Comparrison Samples</label>
+                    <select name="comparrison-samples" id="comparrisons" multiple>
+                        <option v-for="header in jointVcfHeaders.filter(id => id !== samplesLocal.proband.id)" :key="header">{{header}}</option>
+                    </select>
+                </div>
+                <div v-else><strong>Only one sample detected in:</strong> {{ jointVcfUrl }}</div>
+            </div>
+
+            
         </div>
 
         <button class="add-btn" @click="addNewSample" v-if="samplesFormat == 'individual'">+</button>
@@ -42,6 +68,7 @@
 
 <script>
     import SampleDataRow from './parts/SampleDataRow.vue'
+    import * as dataHelper from '../dataHelpers/dataHelpers.js'
     import waygateJs from 'waygate-js';
 
 export default {
@@ -153,7 +180,35 @@ export default {
             //get the file type from the input field's id
             let fileType = event.target.previousElementSibling.id;
 
-            //give the files to the parent
+            //add the file to waygate
+            this.dirTree.addFiles(files)
+            let uri = `https://${this.waygateTunnelDomain}/${files[0].name}`;
+            this.jointVcfUrl = uri
+        },
+        async getSampleNames() {
+            let headers = [];
+            try {
+                headers = await dataHelper.getVCFSamplesFromURL(this.jointVcfUrl)
+                this.jointVcfHeaders = headers
+            } catch (error) {
+                this.$emit('emit-toast', {
+                    message: 'Error fetching sample names',
+                    type: 'error'
+                })
+            }
+            
+            if (headers.length === 0) {
+                this.$emit('emit-toast', {
+                    message: 'No samples found in VCF',
+                    type: 'error'
+                })
+            } else {
+                this.samplesLocal.proband = {
+                    id: headers[0],
+                    name: headers[0],
+                    uri: this.jointVcfUrl
+                }
+            }
         }
     },
     watch: {
@@ -205,7 +260,9 @@ export default {
             align-items: center
         #joint-samples-container
             padding: 10px
-            .label-input-wrapper
+            width: 100%
+            max-width: 1000px
+            div.label-input-wrapper
                 display: flex
                 justify-content: center
                 align-items: center
@@ -220,6 +277,7 @@ export default {
                     border: 1px solid #2A65B7
                     width: 20%
                     min-width: 100px
+                    flex: 1
                     &:focus
                         outline: none
                 button
@@ -228,10 +286,22 @@ export default {
                     border: none
                     border-radius: 5px
                     padding: 5px 10px
+                    margin: 10px
                     cursor: pointer
                     margin-left: 10px
                     &:hover
                         background-color: #1A4B97
+            #fetch-samples-btn
+                background-color: #2A65B7
+                color: white
+                border: none
+                border-radius: 5px
+                padding: 5px 10px
+                cursor: pointer
+                margin: 10px
+                align-self: flex-end
+                &:hover
+                    background-color: #1A4B97
         .go-btn
             background-color: green
             color: white
