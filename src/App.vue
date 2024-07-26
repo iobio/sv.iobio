@@ -53,6 +53,7 @@
         :genesOfInterest="genesOfInterest"
         :phenRelatedGenes="overlappedPhenGenes"
         :batchNum="batchNum"
+        :multiSampleVcf="multiSampleVcf"
         @zoomEvent="zoomFired"/>
 
     </div>
@@ -112,14 +113,16 @@
           },
           comparrisons: []
         },
-        toasts: []
+        toasts: [],
+        multiSampleVcf: false
       }
     },
     async mounted() {
-      this.loadData();
+      //open the select data section by default
+      this.selectDataSectionOpen = true;
     },
     methods: {
-      async loadData() {
+      async loadData(isMultiple=false) {
         if (this.samples.proband.vcf == '') {
           //open the select data section too
           this.selectDataSectionOpen = true;
@@ -133,7 +136,11 @@
         let svList; 
         
         try {
-          svList = await dataHelper.getSVsFromVCF(url);
+          if (!isMultiple) {
+            svList = await dataHelper.getSVsFromVCF(url);
+          } else {
+            svList = await dataHelper.getSVsFromVCF(url, this.samples.proband.id)
+          }
 
           if (svList.length == 0) {
             this.toasts.push({message: `No svs found in vcf ${url}`, type: 'warning'})
@@ -230,7 +237,7 @@
           this.svListVariantBar = this.svListVariantBar.filter(sv => Object.values(sv.overlappedGenes).length > 0);
           this.svListChart = this.svListVariantBar;
         } else {
-          this.loadData();
+          this.loadData(this.multiSampleVcf);
         } 
       },
       hasPhenotypes(overlappedGenes) {
@@ -239,7 +246,8 @@
          */
         return Object.values(overlappedGenes).some(gene => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0);
       },
-      async updateSamples(samples) {
+      async updateSamples(samples, isMultiple=false) {
+        this.multiSampleVcf = isMultiple;
         //if samples @ 0 is the same as the old samples @ 0 then we dont need to load data again but 
         //if the vcf is different we do
         if (samples.proband.vcf == this.samples.proband.vcf) {
@@ -250,7 +258,7 @@
           return;
         } else {
           this.samples.proband = samples.proband;
-          this.loadData();
+          this.loadData(this.multiSampleVcf);
         }
         this.samples.comparrisons = samples.comparrisons;
       },
@@ -436,7 +444,7 @@
       samples: {
         handler(newVal, oldVal) {
           if (newVal.proband.vcf !== oldVal.proband.vcf) {
-            this.loadData();
+            this.loadData(this.multiSampleVcf);
           }
         },
         deep: true

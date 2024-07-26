@@ -30,11 +30,10 @@
                 <label for="vcf">VCF:</label>
                 <input type="text" id="vcf" placeholder="Paste a link or select a local file..." v-model="jointVcfUrl"/>
                 <button @click="openFileSelect">Choose Local</button>
+                <button @click="getSampleNames" id="fetch-samples-btn">Fetch Samples</button>
             </div>
-            
-            <button @click="getSampleNames" id="fetch-samples-btn">Fetch Samples</button>
 
-            <div v-if="jointVcfHeaders.length > 0">
+            <div id="samples-section" v-if="jointVcfHeaders.length > 0">
                 <fieldset>
                     <legend>Proband Sample</legend>
                     <div class="label-input-wrapper">
@@ -51,18 +50,26 @@
 
                 <div class="label-input-wrapper" v-if="jointVcfHeaders.filter(id => id !== samplesLocal.proband.id).length > 0">
                     <label for="comparrison-samples">Select Comparrison Samples</label>
-                    <select name="comparrison-samples" id="comparrisons" multiple>
+                    <select name="comparrison-samples" id="comparrisons" multiple v-model="selectedComparrisonSamples">
                         <option v-for="header in jointVcfHeaders.filter(id => id !== samplesLocal.proband.id)" :key="header">{{header}}</option>
                     </select>
                 </div>
                 <div v-else><strong>Only one sample detected in:</strong> {{ jointVcfUrl }}</div>
-            </div>
 
-            
+                <div class="sample-fieldset-wrapper" v-for="(sample, index) in selectedComparrisonSamples" :key="index">
+                    <fieldset>
+                        <legend>ID: {{sample}}</legend>
+                        <div class="label-input-wrapper">
+                            <label for="comparrison-name">Sample Name</label>
+                            <input type="text" id="comparrison-name" v-model="samplesLocal.comparrisons[index].name"/>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
         </div>
 
         <button class="add-btn" @click="addNewSample" v-if="samplesFormat == 'individual'">+</button>
-        <button class="go-btn" @click="sendSamples" v-if="samplesFormat == 'individual'">GO</button>
+        <button class="go-btn" @click="sendSamples" v-if="samplesFormat == 'individual' || (jointVcfHeaders && samplesLocal.proband.id)">GO</button>
     </div>
 </template>
 
@@ -90,6 +97,7 @@ export default {
             samplesFormat: 'individual',
             jointVcfHeaders: [],
             jointVcfUrl: '',
+            selectedComparrisonSamples: []
         }
     },
     mounted () {
@@ -107,7 +115,11 @@ export default {
             })
         },
         sendSamples () {
-            this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)))
+            if (this.samplesFormat === 'individual') {
+                this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)), false)
+            } else {
+                this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)), true)
+            }
             this.$emit('toggle-show')
         },
         removeRow (index) {
@@ -206,12 +218,32 @@ export default {
                 this.samplesLocal.proband = {
                     id: headers[0],
                     name: headers[0],
-                    uri: this.jointVcfUrl
+                    vcf: this.jointVcfUrl
                 }
             }
         }
     },
     watch: {
+        selectedComparrisonSamples (newVal) {
+            this.samplesLocal.comparrisons = newVal.map(sample => {
+                return {
+                    name: sample,
+                    vcf: this.jointVcfUrl,
+                    id: sample,
+                    tbi: '',
+                    bam: '',
+                    bai: '',
+                    svList: []
+                }
+            })
+        },
+        samplesFormat (newVal, oldVal) {
+            if (newVal !== oldVal) {
+                this.jointVcfHeaders = []
+                this.jointVcfUrl = ''
+                this.selectedComparrisonSamples = []
+            }
+        }
     },
     computed: {
     }
@@ -262,6 +294,30 @@ export default {
             padding: 10px
             width: 100%
             max-width: 1000px
+            #samples-section
+                width: 100%
+                display: flex
+                flex-direction: column
+                align-items: center
+                fieldset
+                    width: 100%
+                    legend
+                        color: #2A65B7
+                        font-size: 20px
+                        font-weight: bold
+                        background-color: white
+                .sample-fieldset-wrapper
+                    width: 100%
+                    display: flex
+                    flex-direction: column
+                    align-items: center
+                    fieldset
+                        width: 100%
+                        legend
+                            color: #2A65B7
+                            font-size: 20px
+                            font-weight: bold
+                            background-color: white
             div.label-input-wrapper
                 display: flex
                 justify-content: center
@@ -291,6 +347,16 @@ export default {
                     margin-left: 10px
                     &:hover
                         background-color: #1A4B97
+            select
+                margin: 5px
+                padding: 5px
+                border-radius: 5px
+                border: 1px solid #2A65B7
+                width: 20%
+                min-width: 100px
+                flex: 1
+                &:focus
+                    outline: none
             #fetch-samples-btn
                 background-color: #2A65B7
                 color: white
