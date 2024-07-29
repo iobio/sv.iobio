@@ -12,11 +12,18 @@
         @updatePhenotypesOfInterest="updatePhenotypesOfInterest"/>
     </div>
 
+    <ToastsSection
+      v-if="toasts.length > 0"
+      :toasts="toasts"
+      @remove-toast="removeToast"
+      @remove-all-toasts="removeAllToasts"/>
+
     <SelectDataSection 
     :show="selectDataSectionOpen"
     :samples="samples"
     @update-samples="updateSamples"
-    @toggle-show="selectDataSectionOpen = false"/>
+    @toggle-show="selectDataSectionOpen = false"
+    @emit-toast="addToast"/>
 
     <FilterDataSection 
     :show="filterDataSectionOpen"
@@ -46,6 +53,7 @@
         :genesOfInterest="genesOfInterest"
         :phenRelatedGenes="overlappedPhenGenes"
         :batchNum="batchNum"
+        :multiSampleVcf="multiSampleVcf"
         @zoomEvent="zoomFired"/>
 
     </div>
@@ -61,6 +69,7 @@
   import Sv from './models/Sv.js'
   import SelectDataSection from './components/SelectDataSection.vue'
   import FilterDataSection from './components/FilterDataSection.vue'
+  import ToastsSection from './components/ToastsSection.vue'
 
   export default {
     name: 'app',
@@ -70,6 +79,7 @@
       NavBar,
       SelectDataSection,
       FilterDataSection,
+      ToastsSection,
     },
     data() {
       return {
@@ -102,14 +112,17 @@
             svList: [],
           },
           comparrisons: []
-        }
+        },
+        toasts: [],
+        multiSampleVcf: false
       }
     },
     async mounted() {
-      this.loadData();
+      //open the select data section by default
+      this.selectDataSectionOpen = true;
     },
     methods: {
-      async loadData() {
+      async loadData(isMultiple=false) {
         if (this.samples.proband.vcf == '') {
           //open the select data section too
           this.selectDataSectionOpen = true;
@@ -120,7 +133,26 @@
         this.loadedInitiallyComplete = false;
 
         let url = this.samples.proband.vcf;
-        let svList = await dataHelper.getSVsFromVCF(url);
+        let svList; 
+        
+        try {
+          if (!isMultiple) {
+            svList = await dataHelper.getSVsFromVCF(url);
+          } else {
+            svList = await dataHelper.getSVsFromVCF(url, this.samples.proband.id)
+          }
+
+          if (svList.length == 0) {
+            this.toasts.push({message: `No svs found in vcf ${url}`, type: 'warning'})
+            return;
+          }
+
+        } catch (error) {
+          svList = [];
+          
+          this.toasts.push({message: `Error loading proband svs: ${error}`, type: 'error'})
+          return;
+        }
         
         //We use a separate list for the variant bar so we can sort it differently
         this.svListVariantBar = svList.map(sv => new Sv(sv));
@@ -140,7 +172,22 @@
           this.batchNum++;
           let batchSvs = svListCopy.slice(i, i + batchSize);
 
-          let newSvs = await this.getSVAssociations(batchSvs);
+          let newSvs; 
+          
+          try{
+            newSvs = await this.getSVAssociations(batchSvs);
+
+            if (newSvs.length == 0) {
+              this.toasts.push({message: 'No SVs found in proband VCF', type: 'error'})
+              return;
+            }
+
+          } catch (error) {
+
+            newSvs = [];
+            this.toasts.push({message: `Error getting SV associations: ${error}`, type: 'error'})
+            return;
+          }
 
           //new svs is an array of Sv objects
           for (let [index, newSv] of newSvs.entries()) {
@@ -190,7 +237,7 @@
           this.svListVariantBar = this.svListVariantBar.filter(sv => Object.values(sv.overlappedGenes).length > 0);
           this.svListChart = this.svListVariantBar;
         } else {
-          this.loadData();
+          this.loadData(this.multiSampleVcf);
         } 
       },
       hasPhenotypes(overlappedGenes) {
@@ -199,7 +246,8 @@
          */
         return Object.values(overlappedGenes).some(gene => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0);
       },
-      async updateSamples(samples) {
+      async updateSamples(samples, isMultiple=false) {
+        this.multiSampleVcf = isMultiple;
         //if samples @ 0 is the same as the old samples @ 0 then we dont need to load data again but 
         //if the vcf is different we do
         if (samples.proband.vcf == this.samples.proband.vcf) {
@@ -210,13 +258,26 @@
           return;
         } else {
           this.samples.proband = samples.proband;
-          this.loadData();
+          this.loadData(this.multiSampleVcf);
         }
         this.samples.comparrisons = samples.comparrisons;
       },
       async getSVAssociations(variantBatch, build='hg38', source='refseq') {
 
-        let svs = await dataHelper.getSVBatchInfo(variantBatch, build, source);
+        let svs;
+        try {
+          svs = await dataHelper.getSVBatchInfo(variantBatch, build, source);
+
+          if (svs.length == 0) {
+            this.toasts.push({message: `No SV associations for the variant batch`, type: 'error'})
+            return;
+          }
+        } catch (error) {
+          svs = [];
+          this.toasts.push({message: `Error getting SV associations: ${error}`, type: 'error'})
+          return;
+        }
+
         let updatedSvs = [];
 
         for (let sv of svs) {
@@ -298,7 +359,14 @@
 
         //If we have some phenotypes of interest we want to get any associated genes
         let hpoIds = newPOI.join(',');
-        let data = await dataHelper.getGenesForPhenotypes(hpoIds);
+        let data; 
+        try {
+          data = await dataHelper.getGenesForPhenotypes(hpoIds);
+        } catch (error) {
+          data = {};
+          this.toasts.push({message: `Error getting genes for phenotypes: ${error}`, type: 'error'})
+          return;
+        }
 
         this.candidatePhenGenes = Object.keys(data);
 
@@ -361,13 +429,22 @@
       },
       updateSvList(index, sv) {
         this.svListVariantBar[index] = sv;
+      },
+      removeToast(index) {
+        this.toasts.splice(index, 1)
+      },
+      removeAllToasts() {
+        this.toasts = []
+      },
+      addToast(toast) {
+        this.toasts.push(toast)
       }
     },
     watch: {
       samples: {
         handler(newVal, oldVal) {
           if (newVal.proband.vcf !== oldVal.proband.vcf) {
-            this.loadData();
+            this.loadData(this.multiSampleVcf);
           }
         },
         deep: true

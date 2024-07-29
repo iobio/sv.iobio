@@ -95,7 +95,8 @@
     genesOfInterest: Array,
     phenRelatedGenes: Array,
     batchNum: Number,
-    samples: Object
+    samples: Object,
+    multiSampleVcf: Boolean,
   },
   data () {
     return {
@@ -193,8 +194,18 @@
         this.chartsData.push(newSample);
 
         try {
-          let data = await dataHelper.getSVsFromVCF(sample.vcf);
-          let svData = data.map(item => new Sv(item));
+          let data;
+          let svData;
+          
+          if (!this.multiSampleVcf && !sample.id) {
+            data = await dataHelper.getSVsFromVCF(sample.vcf);
+            svData = data.map(item => new Sv(item));
+          } else {
+            console.log('Fetching SVs from multi-sample VCF', sample.id);
+            data = await dataHelper.getSVsFromVCF(sample.vcf, sample.id);
+            svData = data.map(item => new Sv(item));
+          }
+
           this.chartsData[i + 1].props.svList = svData;
 
           this.samplesLists[i] = svData;
@@ -505,6 +516,7 @@
     padding: 8px 0px 2px 0px
     border-radius: 5px
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+    box-sizing: content-box
   #global-view-select-radios
     width: fit-content
     top: 0px

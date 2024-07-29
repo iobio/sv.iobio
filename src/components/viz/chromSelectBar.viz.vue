@@ -1,6 +1,6 @@
 <template>
     <div ref="cromSelectBarContainer" id="chrom-select-bar"></div>
-  </template>
+</template>
   
 <script>
   import chromSelectBar from '../../d3/chromSelectBar.d3.js';

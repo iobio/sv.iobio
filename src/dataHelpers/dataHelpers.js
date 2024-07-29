@@ -47,13 +47,31 @@ export async function getGenes(build='hg38', source='refseq') {
 }
 
 //GET SVS FROM VCF
-export async function getSVsFromVCF(vcfFile) {
+export async function getSVsFromVCF(vcfFile, sampleName=null) {
     try {
-        const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}`);
+        if (!sampleName) {
+            const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}`);
+            const data = await response.json();
+            return data;            
+        } else {
+            const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}&sampleName=${sampleName}`);
+            const data = await response.json();
+            return data;
+        }
+
+    } catch (error) {
+        console.error('Error Getting VCF Data:', error);
+    }
+}
+
+//GET VCF SAMPLES FROM URL
+export async function getVCFSamplesFromURL(url, ) {
+    try {
+        const response = await fetch(`${BACKEND_URL_BASE}/vcfSamples?vcfPath=${url}`);
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error('Error Getting VCF Data:', error);
+        console.error('Error Getting VCF Samples:', error);
     }
 }
 
