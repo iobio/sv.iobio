@@ -172,12 +172,14 @@
       }
     },
     async fetchSamples() {
-      this.chartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
-      this.samplesLists = new Array(this.samples.comparrisons.length);
-      this.samplesTitles = new Array(this.samples.comparrisons.length);
+      let locComparrisons = this.samples.comparrisons;
+      let locChartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
+      let locSamplesLists = new Array(this.samples.comparrisons.length);
+      let locSamplesTitles = new Array(this.samples.comparrisons.length);
 
-      for (let i = 0; i < this.samples.comparrisons.length; i++) {
-        let sample = this.samples.comparrisons[i];
+      for (let i = 0; i < locComparrisons.length; i++) {
+        let sample = locComparrisons[i];
+
         let newSample = {
           component: 'LinearSvChartViz',
           props: {
@@ -191,7 +193,7 @@
           }
         };
 
-        this.chartsData.push(newSample);
+        locChartsData.push(newSample);
 
         try {
           let data;
@@ -201,20 +203,21 @@
             data = await dataHelper.getSVsFromVCF(sample.vcf);
             svData = data.map(item => new Sv(item));
           } else {
-            console.log('Fetching SVs from multi-sample VCF', sample.id);
             data = await dataHelper.getSVsFromVCF(sample.vcf, sample.id);
             svData = data.map(item => new Sv(item));
           }
 
-          this.chartsData[i + 1].props.svList = svData;
-
-          this.samplesLists[i] = svData;
-          this.samplesTitles[i] = sample.name;
-
+          locChartsData[i + 1].props.svList = svData;
+          locSamplesLists[i] = svData;
+          locSamplesTitles[i] = sample.name;
         } catch (error) {
           console.error(`Error fetching data for sample ${sample.name}:`, error);
         }
       }
+
+      this.chartsData = locChartsData;
+      this.samplesLists = locSamplesLists;
+      this.samplesTitles = locSamplesTitles;
     },
     createCromosomeAccumulatedMap(chromosomeList) {
         //iterate over the chromosomes and create the arcs
@@ -403,7 +406,7 @@
     },
     samples: {
       async handler(newVal, oldVal) {
-        await this.fetchSamples();
+          await this.fetchSamples();
       },
       deep: true
     }, 
