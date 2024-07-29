@@ -118,6 +118,7 @@
   },
   async mounted () {
     await this.getBaseData();
+    await this.fetchSamples();
   },
   methods: {
     toggleLineTool() {
