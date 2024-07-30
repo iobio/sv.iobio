@@ -174,13 +174,13 @@
       }
     },
     async fetchSamples() {
-      let locComparrisons = this.samples.comparrisons;
+      let locComparisons = this.samples.comparisons;
       let locChartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
-      let locSamplesLists = new Array(this.samples.comparrisons.length);
-      let locSamplesTitles = new Array(this.samples.comparrisons.length);
+      let locSamplesLists = new Array(this.samples.comparisons.length);
+      let locSamplesTitles = new Array(this.samples.comparisons.length);
 
-      for (let i = 0; i < locComparrisons.length; i++) {
-        let sample = locComparrisons[i];
+      for (let i = 0; i < locComparisons.length; i++) {
+        let sample = locComparisons[i];
 
         let newSample = {
           component: 'LinearSvChartViz',
@@ -341,9 +341,9 @@
       }
     },
     removeTrack(trackIndex) {
-      let localSampleComparrisons = this.samples.comparrisons;
-      localSampleComparrisons.splice(trackIndex, 1);
-      this.$emit('updateComparrisons', localSampleComparrisons);
+      let localSampleComparisons = this.samples.comparisons;
+      localSampleComparisons.splice(trackIndex, 1);
+      this.$emit('updateComparisons', localSampleComparisons);
     }
   },
   computed: {
