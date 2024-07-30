@@ -40,6 +40,7 @@
           :bands="bands"
           :chromosomes="chromosomes"
           :genes="genes"
+          @deleteTrack="removeTrack"
           @selectAreaEvent="selectAreaEventFired"/>
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
@@ -63,6 +64,7 @@
             v-bind="chartData.props"
             @dragstart="handleDragStart(index, $event)"
             @selectAreaEvent="selectAreaEventFired"
+            @removeTrack="removeTrack(index - 1)"
             class="draggable-chart"
           />
         </div>
@@ -338,6 +340,11 @@
         return x;
       }
     },
+    removeTrack(trackIndex) {
+      let localSampleComparrisons = this.samples.comparrisons;
+      localSampleComparrisons.splice(trackIndex, 1);
+      this.$emit('updateComparrisons', localSampleComparrisons);
+    }
   },
   computed: {
     isGlobalView() {

@@ -54,6 +54,7 @@
         :phenRelatedGenes="overlappedPhenGenes"
         :batchNum="batchNum"
         :multiSampleVcf="multiSampleVcf"
+        @updateComparrisons="updateComparrisons"
         @zoomEvent="zoomFired"/>
 
     </div>
@@ -438,6 +439,9 @@
       },
       addToast(toast) {
         this.toasts.push(toast)
+      },
+      updateComparrisons(comparrisons) {
+        this.samples.comparrisons = comparrisons;
       }
     },
     watch: {

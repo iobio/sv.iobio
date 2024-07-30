@@ -1,6 +1,7 @@
 <template>
     <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
       <p class="title" v-if="title">{{ title }}</p>
+      <div v-if="!isProband" class="remove-button" @click="emitRemoveTrack">x</div>
       <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">. . .</div>
       <div :class="{hidden: isLoading}" ref="linearChartContainer" class="linear-sv-chart"></div>
       <div class="loading-message" v-if="isLoading">
@@ -94,6 +95,9 @@ export default {
         timeout = setTimeout(() => func.apply(this, args), delay);
       };
     },
+    emitRemoveTrack(){
+      this.$emit('removeTrack');
+    }
   },
   computed: {
     hasAllOptions(){
@@ -155,6 +159,25 @@ export default {
       &:hover
         box-shadow: 0px 0px 5px 0px #2A65B7
         background-color: #C1D1EA
+    .remove-button
+      position: absolute
+      top: 0px
+      left: -9px
+      font-size: 1.1em
+      cursor: pointer
+      color: #2A65B7
+      width: 20px
+      height: 20px
+      border-radius: 50%
+      border: 1px solid #2A65B7
+      display: flex
+      justify-content: center
+      align-items: center
+      line-height: 1em
+      box-shadow: 0px 0px 3px 0px #2A65B7
+      &:hover
+        color: red
+        border: 1px solid red
   .linear-sv-chart 
     height: 120px
     width: 100%
