@@ -54,6 +54,7 @@
         :phenRelatedGenes="overlappedPhenGenes"
         :batchNum="batchNum"
         :multiSampleVcf="multiSampleVcf"
+        @updateComparisons="updateComparisons"
         @zoomEvent="zoomFired"/>
 
     </div>
@@ -111,7 +112,7 @@
             bai: '',
             svList: [],
           },
-          comparrisons: []
+          comparisons: []
         },
         toasts: [],
         multiSampleVcf: false
@@ -254,13 +255,13 @@
           let svListTemp = this.samples.proband.svList;
           this.samples.proband = samples.proband;
           this.samples.proband.svList = svListTemp;
-          this.samples.comparrisons = samples.comparrisons;
+          this.samples.comparisons = samples.comparisons;
           return;
         } else {
           this.samples.proband = samples.proband;
           this.loadData(this.multiSampleVcf);
         }
-        this.samples.comparrisons = samples.comparrisons;
+        this.samples.comparisons = samples.comparisons;
       },
       async getSVAssociations(variantBatch, build='hg38', source='refseq') {
 
@@ -438,6 +439,9 @@
       },
       addToast(toast) {
         this.toasts.push(toast)
+      },
+      updateComparisons(comparisons) {
+        this.samples.comparisons = comparisons;
       }
     },
     watch: {

@@ -13,7 +13,7 @@ export default {
   name: 'svCircos',
   components: {
   },
-  emits: ['selectAreaEvent'],
+  emits: ['selectAreaEvent', 'deleteTrack'],
   props: {
     svList: Array,
     probandName: {
@@ -80,6 +80,7 @@ export default {
         zoomCallback: this.emitZoomEvent,
         probandName: this.probandName,
         sampleNames: this.samplesTitles || [],
+        deleteTrackCallback: this.emitDeleteTrackEvent
       }
 
       if (this.genes) {
@@ -120,6 +121,9 @@ export default {
     },
     emitZoomEvent(zoomLevel) {
       this.$emit('selectAreaEvent', zoomLevel)
+    },
+    emitDeleteTrackEvent(trackIndex) {
+      this.$emit('deleteTrack', trackIndex)
     }
   },
   computed: {

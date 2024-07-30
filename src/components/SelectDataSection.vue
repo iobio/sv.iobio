@@ -17,7 +17,7 @@
                 @update-sample-files="addFileToWaygate"/>
 
             <SampleDataRow 
-                v-for="(sample, index) in samplesLocal.comparrisons" 
+                v-for="(sample, index) in samplesLocal.comparisons" 
                 :key="index" 
                 :sample="sample"
                 @close-row="removeRow(index)"
@@ -49,19 +49,19 @@
                 </fieldset>
 
                 <div class="label-input-wrapper" v-if="jointVcfHeaders.filter(id => id !== samplesLocal.proband.id).length > 0">
-                    <label for="comparrison-samples">Select Comparrison Samples</label>
-                    <select name="comparrison-samples" id="comparrisons" multiple v-model="selectedComparrisonSamples">
+                    <label for="comparison-samples">Select Comparison Samples</label>
+                    <select name="comparison-samples" id="comparisons" multiple v-model="selectedComparisonSamples">
                         <option v-for="header in jointVcfHeaders.filter(id => id !== samplesLocal.proband.id)" :key="header">{{header}}</option>
                     </select>
                 </div>
                 <div v-else><strong>Only one sample detected in:</strong> {{ jointVcfUrl }}</div>
 
-                <div class="sample-fieldset-wrapper" v-for="(sample, index) in selectedComparrisonSamples" :key="index">
+                <div class="sample-fieldset-wrapper" v-for="(sample, index) in selectedComparisonSamples" :key="index">
                     <fieldset>
                         <legend>ID: {{sample}}</legend>
                         <div class="label-input-wrapper">
-                            <label for="comparrison-name">Sample Name</label>
-                            <input type="text" id="comparrison-name" v-model="samplesLocal.comparrisons[index].name"/>
+                            <label for="comparison-name">Sample Name</label>
+                            <input type="text" id="comparison-name" v-model="samplesLocal.comparisons[index].name"/>
                         </div>
                     </fieldset>
                 </div>
@@ -97,7 +97,7 @@ export default {
             samplesFormat: 'individual',
             jointVcfHeaders: [],
             jointVcfUrl: '',
-            selectedComparrisonSamples: []
+            selectedComparisonSamples: []
         }
     },
     mounted () {
@@ -105,7 +105,7 @@ export default {
     },
     methods: {
         addNewSample () {
-            this.samplesLocal.comparrisons.push({
+            this.samplesLocal.comparisons.push({
                 name: '',
                 vcf: '',
                 tbi: '',
@@ -123,7 +123,7 @@ export default {
             this.$emit('toggle-show')
         },
         removeRow (index) {
-            this.samplesLocal.comparrisons.splice(index, 1)
+            this.samplesLocal.comparisons.splice(index, 1)
         },
         async startWaygate () {
             //if waygate is already active, don't start it again
@@ -162,8 +162,8 @@ export default {
             if (sampleName === this.samplesLocal.proband.name) {
                this.samplesLocal.proband[fileType] = uri
             } else {
-                //find the sample with this name in comparrisons
-                let sample = this.samplesLocal.comparrisons.find(sample => sample.name === sampleName)
+                //find the sample with this name in comparisons
+                let sample = this.samplesLocal.comparisons.find(sample => sample.name === sampleName)
                 sample[fileType] = uri
             }
         },
@@ -224,8 +224,8 @@ export default {
         }
     },
     watch: {
-        selectedComparrisonSamples (newVal) {
-            this.samplesLocal.comparrisons = newVal.map(sample => {
+        selectedComparisonSamples (newVal) {
+            this.samplesLocal.comparisons = newVal.map(sample => {
                 return {
                     name: sample,
                     vcf: this.jointVcfUrl,
@@ -241,7 +241,7 @@ export default {
             if (newVal !== oldVal) {
                 this.jointVcfHeaders = []
                 this.jointVcfUrl = ''
-                this.selectedComparrisonSamples = []
+                this.selectedComparisonSamples = []
             }
         }
     },

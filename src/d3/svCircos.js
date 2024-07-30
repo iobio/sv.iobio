@@ -21,6 +21,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     let zoomZone = null;
     let zoomedSection = null;
 
+    let deleteTrackCallback = null;
+
     let { chromosomeAccumulatedMap, bpGenomeSize } = _genChromosomeAccumulatedMap(chromosomes);
     
     let originZoom = {
@@ -134,6 +136,11 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         //if we have an altCaller
         if (options.altCallerData) {
             altCallerData = options.altCallerData
+        }
+
+        //if we have a deleteTrackCallback
+        if (options.deleteTrackCallback) {
+            deleteTrackCallback = options.deleteTrackCallback
         }
     }
 
@@ -335,6 +342,48 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .attr('alignment-baseline', 'middle')
                 .text(sampleName)
                 .attr('font-size', '9px')
+                .raise();
+
+            //An x button to remove the track
+            let xButton = svg.append('g')
+                .attr('cursor', 'pointer')
+                .on('click', function (event, d) {
+                    //remove the track
+                    d3.select(this).remove();
+                });
+
+            xButton.append('circle')
+                .attr('cx', sampleLabelX - 23)
+                .attr('cy', sampleLabelY)
+                .attr('r', 6)
+                .attr('fill', 'red')
+                .attr('opacity', 0.5)
+                .on('mouseover', function (event, d) {
+                    d3.select(this).attr('opacity', 1);
+                })
+                .on('mouseout', function (event, d) {
+                    d3.select(this).attr('opacity', 0.5);
+                })
+                .on('click', function (event, d) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    //TODO: Call a callback to remove the track using the 'sampleName' as the key
+                    if (deleteTrackCallback) {
+                        let index = sampleNames.indexOf(sampleName);
+                        deleteTrackCallback(index);
+                    }
+                });
+
+            xButton.append('text')
+                .attr('x', sampleLabelX - 23)
+                .attr('y', sampleLabelY +1)
+                .attr('fill', 'white')
+                .attr('text-anchor', 'middle')
+                .attr('font-weight', 'bold')
+                .attr('alignment-baseline', 'middle')
+                .text('X')
+                .attr('font-size', '8px')
+                .style('pointer-events', 'none')
                 .raise();
             
             startRadius -= decNum;
