@@ -1,10 +1,19 @@
 <template>
     <div id="variant-list-item">
         <div class="preview" :class="{opened: showMore}" @click="variantClicked">
-            <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">{{ Math.round((numPhensAccountedFor/this.patientPhenotypes.length)*100) }}%</span>
-            <span v-else class="num-genes-overlapped-tip">{{ numberOfGenes }} genes</span>
+            <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">
+                <strong>{{ Math.round((numPhensAccountedFor/this.patientPhenotypes.length)*100) }}%</strong>
+                Pt Phens.
+            </span>
+            <span v-else class="num-genes-overlapped-tip">
+                <strong>{{ numberOfGenes }}</strong>
+                genes
+            </span>
+            
             <div>{{ variant.chromosome }}</div>
-            <div class="location-text">S: {{ variant.start }} E: {{ variant.end }}</div>
+            <div class="location-text">
+                S: {{ variant.start }} <br> E: {{ variant.end }}
+            </div>
             <div class="size-text">{{ (variant.end + 1) - variant.start }} bp</div>
             <div class="type-text" :class="{red: variant.type === 'DEL'}">{{ variant.type }}</div>
         </div>
@@ -150,7 +159,7 @@
         .preview
             position: relative
             display: grid
-            grid-template-columns: 1fr 1.5fr 1fr .5fr
+            grid-template-columns: .2fr .15fr .25fr .25fr .15fr
             grid-template-rows: 1fr
             padding: 5px
             width: 100%
@@ -161,27 +170,29 @@
                 background-color: #DEE9F7
                 border-bottom: 1px solid #DEE9F7
             .num-phens-accounted-perc-tip
-                position: absolute
-                top: 10px
-                left: 5px
-                height: 10px
-                padding: 1px 2px
+                padding: 3px 2px
                 font-size: .7em
-                border-radius: 3px
-                background-color: #67F56E
+                border-radius: 5px
+                background-color: #D8E9FD
+                display: flex
+                flex-direction: column
+                align-items: center
+                justify-content: center
                 text-align: center
                 line-height: 1em
+                box-sizing: border-box
             .num-genes-overlapped-tip
-                position: absolute
-                top: 10px
-                left: 5px
-                height: 10px
-                padding: 1px 2px
+                padding: 3px 2px
                 font-size: .7em
-                border-radius: 3px
-                background-color: #67F56E
+                border-radius: 5px
+                background-color: #D8E9FD
+                display: flex
+                flex-direction: column
+                align-items: center
+                justify-content: center
                 text-align: center
                 line-height: 1em
+                box-sizing: border-box
             .rank-text
                 color: #2A65B7
                 font-weight: bold
