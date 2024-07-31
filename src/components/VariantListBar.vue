@@ -44,6 +44,7 @@
   mounted () {
     //we want to listen for scroll events on the variant list bar... if we are at the bottom, we want to load more variants
     let variantListBar = document.getElementById('variant-list-bar');
+
     variantListBar.addEventListener('scroll', this.handleScroll);
 
     //the initial thumb size will be the size of the scrollSelection[1] / svList.length * 100
@@ -98,7 +99,7 @@
     },
     handleScroll(event) {
       let variantListBar = event.target;
-      if (variantListBar.scrollTop + variantListBar.clientHeight >= variantListBar.scrollHeight && this.scrollSelection[1] < this.svList.length) {
+      if (variantListBar.scrollTop + variantListBar.clientHeight >= (variantListBar.scrollHeight - 1) && this.scrollSelection[1] < this.svList.length) {
         this.scrollSelection[0] = this.scrollSelection[0] + 1;
         this.scrollSelection[1] = this.scrollSelection[1] + 1;
         //increment the scroll just a little so that we can keep the scroll bar at the bottom and it seems natural
@@ -113,7 +114,7 @@
         this.scrollSelection[0] = this.scrollSelection[0] - 1;
         this.scrollSelection[1] = this.scrollSelection[1] - 1;
         
-        variantListBar.scrollTop = 1;
+        variantListBar.scrollTop = variantListBar.scrollTop + 1;
 
         //the thumb top position will be the scrollSelection[0] / svList.length * 100
         let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
@@ -124,7 +125,7 @@
       this.scrollSelection = scrollSelection;
       let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
       thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
-    }
+    },
   },
   computed: {
     svListSelection() {
