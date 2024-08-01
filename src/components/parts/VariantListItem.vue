@@ -1,6 +1,10 @@
 <template>
     <div id="variant-list-item">
         <div class="preview" :class="{opened: showMore}" @click="variantClicked">
+            <span class="exp-collapse-carrot">
+                <svg v-if="!showMore" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-down</title><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
+                <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-up</title><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
+            </span>
             <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">
                 <strong>{{ Math.round((numPhensAccountedFor/this.patientPhenotypes.length)*100) }}%</strong>
                 Pt Phens.
@@ -167,7 +171,7 @@
         .preview
             position: relative
             display: grid
-            grid-template-columns: .2fr .15fr .25fr .25fr .15fr
+            grid-template-columns: .05fr .195fr .15fr .25fr .25fr .15fr
             grid-template-rows: 1fr
             padding: 5px
             width: 100%
@@ -177,6 +181,22 @@
                 box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
                 background-color: #DEE9F7
                 border-bottom: 1px solid #DEE9F7
+            .exp-collapse-carrot
+                display: flex
+                justify-content: center
+                align-items: center
+                border-radius: 50%
+                border: 2px solid transparent
+                transition: border 0.2s ease-in-out, border-radius 0.2s ease-in-out
+                &:hover
+                    cursor: pointer
+                    border: 2px solid #2A65B7
+                    border-radius: 5px
+                svg
+                    height: 20px
+                    width: 20px
+                    fill: #2A65B7
+                    pointer-events: none
             .num-phens-accounted-perc-tip
                 padding: 3px 2px
                 font-size: .7em

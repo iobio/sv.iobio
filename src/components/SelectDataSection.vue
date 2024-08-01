@@ -65,10 +65,19 @@
                         </div>
                     </fieldset>
                 </div>
+
+                <SampleDataRow 
+                    v-for="(sample, index) in samplesLocal.comparisons.filter(sample => !jointVcfHeaders.includes(sample.id))" 
+                    :key="index" 
+                    :sample="sample"
+                    @close-row="removeRow(index)"
+                    @open-waygate="startWaygate"
+                    @update-sample-files="addFileToWaygate"/>
             </div>
         </div>
 
         <button class="add-btn" @click="addNewSample" v-if="samplesFormat == 'individual'">+</button>
+        <button class="add-additional-btn" @click="addNewSample" v-if="samplesFormat == 'joint' && (jointVcfHeaders && samplesLocal.proband.id)">Add Additional VCF</button>
         <button class="go-btn" @click="sendSamples" v-if="samplesFormat == 'individual' || (jointVcfHeaders && samplesLocal.proband.id)">GO</button>
     </div>
 </template>
@@ -94,6 +103,7 @@ export default {
             waygateActive: false,
             waygateDirTree: null,
             waygateTunnelDomain: null,
+            //Multiple samples items
             samplesFormat: 'individual',
             jointVcfHeaders: [],
             jointVcfUrl: '',
@@ -104,9 +114,10 @@ export default {
         this.samplesLocal = JSON.parse(JSON.stringify(this.samples))
     },
     methods: {
-        addNewSample () {
+        addNewSample() {
             this.samplesLocal.comparisons.push({
                 name: '',
+                id: '',
                 vcf: '',
                 tbi: '',
                 bam: '',
@@ -123,7 +134,13 @@ export default {
             this.$emit('toggle-show')
         },
         removeRow (index) {
-            this.samplesLocal.comparisons.splice(index, 1)
+            if (this.samplesFormat === 'individual') {
+                this.samplesLocal.comparisons.splice(index, 1)
+            } else {
+                let freeComparisons = this.samplesLocal.comparisons.filter(sample => !this.jointVcfHeaders.includes(sample.id))
+                freeComparisons.splice(index, 1)
+                this.samplesLocal.comparisons = this.samplesLocal.comparisons.filter(sample => this.jointVcfHeaders.includes(sample.id)).concat(freeComparisons)
+            }
         },
         async startWaygate () {
             //if waygate is already active, don't start it again
@@ -225,7 +242,9 @@ export default {
     },
     watch: {
         selectedComparisonSamples (newVal) {
-            this.samplesLocal.comparisons = newVal.map(sample => {
+            let currentComparisons = this.samplesLocal.comparisons.filter(sample => this.jointVcfHeaders.includes(sample.id));
+
+            currentComparisons = newVal.map(sample => {
                 return {
                     name: sample,
                     vcf: this.jointVcfUrl,
@@ -236,6 +255,8 @@ export default {
                     svList: []
                 }
             })
+
+            this.samplesLocal.comparisons = currentComparisons.concat(this.samplesLocal.comparisons.filter(sample => !this.jointVcfHeaders.includes(sample.id)))
         },
         samplesFormat (newVal, oldVal) {
             if (newVal !== oldVal) {
@@ -243,6 +264,12 @@ export default {
                 this.jointVcfUrl = ''
                 this.selectedComparisonSamples = []
             }
+        },
+        samples: {
+            handler: function (val) {
+                this.samplesLocal = JSON.parse(JSON.stringify(val))
+            },
+            deep: true
         }
     },
     computed: {
@@ -392,4 +419,14 @@ export default {
             &:hover
                 background-color: #1A45A7
                 color: white
+        .add-additional-btn
+            background-color: #2A65B7
+            color: white
+            border: none
+            padding: 5px 10px
+            border-radius: 5px
+            cursor: pointer
+            margin: 10px
+            &:hover
+                background-color: #1A4B97
 </style>
