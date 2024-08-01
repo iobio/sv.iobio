@@ -12,9 +12,9 @@
             
             <div>{{ variant.chromosome }}</div>
             <div class="location-text">
-                S: {{ variant.start }} <br> E: {{ variant.end }}
+                S: {{ bpFormatted(variant.start) }} <br> E: {{ bpFormatted(variant.end) }}
             </div>
-            <div class="size-text">{{ (variant.end + 1) - variant.start }} bp</div>
+            <div class="size-text">{{ bpFormatted((variant.end + 1) - variant.start) }}</div>
             <div class="type-text" :class="{red: variant.type === 'DEL'}">{{ variant.type }}</div>
         </div>
         <div v-if="showMore && variant.overlappedGenes" class="more-info">
@@ -106,6 +106,14 @@
             }
         })
         return phenotypes
+    },
+    bpFormatted(valuebp) {
+        if (valuebp > 1000000) {
+            return `${(valuebp / 1000000).toFixed(2)}Mb`;
+        } else if (valuebp > 1000) {
+            return `${(valuebp / 1000).toFixed(2)}Kb`;
+        }
+        return `${valuebp}Bp`;
     }
   },
   computed: {

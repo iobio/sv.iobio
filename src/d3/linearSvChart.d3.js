@@ -455,8 +455,17 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                             .attr('class', 'tooltip-hover-variant');
 
                         //append the data to the tooltip
+                        let bpFormatted = function(valuebp) {
+                            if (valuebp > 1000000) {
+                                return `${(valuebp / 1000000).toFixed(2)}Mb`;
+                            } else if (valuebp > 1000) {
+                                return `${(valuebp / 1000).toFixed(2)}Kb`;
+                            }
+                            return `${valuebp}Bp`;
+                        }
+
                         tooltip.append('p')
-                            .text(`${sv.chromosome}:${sv.start} size:${sv.end - sv.start}bp (${sv.type})`);
+                            .text(`${sv.chromosome}:${bpFormatted(sv.start)} size:${bpFormatted(sv.end - sv.start)} (${sv.type})`);
 
                         //put it in the right position
                         let x = event.clientX;
