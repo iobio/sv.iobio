@@ -123,6 +123,20 @@ export default {
 </script>
 
 <style lang="sass">
+  .tooltip-hover-variant
+    position: absolute
+    background-color: white
+    border: 1px solid #2A65B7 
+    padding: 5px
+    border-radius: 5px
+    pointer-events: none
+    display: flex
+    min-width: 200px
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    overflow: hidden
+    z-index: 10
   .linear-sv-chart-wrapper
     position: relative
     margin-top: 5px

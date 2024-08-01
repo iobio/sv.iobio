@@ -452,28 +452,35 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
                         //append a tooltip that is absolutely positioned to the mouse position
                         let tooltip = d3.select('body').append('div')
-                            .attr('class', 'tooltip-hover-variant')
-                            .style('position', 'absolute')
-                            .style('background-color', 'white')
-                            .style('border', '1px solid black')
-                            .style('padding', '5px')
-                            .style('border-radius', '5px')
-                            .style('pointer-events', 'none')
-                            .style('overflow-y', 'auto')
-                            .style('max-height', '200px')
-                            .style('max-width', '100px')
-                            .style('z-index', 1000);
+                            .attr('class', 'tooltip-hover-variant');
+
+                        //append the data to the tooltip
+                        tooltip.append('p')
+                            .text(`${sv.chromosome}:${sv.start} size:${sv.end - sv.start}bp (${sv.type})`);
 
                         //put it in the right position
                         let x = event.clientX;
                         let y = event.clientY;
 
+                        //The minimum width of the tooltip is 200px so if the x is less than 200px from the right side of the screen then we need to move it to the left
+                        if (window.innerWidth - x < 200) {
+                            x = x - 200;
+                        } else {
+                            x = x + 10;
+                        }
+
+                        //we want to know the calculated height of the tooltip as well so that we can ensure it doesnt go off the screen at the bottom
+                        let tooltipHeight = tooltip.node().getBoundingClientRect().height;
+
+                        //if the tooltip is going to go off the bottom of the screen then we need to move it up
+                        if (window.innerHeight - y < tooltipHeight) {
+                            y = y - tooltipHeight;
+                        } else {
+                            y = y + 10;
+                        }
+
                         tooltip.style('left', `${x + 10}px`)
                             .style('top', `${y + 10}px`);
-
-                        //append the data to the tooltip
-                        tooltip.append('p')
-                            .text(`chr:${sv.chromosome} st:${sv.start} en:${sv.end} len:${sv.end - sv.start}bp (${sv.type})`);
                     })
                     .on('mouseout', function(event, d) {
                         d3.select('.tooltip-hover-variant').remove();
