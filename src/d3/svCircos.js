@@ -970,8 +970,18 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                             .attr('class', 'tooltip-hover-variant');
 
                         //append the data to the tooltip
+                        let bpFormatted = function(valuebp) {
+                            if (valuebp > 1000000) {
+                                return `${(valuebp / 1000000).toFixed(2)}Mb`;
+                            } else if (valuebp > 1000) {
+                                return `${(valuebp / 1000).toFixed(2)}Kb`;
+                            }
+                            return `${valuebp}Bp`;
+                        }
+
+                        //append the data to the tooltip
                         tooltip.append('p')
-                            .text(`${variant.chromosome}:${variant.start} size:${variant.end - variant.start}bp (${variant.type})`);
+                            .text(`${variant.chromosome}:${bpFormatted(variant.start)} size:${bpFormatted(variant.end - variant.start)}bp (${variant.type})`);
 
                         //put it in the right position
                         let x = event.clientX;
