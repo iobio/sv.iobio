@@ -981,7 +981,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
                         //append the data to the tooltip
                         tooltip.append('p')
-                            .text(`${variant.chromosome}:${bpFormatted(variant.start)} size:${bpFormatted(variant.end - variant.start)}bp (${variant.type})`);
+                            .text(`${variant.chromosome}:${bpFormatted(variant.start)} size:${bpFormatted(variant.end - variant.start)} (${variant.type})`);
 
                         //put it in the right position
                         let x = event.clientX;

@@ -2,6 +2,7 @@
   <div id="variant-sudo-scroll-wrapper">
     <div id="variant-list-bar">
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
+        <div></div>
         <div>Variant <br> Overlaps</div>
         <div>Chrom.</div>
         <div>Location</div>
@@ -173,7 +174,7 @@
       transition: width 0.4s, min-width 0.4s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: .2fr .15fr .25fr .25fr .15fr
+        grid-template-columns: .05fr .195fr .15fr .25fr .25fr .15fr
         font-size: .8em
         width: 100%
         height: 50px
