@@ -88,7 +88,7 @@
             border-radius: 5px
             max-width: 100%
             &.info
-                background-color: white
+                background-color: #D1DCF0
                 color: #2A65B7
                 border: 1px solid #2A65B7
                 button

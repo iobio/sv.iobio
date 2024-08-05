@@ -42,6 +42,7 @@
         :svList="svListVariantBar"
         :patientPhenotypes="phenotypesOfInterest"
         :loading="!loadedInitiallyComplete"
+        :sorted="variantsSorted"
         @updateSvAtIndex="updateSvList"
         @variant-clicked="updateFocusedVariant"
         @sort-variants="sortSvList"/>
@@ -117,7 +118,8 @@
           comparisons: []
         },
         toasts: [],
-        multiSampleVcf: false
+        multiSampleVcf: false,
+        variantsSorted: false
       }
     },
     async mounted() {
@@ -358,6 +360,7 @@
           return;
         }
         
+        this.variantsSorted = false;
         this.phenotypesOfInterest = newPOI;
 
         //If we have some phenotypes of interest we want to get any associated genes
@@ -453,11 +456,12 @@
           this.svListVariantBar.sort((a, b) => {
             return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
           })
+          this.variantsSorted = true;
         } else {
           this.svListVariantBar.sort((a, b) => {
             return this.numPhensAccountedFor(this.phenotypesOfInterest, b.overlappedGenes) - this.numPhensAccountedFor(this.phenotypesOfInterest, a.overlappedGenes);
           })
-        
+          this.variantsSorted = true;
         }
       }
     },
@@ -469,7 +473,7 @@
           }
         },
         deep: true
-      }
+      },
     },
   }
 

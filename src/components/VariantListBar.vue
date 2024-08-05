@@ -2,8 +2,8 @@
   <div id="variant-sudo-scroll-wrapper">
     <div id="variant-list-bar">
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
-        <div @click="emitSortVariants" class="sort-btn">
-          <svg class="sort-svg" v-if="!loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <div @click="emitSortVariants" class="sort-btn" :class="{sorted: sorted}">
+          <svg class="sort-svg" :class="{sorted: sorted}" v-if="!loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <title>sort</title>
             <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
           </svg>
@@ -45,6 +45,10 @@
     svList: Array,
     patientPhenotypes: Array,
     loading: {
+      type: Boolean,
+      default: false
+    },
+    sorted: {
       type: Boolean,
       default: false
     }
@@ -219,11 +223,17 @@
           border: 2px solid transparent
           border-radius: 50%
           transition: all 0.25s
+          &.sorted
+            cursor: not-allowed
+            &:hover
+              border: 2px solid transparent
           svg
             width: 20px
             height: 20px
             fill: #2A65B7
             pointer-events: none
+            &.sorted
+              filter: grayscale(100%)
             &.loading-svg
               animation: spin 1s linear infinite
             @keyframes spin
