@@ -32,6 +32,7 @@ export default {
   data () {
     return {
       resizeObserver: null,
+      pendingDelete: false,
     }
   },
   mounted () {

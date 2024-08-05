@@ -41,8 +41,10 @@
         <VariantListBar 
         :svList="svListVariantBar"
         :patientPhenotypes="phenotypesOfInterest"
+        :loading="!loadedInitiallyComplete"
         @updateSvAtIndex="updateSvList"
-        @variant-clicked="updateFocusedVariant"/>
+        @variant-clicked="updateFocusedVariant"
+        @sort-variants="sortSvList"/>
       </div>
 
       <LeftTracksSection
@@ -442,6 +444,21 @@
       },
       updateComparisons(comparisons) {
         this.samples.comparisons = comparisons;
+      },
+      sortSvList() {
+        //TODO: Implement sorting we want to sort by either overlapped genes or overlapped phenotypes in common
+        if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
+          this.toasts.push({message: 'No phenotypes of interest to sort by, sorting by #genes overlapped', type: 'info'})
+          
+          this.svListVariantBar.sort((a, b) => {
+            return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
+          })
+        } else {
+          this.svListVariantBar.sort((a, b) => {
+            return this.numPhensAccountedFor(this.phenotypesOfInterest, b.overlappedGenes) - this.numPhensAccountedFor(this.phenotypesOfInterest, a.overlappedGenes);
+          })
+        
+        }
       }
     },
     watch: {

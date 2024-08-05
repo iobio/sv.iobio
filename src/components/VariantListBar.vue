@@ -2,7 +2,17 @@
   <div id="variant-sudo-scroll-wrapper">
     <div id="variant-list-bar">
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
-        <div></div>
+        <div @click="emitSortVariants" class="sort-btn">
+          <svg class="sort-svg" v-if="!loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <title>sort</title>
+            <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
+          </svg>
+
+          <svg class="loading-svg" v-if="loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <title>loading</title>
+            <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
+          </svg>
+        </div>
         <div>Variant <br> Overlaps</div>
         <div>Chrom.</div>
         <div>Location</div>
@@ -34,6 +44,10 @@
   props: {
     svList: Array,
     patientPhenotypes: Array,
+    loading: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {
@@ -127,6 +141,12 @@
       let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
       thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
     },
+    emitSortVariants() {
+      if (this.loading === true) {
+        return
+      }
+      this.$emit('sort-variants')
+    }
   },
   computed: {
     svListSelection() {
@@ -194,6 +214,26 @@
           display: flex
           justify-content: center
           align-items: center
+        .sort-btn
+          cursor: pointer
+          border: 2px solid transparent
+          border-radius: 50%
+          transition: all 0.25s
+          svg
+            width: 20px
+            height: 20px
+            fill: #2A65B7
+            pointer-events: none
+            &.loading-svg
+              animation: spin 1s linear infinite
+            @keyframes spin
+              0%
+                transform: rotate(0deg)
+              100%
+                transform: rotate(360deg)
+          &:hover
+            border: 2px solid #2A65B7
+            border-radius: 5px
     //Webkit scrollbar
     #variant-list-bar::-webkit-scrollbar
       display: none
