@@ -1,6 +1,6 @@
 <template>
     <div draggable="true" class="linear-gene-chart-wrapper" ref="rootDraggableContainer">
-      <p v-if="title">{{ title }}</p>
+      <p v-if="name">{{ name }}</p>
       <div class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">. . .</div>
       <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
     </div>
@@ -21,7 +21,7 @@ export default {
     bands: Array,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
-    title: String,
+    name: String,
     batchNum: Number,
   },
   data () {

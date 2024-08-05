@@ -49,7 +49,7 @@
             v-if="samples.proband.svList && samples.proband.svList.length > 0" 
             class="proband-chart"
             :svList="samples.proband.svList"
-            :title="samples.proband.name"
+            :name="samples.proband.name"
             :chromosomes="this.chromosomes"
             :centromeres="this.centromeres"
             :bands="this.bands"
@@ -159,7 +159,7 @@
           component: 'LinearGeneChartViz',
           props: {
             genesList: this.genes,
-            title: 'Genes',
+            name: 'Genes',
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
             centromeres: this.centromeres,
@@ -175,7 +175,7 @@
     },
     async fetchSamples() {
       let locComparisons = this.samples.comparisons;
-      let locChartsData = this.chartsData.filter(chart => chart.props.title === 'Genes');
+      let locChartsData = this.chartsData.filter(chart => chart.props.name=== 'Genes');
       let locSamplesLists = new Array(this.samples.comparisons.length);
       let locSamplesTitles = new Array(this.samples.comparisons.length);
 
@@ -186,7 +186,7 @@
           component: 'LinearSvChartViz',
           props: {
             svList: [],
-            title: sample.name,
+            name: sample.name,
             selectedArea: this.selectedArea,
             chromosomes: this.chromosomes,
             centromeres: this.centromeres,
@@ -370,7 +370,7 @@
   },
   watch: {
     batchNum() {
-      const genesChart = this.chartsData.find(chart => chart.props.title === 'Genes');
+      const genesChart = this.chartsData.find(chart => chart.props.name === 'Genes');
       if (genesChart) {
         genesChart.props.batchNum = this.batchNum;
       }
@@ -396,7 +396,7 @@
     },
     genesOfInterest: {
       handler() {
-        const genesChart = this.chartsData.find(chart => chart.props.title === 'Genes');
+        const genesChart = this.chartsData.find(chart => chart.props.name === 'Genes');
         if (genesChart) {
           genesChart.props.genesOfInterest = this.genesOfInterest;
         }
@@ -405,7 +405,7 @@
     },
     phenRelatedGenes: {
       handler() {
-        const genesChart = this.chartsData.find(chart => chart.props.title === 'Genes');
+        const genesChart = this.chartsData.find(chart => chart.props.name === 'Genes');
         if (genesChart) {
           genesChart.props.phenRelatedGenes = this.phenRelatedGenes;
         }

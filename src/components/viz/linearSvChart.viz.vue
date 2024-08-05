@@ -1,6 +1,6 @@
 <template>
     <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
-      <p class="title" v-if="title">{{ title }}</p>
+      <p class="title" v-if="name">{{ name }}</p>
       <div v-if="!isProband" class="remove-button" @click="emitRemoveTrack">x</div>
       <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">. . .</div>
       <div :class="{hidden: isLoading}" ref="linearChartContainer" class="linear-sv-chart"></div>
@@ -23,7 +23,7 @@ export default {
     chromosomes: Array,
     centromeres: Array,
     bands: Array,
-    title: String,
+    name: String,
     isProband: {
       type: Boolean,
       default: false

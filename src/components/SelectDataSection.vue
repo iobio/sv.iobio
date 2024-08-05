@@ -268,6 +268,10 @@ export default {
         samples: {
             handler: function (val) {
                 this.samplesLocal = JSON.parse(JSON.stringify(val))
+                //Update selected comparison samples as needed
+                if (this.samplesFormat === 'joint') {
+                    this.selectedComparisonSamples = this.selectedComparisonSamples.filter(sample => this.samplesLocal.comparisons.map(sample => sample.id).includes(sample));
+                }
             },
             deep: true
         }
