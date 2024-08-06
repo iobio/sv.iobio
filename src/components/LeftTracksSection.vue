@@ -265,7 +265,7 @@
     },
     selectAreaEventFired(zoomZone) {
       //if the zoomZone is not the whole genome we push it to the zoomHistory
-      if (zoomZone.start !== 0 && !(zoomZone.end > 3000000000)) {
+      if (zoomZone && zoomZone.start !== 0 && !(zoomZone.end > 3000000000)) {
         //BUG: this may not catch the case that we are at the end or beginning but not selecting the whole? check
         this.zoomHistory.push(zoomZone);
       } else {
@@ -377,8 +377,9 @@
     },
     focusedVariant() {
       if (this.focusedVariant) {
-        this.showButton = true
+        this.focusOnVariant();
       } else {
+        this.$emit('zoomEvent', null)
         this.showButton = false
       }
     },
