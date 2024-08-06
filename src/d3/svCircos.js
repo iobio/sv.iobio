@@ -15,6 +15,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
     let probandTrackName = null;
     let sampleNames = [];
     let sampleLists = [];
+    let focusedVariant = null;
 
     //Zoom Variables
     let zoomedCallback = null;
@@ -141,6 +142,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         //if we have a deleteTrackCallback
         if (options.deleteTrackCallback) {
             deleteTrackCallback = options.deleteTrackCallback
+        }
+        if (options.focusedVariant) {
+            focusedVariant = options.focusedVariant;
         }
     }
 
@@ -888,6 +892,15 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
         let varPosMap = {};
 
         for (let variant of data) {
+            let varChrom = variant['chromosome'];
+            let varStart = parseInt(variant['start']);
+            let varEnd = parseInt(variant['end']);
+
+            let isFocused = false;
+            if (focusedVariant) {
+                isFocused = focusedVariant.chromosome === varChrom && focusedVariant.start === varStart && focusedVariant.end === varEnd;
+            }
+
             let accStart = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['start']);
             let accEnd = chromosomeAccumulatedMap.get(variant['chromosome']).start + parseInt(variant['end']);
 
@@ -949,10 +962,12 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('d', arc)
                     .attr('transform', `translate(${width / 2}, ${height / 2})`)
                     .attr('fill', function(d) {
-                        if (variant.type === 'DEL') {
-                            return 'red';
+                        if (isFocused) {
+                            return '#FFD000';
+                        } else if (variant.type == 'DEL') {
+                            return '#CC0000';
                         } else {
-                            return '#1F68C1';
+                            return '#4C709B';
                         }
                     })
                     .attr('class', 'prob-variant-arc')
@@ -962,7 +977,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
                         console.log('variant: ', variant);
                         d3.select(this)
-                            .style('fill', '#DA44B4')
+                            .style('fill', '#C6A619')
                             .style('cursor', 'pointer');
 
                         //append a tooltip that is absolutely positioned to the mouse position
@@ -1011,10 +1026,12 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .on('mouseout', function (event, d) {
                         d3.select(this)
                             .style('fill', function(d) {
-                                if (variant.type === 'DEL') {
-                                    return 'red';
+                                if (isFocused) {
+                                    return '#FFD000';
+                                } else if (variant.type == 'DEL') {
+                                    return '#CC0000';
                                 } else {
-                                    return '#1F68C1';
+                                    return '#4C709B';
                                 }
                             })
                             .style('cursor', 'default');
@@ -1755,17 +1772,17 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('d', arc)
                     .attr('transform', `translate(${width / 2}, ${height / 2})`)
                     .attr('fill', function(d) {
-                        if (variant.type === 'DEL') {
-                            return 'red';
+                        if (variant.type == 'DEL') {
+                            return '#CC0000';
                         } else {
-                            return '#1F68C1';
+                            return '#4C709B';
                         }
                     })
                     .attr('class', `.add-trac-var-${tracNum}`)
                     .on('mouseover', function (event, d) {
                         console.log('variant: ', variant);
                         d3.select(this)
-                            .style('fill', '#DA44B4')
+                            .style('fill', '#C6A619')
                             .style('cursor', 'pointer');
 
                         //append a tooltip that is absolutely positioned to the mouse position
@@ -1813,10 +1830,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .on('mouseout', function (event, d) {
                         d3.select(this)
                             .style('fill', function(d) {
-                                if (variant.type === 'DEL') {
-                                    return 'red';
+                                if (variant.type == 'DEL') {
+                                    return '#CC0000';
                                 } else {
-                                    return '#1F68C1';
+                                    return '#4C709B';
                                 }
                             })
                             .style('cursor', 'default');

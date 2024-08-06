@@ -10,6 +10,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
     let selection = null;
     let centromeres = null;
     let bands = null;
+    let focusedVariant = null;
 
     //zoom variables
     let zoomedSelection = null;
@@ -69,6 +70,10 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 newBands.push(band);
             }
             bands = newBands;
+        }
+
+        if (options.focusedVariant) {
+            focusedVariant = options.focusedVariant;
         }
     }
 
@@ -366,6 +371,13 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
             let start = sv.start;
             let end = sv.end;
 
+            let isFocused = false;
+            if (focusedVariant) {
+                if (focusedVariant.chromosome == chr && focusedVariant.start == start && focusedVariant.end == end) {
+                    isFocused = true;
+                }
+            }
+
             //get the corresponding chromosome from the accumulated map
             let chromosome = chromosomeMap.get(chr);
             let absoluteStart = chromosome.start + start;
@@ -435,10 +447,12 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                     .attr('height', 5)
                     .attr('fill', function(){
                         //should be red if it's a deletion
-                        if (sv.type == 'DEL') {
-                            return 'red';
+                        if (isFocused) {
+                            return '#FFD700';
+                        } else if (sv.type == 'DEL') {
+                            return '#CC0000';
                         } else {
-                            return '#1F68C1';
+                            return '#4C709B';
                         }
                     })
                     .on('mouseover', function(event, d) {
@@ -447,7 +461,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
                         console.log('variant: ', sv);
                         d3.select(this)
-                            .style('fill', '#DA44B4')
+                            .style('fill', '#C6A619')
                             .style('cursor', 'pointer');
 
                         //append a tooltip that is absolutely positioned to the mouse position
@@ -495,10 +509,12 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                         d3.select('.tooltip-hover-variant').remove();
                         d3.select(this)
                             .style('fill', function(){
-                                if (sv.type == 'DEL') {
-                                    return 'red';
+                                if (isFocused) {
+                                    return '#FFD700';
+                                } else if (sv.type == 'DEL') {
+                                    return '#CC0000';
                                 } else {
-                                    return '#1F68C1';
+                                    return '#4C709B';
                                 }
                             });
                     })

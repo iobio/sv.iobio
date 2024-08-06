@@ -16,6 +16,10 @@ export default {
   emits: ['selectAreaEvent', 'deleteTrack'],
   props: {
     svList: Array,
+    focusedVariant: {
+      type: Object,
+      required: false
+    },
     probandName: {
       type: String,
       default: 'Proband'
@@ -105,6 +109,10 @@ export default {
             options.sampleLists = [];
           }
         }
+      }
+
+      if (this.focusedVariant) {
+        options.focusedVariant = this.focusedVariant;
       }
 
       //remove anything from the container

@@ -29,6 +29,7 @@
         <svCircos 
           v-if="globalView === 'circos' && circosDataReady"
           :svList="svList"
+          :focusedVariant="focusedVariant"
           :probandName="samples.proband.name"
           :zoomZone="selectedArea"
           :genesOfInterest="genesOfInterest"
@@ -49,6 +50,7 @@
             v-if="samples.proband.svList && samples.proband.svList.length > 0" 
             class="proband-chart"
             :svList="samples.proband.svList"
+            :focusedVariant="focusedVariant"
             :name="samples.proband.name"
             :chromosomes="this.chromosomes"
             :centromeres="this.centromeres"
@@ -270,6 +272,9 @@
         this.zoomHistory.push(zoomZone);
       } else {
         this.zoomHistory = [];
+        if (this.focusedVariant) {
+          this.showButton = true
+        }
       }
       this.$emit('zoomEvent', zoomZone)
     },

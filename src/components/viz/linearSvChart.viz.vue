@@ -19,6 +19,10 @@ export default {
   },
   props: {
     svList: Array,
+    focusedVariant: {
+      type: Object,
+      required: false
+    },
     selectedArea: Object,
     chromosomes: Array,
     centromeres: Array,
@@ -70,6 +74,11 @@ export default {
         centromeres: this.centromeres, 
         bands: this.bands,
       };
+      
+      if (this.focusedVariant) {
+        options.focusedVariant = this.focusedVariant;
+      }
+
       this.linearSvChart = new linearSvChart(container, this.chromosomes, this.svList,  options);
 
       //grab the container and append the chart
