@@ -6,6 +6,28 @@
             <input type="checkbox" name="gene-overlap" v-model="geneOverlap">
         </div>
 
+        <div id="quality-info-wrapper" v-if="probQualityStats && probQualityStats.avg">
+            <div class="quality-stats-row">
+                <span>Mean: {{ roundedAvg() }}</span>
+                <span>Median: {{ roundedMedian() }}</span>
+                <span>SD: {{ roundedSD() }}</span>
+            </div>
+
+            <div id="quality-cutoff">
+                <label for="quality-cutoff">Quality <br> Cutoff</label>
+                <span>{{ roundedMin() }}</span>
+                <input list="markers" type="range" name="quality-cutoff" :min="probQualityStats.min" :max="probQualityStats.max" step="1" v-model="cutoff">
+                <span>{{ roundedMax() }}</span>
+            </div>
+            <datalist id="markers">
+                <option :value="roundedMin()"></option>
+                <option :value="oneSDBelow()"></option>
+                <option :value="roundedMinMedianAvg()"></option>
+                <option :value="roundedMaxMedianAvg()"></option>
+            </datalist>
+            <span>Remove: Quality < {{cutoff}}</span>
+        </div>
+
         <button @click="updateFilters" :disabled="!loaded">Apply</button>
     </div>
 </template>
@@ -20,11 +42,13 @@ export default {
     props: {
         show: Boolean,
         filters: Object,
-        loaded: Boolean
+        loaded: Boolean,
+        probQualityStats: Object
     },
     data () {
         return {
-            geneOverlap: JSON.parse(this.filters.geneOverlap)
+            geneOverlap: JSON.parse(this.filters.geneOverlap),
+            cutoff: 0,
         }
     },
     mounted () {
@@ -33,8 +57,33 @@ export default {
         updateFilters() {
             this.$emit('toggleFilterDataSection')
             this.$emit('updateFilters', {
-                geneOverlap: this.geneOverlap
+                geneOverlap: this.geneOverlap,
+                qualityCutOff: this.cutoff
             })
+        },
+        roundedMin() {
+            return Math.round(this.probQualityStats.min) || 0
+        },
+        roundedMax() {
+            return Math.round(this.probQualityStats.max) || 'None'
+        },
+        roundedAvg() {
+            return Math.round(this.probQualityStats.avg) || 'None'
+        },
+        roundedMedian() {
+            return Math.round(this.probQualityStats.median) || 'None'
+        },
+        roundedSD(){
+            return Math.round(this.probQualityStats.stdDev) || 'None'
+        },
+        oneSDBelow() {
+            return Math.round(this.probQualityStats.avg - this.probQualityStats.stdDev) || 'None'
+        },
+        roundedMinMedianAvg() {
+            return Math.round(Math.min(this.probQualityStats.median, this.probQualityStats.avg)) || 'None';
+        },
+        roundedMaxMedianAvg() {
+            return Math.round(Math.max(this.probQualityStats.median, this.probQualityStats.avg)) || 'None';
         }
     },
     watch: {
@@ -105,4 +154,36 @@ export default {
                 background-color: #ccc
                 color: #666
                 cursor: not-allowed
+        #quality-info-wrapper
+            display: flex
+            flex-direction: column
+            width: 100%
+            align-items: center
+            justify-content: flex-start
+            border: 1px solid #0D60C3
+            border-radius: 5px
+            padding: 5px
+            margin-top: 10px
+            span
+                margin-right: 10px
+                color: #0D60C3
+                font-weight: 400
+        #quality-cutoff
+            display: flex
+            width: 100%
+            flex-direction: row
+            align-items: center
+            justify-content: flex-start
+            margin-top: 10px
+            label
+                margin-right: 10px
+                color: #0D60C3
+                font-weight: bold
+            input[type="range"]
+                margin-right: 10px
+                flex-grow: 1
+            span
+                margin-left: 10px
+                color: #0D60C3
+                font-weight: bold
 </style>

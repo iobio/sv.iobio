@@ -29,7 +29,7 @@
     :show="filterDataSectionOpen"
     :filters="filters"
     :loaded="loadedInitiallyComplete"
-    :probQualityStats="qualityStats"
+    :probQualityStats="qualityStats.proband"
     @toggleFilterDataSection="filterDataSectionOpen = false"
     @updateFilters="updateDataFilters"/>
 
@@ -122,7 +122,8 @@
         toasts: [],
         multiSampleVcf: false,
         variantsSorted: false,
-        qualityStats: {}
+        qualityStats: {},
+        variantsFilteredOut: [],
       }
     },
     async mounted() {
@@ -239,14 +240,43 @@
         }
       },
       updateDataFilters(filters) {
-        this.filters = filters
+        //Filters, essentially shouldn't need to make additional calls to the server
+        if (filters.geneOverlap !== this.filters.geneOverlap || filters.qualityCutOff !== this.filters.qualityCutOff) {
+          this.filters = filters;
+        } else {
+          return;
+        }
+
+        let allSVs = this.svListVariantBar.concat(this.variantsFilteredOut);
+        let newSVs = [];
+        let newFilteredOut = [];
+        let filterApplied = false;
 
         if (filters.geneOverlap) {
-          this.svListVariantBar = this.svListVariantBar.filter(sv => Object.values(sv.overlappedGenes).length > 0);
-          this.svListChart = this.svListVariantBar;
-        } else {
-          this.loadData(this.multiSampleVcf);
-        } 
+          newSVs = allSVs.filter(sv => Object.values(sv.overlappedGenes).length > 0);
+          newFilteredOut = allSVs.filter(sv => Object.values(sv.overlappedGenes).length == 0);
+          filterApplied = true;
+        }
+
+        if (filters.qualityCutOff > 0) {
+          if (!filters.geneOverlap) {
+            newSVs = allSVs.filter(sv => Number(sv.quality) >= filters.qualityCutOff);
+            newFilteredOut = allSVs.filter(sv => Number(sv.quality) < filters.qualityCutOff);
+          } else {
+            newSVs = newSVs.filter(sv => Number(sv.quality) >= filters.qualityCutOff);
+            newFilteredOut.concat(newSVs.filter(sv => Number(sv.quality) < filters.qualityCutOff));
+          }
+          filterApplied = true;
+        }
+
+        if (!filterApplied) {
+          newSVs = allSVs;
+          newFilteredOut = []; 
+        }
+
+        this.svListVariantBar = newSVs;
+        this.svListChart = this.svListVariantBar;
+        this.variantsFilteredOut = newFilteredOut;
       },
       hasPhenotypes(overlappedGenes) {
         /**
