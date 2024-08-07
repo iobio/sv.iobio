@@ -483,7 +483,8 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                             .html(`
                                 ${sv.chromosome}:${bpFormatted(sv.start)}<br>
                                 size:${bpFormatted(sv.end - sv.start)}<br>
-                                quality:${sv.quality} (${sv.type})`);
+                                quality:${sv.quality} (${sv.type})<br>
+                                GT:${sv.genotype.slice(0, 3)}`);
 
                         //put it in the right position
                         let x = event.clientX;

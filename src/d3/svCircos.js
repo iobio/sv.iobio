@@ -999,7 +999,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                             .html(`
                                 ${variant.chromosome}:${bpFormatted(variant.start)}<br>
                                 size:${bpFormatted(variant.end - variant.start)}<br>
-                                quality:${variant.quality} (${variant.type})`);
+                                quality:${variant.quality} (${variant.type})<br>
+                                GT:${variant.genotype.slice(0, 3)}`);
 
                         //put it in the right position
                         let x = event.clientX;
@@ -1807,8 +1808,9 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                             .html(`
                                 ${variant.chromosome}:${bpFormatted(variant.start)}<br>
                                 size:${bpFormatted(variant.end - variant.start)}<br>
-                                quality:${variant.quality} (${variant.type})`);
-                                
+                                quality:${variant.quality} (${variant.type})<br>
+                                GT:${variant.genotype.slice(0, 3)}`);
+
                         //put it in the right position
                         let x = event.clientX;
                         let y = event.clientY;
