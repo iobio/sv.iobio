@@ -8,9 +8,11 @@ class Sv {
             this.chromosome = input.contigName || input.chromosome;
             this.start = input.start;
             this.end = input.end;
-            this.assembly = input.genomeAssembly || input.assembly;
             this.type = input.type;
-            this.effect = input.variantEffect || input.effect;
+            this.genotype = input.genotype;
+            this.ref = input.ref || '.';
+            this.alt = input.alt || '.';
+            this.quality = input.quality;
 
             //if we get vcfInfo then parse otherwise don't
             if (input.vcfInfo != '' && input.vcfInfo != undefined) {

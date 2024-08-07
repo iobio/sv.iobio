@@ -996,7 +996,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
                         //append the data to the tooltip
                         tooltip.append('p')
-                            .text(`${variant.chromosome}:${bpFormatted(variant.start)} size:${bpFormatted(variant.end - variant.start)} (${variant.type})`);
+                            .html(`
+                                ${variant.chromosome}:${bpFormatted(variant.start)}<br>
+                                size:${bpFormatted(variant.end - variant.start)}<br>
+                                quality:${variant.quality} (${variant.type})`);
 
                         //put it in the right position
                         let x = event.clientX;
@@ -1799,9 +1802,13 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                             return `${valuebp}Bp`;
                         }
 
+                        //append the data to the tooltip
                         tooltip.append('p')
-                            .text(`${variant.chromosome}:${bpFormatted(variant.start)} size:${bpFormatted(variant.end - variant.start)} (${variant.type})`);
-
+                            .html(`
+                                ${variant.chromosome}:${bpFormatted(variant.start)}<br>
+                                size:${bpFormatted(variant.end - variant.start)}<br>
+                                quality:${variant.quality} (${variant.type})`);
+                                
                         //put it in the right position
                         let x = event.clientX;
                         let y = event.clientY;

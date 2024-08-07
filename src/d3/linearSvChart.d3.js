@@ -478,8 +478,12 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                             return `${valuebp}Bp`;
                         }
 
+                        //append the data to the tooltip
                         tooltip.append('p')
-                            .text(`${sv.chromosome}:${bpFormatted(sv.start)} size:${bpFormatted(sv.end - sv.start)} (${sv.type})`);
+                            .html(`
+                                ${sv.chromosome}:${bpFormatted(sv.start)}<br>
+                                size:${bpFormatted(sv.end - sv.start)}<br>
+                                quality:${sv.quality} (${sv.type})`);
 
                         //put it in the right position
                         let x = event.clientX;

@@ -29,6 +29,7 @@
     :show="filterDataSectionOpen"
     :filters="filters"
     :loaded="loadedInitiallyComplete"
+    :probQualityStats="qualityStats"
     @toggleFilterDataSection="filterDataSectionOpen = false"
     @updateFilters="updateDataFilters"/>
 
@@ -104,7 +105,8 @@
         selectDataSectionOpen: false,
         filterDataSectionOpen: false,
         filters: {
-          geneOverlap: false
+          geneOverlap: false,
+          qualityCutOff: 0,
         },
         samples: {
           proband: {
@@ -119,7 +121,8 @@
         },
         toasts: [],
         multiSampleVcf: false,
-        variantsSorted: false
+        variantsSorted: false,
+        qualityStats: {}
       }
     },
     async mounted() {
@@ -266,6 +269,12 @@
           this.loadData(this.multiSampleVcf);
         }
         this.samples.comparisons = samples.comparisons;
+        
+        if (!isMultiple) {
+          this.qualityStats.proband = await dataHelper.getQualityFromVCF(samples.proband.vcf);
+        } else {
+          this.qualityStats.proband = await dataHelper.getQualityFromVCF(samples.proband.vcf, samples.proband.id);
+        }
       },
       async getSVAssociations(variantBatch, build='hg38', source='refseq') {
 
