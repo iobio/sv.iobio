@@ -515,17 +515,18 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         .attr('fill', 'black')
                         .attr('transform', `translate(0, ${translateY})`);
                 }
-                //otherwise we still render the genes of interest and phen related genes but we also remove that gene from our typical genes
-                if (phenRelatedGenes && phenRelatedGenes.length > 0) {
-                    _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
-                }
-                if (genesOfInterest && genesOfInterest.length > 0) {
-                    _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
-                }
             } else {
                 //dont render the point of interest if it already exists
                 genesMap[`${absoluteStart}-${absoluteEnd}`].push(gene);
             }
+        }
+        
+        //otherwise we still render the genes of interest and phen related genes but we also remove that gene from our typical genes
+        if (phenRelatedGenes && phenRelatedGenes.length > 0) {
+            _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
+        }
+        if (genesOfInterest && genesOfInterest.length > 0) {
+            _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
         }
     }
 
@@ -637,7 +638,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
             //check and see if the point of interest is in the zoomed selection
             let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
-
+            
             if (!newStartEnd) {
                 //if we get nothing back we dont render this point of interest at all
                 continue;
