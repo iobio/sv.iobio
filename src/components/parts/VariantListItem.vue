@@ -10,7 +10,7 @@
                     <strong>
                         {{ Math.round(maxSingularPhenotypes)}}%
                     </strong>
-                    Max Pt.Phens
+                    Max Phens
                 </span>
                 <span v-else class="num-genes-overlapped-tip">
                     <strong>{{ numberOfGenes }}</strong>
@@ -18,7 +18,7 @@
                 </span>
                 <span v-if="variant.overlappedGenes && geneCandidates && geneCandidates.length > 0" class="goi-ol-tip">
                     <strong>{{ numberOfGenesOfInterest }}</strong>
-                    GOI
+                    GoI
                 </span>
             </span>
 
@@ -32,7 +32,7 @@
         </div>
         <div v-if="showMore && variant.overlappedGenes" class="more-info">
             <div class="gene-row" v-for="gene in variant.overlappedGenes">
-                <span class="gene-symbol-span">{{ gene.gene_symbol }}</span>
+                <span class="gene-symbol-span">{{ gene.gene_symbol }} <sup><i>({{ percentOverlappedByGene(gene) }}%)</i></sup></span>
                 <div class="gene-information-section">
                     <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
                         <span v-for="phenotype in sortByInPatientPhens(gene.phenotypes)" :class="{green: patientPhenotypes.includes(phenotype)}">{{ gene.phenotypes[phenotype].name + ` (${phenotype})` }}</span>
@@ -128,7 +128,15 @@
             return `${(valuebp / 1000).toFixed(2)}Kb`;
         }
         return `${valuebp}Bp`;
-    }
+    },
+    percentOverlappedByGene(gene) {
+        if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
+            let inCommonPhens = Object.keys(gene.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype))
+            return Math.round(inCommonPhens.length / this.patientPhenotypes.length * 100)
+        } else {
+            return 0;
+        }
+    },
   },
   computed: {
     numberOfGenes(){
@@ -239,12 +247,13 @@
             .overlap-tip
                 display: flex
                 flex-direction: row
-                justify-content: space-between
+                justify-content: flex-start
+                font-family: 'Courier New', Courier, monospace
+                font-size: 0.7em
                 .goi-ol-tip
                     padding: 3px 3px
-                    font-size: .7em
-                    border-radius: 5px
-                    background-color: #D8E9FD
+                    border-radius: 0px 5px 5px 0px
+                    background-color: #FF8585
                     display: flex
                     flex-direction: column
                     align-items: center
@@ -254,9 +263,8 @@
                     box-sizing: border-box
                 .num-phens-accounted-perc-tip
                     padding: 3px 3px
-                    font-size: .7em
-                    border-radius: 5px
-                    background-color: #D8E9FD
+                    border-radius: 5px 0px 0px 5px
+                    background-color: #8BBEF9
                     display: flex
                     flex-direction: column
                     align-items: center
@@ -266,9 +274,7 @@
                     box-sizing: border-box
                 .num-genes-overlapped-tip
                     padding: 3px 3px
-                    font-size: .7em
-                    border-radius: 5px
-                    background-color: #D8E9FD
+                    border-radius: 5px 0px 0px 5px
                     display: flex
                     flex-direction: column
                     align-items: center
@@ -369,8 +375,7 @@
                     &:first-of-type
                         flex-grow: 1
     .green
-        color: green
-        background-color: #C7E1B7
-        border: 1px solid green
+        background-color: #8BBEF9
+        border: 1px solid white
         border-radius: 5px
   </style>

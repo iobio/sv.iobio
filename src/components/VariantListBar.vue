@@ -2,13 +2,13 @@
   <div id="variant-sudo-scroll-wrapper">
     <div id="variant-list-bar">
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
-        <div @click="showSortOptions = !showSortOptions" class="sort-btn" :class="{sorted: sorted}">
+        <div @click="showSortOptions = !showSortOptions" class="sort-btn">
           <div class="sort-options-popup" :class="{hidden: !showSortOptions}">
-            <span>Genes of Interest Overlapped</span>
-            <span>Genes Overlapped</span>
-            <span>Max Percentage Phens Overlapped</span>
+            <span @click="emitSortVariants($event, 'goi')">Genes of Interest Overlapped</span>
+            <span @click="emitSortVariants($event, 'genesOverlapped')">Genes Overlapped</span>
+            <span @click="emitSortVariants($event, 'percentOverlapped')">Max Percentage Phens Overlapped</span>
           </div>
-          <svg class="sort-svg" :class="{sorted: sorted}" v-if="!loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <svg class="sort-svg" v-if="!loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <title>sort</title>
             <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
           </svg>
@@ -153,11 +153,14 @@
       let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
       thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
     },
-    emitSortVariants() {
+    emitSortVariants(event, sortCategory) {
       if (this.loading === true) {
         return
       }
-      this.$emit('sort-variants')
+      //stop the propagation of the event
+      event.stopPropagation();
+      this.showSortOptions = false;
+      this.$emit('sort-variants', sortCategory)
     }
   },
   computed: {

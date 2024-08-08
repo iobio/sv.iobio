@@ -490,6 +490,20 @@
             return 0;
         }
       },
+      numOfGOIOverlapped(genesOfInterest, variant) {
+        if (genesOfInterest && genesOfInterest.length > 0) {
+            //how many of the overlapped genes are in the geneCandidates
+            let goiOL = 0;
+            for (let gene of Object.values(variant.overlappedGenes)) {
+                if (genesOfInterest.includes(gene.gene_symbol)) {
+                  goiOL += 1
+                }
+            }
+            return goiOL
+        } else {
+            return 0
+        }
+      },
       updateSvList(index, sv) {
         this.svListVariantBar[index] = sv;
       },
@@ -505,19 +519,39 @@
       updateComparisons(comparisons) {
         this.samples.comparisons = comparisons;
       },
-      sortSvList() {
-        if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
-          this.toasts.push({message: 'No patient phenotypes to sort by, sorting by number of genes overlapped.', type: 'info'})
-          
+      sortSvList(sortCategory) {
+        if (sortCategory == 'genesOverlapped') {
           this.svListVariantBar.sort((a, b) => {
             return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
           })
           this.variantsSorted = true;
-        } else {
-          this.svListVariantBar.sort((a, b) => {
-            return this.maxSingPhenotypesOverlapped(this.phenotypesOfInterest, b) - this.maxSingPhenotypesOverlapped(this.phenotypesOfInterest, a);
-          })
-          this.variantsSorted = true;
+        } else if (sortCategory == 'percentOverlapped') {
+          if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
+            this.toasts.push({message: 'No patient phenotypes to sort by, sorting by number of genes overlapped.', type: 'info'})
+            
+            this.svListVariantBar.sort((a, b) => {
+              return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
+            })
+            this.variantsSorted = true;
+          } else {
+            this.svListVariantBar.sort((a, b) => {
+              return this.maxSingPhenotypesOverlapped(this.phenotypesOfInterest, b) - this.maxSingPhenotypesOverlapped(this.phenotypesOfInterest, a);
+            })
+            this.variantsSorted = true;
+          }
+        } else if (sortCategory == 'goi') {
+          if (!this.genesOfInterest || this.genesOfInterest.length == 0) {
+            this.toasts.push({message: 'No genes of interest to sort by, sorting by number of genes overlapped.', type: 'info'})
+            
+            this.svListVariantBar.sort((a, b) => {
+              return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
+            })
+            this.variantsSorted = true;
+          } else {
+            this.svListVariantBar.sort((a, b) => {
+              return this.numOfGOIOverlapped(this.genesOfInterest, b) - this.numOfGOIOverlapped(this.genesOfInterest, a);
+            })
+          } 
         }
       }
     },
