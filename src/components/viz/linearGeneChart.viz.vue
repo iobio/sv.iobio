@@ -116,6 +116,12 @@ export default {
       },
       deep: true
     },
+    phenRelatedGenes: {
+      handler(){
+        this.drawLinearGeneChart();
+      },
+      deep: true
+    },
   }
 }
 </script>
