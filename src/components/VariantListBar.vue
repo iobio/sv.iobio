@@ -2,7 +2,12 @@
   <div id="variant-sudo-scroll-wrapper">
     <div id="variant-list-bar">
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
-        <div @click="emitSortVariants" class="sort-btn" :class="{sorted: sorted}">
+        <div @click="showSortOptions = !showSortOptions" class="sort-btn" :class="{sorted: sorted}">
+          <div class="sort-options-popup" :class="{hidden: !showSortOptions}">
+            <span>Genes of Interest Overlapped</span>
+            <span>Genes Overlapped</span>
+            <span>Max Percentage Phens Overlapped</span>
+          </div>
           <svg class="sort-svg" :class="{sorted: sorted}" v-if="!loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <title>sort</title>
             <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
@@ -14,7 +19,7 @@
           </svg>
         </div>
         <div>Variant <br> Overlaps</div>
-        <div>Chrom.</div>
+        <div>Chr</div>
         <div>Location</div>
         <div>Size</div>
         <div>Type</div>
@@ -24,6 +29,7 @@
         :key="`${variant.chromosome}-${variant.start}-${variant.end}`" 
         :variant="variant"
         :openedSvSet="openedSvSet"
+        :geneCandidates="geneCandidates"
         :patientPhenotypes="patientPhenotypes"
         @variant-clicked="variantClicked"/>
     </div>   
@@ -44,6 +50,7 @@
   props: {
     svList: Array,
     patientPhenotypes: Array,
+    geneCandidates: Array,
     loading: {
       type: Boolean,
       default: false
@@ -57,7 +64,8 @@
     return {
       open: true,
       scrollSelection: [0, 40],
-      openedSvSet: {}
+      openedSvSet: {}, 
+      showSortOptions: false
     }
   },
   mounted () {
@@ -198,7 +206,7 @@
       transition: width 0.4s, min-width 0.4s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: .05fr .195fr .15fr .25fr .25fr .15fr
+        grid-template-columns: .025fr .21fr .15fr .25fr .25fr .15fr
         font-size: .8em
         width: 100%
         height: 50px
@@ -220,9 +228,11 @@
           align-items: center
         .sort-btn
           cursor: pointer
+          overflow: visible
           border: 2px solid transparent
           border-radius: 50%
           transition: all 0.25s
+          position: relative
           &.sorted
             cursor: not-allowed
             &:hover
@@ -244,6 +254,40 @@
           &:hover
             border: 2px solid #2A65B7
             border-radius: 5px
+          .sort-options-popup
+            position: absolute
+            top: 109%
+            left: 0px
+            width: 250px
+            height: 90px
+            padding: 5px
+            font-weight: normal
+            background-color: white
+            border: 1px solid #ADC2DF
+            border-radius: 5px
+            display: flex
+            flex-direction: column
+            justify-content: space-around
+            align-items: flex-start
+            transition: height 0.25s, opacity 0.15s
+            opacity: .95
+            &.hidden
+              opacity: 0
+              pointer-events: none
+              height: 0px
+              border: 0px
+            span
+              cursor: pointer
+              padding: 5px
+              width: 100%
+              border-radius: 5px 5px 0px 0px
+              text-align: left
+              border-bottom: 1px solid #ADC2DF
+              &:hover
+                background-color: #F5F5F5
+              &:last-of-type
+                border-radius: 0px 0px 5px 5px
+                border-bottom: none
     //Webkit scrollbar
     #variant-list-bar::-webkit-scrollbar
       display: none

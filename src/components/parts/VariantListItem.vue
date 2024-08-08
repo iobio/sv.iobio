@@ -5,14 +5,23 @@
                 <svg v-if="!showMore" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-down</title><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
                 <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-up</title><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
             </span>
-            <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">
-                <strong>{{ Math.round((numPhensAccountedFor/this.patientPhenotypes.length)*100) }}%</strong>
-                Pt Phens.
+            <span class="overlap-tip">
+                <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">
+                    <strong>
+                        {{ Math.round(maxSingularPhenotypes)}}%
+                    </strong>
+                    Max Pt.Phens
+                </span>
+                <span v-else class="num-genes-overlapped-tip">
+                    <strong>{{ numberOfGenes }}</strong>
+                    genes
+                </span>
+                <span v-if="variant.overlappedGenes && geneCandidates && geneCandidates.length > 0" class="goi-ol-tip">
+                    <strong>{{ numberOfGenesOfInterest }}</strong>
+                    GOI
+                </span>
             </span>
-            <span v-else class="num-genes-overlapped-tip">
-                <strong>{{ numberOfGenes }}</strong>
-                genes
-            </span>
+
             
             <div>{{ variant.chromosome }}</div>
             <div class="location-text">
@@ -45,6 +54,7 @@
   props: {
     variant: Object,
     patientPhenotypes: Array,
+    geneCandidates: Array,
     openedSvSet: Object
   },
   data () {
@@ -145,6 +155,20 @@
             return this.variant.genesInCommon.length + this.variant.overlappedPhenGenes.length
         }
     },
+    numberOfGenesOfInterest() {
+        if (this.geneCandidates && this.geneCandidates.length > 0) {
+            //how many of the overlapped genes are in the geneCandidates
+            let genesOfInterest = 0;
+            for (let gene of Object.values(this.variant.overlappedGenes)) {
+                if (this.geneCandidates.includes(gene.gene_symbol)) {
+                    genesOfInterest += 1
+                }
+            }
+            return genesOfInterest
+        } else {
+            return 0
+        }
+    },
     numPhensAccountedFor() {
         //if there are patient phenotypes we can see how many of the overlapped phenotypes are accounted for
         if (this.patientPhenotypes && this.patientPhenotypes.length > 0 && this.variant.overlappedGenes && Object.values(this.variant.overlappedGenes).length > 0) {
@@ -158,6 +182,21 @@
             return 0;
         }   
     },
+    maxSingularPhenotypes() {
+        if (this.patientPhenotypes && this.patientPhenotypes.length > 0 && this.variant.overlappedGenes && Object.values(this.variant.overlappedGenes).length > 0) {
+            let maxPercent = 0;
+            for (let gene of Object.values(this.variant.overlappedGenes)) {
+                let inCommonPhens = Object.keys(gene.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype))
+                let percent = inCommonPhens.length / this.patientPhenotypes.length * 100
+                if (percent > maxPercent) {
+                    maxPercent = percent
+                }
+            }
+            return maxPercent
+        } else {
+            return 0;
+        }
+    }
   },
   watch: {
   },
@@ -171,7 +210,7 @@
         .preview
             position: relative
             display: grid
-            grid-template-columns: .05fr .195fr .15fr .25fr .25fr .15fr
+            grid-template-columns: .025fr .21fr .15fr .25fr .25fr .15fr
             grid-template-rows: 1fr
             padding: 5px
             width: 100%
@@ -197,30 +236,46 @@
                     width: 20px
                     fill: #2A65B7
                     pointer-events: none
-            .num-phens-accounted-perc-tip
-                padding: 3px 2px
-                font-size: .7em
-                border-radius: 5px
-                background-color: #D8E9FD
+            .overlap-tip
                 display: flex
-                flex-direction: column
-                align-items: center
-                justify-content: center
-                text-align: center
-                line-height: 1em
-                box-sizing: border-box
-            .num-genes-overlapped-tip
-                padding: 3px 2px
-                font-size: .7em
-                border-radius: 5px
-                background-color: #D8E9FD
-                display: flex
-                flex-direction: column
-                align-items: center
-                justify-content: center
-                text-align: center
-                line-height: 1em
-                box-sizing: border-box
+                flex-direction: row
+                justify-content: space-between
+                .goi-ol-tip
+                    padding: 3px 3px
+                    font-size: .7em
+                    border-radius: 5px
+                    background-color: #D8E9FD
+                    display: flex
+                    flex-direction: column
+                    align-items: center
+                    justify-content: center
+                    text-align: center
+                    line-height: 1em
+                    box-sizing: border-box
+                .num-phens-accounted-perc-tip
+                    padding: 3px 3px
+                    font-size: .7em
+                    border-radius: 5px
+                    background-color: #D8E9FD
+                    display: flex
+                    flex-direction: column
+                    align-items: center
+                    justify-content: center
+                    text-align: center
+                    line-height: 1em
+                    box-sizing: border-box
+                .num-genes-overlapped-tip
+                    padding: 3px 3px
+                    font-size: .7em
+                    border-radius: 5px
+                    background-color: #D8E9FD
+                    display: flex
+                    flex-direction: column
+                    align-items: center
+                    justify-content: center
+                    text-align: center
+                    line-height: 1em
+                    box-sizing: border-box
             .rank-text
                 color: #2A65B7
                 font-weight: bold

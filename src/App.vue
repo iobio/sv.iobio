@@ -35,13 +35,16 @@
 
     <div id="lower-block-container">
       <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
+
         <button id="var-list-bar-toggle-btn" @click="variantListBarOpen = !variantListBarOpen">
           <img v-if="variantListBarOpen" src="/arrow-expand-left.svg" alt="close">
           <img v-else src="/arrow-expand-right.svg" alt="open">
         </button>
+
         <VariantListBar 
         :svList="svListVariantBar"
         :patientPhenotypes="phenotypesOfInterest"
+        :geneCandidates="genesOfInterest"
         :loading="!loadedInitiallyComplete"
         :sorted="variantsSorted"
         @updateSvAtIndex="updateSvList"
@@ -472,6 +475,21 @@
             return 0;
         } 
       },
+      maxSingPhenotypesOverlapped(phenotypesOfInterest, variant) {
+        if (phenotypesOfInterest.length > 0 && variant.overlappedGenes && Object.values(variant.overlappedGenes).length > 0) {
+            let maxPercent = 0;
+            for (let gene of Object.values(variant.overlappedGenes)) {
+                let inCommonPhens = Object.keys(gene.phenotypes).filter(phenotype => phenotypesOfInterest.includes(phenotype))
+                let percent = inCommonPhens.length / phenotypesOfInterest.length * 100
+                if (percent > maxPercent) {
+                    maxPercent = percent
+                }
+            }
+            return maxPercent
+        } else {
+            return 0;
+        }
+      },
       updateSvList(index, sv) {
         this.svListVariantBar[index] = sv;
       },
@@ -488,7 +506,6 @@
         this.samples.comparisons = comparisons;
       },
       sortSvList() {
-        //TODO: Implement sorting we want to sort by either overlapped genes or overlapped phenotypes in common
         if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
           this.toasts.push({message: 'No patient phenotypes to sort by, sorting by number of genes overlapped.', type: 'info'})
           
@@ -498,7 +515,7 @@
           this.variantsSorted = true;
         } else {
           this.svListVariantBar.sort((a, b) => {
-            return this.numPhensAccountedFor(this.phenotypesOfInterest, b.overlappedGenes) - this.numPhensAccountedFor(this.phenotypesOfInterest, a.overlappedGenes);
+            return this.maxSingPhenotypesOverlapped(this.phenotypesOfInterest, b) - this.maxSingPhenotypesOverlapped(this.phenotypesOfInterest, a);
           })
           this.variantsSorted = true;
         }
