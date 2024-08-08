@@ -259,7 +259,6 @@
                     align-items: center
                     justify-content: center
                     text-align: center
-                    line-height: 1em
                     box-sizing: border-box
                 .num-phens-accounted-perc-tip
                     padding: 3px 3px
@@ -270,7 +269,6 @@
                     align-items: center
                     justify-content: center
                     text-align: center
-                    line-height: 1em
                     box-sizing: border-box
                 .num-genes-overlapped-tip
                     padding: 3px 3px
@@ -280,7 +278,6 @@
                     align-items: center
                     justify-content: center
                     text-align: center
-                    line-height: 1em
                     box-sizing: border-box
             .rank-text
                 color: #2A65B7
