@@ -35,6 +35,10 @@
 
     <div id="lower-block-container">
       <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
+        <nav class="tab-select">
+          <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">SV List</div>
+          <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes Of Interest</div>
+        </nav>
 
         <button id="var-list-bar-toggle-btn" @click="variantListBarOpen = !variantListBarOpen">
           <img v-if="variantListBarOpen" src="/arrow-expand-left.svg" alt="close">
@@ -91,6 +95,7 @@
     },
     data() {
       return {
+        selectedTab: 'svList',
         svListData: [],
         svListChart: [],
         svListVariantBar: [],
@@ -613,6 +618,25 @@
     min-width: 250px
     max-width: 500px
     transition: width 0.4s, min-width 0.4s
+    .tab-select
+      display: flex
+      justify-content: flex-start
+      padding: 5px 0px 0px 0px
+      color: #084D9B
+      border-bottom: 5px solid #CADEF7
+      .tab
+        padding: 5px 10px
+        margin: 0px
+        border-radius: 5px 5px 0px 0px
+        background-color: #FFD6D6
+        color: #A30000
+        &.selected
+          background-color: #CADEF7
+          color: #084D9B
+        &:hover
+          cursor: pointer
+          background-color: #D8E9FD
+          color: #084D9B
     &.collapsed
       width: 0px
       min-width: 0px

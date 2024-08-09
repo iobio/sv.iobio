@@ -253,8 +253,10 @@
                 .goi-ol-tip
                     padding: 3px 3px
                     border-radius: 0px 5px 5px 0px
-                    background-color: #FF8585
+                    background-color: #FFD6D6
+                    color: red
                     display: flex
+                    font-weight: bold
                     flex-direction: column
                     align-items: center
                     justify-content: center

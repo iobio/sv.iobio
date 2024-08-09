@@ -202,8 +202,6 @@
       min-width: 250px
       height: 100%
       box-sizing: border-box
-      border: 1px solid #F5F5F5
-      border-radius: 5px
       overflow-y: auto
       position: relative
       transition: width 0.4s, min-width 0.4s
@@ -221,6 +219,7 @@
         background-color: white
         color: #2A65B7
         border-bottom: 1px solid #2A65B7
+        border-top: 1px solid #2A65B7
         font-weight: bold
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
         z-index: 1
