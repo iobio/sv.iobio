@@ -194,8 +194,6 @@
 
         //We use a separate list for the chart so we can sort it differently
         this.svListChart = svList.map(sv => new Sv(sv));
-        this.samples.proband.svList = this.svListChart;
-
         //Copying the bar list so we can sort it in batches and get information about the overlapped genes
         let svListCopy = [...this.svListVariantBar];
 
@@ -299,7 +297,7 @@
         }
 
         this.svListVariantBar = newSVs;
-        this.svListChart = this.svListVariantBar;
+        this.svListChart = newSVs;
         this.variantsFilteredOut = newFilteredOut;
       },
       hasPhenotypes(overlappedGenes) {
@@ -313,9 +311,7 @@
         //if samples @ 0 is the same as the old samples @ 0 then we dont need to load data again but 
         //if the vcf is different we do
         if (samples.proband.vcf == this.samples.proband.vcf) {
-          let svListTemp = this.samples.proband.svList;
           this.samples.proband = samples.proband;
-          this.samples.proband.svList = svListTemp;
           this.samples.comparisons = samples.comparisons;
           return;
         } else {
@@ -379,9 +375,15 @@
         return updatedSvs;
       },
       areaSelected(selectedArea) {
+        if (this.selectedArea == selectedArea) {
+          return;
+        }
         this.selectedArea = selectedArea
       },
       zoomFired(zoomZone) {
+        if (this.selectedArea == zoomZone) {
+          return;
+        }
         this.selectedArea = zoomZone
       }, 
       updateGenesOfInterest(newGOI) {

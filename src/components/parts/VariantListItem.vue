@@ -75,7 +75,6 @@
         return Math.round(score * 1000) / 1000
     }, 
     variantClicked() {
-        console.log(this.variant)
         this.showMore = !this.showMore
 
         //sort the genes and phenotypes with the sortVariantInformation function

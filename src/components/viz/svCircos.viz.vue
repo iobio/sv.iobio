@@ -177,6 +177,14 @@ export default {
         }
       },
       deep: true
+    },
+    svList: {
+      handler: function(newVal, oldVal) {
+        if (newVal) {
+          this.drawCircos()
+        }
+      },
+      deep: true
     }
   }
 }

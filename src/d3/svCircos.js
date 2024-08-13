@@ -975,7 +975,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                         //if there is already a tooltip remove it
                         d3.select('.tooltip-hover-variant').remove();
 
-                        console.log('variant: ', variant);
                         d3.select(this)
                             .style('fill', '#C6A619')
                             .style('cursor', 'pointer');
@@ -1133,7 +1132,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('fill', 'blue')
                     .attr('class', 'phen-related-gene-arc')
                     .on('mouseover', function (event, d) {
-                        console.log('gene: ', gene);
                         d3.select(this)
                             .style('fill', '#DA44B4')
                             .style('cursor', 'pointer');
@@ -1332,7 +1330,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('fill', 'red')
                     .attr('class', 'gene-of-interest-arc')
                     .on('mouseover', function (event, d) {
-                        console.log('gene: ', gene);
                         d3.select(this)
                             .style('fill', '#DA44B4')
                             .style('cursor', 'pointer');
@@ -1549,7 +1546,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('fill', 'black')
                     .attr('class', 'gene-arc')
                     .on('mouseover', function (event, d) {
-                        console.log('gene: ', gene);
                         d3.select(this)
                             .style('fill', '#DA44B4')
                             .style('cursor', 'pointer');
@@ -1784,7 +1780,6 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     })
                     .attr('class', `.add-trac-var-${tracNum}`)
                     .on('mouseover', function (event, d) {
-                        console.log('variant: ', variant);
                         d3.select(this)
                             .style('fill', '#C6A619')
                             .style('cursor', 'pointer');

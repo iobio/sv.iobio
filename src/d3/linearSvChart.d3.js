@@ -459,7 +459,6 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                         //if there is already a tooltip remove it
                         d3.select('.tooltip-hover-variant').remove();
 
-                        console.log('variant: ', sv);
                         d3.select(this)
                             .style('fill', '#C6A619')
                             .style('cursor', 'pointer');

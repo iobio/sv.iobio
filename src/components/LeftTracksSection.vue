@@ -47,15 +47,15 @@
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <div id="linear-marker-line" v-if="tools.line"></div>
           <LinearSvChartViz
-            v-if="samples.proband.svList && samples.proband.svList.length > 0" 
+            v-if="svList && svList.length > 0" 
             class="proband-chart"
-            :svList="samples.proband.svList"
+            :svList="svList"
             :focusedVariant="focusedVariant"
             :name="samples.proband.name"
-            :chromosomes="this.chromosomes"
-            :centromeres="this.centromeres"
-            :bands="this.bands"
-            :selectedArea="this.selectedArea"
+            :chromosomes="chromosomes"
+            :centromeres="centromeres"
+            :bands="bands"
+            :selectedArea="selectedArea"
             :isProband="true"
             @selectAreaEvent="selectAreaEventFired"/>
 
@@ -433,23 +433,25 @@
         genesChart.props.batchNum = this.batchNum;
       }
     },
-    focusedVariant() {
+    focusedVariant(newVal, oldVal) {
       if (this.focusedVariant) {
         this.focusOnVariant();
-      } else {
+      } else if (!this.focusedVariant) {
         this.$emit('zoomEvent', null)
         this.showButton = false
       }
     },
-    svList(newVal){
-      //if the svList changes we need to update the samples.proband.svList
-      this.samples.proband.svList = newVal;
-    },
     selectedArea: {
-      handler() {
-        this.chartsData.forEach(chart => {
-          chart.props.selectedArea = this.selectedArea;
-        });
+      handler(newVal, oldVal) {
+        if (newVal && newVal !== oldVal) {
+          this.chartsData.forEach(chart => {
+            chart.props.selectedArea = this.selectedArea;
+          });
+        } else if (!newVal) {
+          this.chartsData.forEach(chart => {
+            chart.props.selectedArea = null;
+          });
+        }
       },
       deep: true
     },
