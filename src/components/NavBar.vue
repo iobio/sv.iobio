@@ -82,6 +82,9 @@
       this.genesOfInterestText = this.genesOfInterestText.trim();
       this.genesOfInterestText = this.genesOfInterestText.toUpperCase();
       let genesOfInterest = this.genesOfInterestText.split(/[;, ]+/);
+      //ensure there are no empty strings
+      genesOfInterest = genesOfInterest.filter(gene => gene !== '');
+
       //if genesOfInterest is empty, send an empty array
       if (genesOfInterest.length === 1 && genesOfInterest[0] === '') {
         genesOfInterest = [];
@@ -93,6 +96,8 @@
       //trim any whitespace
       this.phenotypesOfInterestText = this.phenotypesOfInterestText.trim();
       let phenotypesOfInterest = this.phenotypesOfInterestText.split(/[;, ]+/);
+      //ensure there are no empty strings
+      phenotypesOfInterest = phenotypesOfInterest.filter(phenotype => phenotype !== '');
       //if phenotypesOfInterest is empty, send an empty array
       if (phenotypesOfInterest.length === 1 && phenotypesOfInterest[0] === '') {
         phenotypesOfInterest = [];

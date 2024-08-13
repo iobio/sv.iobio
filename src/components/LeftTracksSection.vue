@@ -98,6 +98,7 @@
     focusedVariant: Object,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
+    focusedGeneName: String,
     batchNum: Number,
     samples: Object,
     multiSampleVcf: Boolean,
@@ -258,11 +259,58 @@
       let focusedEnd = varEndAbs + halfSize;
       let focusedSize = focusedEnd - focusedStart;
 
+      if (focusedStart < 0) {
+          focusedStart = 0;
+      }
+
+      if (focusedEnd > 3000000000) {
+          focusedEnd = 3000000000;
+      }
+
       let zoomedSection = {
           start: focusedStart,
           end: focusedEnd,
           size: focusedSize
       };
+      return zoomedSection;
+    },
+    findZoomFromFocusedGene() {
+      if (!this.focusedGeneName) {
+        return null;
+      } else if (!this.genes) {
+        return null;
+      }
+
+      let gene = this.genes[this.focusedGeneName];
+
+      if (!gene) {
+        return null;
+      }
+
+      let chrom = gene.chr.replace('chr', '');
+      let chromStart = this.chromosomeAccumulatedMap.get(chrom).start;
+      let geneStartAbs = gene.start + chromStart;
+      let geneEndAbs = gene.end + chromStart;
+      let geneSize = geneEndAbs - geneStartAbs;
+
+      let focusedStart = geneStartAbs - geneSize;
+      let focusedEnd = geneEndAbs + geneSize;
+
+      if (focusedStart < 0) {
+        focusedStart = 0;
+      }
+
+      if (focusedEnd > 3000000000) {
+        focusedEnd = 3000000000;
+      }
+
+      let zoomedSection = {
+        start: focusedStart,
+        end: focusedEnd,
+        size: geneSize
+      };
+
+      this.$emit('zoomEvent', zoomedSection);
       return zoomedSection;
     },
     selectAreaEventFired(zoomZone) {
@@ -374,6 +422,11 @@
     }
   },
   watch: {
+    focusedGeneName(newVal, oldVal) {
+      if (newVal && newVal !== oldVal && this.genes) {
+        this.findZoomFromFocusedGene();
+      }
+    },
     batchNum() {
       const genesChart = this.chartsData.find(chart => chart.props.name === 'Genes');
       if (genesChart) {

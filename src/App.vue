@@ -60,7 +60,8 @@
         <GenesOfInterestListBar
           v-if="selectedTab == 'goi'"
           :genesOfInterest="genesOfInterest"
-          @remove-gene-from-goi="removeGeneFromGeneList"/>
+          @remove-gene-from-goi="removeGeneFromGeneList"
+          @zoom-to-gene="zoomToGene"/>
       </div>
 
       <LeftTracksSection
@@ -72,6 +73,7 @@
         :phenRelatedGenes="overlappedPhenGenes"
         :batchNum="batchNum"
         :multiSampleVcf="multiSampleVcf"
+        :focusedGeneName="focusedGeneName"
         @updateComparisons="updateComparisons"
         @zoomEvent="zoomFired"/>
 
@@ -111,6 +113,7 @@
         loadedInitiallyComplete: false,
         progressPercent: 0,
         focusedVariant: null,
+        focusedGeneName: null,
         selectedArea: null,
         variantListBarOpen: false,
         genesOfInterest: [],
@@ -571,6 +574,9 @@
             })
           } 
         }
+      },
+      zoomToGene(gene) {
+        this.focusedGeneName = gene;
       }
     },
     watch: {
