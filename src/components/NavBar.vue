@@ -80,6 +80,7 @@
       //send out genes of interest to the app (allow split on ';', ',', or ' ')
       //trim any whitespace
       this.genesOfInterestText = this.genesOfInterestText.trim();
+      this.genesOfInterestText = this.genesOfInterestText.toUpperCase();
       let genesOfInterest = this.genesOfInterestText.split(/[;, ]+/);
       //if genesOfInterest is empty, send an empty array
       if (genesOfInterest.length === 1 && genesOfInterest[0] === '') {
