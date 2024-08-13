@@ -35,7 +35,7 @@
 
     <div id="lower-block-container">
       <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
-        <nav class="tab-select">
+        <nav class="tab-select" :class="{collapsed: !variantListBarOpen}">
           <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">SV List</div>
           <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes Of Interest</div>
         </nav>
@@ -46,14 +46,20 @@
         </button>
 
         <VariantListBar 
-        :svList="svListVariantBar"
-        :patientPhenotypes="phenotypesOfInterest"
-        :geneCandidates="genesOfInterest"
-        :loading="!loadedInitiallyComplete"
-        :sorted="variantsSorted"
-        @updateSvAtIndex="updateSvList"
-        @variant-clicked="updateFocusedVariant"
-        @sort-variants="sortSvList"/>
+          v-if="selectedTab == 'svList'"
+          :svList="svListVariantBar"
+          :patientPhenotypes="phenotypesOfInterest"
+          :geneCandidates="genesOfInterest"
+          :loading="!loadedInitiallyComplete"
+          :sorted="variantsSorted"
+          @updateSvAtIndex="updateSvList"
+          @variant-clicked="updateFocusedVariant"
+          @sort-variants="sortSvList"/>
+
+        <GenesOfInterestListBar
+          v-if="selectedTab == 'goi'"
+          :genesOfInterest="genesOfInterest"
+          @remove-gene-from-goi="removeGeneFromGeneList"/>
       </div>
 
       <LeftTracksSection
@@ -77,6 +83,7 @@
   import * as dataHelper from './dataHelpers/dataHelpers.js';
   import LeftTracksSection from './components/LeftTracksSection.vue';
   import VariantListBar from './components/VariantListBar.vue';
+  import GenesOfInterestListBar from './components/GenesOfInterestListBar.vue';
   import NavBar from './components/NavBar.vue';
   import Sv from './models/Sv.js'
   import SelectDataSection from './components/SelectDataSection.vue'
@@ -88,6 +95,7 @@
     components: {
       LeftTracksSection,
       VariantListBar,
+      GenesOfInterestListBar,
       NavBar,
       SelectDataSection,
       FilterDataSection,
@@ -139,6 +147,10 @@
       this.selectDataSectionOpen = true;
     },
     methods: {
+      removeGeneFromGeneList(gene) {
+        let newGenes = this.genesOfInterest.filter(g => g !== gene);
+        this.updateGenesOfInterest(newGenes);
+      },
       async loadData(isMultiple=false) {
         if (this.samples.proband.vcf == '') {
           //open the select data section too
@@ -624,6 +636,11 @@
       padding: 5px 0px 0px 0px
       color: #084D9B
       border-bottom: 5px solid #CADEF7
+      &.collapsed
+        border-bottom: 0px
+        width: 0px
+        min-width: 0px
+        overflow: hidden
       .tab
         padding: 5px 10px
         margin: 0px
