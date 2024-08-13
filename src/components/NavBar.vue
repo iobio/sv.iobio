@@ -61,6 +61,7 @@
     filterDataOpen: Boolean,
     loaded: Boolean,
     progressPercent: Number,
+    goiFromParent: Array,
   },
   data () {
     return {
@@ -109,6 +110,14 @@
       let progressBar = document.querySelector('.progress-bar');
       if (progressBar) {
         progressBar.style.width = this.progressPercent + '%';
+      }
+    },
+    goiFromParent() {
+      let goiText = this.goiFromParent.join('; ');
+      let localText = this.genesOfInterestText;
+
+      if (goiText !== localText) {
+        this.genesOfInterestText = goiText;
       }
     }
   },

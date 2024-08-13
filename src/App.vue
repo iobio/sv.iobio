@@ -6,6 +6,7 @@
         :filterDataOpen="filterDataSectionOpen"
         :loaded="loadedInitiallyComplete"
         :progressPercent="progressPercent"
+        :goiFromParent="genesOfInterest"
         @toggleSelectDataSection="selectDataSectionOpen = !selectDataSectionOpen; filterDataSectionOpen = false"
         @toggleFilterDataSection="filterDataSectionOpen = !filterDataSectionOpen; selectDataSectionOpen = false" 
         @updateGenesOfInterest="updateGenesOfInterest"
