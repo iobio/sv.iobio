@@ -53,6 +53,8 @@
           :geneCandidates="genesOfInterest"
           :loading="!loadedInitiallyComplete"
           :sorted="variantsSorted"
+          :comparisonsLists="comparisonsLists"
+          :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
           @updateSvAtIndex="updateSvList"
           @variant-clicked="updateFocusedVariant"
           @sort-variants="sortSvList"/>
@@ -75,7 +77,9 @@
         :multiSampleVcf="multiSampleVcf"
         :focusedGeneName="focusedGeneName"
         @updateComparisons="updateComparisons"
-        @zoomEvent="zoomFired"/>
+        @zoomEvent="zoomFired"
+        @update-comparison-lists="setComparisonSamples"
+        @set-chromosome-accumulated-map="setChromosomeMap"/>
 
     </div>
 
@@ -110,6 +114,8 @@
         svListData: [],
         svListChart: [],
         svListVariantBar: [],
+        comparisonsLists: [],
+        chromosomeAccumulatedMap: {},
         loadedInitiallyComplete: false,
         progressPercent: 0,
         focusedVariant: null,
@@ -151,6 +157,12 @@
       this.selectDataSectionOpen = true;
     },
     methods: {
+      setChromosomeMap(chromosomeMap) {
+        this.chromosomeAccumulatedMap = chromosomeMap;
+      },
+      setComparisonSamples(comparisons) {
+        this.comparisonsLists = comparisons;
+      },
       removeGeneFromGeneList(gene) {
         let newGenes = this.genesOfInterest.filter(g => g !== gene);
         this.updateGenesOfInterest(newGenes);

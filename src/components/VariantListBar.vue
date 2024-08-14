@@ -31,6 +31,9 @@
         :openedSvSet="openedSvSet"
         :geneCandidates="geneCandidates"
         :patientPhenotypes="patientPhenotypes"
+        :comparisonsLists="comparisonsLists"
+        :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+        :placeInList="index"
         @variant-clicked="variantClicked"/>
     </div>   
       <div id="variant-list-bar-sudo-scroll">
@@ -51,6 +54,8 @@
     svList: Array,
     patientPhenotypes: Array,
     geneCandidates: Array,
+    comparisonsLists: Array,
+    chromosomeAccumulatedMap: Object,
     loading: {
       type: Boolean,
       default: false
@@ -174,7 +179,7 @@
         let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
         thumb.style.height = (this.scrollSelection[1] / this.svList.length * 100) + '%'
       }
-    }
+    },
   },
   }
   </script>

@@ -28,7 +28,13 @@
                 S: {{ bpFormatted(variant.start) }} <br> E: {{ bpFormatted(variant.end) }}
             </div>
             <div class="size-text">{{ bpFormatted((variant.end + 1) - variant.start) }}</div>
-            <div class="type-text" :class="{red: variant.type === 'DEL'}">{{ variant.type }}</div>
+            <div class="type-text" :class="{red: variant.type === 'DEL'}"> {{ variant.type }}</div>
+            <div class="novel-tag" v-if="reciprocalOverlap != ''">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>novel at overlap threshold</title>
+                    <path d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M13,17H11V15H13V17M13,13H11V7H13V13Z" />
+                </svg>
+            </div>
         </div>
         <div v-if="showMore && variant.overlappedGenes" class="more-info">
             <div class="gene-row" v-for="gene in variant.overlappedGenes">
@@ -55,12 +61,16 @@
     variant: Object,
     patientPhenotypes: Array,
     geneCandidates: Array,
-    openedSvSet: Object
+    openedSvSet: Object,
+    comparisonsLists: Array,
+    chromosomeAccumulatedMap: Object,
+    placeInList: Number
   },
   data () {
     return {
         showMore: false,
-        focused: false
+        focused: false,
+        overlapProp: .8
     }
   },
   mounted () {
@@ -150,6 +160,40 @@
     },
   },
   computed: {
+    reciprocalOverlap() {
+        //If we have no inputted patient phenotypes or gene candidates then we dont want to show the reciprocal overlap there will be too many variants
+        if (((this.patientPhenotypes && this.patientPhenotypes.length > 0) || (this.geneCandidates && this.geneCandidates.length > 0)) && this.comparisonsLists && this.comparisonsLists.length > 0 && this.chromosomeAccumulatedMap && this.chromosomeAccumulatedMap.size > 0) {
+            let joinedCompList = []
+            for (let list of this.comparisonsLists) {
+                joinedCompList.push(...list)
+            }
+
+            let overlapSize = 0;
+            let olprop = 0;
+            let svChrStart = this.chromosomeAccumulatedMap.get(this.variant.chromosome).start
+            let svStart = this.variant.start + svChrStart
+            let svEnd = this.variant.end + svChrStart
+            let svSize = svEnd - svStart
+
+            for (let variant of joinedCompList) {
+                let chr2Start = this.chromosomeAccumulatedMap.get(variant.chromosome).start
+                let v2Start = variant.start + chr2Start
+                let v2End = variant.end + chr2Start
+
+                if (svStart < v2End && svEnd > v2Start) {
+                    overlapSize = Math.min(svEnd, v2End) - Math.max(svStart, v2Start);
+                    olprop = (overlapSize / svSize).toFixed(2)
+                    //essentially if there is something that overlaps more than or equal to the overlapProp then we return that
+                    if (olprop >= this.overlapProp) {
+                        return ''
+                    }
+                }
+            }
+            return 'N'
+        } else {
+            return ''
+        }
+    },
     numberOfGenes(){
         if (this.variant.overlappedGenes && Object.keys(this.variant.overlappedGenes).length > 0) {
             return Object.keys(this.variant.overlappedGenes).length
@@ -226,6 +270,18 @@
     #variant-list-item
         width: 100%
         min-width: 200px
+        .novel-tag
+            display: flex
+            justify-content: center
+            align-items: center
+            position: absolute
+            top: 0px
+            right: 0px
+            svg
+                height: 20px
+                width: 20px
+                fill: red
+                pointer-events: none
         .preview
             position: relative
             display: grid

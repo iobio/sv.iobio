@@ -222,6 +222,7 @@
 
       this.chartsData = locChartsData;
       this.samplesLists = locSamplesLists;
+      this.$emit('update-comparison-lists', locSamplesLists);
       this.samplesTitles = locSamplesTitles;
     },
     createCromosomeAccumulatedMap(chromosomeList) {
@@ -238,6 +239,7 @@
             chromosomeAccumulatedMap.set(chromosome.chr, {start: chromStart, end: chromEnd});
         }
 
+        this.$emit('set-chromosome-accumulated-map', chromosomeAccumulatedMap);
         return chromosomeAccumulatedMap;
     },
     findZoomFromFocus() {
