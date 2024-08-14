@@ -2,7 +2,12 @@
     <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
       <p class="title" v-if="name">{{ name }}</p>
       <div v-if="!isProband" class="remove-button" @click="emitRemoveTrack">x</div>
-      <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">. . .</div>
+      <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <title>drag up/down</title>
+          <path d="M10,8H6L12,2L18,8H14V16H18L12,22L6,16H10V8Z" />
+        </svg>
+      </div>
       <div :class="{hidden: isLoading}" ref="linearChartContainer" class="linear-sv-chart"></div>
       <div class="loading-message" v-if="isLoading">
         <p>Loading...</p>
@@ -165,12 +170,15 @@ export default {
       text-align: center
       margin: 5px
     .drag-handle
-      height: 40px
+      height: 30px
       width: 15px
       border: 2px solid #2A65B7
       background-color: white
+      display: flex
+      justify-content: center
+      align-items: center
       position: absolute
-      top: 35%
+      top: 40%
       left: -10px
       font-weight: bold
       border-radius: 5px
@@ -183,6 +191,10 @@ export default {
       &:hover
         box-shadow: 0px 0px 5px 0px #2A65B7
         background-color: #C1D1EA
+      svg
+        width: 20px
+        height: 20px
+        fill: #2A65B7
     .remove-button
       position: absolute
       top: 0px
