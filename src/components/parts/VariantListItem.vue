@@ -1,7 +1,7 @@
 <template>
     <div id="variant-list-item">
-        <div class="preview" :class="{opened: showMore}" @click="variantClicked">
-            <span class="exp-collapse-carrot">
+        <div class="preview" :class="{opened: showMore}" @click="focusOnVariant">
+            <span class="exp-collapse-carrot" @click="variantOpened">
                 <svg v-if="!showMore" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-down</title><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
                 <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-up</title><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
             </span>
@@ -60,6 +60,7 @@
   data () {
     return {
         showMore: false,
+        focused: false
     }
   },
   mounted () {
@@ -74,13 +75,24 @@
         score = parseFloat(score)
         return Math.round(score * 1000) / 1000
     }, 
-    variantClicked() {
+    variantOpened(event) {
+        event.stopPropagation();
         this.showMore = !this.showMore
-
         //sort the genes and phenotypes with the sortVariantInformation function
         this.variant.overlappedGenes = this.sortVariantInformation()
 
         if (this.showMore) {
+            if (!this.focused) {
+                this.$emit('variant-clicked', this.variant, 'show')
+            }
+        } else {
+            this.focused = false
+            this.$emit('variant-clicked', this.variant, 'hide')
+        }
+    },
+    focusOnVariant() {
+        this.focused = !this.focused
+        if (this.focused) {
             this.$emit('variant-clicked', this.variant, 'show')
         } else {
             this.$emit('variant-clicked', this.variant, 'hide')
