@@ -745,6 +745,10 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
         //iterate over the genes
         for (let gene of Object.values(genes)) {
+            if (!gene || !gene.chr || !gene.start || !gene.end) {
+                continue;
+            }
+
             //get the chromosome and position
             let chr = gene.chr.replace('chr', '');
             
