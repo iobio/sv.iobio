@@ -64,13 +64,13 @@
     openedSvSet: Object,
     comparisonsLists: Array,
     chromosomeAccumulatedMap: Object,
-    placeInList: Number
+    placeInList: Number,
+    overlapProp: Number
   },
   data () {
     return {
         showMore: false,
         focused: false,
-        overlapProp: .8
     }
   },
   mounted () {

@@ -55,6 +55,7 @@
           :sorted="variantsSorted"
           :comparisonsLists="comparisonsLists"
           :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+          :overlapProp="overlapProp"
           @updateSvAtIndex="updateSvList"
           @variant-clicked="updateFocusedVariant"
           @sort-variants="sortSvList"/>
@@ -110,6 +111,7 @@
     },
     data() {
       return {
+        overlapProp: .8,
         selectedTab: 'svList',
         svListData: [],
         svListChart: [],

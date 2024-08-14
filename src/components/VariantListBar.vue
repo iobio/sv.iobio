@@ -34,6 +34,7 @@
         :comparisonsLists="comparisonsLists"
         :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
         :placeInList="index"
+        :overlapProp="overlapProp"
         @variant-clicked="variantClicked"/>
     </div>   
       <div id="variant-list-bar-sudo-scroll">
@@ -63,7 +64,8 @@
     sorted: {
       type: Boolean,
       default: false
-    }
+    },
+    overlapProp: Number
   },
   data () {
     return {
