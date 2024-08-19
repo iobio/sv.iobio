@@ -159,6 +159,45 @@
       this.selectDataSectionOpen = true;
     },
     methods: {
+      returnDenovo(svList, comps, chromMap) {
+        let joinedCompList = [];
+        for (let list of comps) {
+          joinedCompList.push(...list)
+        }
+        
+        for (let sv in svList) {
+          if (sv.overlappedGenes.length <= 0) {
+            sv.denovo = null;
+            continue
+          }
+
+          let overlapSize = 0;
+          let olprop = 0;
+          let svChrStart = chromMap.get(sv.chromosome).start
+          let svStart = sv.start + svChrStart
+          let svEnd = sv.end + svChrStart
+          let svSize = svEnd - svStart
+
+          for (let variant of joinedCompList) {
+              let chr2Start = chromMap.get(variant.chromosome).start
+              let v2Start = variant.start + chr2Start
+              let v2End = variant.end + chr2Start
+
+              if (svStart < v2End && svEnd > v2Start) {
+                  overlapSize = Math.min(svEnd, v2End) - Math.max(svStart, v2Start);
+                  olprop = (overlapSize / svSize).toFixed(2)
+                  //essentially if there is something that overlaps more than or equal to the overlapProp then we return that
+                  if (olprop >= this.overlapProp) {
+                      sv.denovo = false;
+                      break
+                  }
+              }
+          }
+          sv.denovo = true;
+        }
+
+        return svList
+      },
       setChromosomeMap(chromosomeMap) {
         this.chromosomeAccumulatedMap = chromosomeMap;
       },
