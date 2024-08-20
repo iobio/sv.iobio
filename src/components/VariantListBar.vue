@@ -258,14 +258,16 @@
         .sort-btn
           cursor: pointer
           overflow: visible
-          border: 2px solid transparent
           border-radius: 50%
+          border: 1px solid #EBEBEB
           transition: all 0.25s
           position: relative
+          padding: 2px
+          height: 30px
+          width: 30px
+          box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.2)
           &.sorted
             cursor: not-allowed
-            &:hover
-              border: 2px solid transparent
           svg
             width: 20px
             height: 20px
@@ -281,7 +283,6 @@
               100%
                 transform: rotate(360deg)
           &:hover
-            border: 2px solid #2A65B7
             border-radius: 5px
           .sort-options-popup
             position: absolute
