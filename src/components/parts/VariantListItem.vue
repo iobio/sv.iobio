@@ -10,7 +10,7 @@
                     <strong>
                         {{ Math.round(maxSingularPhenotypes)}}%
                     </strong>
-                    Max Phens
+                    Phens
                 </span>
                 <span v-else class="num-genes-overlapped-tip">
                     <strong>{{ numberOfGenes }}</strong>
@@ -328,25 +328,28 @@
                 .goi-ol-tip
                     padding: 3px 3px
                     border-radius: 0px 5px 5px 0px
-                    background-color: #FFD6D6
+                    background-color: #FFEBEB
                     color: red
                     display: flex
-                    font-weight: bold
                     flex-direction: column
                     align-items: center
                     justify-content: center
                     text-align: center
                     box-sizing: border-box
+                    strong
+                        font-size: 1.3em
                 .num-phens-accounted-perc-tip
                     padding: 3px 3px
                     border-radius: 5px 0px 0px 5px
-                    background-color: #8BBEF9
+                    background-color: #C5DFFC
                     display: flex
                     flex-direction: column
                     align-items: center
                     justify-content: center
                     text-align: center
                     box-sizing: border-box
+                    strong
+                        font-size: 1.25em
                 .num-genes-overlapped-tip
                     padding: 3px 3px
                     border-radius: 5px 0px 0px 5px

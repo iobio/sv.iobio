@@ -7,7 +7,7 @@
       </div>
       <!-- file input -->
       <div class="nav-bar-item-wrapper">
-        <label class="nav-bar-item-sub" for="phenotypes">Patient Phenotypes</label>
+        <label class="nav-bar-item-sub" for="phenotypes">Phenotypes <br> <span>(HPO)</span></label>
         <textarea class="nav-bar-item-sub" name="phenotypes" v-model="phenotypesOfInterestText"></textarea>
         <div class="column-container">
           <button class="nav-bar-item-sub save" @click="sendPOI">save</button>
@@ -21,7 +21,7 @@
       </div>
 
       <div class="nav-bar-item-wrapper">
-        <label class="nav-bar-item-sub" for="genesOfInterest">Genes of Interest</label>
+        <label class="nav-bar-item-sub" for="genesOfInterest">Genes of Interest <br> <span>(GOI)</span></label>
         <textarea class="nav-bar-item-sub" name="genesOfInterest" v-model="genesOfInterestText"></textarea>
         <button class="nav-bar-item-sub" @click="sendGOI">save</button>
       </div>
@@ -262,6 +262,12 @@
       margin-right: 20px
     .nav-bar-item-sub
       margin: 0px 5px 0px 5px
+      text-align: end
+      span
+        font-weight: 200
+        font-size: 1em
+        font-style: italic
+        font-family: 'Courier New', Courier, monospace
     textarea.nav-bar-item-sub
       flex-grow: 1
       border: none
