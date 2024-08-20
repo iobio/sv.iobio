@@ -23,7 +23,7 @@
             </span>
 
             
-            <div>{{ variant.chromosome }}</div>
+            <div class="chr-text">{{ variant.chromosome }}</div>
             <div class="location-text">
                 S: {{ bpFormatted(variant.start) }} <br> E: {{ bpFormatted(variant.end) }}
             </div>
@@ -65,7 +65,8 @@
     comparisonsLists: Array,
     chromosomeAccumulatedMap: Object,
     placeInList: Number,
-    overlapProp: Number
+    overlapProp: Number,
+    filters: Object
   },
   data () {
     return {
@@ -190,6 +191,8 @@
                 }
             }
             return 'N'
+        } else if (this.filters && this.filters.denovoOnly) {
+            return 'N'
         } else {
             return ''
         }
@@ -299,8 +302,10 @@
                 display: flex
                 justify-content: center
                 align-items: center
+                align-self: flex-end
                 border-radius: 50%
                 border: 2px solid transparent
+                height: fit-content
                 transition: border 0.2s ease-in-out, border-radius 0.2s ease-in-out
                 &:hover
                     cursor: pointer
@@ -316,7 +321,10 @@
                 flex-direction: row
                 justify-content: flex-start
                 font-family: 'Courier New', Courier, monospace
-                font-size: 0.7em
+                font-size: 0.75em
+                margin-left: 1px
+                strong
+                    font-weight: 900
                 .goi-ol-tip
                     padding: 3px 3px
                     border-radius: 0px 5px 5px 0px
@@ -348,21 +356,22 @@
                     justify-content: center
                     text-align: center
                     box-sizing: border-box
-            .rank-text
-                color: #2A65B7
-                font-weight: bold
             .location-text
-                font-size: 0.7em
+                font-size: 0.75em
+                color: #474747
             .size-text
                 font-size: 0.8em
+                color: #474747
+            .chr-text
+                font-size: .9em
+                color: #474747
             .type-text
-                border: 1px solid black
                 border-radius: 5px
-                font-size: 0.8em
+                font-size: 0.75em
+                font-weight: 200
+                opacity: .8
                 &.red
                     color: red
-                    font-weight: bold
-                    border: 1px solid red
             div
                 display: flex
                 align-items: center

@@ -6,26 +6,9 @@
             <input type="checkbox" name="gene-overlap" v-model="geneOverlap">
         </div>
 
-        <div id="quality-info-wrapper" v-if="probQualityStats && probQualityStats.avg">
-            <div class="quality-stats-row">
-                <span>Mean: {{ roundedAvg() }}</span>
-                <span>Median: {{ roundedMedian() }}</span>
-                <span>SD: {{ roundedSD() }}</span>
-            </div>
-
-            <div id="quality-cutoff">
-                <label for="quality-cutoff">Quality <br> Cutoff</label>
-                <span>{{ roundedMin() }}</span>
-                <input list="markers" type="range" name="quality-cutoff" :min="probQualityStats.min" :max="probQualityStats.max" step="1" v-model="cutoff">
-                <span>{{ roundedMax() }}</span>
-            </div>
-            <datalist id="markers">
-                <option :value="roundedMin()"></option>
-                <option :value="oneSDBelow()"></option>
-                <option :value="roundedMinMedianAvg()"></option>
-                <option :value="roundedMaxMedianAvg()"></option>
-            </datalist>
-            <span>Remove: Quality < {{cutoff}}</span>
+        <div id="denovo-check">
+            <label for="denovo-only">Denovo Only</label>
+            <input type="checkbox" name="denovo-only" v-model="denovoOnly">
         </div>
 
         <button @click="updateFilters" :disabled="!loaded">Apply</button>
@@ -48,7 +31,7 @@ export default {
     data () {
         return {
             geneOverlap: JSON.parse(this.filters.geneOverlap),
-            cutoff: 0,
+            denovoOnly: JSON.parse(this.filters.denovoOnly),
         }
     },
     mounted () {
@@ -58,7 +41,8 @@ export default {
             this.$emit('toggleFilterDataSection')
             this.$emit('updateFilters', {
                 geneOverlap: this.geneOverlap,
-                qualityCutOff: this.cutoff
+                qualityCutOff: this.cutoff,
+                denovoOnly: this.denovoOnly
             })
         },
         roundedMin() {
@@ -120,7 +104,7 @@ export default {
             color: #0D60C3
             font-size: 1.2em
             font-weight: bold
-        #overlap-check
+        #overlap-check, #denovo-check
             display: flex
             flex-direction: row
             align-items: center

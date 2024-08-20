@@ -35,6 +35,7 @@
         :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
         :placeInList="index"
         :overlapProp="overlapProp"
+        :filters="filters"
         @variant-clicked="variantClicked"/>
     </div>   
       <div id="variant-list-bar-sudo-scroll">
@@ -65,7 +66,8 @@
       type: Boolean,
       default: false
     },
-    overlapProp: Number
+    overlapProp: Number,
+    filters: Object
   },
   data () {
     return {
@@ -83,7 +85,11 @@
 
     //the initial thumb size will be the size of the scrollSelection[1] / svList.length * 100
     let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
-    thumb.style.height = (this.scrollSelection[1] / this.svList.length * 100) + '%'
+    let height = (this.scrollSelection[1] / this.svList.length * 100);
+    if (height > 100) {
+      height = 99.5;
+    }
+    thumb.style.height = height + '%'
 
     let sudoScrollBar = document.getElementById('variant-list-bar-sudo-scroll');
     sudoScrollBar.addEventListener('mousedown', (event) => {
@@ -107,7 +113,12 @@
       }
       //if the scroll selection is greater than the svList length, set it to the svList length
       if (scrollSelection[1] > this.svList.length) {
-        scrollSelection[0] = this.svList.length - 40;
+        let zero = this.svList.length - 40;
+        if (zero < 0) {
+          zero = 0;
+        }
+
+        scrollSelection[0] = zero;
         scrollSelection[1] = this.svList.length;
       }
       this.handleScrollDrag(scrollSelection)
@@ -152,13 +163,20 @@
 
         //the thumb top position will be the scrollSelection[0] / svList.length * 100
         let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
-        thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
+        let top = (this.scrollSelection[0] / this.svList.length * 100);
+        if (top > 100) {
+          top = 100;
+        }
+        thumb.style.top = top + '%';
       }
     },
     handleScrollDrag(scrollSelection) {
       this.scrollSelection = scrollSelection;
       let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
-      thumb.style.top = (this.scrollSelection[0] / this.svList.length * 100) + '%';
+      if (top > 100) {
+        top = 100;
+      }
+      thumb.style.top = top + '%';
     },
     emitSortVariants(event, sortCategory) {
       if (this.loading === true) {
@@ -177,9 +195,13 @@
   },
   watch: {
     svList(newVal, oldVal) {
-      if (oldVal.length === 0 && newVal !== oldVal) {
+      if (newVal !== oldVal) {
         let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
-        thumb.style.height = (this.scrollSelection[1] / this.svList.length * 100) + '%'
+        let height = (this.scrollSelection[1] / this.svList.length * 100);
+        if (height > 100) {
+          height = 99.5;
+        } 
+        thumb.style.height = height + '%'
       }
     },
   },
@@ -188,7 +210,7 @@
   
   <style lang="sass">
     #variant-sudo-scroll-wrapper
-      height: 100%
+      flex-grow: 1
       overflow: hidden
       padding-right: 10px
       position: relative
@@ -224,10 +246,8 @@
         position: sticky
         top: 0
         background-color: white
-        color: #2A65B7
-        border-bottom: 1px solid #2A65B7
-        border-top: 1px solid #2A65B7
-        font-weight: bold
+        color: #474747
+        border-bottom: 1px solid #E0E0E0
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
         z-index: 1
         div
@@ -306,23 +326,23 @@
     //old IE
     #variant-list-bar
       -ms-overflow-style: none
-
     #variant-list-bar-sudo-scroll
       position: absolute
       top: 0
       right: 0
       width: 10px
       height: 100%
+      box-sizing: border-box
       background-color: #F5F5F5
       z-index: 2
       #variant-list-bar-sudo-scroll-thumb
-        width: 100%
+        width: 95%
         height: 50px
         position: relative
-        background-color: #2A65B7
-        border-radius: 3px
+        background-color: #CCCCCC
+        border-radius: 10px
         box-sizing: border-box
         cursor: pointer
         &:hover
-          background-color: #1A4A9C
+          background-color: #B8B8B8
   </style>

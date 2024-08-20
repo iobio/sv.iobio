@@ -37,8 +37,8 @@
     <div id="lower-block-container">
       <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
         <nav class="tab-select" :class="{collapsed: !variantListBarOpen}">
-          <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">SV List</div>
-          <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes Of Interest</div>
+          <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">Variants</div>
+          <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes</div>
         </nav>
 
         <button id="var-list-bar-toggle-btn" @click="variantListBarOpen = !variantListBarOpen">
@@ -56,6 +56,7 @@
           :comparisonsLists="comparisonsLists"
           :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
           :overlapProp="overlapProp"
+          :filters="filters"
           @updateSvAtIndex="updateSvList"
           @variant-clicked="updateFocusedVariant"
           @sort-variants="sortSvList"/>
@@ -134,7 +135,7 @@
         filterDataSectionOpen: false,
         filters: {
           geneOverlap: false,
-          qualityCutOff: 0,
+          denovoOnly: false,
         },
         samples: {
           proband: {
@@ -161,22 +162,21 @@
     methods: {
       returnDenovo(svList, comps, chromMap) {
         let joinedCompList = [];
+        let denovoList = [];
+        let nonDenovo = [];
         for (let list of comps) {
           joinedCompList.push(...list)
         }
         
-        for (let sv in svList) {
-          if (sv.overlappedGenes.length <= 0) {
-            sv.denovo = null;
-            continue
-          }
-
+        for (let sv of svList) {
           let overlapSize = 0;
           let olprop = 0;
           let svChrStart = chromMap.get(sv.chromosome).start
           let svStart = sv.start + svChrStart
           let svEnd = sv.end + svChrStart
           let svSize = svEnd - svStart
+
+          let isNonDenovo = false;
 
           for (let variant of joinedCompList) {
               let chr2Start = chromMap.get(variant.chromosome).start
@@ -186,17 +186,20 @@
               if (svStart < v2End && svEnd > v2Start) {
                   overlapSize = Math.min(svEnd, v2End) - Math.max(svStart, v2Start);
                   olprop = (overlapSize / svSize).toFixed(2)
-                  //essentially if there is something that overlaps more than or equal to the overlapProp then we return that
+                  //if there is something that overlaps more than or equal to the overlapProp not denovo
                   if (olprop >= this.overlapProp) {
-                      sv.denovo = false;
-                      break
+                    nonDenovo.push(sv)
+                    isNonDenovo = true;
+                    break;
                   }
               }
           }
-          sv.denovo = true;
+          if (!isNonDenovo) {
+            denovoList.push(sv)
+          }
         }
 
-        return svList
+        return { denovoList: denovoList, nonDenovo: nonDenovo }
       },
       setChromosomeMap(chromosomeMap) {
         this.chromosomeAccumulatedMap = chromosomeMap;
@@ -316,7 +319,7 @@
       },
       updateDataFilters(filters) {
         //Filters, essentially shouldn't need to make additional calls to the server
-        if (filters.geneOverlap !== this.filters.geneOverlap || filters.qualityCutOff !== this.filters.qualityCutOff) {
+        if (filters.geneOverlap !== this.filters.geneOverlap || filters.denovoOnly !== this.filters.denovoOnly) {
           this.filters = filters;
         } else {
           return;
@@ -333,15 +336,23 @@
           filterApplied = true;
         }
 
-        if (filters.qualityCutOff > 0) {
-          if (!filters.geneOverlap) {
-            newSVs = allSVs.filter(sv => Number(sv.quality) >= filters.qualityCutOff);
-            newFilteredOut = allSVs.filter(sv => Number(sv.quality) < filters.qualityCutOff);
+        if (filters.denovoOnly) {
+          if (!this.comparisonsLists.length > 0 || !this.chromosomeAccumulatedMap || !this.chromosomeAccumulatedMap.size > 0) {
+            if (!this.comparisonsLists > 0) {
+              this.addToast({message: 'No comparrisons.', type: 'error'})
+            } else {
+              this.addToast({message: 'No chromosome map defined.', type: 'error'})
+            }
           } else {
-            newSVs = newSVs.filter(sv => Number(sv.quality) >= filters.qualityCutOff);
-            newFilteredOut.concat(newSVs.filter(sv => Number(sv.quality) < filters.qualityCutOff));
+            if (newSVs.length == 0) {
+              newSVs = allSVs;
+            }
+
+            let { denovoList, nonDenovo } = this.returnDenovo(newSVs, this.comparisonsLists, this.chromosomeAccumulatedMap)
+            newSVs = denovoList;
+            newFilteredOut.push(...nonDenovo)
+            filterApplied = true;
           }
-          filterApplied = true;
         }
 
         if (!filterApplied) {
@@ -686,7 +697,10 @@
   #var-list-bar-button-container
     position: relative
     height: 100%
-    padding: 0px
+    box-sizing: border-box
+    display: flex
+    flex-direction: column
+    padding: 5px 0px 0px 0px
     margin: 0px
     width: 25%
     min-width: 250px
@@ -695,9 +709,11 @@
     .tab-select
       display: flex
       justify-content: flex-start
-      padding: 5px 0px 0px 0px
-      color: #084D9B
-      border-bottom: 5px solid #CADEF7
+      color: #474747
+      border-radius: 5px
+      width: fit-content
+      border: 1px solid #EBEBEB
+      align-self: center
       &.collapsed
         border-bottom: 0px
         width: 0px
@@ -706,16 +722,15 @@
       .tab
         padding: 5px 10px
         margin: 0px
-        border-radius: 5px 5px 0px 0px
-        background-color: #FFD6D6
-        color: #A30000
+        // border: 1px solid #EBEBEB
+        text-transform: uppercase
+        font-weight: 200
         &.selected
-          background-color: #CADEF7
-          color: #084D9B
+          background-color: #EBEBEB
+          font-weight: 400
         &:hover
           cursor: pointer
-          background-color: #D8E9FD
-          color: #084D9B
+          background-color: #E0E0E0
     &.collapsed
       width: 0px
       min-width: 0px
