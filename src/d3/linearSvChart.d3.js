@@ -445,6 +445,13 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                     })
                     .attr('transform', `translate(0, ${translateY})`)
                     .attr('height', 5)
+                    .attr('rx', function() {
+                        if (endX - startX < 3) {
+                            return 0
+                        } else {
+                            return 2
+                        }
+                    })
                     .attr('fill', function(){
                         //should be red if it's a deletion
                         if (isFocused) {

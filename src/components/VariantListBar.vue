@@ -173,6 +173,7 @@
     handleScrollDrag(scrollSelection) {
       this.scrollSelection = scrollSelection;
       let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
+      let top = (this.scrollSelection[0] / this.svList.length * 100);
       if (top > 100) {
         top = 100;
       }
