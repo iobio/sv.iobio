@@ -36,6 +36,10 @@
 
     <div id="lower-block-container">
       <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
+        <div>
+
+        </div>
+
         <div class="button-container">
           <div class="tab-select-wrapper">
             <nav class="tab-select" :class="{collapsed: !variantListBarOpen}">
@@ -75,6 +79,7 @@
           :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
           :overlapProp="overlapProp"
           :filters="filters"
+          :focusedVariant="focusedVariant"
           @updateSvAtIndex="updateSvList"
           @variant-clicked="updateFocusedVariant"
           @sort-variants="sortSvList"/>
@@ -780,9 +785,9 @@
       .tab
         padding: 5px 10px
         margin: 0px
-        // border: 1px solid #EBEBEB
         text-transform: uppercase
         font-weight: 200
+        border-radius: 4px
         &.selected
           background-color: #EBEBEB
           font-weight: 400
