@@ -24,8 +24,8 @@ import * as d3 from 'd3';
 export default function chromSelectBar(parentElementTag, refChromosomes, options=null) {
     let parentElement = d3.select(parentElementTag);
 
-    let width = parentElement.node().clientWidth;
-    let height = parentElement.node().clientHeight;
+    let width = parentElement.node().clientWidth - 5;
+    let height = parentElement.node().clientHeight - 5;
     let chromosomes = refChromosomes;
     let bands = null;
     let centromeres = null;
@@ -104,10 +104,10 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     const margin = {top: 5, right: 10, bottom: 5, left: 10};
 
     const svg = d3.create('svg')
-        .attr('viewBox', [0, 0, width, height])
+        .attr('viewBox', [0, 0, width, height + 5])
         .attr('class', 'chrom-select-bar-d3')
         .attr('width', width)
-        .attr('height', height);
+        .attr('height', height + 5);
 
     let { chromosomeMap, genomeSize } = _genChromosomeAccumulatedMap(chromosomes);
 
@@ -215,6 +215,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             //add the chromosome bar
             chromosomeGroup.append('rect')
                 .attr('x', 1)
+                .attr('y', 5)
                 .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
                 .attr('height', height - margin.bottom - margin.top + 5)
                 .attr('fill', chromosomeColor)
@@ -230,6 +231,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     //class will be idiogram
                     .attr('class', 'upper-idiogram')
                     .attr('x', 1)
+                    .attr('y', 5)
                     .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
@@ -242,6 +244,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     //class will be idiogram
                     .attr('class', 'upper-idiogram-parm')
                     .attr('x', 1)
+                    .attr('y', 5)
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromStartUpdated) - 1;
@@ -261,6 +264,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromStartUpdated);
                     })
+                    .attr('y', 5)
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(chromEndUpdated) - x(centromereEnd - centromereCenter);
@@ -307,6 +311,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         .attr('x', function(){
                             return bandStartX;
                         })
+                        .attr('y', 5)
                         .attr('width', function(){
                             return bandEndX - bandStartX;
                         })
@@ -327,7 +332,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top - 3)
+                .attr('y', height - margin.bottom - margin.top + 1)
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
@@ -346,7 +351,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let endPixel = x(end);
             
             let brush = d3.brushX()
-                .extent([[0, 0], [width, height]])
+                .extent([[0, 6], [width, height +4]])
                 .on('end', brushed);
 
             //this is the acutal brushable area
@@ -358,11 +363,31 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             //set the brush to the selection but dont fire the callback
             svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
 
-            //get the selection and setits styles
+            //get the selection and set its styles
             let brushRec = svg.select('.brush-area').select('.selection');
             brushRec.attr('fill', 'red')
                 .attr('fill-opacity', 0.2)
                 .attr('stroke', 'red');
+
+            //append <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>map-marker</title><path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z" /></svg>
+            //just above the start of the brush
+            svg.append('g')
+                .attr('class', 'poi')
+                .attr('transform', `translate(${startPixel - 5}, 0)`)
+                .append('svg')
+                .attr('xmlns', 'http://www.w3.org/2000/svg')
+                .attr('viewBox', '0 0 24 24')
+                .attr('width', 11)
+                .attr('height', 11)
+                .append('path')
+                .attr('d', "M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z")
+                .attr('fill', 'red')
+                .attr('stroke', 'red')
+                .attr('stroke-width', 0.5)
+                .attr('stroke-linecap', 'round')
+                .attr('stroke-linejoin', 'round')
+                .attr('stroke-miterlimit', 10);
+
         } else {
             let brush = d3.brushX()
                 .extent([[0, 0], [width, height]])

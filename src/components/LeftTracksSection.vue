@@ -594,10 +594,10 @@
         cursor: pointer
         background-color: #E0E0E0
   #chrom-select-bar-div
-    height: 27px
+    height: 32px
     padding: 8px 0px 2px 0px
-    border-radius: 5px
-    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+    border-bottom: 1px solid #E0E0E0
+    border-top: 1px solid #E0E0E0
     box-sizing: content-box
   #global-chart-style-selection
     width: fit-content
