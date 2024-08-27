@@ -2,18 +2,21 @@
     <div id="left-tracks-section">
       <div class="upper-track-selectors-bar">
         <div id="radios-tools-container">
-          <div id="global-view-select-radios">
-            <input type="radio" id="circos-view" name="view" value="circos" v-model="globalView">
-            <label for="circos-view">Circos</label>
-            <input type="radio" id="linear-view" name="view" value="linear" v-model="globalView">
-            <label for="linear-view">Linear</label>
+          <div id="global-chart-style-selection">
+            <select name="chart-view-selection" id="chart-view-select" v-model="globalView">
+              <option value="circos">Circos</option>
+              <option value="linear">Linear</option>
+            </select>
           </div>
 
-          <button @click="toggleLineTool" v-if="globalView == 'linear'" class="line-tool-btn">Line Tool</button>
+          <button @click="toggleLineTool" v-if="globalView == 'linear'" class="line-tool-btn"> 
+            <span>Line<br>Tool</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>drag-vertical-variant</title><path d="M11 21H9V3H11V21M15 3H13V21H15V3Z" /></svg>
+          </button>
         </div>
         <div v-if="(showButton && focusedVariant) || zoomHistory.length > 1" id="buttons-container">
-          <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus on Variant</button>
-          <button v-if="zoomHistory.length > 1" @click="focusOnPrevious" id="prev-zoom-btn">Prev. Zoom</button>
+          <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus On <br> Variant</button>
+          <button v-if="zoomHistory.length > 1" @click="focusOnPrevious" id="prev-zoom-btn">Prev. <br> Zoom</button>
         </div>
       </div>
       <div class="wrapper-95">
@@ -498,20 +501,32 @@
 <style lang="sass">
   #radios-tools-container
     display: flex
-    justify-content: space-between
+    justify-content: flex-start
+    align-items: flex-end
+    height: 100%
     .line-tool-btn
-      top: 0px
-      right: 10px
       padding: 5px 5px
       margin-left: 10px
-      color: #2A65B7
-      border: 1px solid #2A65B7
+      display: flex
+      flex-direction: row
+      align-items: center
+      border: none
+      color: #474747
+      background-color: #EBEBEB
+      font-size: 0.8em
       border-radius: 5px
-      font-weight: bold
-      box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+      text-transform: uppercase
+      text-align: left
+      height: 100%
       &:hover
         cursor: pointer
-        opacity: 0.7
+        background-color: #E0E0E0
+      svg
+        width: 20px
+        height: 20px
+        fill: #2A65B7
+        border-radius: 50%
+        margin-left: 3px
   #left-tracks-section
     box-sizing: border-box
     display: flex
@@ -526,10 +541,8 @@
       align-items: center
       box-sizing: border-box
       display: flex
-      height: fit-content
-      justify-content: space-between
-      padding: 5px
       width: 100%
+      padding-bottom: 5px
     .wrapper-95
       box-sizing: border-box
       display: flex
@@ -557,49 +570,56 @@
           top: 2px
           z-index: 1
   #buttons-container
-    display: flex
-    justify-content: space-between
-    width: fit-content
+    height: 100%
     #focus-chart-btn
-      top: 0px
-      right: 40px
-      padding: 5px 5px
-      color: #2A65B7
-      border: 1px solid #2A65B7
-      margin-right: 10px
+      padding: 5px
+      border: none
+      margin-left: 10px
       border-radius: 5px
-      font-weight: bold
-      box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+      text-transform: uppercase
+      color: #474747
+      height: 100%
       &:hover
         cursor: pointer
-        opacity: 0.7
+        background-color: #E0E0E0
     #prev-zoom-btn
-      top: 0px
-      right: 10px
-      padding: 5px 5px
-      color: #2A65B7
-      border: 1px solid #2A65B7
+      padding: 5px
+      border: none
+      margin-left: 10px
       border-radius: 5px
-      font-weight: bold
-      box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+      text-transform: uppercase
+      color: #474747
+      height: 100%
       &:hover
         cursor: pointer
-        opacity: 0.7
+        background-color: #E0E0E0
   #chrom-select-bar-div
     height: 27px
     padding: 8px 0px 2px 0px
     border-radius: 5px
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
     box-sizing: content-box
-  #global-view-select-radios
+  #global-chart-style-selection
     width: fit-content
-    top: 0px
-    left: 10px
-    padding: 5px 5px
     color: #2A65B7
-    border: 1px solid #2A65B7
-    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3)
+    background-color: #EBEBEB
     border-radius: 5px
-    input, label
+    padding: 5px
+    height: 100%
+    display: flex
+    align-items: center
+    &:hover
       cursor: pointer
+      background-color: #E0E0E0
+    select
+      border: none
+      font-weight: bold
+      font-size: 1em
+      text-transform: uppercase
+      background-color: inherit
+      &:hover
+        cursor: pointer
+        background-color: #E0E0E0
+      &:focus
+        outline: none
 </style>
