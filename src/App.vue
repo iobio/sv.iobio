@@ -792,6 +792,8 @@
     &.collapsed
       width: 0px
       min-width: 0px
+      .filter-button
+        display: none
 
   #var-list-bar-toggle-btn
     position: absolute
