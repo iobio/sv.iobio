@@ -36,6 +36,7 @@
         :placeInList="index"
         :overlapProp="overlapProp"
         :filters="filters"
+        :focusedVariant="focusedVariant"
         @variant-clicked="variantClicked"/>
     </div>   
       <div id="variant-list-bar-sudo-scroll">
@@ -58,6 +59,7 @@
     geneCandidates: Array,
     comparisonsLists: Array,
     chromosomeAccumulatedMap: Object,
+    focusedVariant: Object,
     loading: {
       type: Boolean,
       default: false

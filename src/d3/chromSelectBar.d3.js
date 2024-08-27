@@ -351,7 +351,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let endPixel = x(end);
             
             let brush = d3.brushX()
-                .extent([[0, 6], [width, height +4]])
+                .extent([[0, 6], [width, height + 4]])
                 .on('end', brushed);
 
             //this is the acutal brushable area
@@ -390,7 +390,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
         } else {
             let brush = d3.brushX()
-                .extent([[0, 0], [width, height]])
+                .extent([[0, 6], [width, height + 4]])
                 .on('end', brushed);
 
             svg.append('g')

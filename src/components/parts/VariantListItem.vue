@@ -1,6 +1,10 @@
 <template>
     <div id="variant-list-item">
-        <div class="preview" :class="{opened: showMore}" @click="focusOnVariant">
+
+        <div class="preview" :class="{opened: showMore, focusedVariant: isFocusedVariant}" @click="focusOnVariant">
+            <div class="focus-indicator" v-if="isFocusedVariant">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Focused On</title><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" /></svg>
+            </div>
             <span class="exp-collapse-carrot" @click="variantOpened">
                 <svg v-if="!showMore" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-down</title><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
                 <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-up</title><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
@@ -66,12 +70,14 @@
     chromosomeAccumulatedMap: Object,
     placeInList: Number,
     overlapProp: Number,
-    filters: Object
+    filters: Object,
+    focusedVariant: Object
   },
   data () {
     return {
         showMore: false,
         focused: false,
+        isFocusedVariant: false
     }
   },
   mounted () {
@@ -265,6 +271,14 @@
     }
   },
   watch: {
+    focusedVariant: function() {
+        if (this.focusedVariant && this.focusedVariant.chromosome === this.variant.chromosome && this.focusedVariant.start === this.variant.start && this.focusedVariant.end === this.variant.end) {
+            this.isFocusedVariant = true
+            console.log(this.focusedVariant)
+        } else {
+            this.isFocusedVariant = false
+        }
+    }
   },
   }
   </script>
@@ -273,6 +287,7 @@
     #variant-list-item
         width: 100%
         min-width: 200px
+        position: relative
         .novel-tag
             display: flex
             justify-content: center
@@ -285,6 +300,20 @@
                 width: 20px
                 fill: red
                 pointer-events: none
+        .focus-indicator
+            display: flex
+            justify-content: center
+            align-items: center
+            position: absolute
+            top: 0px
+            left: 0px
+            width: 20px
+            height: 20px
+            svg
+                height: 15px
+                width: 15px
+                fill: #FFB60A
+                pointer-events: none
         .preview
             position: relative
             display: grid
@@ -294,6 +323,8 @@
             width: 100%
             box-sizing: border-box
             border-bottom: 1px solid #F5F5F5
+            &.focusedVariant
+                background-color: #FFF3D6
             &.opened
                 box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
                 background-color: #DEE9F7
