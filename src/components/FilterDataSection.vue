@@ -1,6 +1,6 @@
 <template>
     <div class="filter-data-section" :class="{hidden: !show}">
-        <h3>Filter By:</h3>
+        <h3>Filter Variants</h3>
         <div id="overlap-check">
             <label for="gene-overlap">Gene Overlap Only</label>
             <input type="checkbox" name="gene-overlap" v-model="geneOverlap">
@@ -84,18 +84,16 @@ export default {
         flex-direction: column
         top: 0
         left: 0
-        padding: 55px 10px 10px 10px
-        width: 30%
+        padding: 10px
+        width: 100%
         height: 100%
-        border-radius: 0px 0px 5px 0px
-        background-color: rgba(255, 255, 255, 0.95)
+        background-color: white
         transition: height 0.5s ease-in-out, width 0.5s ease-in-out
-        box-shadow: 0px 0px 5px 0px #2A65B7
         box-sizing: border-box
+        border-right: 1px solid #EBEBEB
         z-index: 3
         &.hidden
             height: 0px
-            width: 0px
             padding: 0px
             overflow: hidden
         h3
@@ -103,25 +101,25 @@ export default {
             padding: 5px 0px 10px 0px
             color: #0D60C3
             font-size: 1.2em
-            font-weight: bold
+            text-align: center
+            text-transform: uppercase
+            font-weight: 400
         #overlap-check, #denovo-check
             display: flex
             flex-direction: row
             align-items: center
             justify-content: flex-start
             margin-top: 10px
-            border: 1px solid #0D60C3
             padding: 5px
             border-radius: 5px
             width: fit-content
             label
                 margin-right: 10px
                 color: #0D60C3
-                font-weight: bold
             input
                 margin-right: 10px
         button
-            margin-top: 10px
+            margin-top: 40px
             max-width: 100px
             width: 100px
             padding: 5px
@@ -130,9 +128,8 @@ export default {
             border: none
             border-radius: 3px
             cursor: pointer
-            align-self: flex-end
             &:hover
-                background-color: #0D60C3
+                background-color: #0B4B99
                 color: white
             &:disabled
                 background-color: #ccc

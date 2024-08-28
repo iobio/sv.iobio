@@ -26,19 +26,15 @@
     @toggle-show="selectDataSectionOpen = false"
     @emit-toast="addToast"/>
 
-    <FilterDataSection 
-    :show="filterDataSectionOpen"
-    :filters="filters"
-    :loaded="loadedInitiallyComplete"
-    :probQualityStats="qualityStats.proband"
-    @toggleFilterDataSection="filterDataSectionOpen = false"
-    @updateFilters="updateDataFilters"/>
-
     <div id="lower-block-container">
       <div id="var-list-bar-button-container" :class="{collapsed: !variantListBarOpen}">
-        <div>
-
-        </div>
+        <FilterDataSection 
+          :show="filterDataSectionOpen"
+          :filters="filters"
+          :loaded="loadedInitiallyComplete"
+          :probQualityStats="qualityStats.proband"
+          @toggleFilterDataSection="filterDataSectionOpen = false"
+          @updateFilters="updateDataFilters"/>
 
         <div class="button-container">
           <div class="tab-select-wrapper">
@@ -49,7 +45,7 @@
           </div>
 
 
-          <!-- <div class="filter-button">
+          <div class="filter-button" @click="filterDataSectionOpen = !filterDataSectionOpen; selectDataSectionOpen = false">
             <svg v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <title>Filter SVs</title>
               <path d="M12 18.88A1 1 0 0 1 11.71 19.71A1 1 0 0 1 10.3 19.71L6.3 15.71A1 1 0 0 1 6 14.87V9.75L1.21 3.62A1 1 0 0 1 1.38 2.22A1 1 0 0 1 2 2H16A1 1 0 0 1 16.62 2.22A1 1 0 0 1 16.79 3.62L12 9.75V18.88M4 4L8 9.06V14.58L10 16.58V9.05L14 4M13 16L18 21L23 16Z" />
@@ -59,7 +55,7 @@
               <title>loading</title>
               <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
             </svg>
-          </div> -->
+          </div>
         </div>
 
 
@@ -680,6 +676,13 @@
         },
         deep: true
       },
+      variantListBarOpen: {
+        handler(newVal, oldVal) {
+          if (newVal == false){
+            this.filterDataSectionOpen = false;
+          }
+        }
+      }
     },
   }
 
@@ -754,9 +757,11 @@
         border: 1px solid #EBEBEB
         transform: translate(0px, 0px)
         margin-left: auto
+        margin-right: 10px
         border-radius: 50%
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.2)
         transition: border-radius 0.2s
+        z-index: 3
         &:hover
           cursor: pointer
           border-radius: 5px
@@ -802,7 +807,6 @@
       min-width: 0px
       .filter-button
         display: none
-
   #var-list-bar-toggle-btn
     position: absolute
     bottom: 10px
