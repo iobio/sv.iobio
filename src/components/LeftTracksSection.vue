@@ -597,7 +597,6 @@
     height: 32px
     padding: 8px 0px 2px 0px
     border-bottom: 1px solid #E0E0E0
-    border-top: 1px solid #E0E0E0
     box-sizing: content-box
   #global-chart-style-selection
     width: fit-content
