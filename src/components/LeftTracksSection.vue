@@ -441,9 +441,10 @@
         let startChromosome;
         let relativeStart;
         this.chromosomeAccumulatedMap.forEach((value, key) => {
-          if (this.selectedArea.start >= value.start && this.selectedArea.end <= value.end) {
+          if (this.selectedArea.start >= value.start && this.selectedArea.start <= value.end) {
             startChromosome = key;
             relativeStart = this.selectedArea.start - value.start;
+
             if (relativeStart <= 0) {
               relativeStart = 1;
             }
@@ -453,7 +454,7 @@
         let relativeEnd;
         this.chromosomeAccumulatedMap.forEach((value, key) => {
           //Subtract one because igv is 1 based and we are 0 based
-          if ((this.selectedArea.end -1 )>= value.start && (this.selectedArea.end -1) <= value.end) {
+          if ((this.selectedArea.end - 1 )>= value.start && (this.selectedArea.end - 1) <= value.end) {
             endChromosome = key;
             relativeEnd = this.selectedArea.end - value.start;
           }
