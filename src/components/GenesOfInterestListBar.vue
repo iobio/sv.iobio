@@ -1,6 +1,6 @@
 <template>
     <div id="genes-of-interest-list-bar">
-      <div v-for="gene in genesOfInterest" class="genes-of-interest-list-bar-gene" @click="emitZoomToGene(gene)">
+      <div :class="{focused: zoomedGeneName && zoomedGeneName == gene}" v-for="gene in genesOfInterest" class="genes-of-interest-list-bar-gene" @click="emitZoomToGene(gene)">
         <span class="close-btn">
           <svg @click="removeGeneFromList($event, gene)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <title>delete gene</title>
@@ -22,6 +22,10 @@
       type: Array,
       required: true
     },
+    zoomedGeneName: {
+      type: String,
+      required: false,
+    }
   },
   data () {
     return {
@@ -61,6 +65,15 @@
       width: fit-content
       display: flex
       align-items: center
+      &.focused
+        background-color: #707070
+        color: white
+        span
+          .close-btn
+          svg
+            fill: white
+        &:hover
+          color: black
       span
         cursor: pointer
       .close-btn

@@ -150,6 +150,9 @@
         .nav-bar-item-sub.save
           margin-bottom: 1px
           width: 100%
+          display: flex
+          justify-content: center
+          align-items: center
         .nav-bar-item-sub.clear
           margin-top: 1px
           display: flex
@@ -273,6 +276,7 @@
       border: none
       border-radius: 3px
       resize: none
+      text-align: start
     button.nav-bar-item-sub
       height: 100%
   </style>

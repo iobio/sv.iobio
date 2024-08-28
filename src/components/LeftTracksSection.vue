@@ -2,6 +2,11 @@
     <div id="left-tracks-section">
       <div class="upper-track-selectors-bar">
         <div id="radios-tools-container">
+          <fieldset class="location-indicator">
+            <legend>Location</legend>
+            <p class="entry">{{ zoomedStamp }}</p>
+          </fieldset>
+
           <div id="global-chart-style-selection">
             <select name="chart-view-selection" id="chart-view-select" v-model="globalView">
               <option value="circos">Circos</option>
@@ -105,6 +110,8 @@
     batchNum: Number,
     samples: Object,
     multiSampleVcf: Boolean,
+    genomeStart: Number,
+    genomeEnd: Number
   },
   data () {
     return {
@@ -268,8 +275,8 @@
           focusedStart = 0;
       }
 
-      if (focusedEnd > 3000000000) {
-          focusedEnd = 3000000000;
+      if (focusedEnd >= this.genomeEnd) {
+          focusedEnd = this.genomeEnd;
       }
 
       let zoomedSection = {
@@ -305,8 +312,8 @@
         focusedStart = 0;
       }
 
-      if (focusedEnd > 3000000000) {
-        focusedEnd = 3000000000;
+      if (focusedEnd >= this.genomeEnd) {
+        focusedEnd = this.genomeEnd;
       }
 
       let zoomedSection = {
@@ -315,12 +322,12 @@
         size: geneSize
       };
 
-      this.$emit('zoomEvent', zoomedSection);
+      this.$emit('zoomEvent', zoomedSection, true);
       return zoomedSection;
     },
     selectAreaEventFired(zoomZone) {
       //if the zoomZone is not the whole genome we push it to the zoomHistory
-      if (zoomZone && zoomZone.start !== 0 && !(zoomZone.end > 3000000000)) {
+      if (zoomZone && zoomZone.start !== 0 && !(zoomZone.end >= this.genomeEnd)) {
         //BUG: this may not catch the case that we are at the end or beginning but not selecting the whole? check
         this.zoomHistory.push(zoomZone);
       } else {
@@ -408,7 +415,7 @@
   computed: {
     isGlobalView() {
       if (this.selectedArea) {
-        return this.selectedArea.start === 0 && this.selectedArea.end > 3000000000
+        return this.selectedArea.start === 0 && this.selectedArea.end >= this.genomeEnd;
       } else {
         return true
       }
@@ -424,6 +431,40 @@
     },
     chromSelectBarDataReady() {
       return this.chromosomes && this.centromeres && this.bands
+    },
+    zoomedStamp() {
+      if (this.isGlobalView) {
+        return 'Whole Genome';
+      } else if (!this.chromosomeAccumulatedMap || !this.selectedArea) {
+        return 'Whole Genome';
+      } else {
+        let startChromosome;
+        let relativeStart;
+        this.chromosomeAccumulatedMap.forEach((value, key) => {
+          if (this.selectedArea.start >= value.start && this.selectedArea.end <= value.end) {
+            startChromosome = key;
+            relativeStart = this.selectedArea.start - value.start;
+            if (relativeStart <= 0) {
+              relativeStart = 1;
+            }
+          }
+        });
+        let endChromosome;
+        let relativeEnd;
+        this.chromosomeAccumulatedMap.forEach((value, key) => {
+          //Subtract one because igv is 1 based and we are 0 based
+          if ((this.selectedArea.end -1 )>= value.start && (this.selectedArea.end -1) <= value.end) {
+            endChromosome = key;
+            relativeEnd = this.selectedArea.end - value.start;
+          }
+        });
+
+        if (startChromosome === endChromosome) {
+          return `chr${startChromosome}:${relativeStart}-${relativeEnd}`;
+        } else {
+          return `chr${startChromosome}:${relativeStart}-chr${endChromosome}:${relativeEnd}`;
+        }
+      }
     }
   },
   watch: {
@@ -527,6 +568,26 @@
         fill: #2A65B7
         border-radius: 50%
         margin-left: 3px
+    .location-indicator
+      display: flex
+      flex-direction: row
+      align-items: center
+      padding: 5px
+      border: none
+      border-bottom: 1px solid #E0E0E0
+      margin-left: 10px
+      legend
+        margin: 0px
+        padding: 0px
+        font-size: 0.6em
+        text-transform: uppercase
+        font-style: italic
+        color: #474747
+      p.entry
+        margin: 0px
+        padding: 0px
+        font-size: 0.8em
+        border-radius: 5px
   #left-tracks-section
     box-sizing: border-box
     display: flex
@@ -603,6 +664,7 @@
     color: #2A65B7
     background-color: #EBEBEB
     border-radius: 5px
+    margin-left: 10px
     padding: 5px
     height: 100%
     display: flex

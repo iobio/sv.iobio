@@ -87,6 +87,7 @@
         <GenesOfInterestListBar
           v-if="selectedTab == 'goi'"
           :genesOfInterest="genesOfInterest"
+          :zoomedGeneName="focusedGeneName"
           @remove-gene-from-goi="removeGeneFromGeneList"
           @zoom-to-gene="zoomToGene"/>
       </div>
@@ -101,6 +102,8 @@
         :batchNum="batchNum"
         :multiSampleVcf="multiSampleVcf"
         :focusedGeneName="focusedGeneName"
+        :genomeEnd="genomeEnd"
+        :genomeStart="genomeStart"
         @updateComparisons="updateComparisons"
         @zoomEvent="zoomFired"
         @update-comparison-lists="setComparisonSamples"
@@ -135,6 +138,8 @@
     },
     data() {
       return {
+        genomeStart: 0,
+        genomeEnd: 0,
         overlapProp: .8,
         selectedTab: 'svList',
         svListData: [],
@@ -226,6 +231,7 @@
       },
       setChromosomeMap(chromosomeMap) {
         this.chromosomeAccumulatedMap = chromosomeMap;
+        this.genomeEnd = chromosomeMap.get('Y').end;
       },
       setComparisonSamples(comparisons) {
         this.comparisonsLists = comparisons;
@@ -461,17 +467,14 @@
         (updatedSvs)
         return updatedSvs;
       },
-      areaSelected(selectedArea) {
-        if (this.selectedArea == selectedArea) {
-          return;
-        }
-        this.selectedArea = selectedArea
-      },
-      zoomFired(zoomZone) {
+      zoomFired(zoomZone, isGene=false) {
         if (this.selectedArea == zoomZone) {
           return;
         }
         this.selectedArea = zoomZone
+        if (!isGene) {
+          this.focusedGeneName = null;
+        }
       }, 
       updateGenesOfInterest(newGOI) {
         /**
@@ -777,6 +780,7 @@
       border-radius: 5px
       width: fit-content
       border: 1px solid #EBEBEB
+      overflow: hidden
       &.collapsed
         border-bottom: 0px
         width: 0px
@@ -787,7 +791,6 @@
         margin: 0px
         text-transform: uppercase
         font-weight: 200
-        border-radius: 4px
         &.selected
           background-color: #EBEBEB
           font-weight: 400
