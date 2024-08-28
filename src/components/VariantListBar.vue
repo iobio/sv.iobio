@@ -4,9 +4,9 @@
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
         <div @click="showSortOptions = !showSortOptions" class="sort-btn">
           <div class="sort-options-popup" :class="{hidden: !showSortOptions}">
-            <span @click="emitSortVariants($event, 'goi')">Genes of Interest Overlapped</span>
-            <span @click="emitSortVariants($event, 'genesOverlapped')">Genes Overlapped</span>
-            <span @click="emitSortVariants($event, 'percentOverlapped')">Max Percentage Phens Overlapped</span>
+            <span @click="emitSortVariants($event, 'goi')">Genes of Interest (GOI)</span>
+            <span @click="emitSortVariants($event, 'percentOverlapped')">Phenotypes % Max</span>
+            <span @click="emitSortVariants($event, 'genesOverlapped')"># Genes</span>
           </div>
           <svg class="sort-svg" v-if="!loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <title>Sort SVs</title>
