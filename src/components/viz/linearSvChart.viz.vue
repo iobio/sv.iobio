@@ -1,7 +1,12 @@
 <template>
     <div ref="rootDraggableContainer" class="linear-sv-chart-wrapper">
       <p class="title" v-if="name">{{ name }}</p>
-      <div v-if="!isProband" class="remove-button" @click="emitRemoveTrack">x</div>
+      <div v-if="!isProband" class="remove-button" @click="emitRemoveTrack">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <title>remove</title>
+          <path d="M20 6.91L17.09 4L12 9.09L6.91 4L4 6.91L9.09 12L4 17.09L6.91 20L12 14.91L17.09 20L20 17.09L14.91 12L20 6.91Z" />
+        </svg>
+      </div>
       <div v-if="!isProband" class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <title>drag up/down</title>
@@ -154,21 +159,21 @@ export default {
     z-index: 10
   .linear-sv-chart-wrapper
     position: relative
-    margin-top: 5px
+    // margin-top: 5px
     padding: 5px
     border-radius: 5px
     background-color: white
     .title
       box-sizing: border-box
-      padding: 0px
+      padding: 0px 5px
+      border-radius: 5px
       margin: 0px 0px 5px 0px
     p
-      font-weight: bold
       color: #2A65B7
-      width: 100%
       box-sizing: border-box
-      text-align: center
-      margin: 5px
+      width: fit-content
+      margin: 0px
+      background-color: whitesmoke
     .drag-handle
       height: 30px
       width: 15px
@@ -189,7 +194,6 @@ export default {
       color: #2A65B7
       box-sizing: content-box
       &:hover
-        box-shadow: 0px 0px 5px 0px #2A65B7
         background-color: #C1D1EA
       svg
         width: 20px
@@ -197,9 +201,8 @@ export default {
         fill: #2A65B7
     .remove-button
       position: absolute
-      top: 0px
-      left: -9px
-      font-size: 1.1em
+      top: 25%
+      left: -10px
       cursor: pointer
       color: #2A65B7
       width: 20px
@@ -209,11 +212,15 @@ export default {
       display: flex
       justify-content: center
       align-items: center
-      line-height: 1em
-      box-shadow: 0px 0px 3px 0px #2A65B7
+      svg
+        width: 15px
+        height: 15px
+        fill: #2A65B7
       &:hover
         color: red
         border: 1px solid red
+        svg
+          fill: red
   .linear-sv-chart 
     height: 120px
     width: 100%

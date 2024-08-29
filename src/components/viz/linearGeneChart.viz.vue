@@ -139,12 +139,16 @@ export default {
     border-radius: 5px
     background-color: white
     p
-      font-weight: bold
       color: #2A65B7
-      width: 100%
+      font-weight: bold
+      width: fit-content
+      border-radius: 5px
       box-sizing: border-box
-      text-align: center
-      margin: 5px
+      text-transform: uppercase
+      margin: 0px
+      margin-bottom: 5px
+      padding: 0px 5px
+      background-color: whitesmoke
     .drag-handle
       height: 30px
       width: 15px
@@ -165,7 +169,6 @@ export default {
       color: #2A65B7
       box-sizing: content-box
       &:hover
-        box-shadow: 0px 0px 5px 0px #2A65B7
         background-color: #C1D1EA
       svg
         width: 20px

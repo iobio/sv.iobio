@@ -7,7 +7,7 @@
         </div>
 
         <div id="denovo-check">
-            <label for="denovo-only">Denovo Only</label>
+            <label for="denovo-only">Denovo/Unique Only</label>
             <input type="checkbox" name="denovo-only" v-model="denovoOnly">
         </div>
 
@@ -109,15 +109,16 @@ export default {
             flex-direction: row
             align-items: center
             justify-content: flex-start
-            margin-top: 10px
-            padding: 5px
-            border-radius: 5px
-            width: fit-content
+            padding: 10px
+            width: 100%
+            border-bottom: 1px solid #EBEBEB
             label
                 margin-right: 10px
                 color: #0D60C3
             input
                 margin-right: 10px
+        #overlap-check
+            border-top: 1px solid #EBEBEB
         button
             margin-top: 40px
             max-width: 100px
