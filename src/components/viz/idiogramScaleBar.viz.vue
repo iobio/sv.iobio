@@ -78,6 +78,6 @@
   <style lang="sass">
     .idiogram-scale-bar-viz
         width: 100%
-        height: 60px
-  
+        height: 40px
+        padding: 0px 5px 
   </style>

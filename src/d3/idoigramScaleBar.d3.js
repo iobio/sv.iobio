@@ -3,13 +3,11 @@ import * as d3 from 'd3';
 export default function idoigramScaleBar(parentElementTag, refChromosomes, options) {
     let parentElement = d3.select(parentElementTag);
 
-    let width = parentElement.node().clientWidth - 5;
-    let height = parentElement.node().clientHeight - 5;
+    let width = parentElement.node().clientWidth - 10;
+    let height = parentElement.node().clientHeight;
     let chromosomes = refChromosomes;
     let bands = null;
     let centromeres = null;
-    let pointsOfInterest = null;
-    let maximumSelection = 1000000;
     let selectionCallback = null;
     let brush = false;
     let selection = null;
@@ -55,12 +53,6 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 newBands.push(band);
             }
             bands = newBands;
-        }
-        if (options.pointsOfInterest) {
-            pointsOfInterest = options.pointsOfInterest;
-        }
-        if (options.maximumSelection) {
-            maximumSelection = options.maximumSelection;
         }
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
@@ -190,19 +182,9 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 .attr('id', `chr-${chr}-group`);
 
             let chromosomeColor = d3.interpolate('#1F68C1', '#A63D40')(chromosomeEnd / genomeSize);
-                
-            //add the chromosome bar
-            chromosomeGroup.append('rect')
-                .attr('x', 1)
-                .attr('y', 5)
-                .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
-                .attr('height', height - margin.bottom - margin.top + 5)
-                .attr('fill', chromosomeColor)
-                .attr('stroke', 'white')
-                .attr('fill-opacity', 0.3);
 
-            let idioHeight = height - margin.bottom - margin.top - 8;
-            let idioPosOffset = 16;
+            let idioHeight = 12;
+            let idioPosOffset = 8;
 
             if (!centromere) {
                 //add another rectangle slightly smaller and under the last one to start to make the idiograms
@@ -210,7 +192,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                     //class will be idiogram
                     .attr('class', 'upper-idiogram')
                     .attr('x', 1)
-                    .attr('y', 5)
+                    .attr('y', 0)
                     .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
@@ -223,7 +205,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                     //class will be idiogram
                     .attr('class', 'upper-idiogram-parm')
                     .attr('x', 1)
-                    .attr('y', 5)
+                    .attr('y', 0)
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromStartUpdated) - 1;
@@ -243,7 +225,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromStartUpdated);
                     })
-                    .attr('y', 5)
+                    .attr('y', 0)
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(chromEndUpdated) - x(centromereEnd - centromereCenter);
@@ -280,7 +262,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                     let bandStartX = x(bandStartAbs) - x(chromStartUpdated);
                     let bandEndX = x(bandEndAbs) - x(chromStartUpdated);
 
-                    let bandHeight = height - margin.bottom - margin.top - 10;
+                    let bandHeight = 10;
 
                     //get the intensity based on the gieStain number after gpos
                     let intensity = band.gieStain.replace('gpos', '')/100;
@@ -290,12 +272,12 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                         .attr('x', function(){
                             return bandStartX;
                         })
-                        .attr('y', 5)
+                        .attr('y', 0)
                         .attr('width', function(){
                             return bandEndX - bandStartX;
                         })
                         .attr('height', bandHeight)
-                        .attr('transform', `translate(0, 17)`)
+                        .attr('transform', `translate(0, 9)`)
                         .attr('fill', chromosomeColor)
                         .attr('fill-opacity', intensity)
                         .raise();
@@ -311,7 +293,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top + 1)
+                .attr('y', height - margin.bottom - margin.top + 2)
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
