@@ -54,6 +54,12 @@
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <div id="linear-marker-line" v-if="tools.line"></div>
+          <IdiogramScaleBarViz
+            :selectedArea="selectedArea"
+            :bands="bands"
+            :centromeres="centromeres"
+            :chromosomes="chromosomes"/>
+
           <LinearSvChartViz
             v-if="svList && svList.length > 0" 
             class="proband-chart"
@@ -91,6 +97,7 @@
   import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
   import LinearSvChartViz from './viz/linearSvChart.viz.vue';
   import LinearGeneChartViz from './viz/linearGeneChart.viz.vue'
+  import IdiogramScaleBarViz from './viz/idiogramScaleBar.viz.vue'
 
   export default {
   name: "LeftTracksSection",
@@ -98,7 +105,8 @@
     svCircos,
     ChromSelectBarViz,
     LinearSvChartViz,
-    LinearGeneChartViz
+    LinearGeneChartViz, 
+    IdiogramScaleBarViz
   },
   props: {
     svList: Array,

@@ -1,9 +1,9 @@
 <template>
-    <div class="idiogram-scale-bar-viz" ref="idiogram-scale-header"></div>
+    <div class="idiogram-scale-bar-viz" ref="idiogramScaleContainer"></div>
   </template>
   
   <script>
-    import idiogramScaleBar from '../../d3/idiogramScaleBar.d3.js';
+    import idiogramScaleBar from '../../d3/idoigramScaleBar.d3.js';
 
   export default {
   name: 'IdiogramScaleBarViz',
@@ -27,18 +27,18 @@
         this.drawIdogramScaleBar();
     })
 
-    let contToObserve = this.$refs.idiogramScaleHeader;
+    let contToObserve = this.$refs.idiogramScaleContainer;
     this.resizeObserver.observe(contToObserve)
   },
   beforeDestroy() {
     if (this.resizeObserver) {
-        let contToObserve = this.$refs.idiogramScaleHeader;
+        let contToObserve = this.$refs.idiogramScaleContainer;
         this.resizeObserver.unobserve(contToObserve)
     }
   },
   methods: {
     drawIdogramScaleBar() {
-      let container = this.$refs.idiogramScaleHeader;
+      let container = this.$refs.idiogramScaleContainer;
       if (!container || !container.clientWidth) {
         return;
       }
@@ -53,10 +53,9 @@
         bands: this.bands,
         brush: true,
         selectedArea: this.selectedArea,
-        chromosomes: this.chromosomes
       };
   
-      this.idogramScaleBarChart = new idiogramScaleBar(container, options);
+      this.idogramScaleBarChart = new idiogramScaleBar(container, this.chromosomes, options);
       container.appendChild(this.idogramScaleBarChart);
     },
   },
@@ -77,5 +76,8 @@
   </script>
   
   <style lang="sass">
+    .idiogram-scale-bar-viz
+        width: 100%
+        height: 60px
   
   </style>
