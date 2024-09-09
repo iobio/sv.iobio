@@ -286,7 +286,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
 
             //add the labels
             chromosomeGroup.append('text')
-                .attr('x', (x(chromEndUpdated) - x(chromStartUpdated) - 6)/2)
+                .attr('x', ((x(centromereStart - centromereCenter) - x(chromStartUpdated)) + 5))
                 //if the label is two characters long, move it over a bit so it's centered
                 .attr('transform', function() {
                     if (chr.length == 2) {
