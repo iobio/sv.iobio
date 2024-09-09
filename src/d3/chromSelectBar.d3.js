@@ -220,10 +220,11 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 .attr('height', height - margin.bottom - margin.top + 5)
                 .attr('fill', chromosomeColor)
                 .attr('stroke', 'white')
-                .attr('fill-opacity', 0.3);
+                .attr('fill-opacity', 0.3)
+                .attr('rx', 3);
 
-            let idioHeight = height - margin.bottom - margin.top - 8;
-            let idioPosOffset = 16;
+            let idioHeight = height - margin.bottom - margin.top - 2;
+            let idioPosOffset = 3;
 
             if (!centromere) {
                 //add another rectangle slightly smaller and under the last one to start to make the idiograms
@@ -237,8 +238,9 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
                     .attr('stroke', chromosomeColor)
+                    .attr('stroke-opacity', '.3')
                     //make the corners rounded
-                    .attr('rx', 3);
+                    .attr('rx', 4);
             } else {
                 chromosomeGroup.append('rect')
                     //class will be idiogram
@@ -252,9 +254,11 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
+                    .attr('fill-opacity', .8)
                     .attr('stroke', chromosomeColor)
+                    .attr('stroke-opacity', '.3')
                     //make the corners rounded
-                    .attr('rx', 3);
+                    .attr('rx', 4);
                 
                 //now to make the q arm
                 chromosomeGroup.append('rect')
@@ -272,69 +276,26 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
+                    .attr('fill-opacity', .8)
                     .attr('stroke', chromosomeColor)
+                    .attr('stroke-opacity', .3)
                     //make the corners rounded
-                    .attr('rx', 3);   
-            }
-            
-            //if there are bands filter for the bands that are in this chromosome
-            if (bands) {
-                let chrBands = bands.filter(band => band.chr == chr);
-
-                for (let band of chrBands) {
-                    //get the band start and end in the absolute base pair space for calculations
-                    let bandStartAbs = chromosomeStart + band.start;
-                    let bandEndAbs = chromosomeStart + band.end;
-
-                    //check and see if the band is in the zoomed selection
-                    let newBandStartEnd = _getStartEndForRange(bandStartAbs, bandEndAbs, range);
-
-                    if (!newBandStartEnd) {
-                        //if we get nothing back we dont render this band at all
-                        continue;
-                    } else {
-                        //we will either get back the truncated start/ends or the original start/ends depending on if the band is in the range
-                        bandStartAbs = newBandStartEnd.start;
-                        bandEndAbs = newBandStartEnd.end;
-                    }
-
-                    let bandStartX = x(bandStartAbs) - x(chromStartUpdated);
-                    let bandEndX = x(bandEndAbs) - x(chromStartUpdated);
-
-                    let bandHeight = height - margin.bottom - margin.top - 10;
-
-                    //get the intensity based on the gieStain number after gpos
-                    let intensity = band.gieStain.replace('gpos', '')/100;
-
-                    //create my band rectangle
-                    chromosomeGroup.append('rect')
-                        .attr('x', function(){
-                            return bandStartX;
-                        })
-                        .attr('y', 5)
-                        .attr('width', function(){
-                            return bandEndX - bandStartX;
-                        })
-                        .attr('height', bandHeight)
-                        .attr('transform', `translate(0, 17)`)
-                        .attr('fill', chromosomeColor)
-                        .attr('fill-opacity', intensity)
-                        .raise();
-                }
+                    .attr('rx', 4);   
             }
 
             //add the labels
             chromosomeGroup.append('text')
-                .attr('x', (x(chromEndUpdated) - x(chromStartUpdated) - 6)/2)
+                .attr('x', ((x(centromereStart - centromereCenter) - x(chromStartUpdated)) + 5))
                 //if the label is two characters long, move it over a bit so it's centered
                 .attr('transform', function() {
                     if (chr.length == 2) {
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top + 1)
+                .attr('y', height - margin.bottom - margin.top + 3)
                 .text(chr)
                 .attr('font-size', "14px")
+                .attr('font-weight', 'bold')
                 .attr('fill', chromosomeColor);
         };
     }
