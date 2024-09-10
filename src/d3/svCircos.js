@@ -357,8 +357,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 });
 
             xButton.append('circle')
-                .attr('cx', sampleLabelX - 23)
-                .attr('cy', sampleLabelY)
+                .attr('cx', sampleLabelX)
+                .attr('cy', sampleLabelY + 10)
                 .attr('r', 6)
                 .attr('fill', 'red')
                 .attr('opacity', 0.5)
@@ -379,8 +379,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 });
 
             xButton.append('text')
-                .attr('x', sampleLabelX - 23)
-                .attr('y', sampleLabelY +1)
+                .attr('x', sampleLabelX)
+                .attr('y', sampleLabelY + 11)
                 .attr('fill', 'white')
                 .attr('text-anchor', 'middle')
                 .attr('font-weight', 'bold')

@@ -54,6 +54,18 @@
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <div id="linear-marker-line" v-if="tools.line"></div>
+        <component
+            :is="geneChartData.component"
+            v-bind="geneChartData.props"
+            @selectAreaEvent="selectAreaEventFired"/>
+
+          <IdiogramScaleBarViz
+            :selectedArea="selectedArea"
+            :bands="bands"
+            :centromeres="centromeres"
+            :chromosomes="chromosomes"
+            @selectAreaEvent="selectAreaEventFired"/>
+
           <LinearSvChartViz
             v-if="svList && svList.length > 0" 
             class="proband-chart"
@@ -74,7 +86,7 @@
             v-bind="chartData.props"
             @dragstart="handleDragStart(index, $event)"
             @selectAreaEvent="selectAreaEventFired"
-            @removeTrack="removeTrack(index - 1)"
+            @removeTrack="removeTrack(index)"
             class="draggable-chart"
           />
         </div>
@@ -91,6 +103,7 @@
   import ChromSelectBarViz from './viz/chromSelectBar.viz.vue';
   import LinearSvChartViz from './viz/linearSvChart.viz.vue';
   import LinearGeneChartViz from './viz/linearGeneChart.viz.vue'
+  import IdiogramScaleBarViz from './viz/idiogramScaleBar.viz.vue'
 
   export default {
   name: "LeftTracksSection",
@@ -98,7 +111,8 @@
     svCircos,
     ChromSelectBarViz,
     LinearSvChartViz,
-    LinearGeneChartViz
+    LinearGeneChartViz, 
+    IdiogramScaleBarViz
   },
   props: {
     svList: Array,
@@ -123,6 +137,7 @@
       chromosomeAccumulatedMap: null,
       genes: null,
       zoomHistory: [],
+      geneChartData: {},
       chartsData: [],
       samplesTitles: [],
       samplesLists: [],
@@ -168,7 +183,7 @@
         let data = await dataHelper.getGenes(build, source);
         this.genes = data;
 
-        this.chartsData.push({
+        this.geneChartData = {
           component: 'LinearGeneChartViz',
           props: {
             genesList: this.genes,
@@ -181,14 +196,14 @@
             genesOfInterest: this.genesOfInterest,
             batchNum: this.batchNum
           }
-        })
+        }
       } catch (error) {
         console.error('Error fetching genes:', error);
       }
     },
     async fetchSamples() {
       let locComparisons = this.samples.comparisons;
-      let locChartsData = this.chartsData.filter(chart => chart.props.name=== 'Genes');
+      let locChartsData = [];
       let locSamplesLists = new Array(this.samples.comparisons.length);
       let locSamplesTitles = new Array(this.samples.comparisons.length);
 
@@ -222,7 +237,7 @@
             svData = data.map(item => new Sv(item));
           }
 
-          locChartsData[i + 1].props.svList = svData;
+          locChartsData[i].props.svList = svData;
           locSamplesLists[i] = svData;
           locSamplesTitles[i] = sample.name;
         } catch (error) {
@@ -363,7 +378,7 @@
       let obj = event.target;
       obj.style.cursor = 'grab';
       //Subtract one because the first element is the proband chart in this case
-      const targetIndex = Array.from(event.currentTarget.children).indexOf(event.target.closest('.draggable-chart')) - 1;
+      const targetIndex = Array.from(event.currentTarget.children).indexOf(event.target.closest('.draggable-chart'));
       if (targetIndex !== -1 && targetIndex !== this.draggedIndex) {
         this.reorderCharts(this.draggedIndex, targetIndex);
         this.draggedIndex = null;
@@ -491,20 +506,22 @@
     selectedArea: {
       handler(newVal, oldVal) {
         if (newVal && newVal !== oldVal) {
-          this.chartsData.forEach(chart => {
-            chart.props.selectedArea = this.selectedArea;
-          });
+            this.geneChartData.props.selectedArea = this.selectedArea
+            this.chartsData.forEach(chart => {
+                chart.props.selectedArea = this.selectedArea;
+            });
         } else if (!newVal) {
-          this.chartsData.forEach(chart => {
-            chart.props.selectedArea = null;
-          });
+            this.geneChartData.props.selectedArea = null;
+            this.chartsData.forEach(chart => {
+                chart.props.selectedArea = null;
+            });
         }
       },
       deep: true
     },
     genesOfInterest: {
       handler() {
-        const genesChart = this.chartsData.find(chart => chart.props.name === 'Genes');
+        const genesChart = this.geneChartData;
         if (genesChart) {
           genesChart.props.genesOfInterest = this.genesOfInterest;
         }
@@ -513,7 +530,7 @@
     },
     phenRelatedGenes: {
       handler() {
-        const genesChart = this.chartsData.find(chart => chart.props.name === 'Genes');
+        const genesChart = this.geneChartData;
         if (genesChart) {
           genesChart.props.phenRelatedGenes = this.phenRelatedGenes;
         }

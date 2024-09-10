@@ -1,36 +1,13 @@
-/*
-This component is a linear chart that displays the chromosomes in a given genome.
-
-Component takes the following:
-- A parent element (to get the width and height from)
-    - Consider just passing the width and height as arguments
-- A reference chromosomes object
-- brush: Allow brush (optional: default false) - if true the user will be able to select a region of the genome
-
-- An 'options' object with any of the following properties:
-    - centromeres: A centromere object (optional) if there are no centromeres chromosomes will not have the additional centromere band component
-    - bands: A banding object (optional)
-    - pointsOfInterest: A list of points of interest (optional) - these are points that will be displayed on the chart for quick reference
-    - maximumSelection: A maximum selection size (in base pairs) (optional) - used to limit the size of the selection to a reasonable size for the user to work with if not present will default to 1000000 base pairs
-    - selectionCallback: A callback function that will be called when the user selects a region of the genome (optional) - the function will be passed the start and end base pair positions of the selection
-
-Functions:
-- User can select a region by brushing over the chart
-- User can click on a point of interest to center the brush on that point
-*/
-
 import * as d3 from 'd3';
 
-export default function chromSelectBar(parentElementTag, refChromosomes, options=null) {
+export default function idoigramScaleBar(parentElementTag, refChromosomes, options) {
     let parentElement = d3.select(parentElementTag);
 
-    let width = parentElement.node().clientWidth - 5;
-    let height = parentElement.node().clientHeight - 5;
+    let width = parentElement.node().clientWidth - 10;
+    let height = parentElement.node().clientHeight;
     let chromosomes = refChromosomes;
     let bands = null;
     let centromeres = null;
-    let pointsOfInterest = null;
-    let maximumSelection = 1000000;
     let selectionCallback = null;
     let brush = false;
     let selection = null;
@@ -77,12 +54,6 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             }
             bands = newBands;
         }
-        if (options.pointsOfInterest) {
-            pointsOfInterest = options.pointsOfInterest;
-        }
-        if (options.maximumSelection) {
-            maximumSelection = options.maximumSelection;
-        }
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
         }
@@ -117,7 +88,21 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         size: genomeSize
     }
 
-    zoomedSelection = originZoom;
+    if (selection) {
+        if (selection.end - selection.start >= genomeSize) {
+            zoomedSelection = originZoom;
+            selection = null;
+        } else {
+            zoomedSelection = {
+                start: selection.start,
+                end: selection.end,
+                size: selection.end - selection.start
+            }
+            selection = null; //setting selection to null so that we can keep zooming if we like
+        }
+    } else {
+        zoomedSelection = originZoom;
+    }
 
     //if the selection is the origin zoom then we want to set the selection to null
     if (selection && selection.start == 0 && selection.end == genomeSize) {
@@ -125,8 +110,38 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     }
 
     let x = d3.scaleLinear()
-    .domain([zoomedSelection.start, zoomedSelection.end])
-    .range([margin.left, width - margin.right]);
+        .domain([zoomedSelection.start, zoomedSelection.end])
+        .range([margin.left, width - margin.right]);
+
+    let xAxis = g => g
+        .attr('transform', `translate(0, ${height - margin.bottom - 15})`)
+        .call(d3.axisBottom(x)
+            .ticks(width / 80)
+            .tickSizeOuter(0)
+            .tickFormat(
+                function (d) {
+                    //At the whole genome level we can just show the base pair number
+                    if (zoomedSelection.size == genomeSize) {
+                        return `${d / 1000000}Mb`;
+                    } else {
+                        for (let [chr, chromosome] of chromosomeMap) {
+                            if (d >= chromosome.start && d <= chromosome.end) {
+                                return `${chr}:${parseFloat(((d - chromosome.start) / 1000000).toFixed(3))}Mb`;
+                            }
+                        }
+                    }
+                }
+            ))
+        //tics need to be rotated slightly so they don't overlap
+        .selectAll('text')
+        .attr('transform', 'rotate(6) translate(10, 0)')
+        .attr('fill', '#474747');
+
+    svg.append('g')
+        .call(xAxis);
+    
+    svg.selectAll('.domain').remove()
+    svg.selectAll('.tick line').attr('stroke', '#858585').attr('transform', 'translate(1, 2)')
 
     _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
 
@@ -211,20 +226,9 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 .attr('id', `chr-${chr}-group`);
 
             let chromosomeColor = d3.interpolate('#1F68C1', '#A63D40')(chromosomeEnd / genomeSize);
-                
-            //add the chromosome bar
-            chromosomeGroup.append('rect')
-                .attr('x', 1)
-                .attr('y', 5)
-                .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
-                .attr('height', height - margin.bottom - margin.top + 5)
-                .attr('fill', chromosomeColor)
-                .attr('stroke', 'white')
-                .attr('fill-opacity', 0.3)
-                .attr('rx', 3);
 
-            let idioHeight = height - margin.bottom - margin.top - 2;
-            let idioPosOffset = 3;
+            let idioHeight = 12;
+            let idioPosOffset = 16;
 
             if (!centromere) {
                 //add another rectangle slightly smaller and under the last one to start to make the idiograms
@@ -232,21 +236,20 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     //class will be idiogram
                     .attr('class', 'upper-idiogram')
                     .attr('x', 1)
-                    .attr('y', 5)
+                    .attr('y', 0)
                     .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
                     .attr('stroke', chromosomeColor)
-                    .attr('stroke-opacity', '.3')
                     //make the corners rounded
-                    .attr('rx', 4);
+                    .attr('rx', 3);
             } else {
                 chromosomeGroup.append('rect')
                     //class will be idiogram
                     .attr('class', 'upper-idiogram-parm')
                     .attr('x', 1)
-                    .attr('y', 5)
+                    .attr('y', 0)
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromStartUpdated) - 1;
@@ -254,11 +257,9 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
-                    .attr('fill-opacity', .8)
                     .attr('stroke', chromosomeColor)
-                    .attr('stroke-opacity', '.3')
                     //make the corners rounded
-                    .attr('rx', 4);
+                    .attr('rx', 3);
                 
                 //now to make the q arm
                 chromosomeGroup.append('rect')
@@ -268,7 +269,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromStartUpdated);
                     })
-                    .attr('y', 5)
+                    .attr('y', 0)
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(chromEndUpdated) - x(centromereEnd - centromereCenter);
@@ -276,11 +277,55 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     .attr('height', idioHeight)
                     .attr('transform', `translate(0, ${idioPosOffset})` )
                     .attr('fill', 'white')
-                    .attr('fill-opacity', .8)
                     .attr('stroke', chromosomeColor)
-                    .attr('stroke-opacity', .3)
                     //make the corners rounded
-                    .attr('rx', 4);   
+                    .attr('rx', 3);   
+            }
+            
+            //if there are bands filter for the bands that are in this chromosome
+            if (bands) {
+                let chrBands = bands.filter(band => band.chr == chr);
+
+                for (let band of chrBands) {
+                    //get the band start and end in the absolute base pair space for calculations
+                    let bandStartAbs = chromosomeStart + band.start;
+                    let bandEndAbs = chromosomeStart + band.end;
+
+                    //check and see if the band is in the zoomed selection
+                    let newBandStartEnd = _getStartEndForRange(bandStartAbs, bandEndAbs, range);
+
+                    if (!newBandStartEnd) {
+                        //if we get nothing back we dont render this band at all
+                        continue;
+                    } else {
+                        //we will either get back the truncated start/ends or the original start/ends depending on if the band is in the range
+                        bandStartAbs = newBandStartEnd.start;
+                        bandEndAbs = newBandStartEnd.end;
+                    }
+
+                    let bandStartX = x(bandStartAbs) - x(chromStartUpdated);
+                    let bandEndX = x(bandEndAbs) - x(chromStartUpdated);
+
+                    let bandHeight = 10;
+
+                    //get the intensity based on the gieStain number after gpos
+                    let intensity = band.gieStain.replace('gpos', '')/100;
+
+                    //create my band rectangle
+                    chromosomeGroup.append('rect')
+                        .attr('x', function(){
+                            return bandStartX;
+                        })
+                        .attr('y', 8)
+                        .attr('width', function(){
+                            return bandEndX - bandStartX;
+                        })
+                        .attr('height', bandHeight)
+                        .attr('transform', `translate(0, 9)`)
+                        .attr('fill', chromosomeColor)
+                        .attr('fill-opacity', intensity)
+                        .raise();
+                }
             }
 
             //add the labels
@@ -292,93 +337,33 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top + 3)
+                .attr('y', height - margin.bottom - margin.top - 20)
                 .text(chr)
                 .attr('font-size', "14px")
-                .attr('font-weight', 'bold')
                 .attr('fill', chromosomeColor);
         };
     }
 
     //render brush later so it's on top
     if (brush) {
-        //if there is a selection then we want to brush to that selection
-        if (selection) {
-            let start = selection.start;
-            let end = selection.end;
+        let brush = d3.brushX()
+            .extent([[0, 0], [width, height]])
+            .on('brush', function (event) {
+                let brushArea = d3.select(this);
+                let selection = brushArea.select('.selection')
+                // Customize the brush rectangle during brushing
+                selection
+                    .attr('fill', 'rgba(0, 100, 255, 0.3)')  // Change fill color
+                    .attr('stroke', '#4C709B')                  // Change stroke color
+                    .attr('stroke-width', 1)
+                    .attr('rx', 1);                // Change stroke width  
+            })
+            .on('end', brushed);
 
-            //selection will be in the base pair space so need to convert it to the pixel space
-            let startPixel = x(start);
-            let endPixel = x(end);
-            
-            let brush = d3.brushX()
-                .extent([[0, 6], [width, height]])
-                .on('brush', function (event) {
-                    let brushArea = d3.select(this);
-                    let selection = brushArea.select('.selection')
-                    // Customize the brush rectangle during brushing
-                    selection
-                        .attr('fill', 'rgba(0, 100, 255, 0.3)')  // Change fill color
-                        .attr('stroke', 'blue')                  // Change stroke color
-                        .attr('stroke-width', 1)
-                        .attr('rx', 1);                // Change stroke width  
-                })
-                .on('end', brushed);
-
-            //this is the acutal brushable area
-            svg.append('g')
-                .attr('class', 'brush-area')
-                .call(brush)
-                .raise();
-            
-            //set the brush to the selection but dont fire the callback
-            svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
-
-            //get the selection and set its styles
-            let brushRec = svg.select('.brush-area').select('.selection');
-            brushRec.attr('fill', 'red')
-                .attr('fill-opacity', 0.2)
-                .attr('stroke', 'red')
-                .attr('rx', 1);
-
-            //just above the start of the brush
-            svg.append('g')
-                .attr('class', 'poi')
-                .attr('transform', `translate(${startPixel - 5}, 0)`)
-                .append('svg')
-                .attr('xmlns', 'http://www.w3.org/2000/svg')
-                .attr('viewBox', '0 0 24 24')
-                .attr('width', 11)
-                .attr('height', 11)
-                .append('path')
-                .attr('d', "M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z")
-                .attr('fill', 'red')
-                .attr('stroke', 'red')
-                .attr('stroke-width', 0.5)
-                .attr('stroke-linecap', 'round')
-                .attr('stroke-linejoin', 'round')
-                .attr('stroke-miterlimit', 10);
-
-        } else {
-            let brush = d3.brushX()
-                .extent([[0, 6], [width, height]])
-                .on('brush', function (event) {
-                    let brushArea = d3.select(this);
-                    let selection = brushArea.select('.selection')
-                    // Customize the brush rectangle during brushing
-                    selection
-                        .attr('fill', 'rgba(0, 100, 255, 0.3)')  // Change fill color
-                        .attr('stroke', '#4C709B')                  // Change stroke color
-                        .attr('stroke-width', 1)
-                        .attr('rx', 1);                // Change stroke width  
-                })
-                .on('end', brushed);
-
-            svg.append('g')
-                .attr('class', 'brush-area')
-                .call(brush)
-                .raise();
-        }
+        svg.append('g')
+            .attr('class', 'brush-area')
+            .call(brush)
+            .raise();
     }
 
     function brushed(event) {

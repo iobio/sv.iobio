@@ -125,42 +125,9 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
 
-    let xAxis = g => g
-        .attr('transform', `translate(0, ${height - margin.bottom - 20})`)
-        .call(d3.axisBottom(x)
-            .ticks(width / 80)
-            .tickSizeOuter(0)
-            .tickFormat(
-                function(d) {
-                    //At the whole genome level we can just show the base pair number
-                    if (zoomedSelection.size == genomeSize) {
-                        return `${d/1000000}Mb`;
-                    } else {
-                        for (let [chr, chromosome] of chromosomeMap) {
-                            if (d >= chromosome.start && d <= chromosome.end) {
-                                return `${chr}:${parseFloat(((d - chromosome.start)/1000000).toFixed(3))}Mb`;
-                            }
-                        }
-                    }
-                }
-            ))
-            //tics need to be rotated slightly so they don't overlap
-            .selectAll('text')
-            .attr('transform', 'rotate(10) translate(2, 0)');
-
-    svg.append('g')
-        .call(xAxis);
-
-    _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
     _renderGenes([zoomedSelection.start, zoomedSelection.end])
 
     function _genChromosomeAccumulatedMap(chromosomeList){
-        /**
-         * This function takes a list of chromosomes and generates a map of the chromosomes with their absolute start and end positions
-         *
-         * returns Object {chromosomeMap, genomeSize}
-         */
-
         let accumulatedBP = 0;
 
         let chromosomeAccumulatedMap = new Map();
@@ -178,184 +145,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         let chromosomeMap = chromosomeAccumulatedMap;
 
         return {chromosomeMap, genomeSize};
-    }
-
-    function _renderChromosomes(range) {
-
-        for (let [chr, chromosome] of chromosomeMap) {
-            //Chromosome start and end
-            let chromosomeStart = chromosome.start;
-            let chromStartUpdated = chromosomeStart;
-            let chromosomeEnd = chromosome.end;
-            let chromEndUpdated = chromosomeEnd;
-
-            //check and see if the chromosome is in the zoomed selection
-            let newStartEnd = _getStartEndForRange(chromosomeStart, chromosomeEnd, range);
-
-            if (!newStartEnd) {
-                //if we get nothing back we dont render this chromosome at all
-                continue;
-            } else {
-                //we will either get back the truncated start/ends or the original start/ends depending on if the chromosome is in the range
-                chromStartUpdated = newStartEnd.start;
-                chromEndUpdated = newStartEnd.end;
-            }
-
-            //Centromeres setup
-            let centromere = false;
-            let centromereStart = null;
-            let centromereEnd = null;
-            let centromereCenter = null;
-
-            //set absolute centromere start, end, and center based on the chromosome start and end (original)
-            if (centromeres) { 
-                centromere = true;
-                centromereStart = chromosomeStart + centromeres[chr].start;
-                centromereEnd = chromosomeStart + centromeres[chr].end;
-                centromereCenter = (centromereEnd - centromereStart) / 2;
-
-                if (chromosomeStart != chromStartUpdated || chromosomeEnd != chromEndUpdated) {
-                    let newCentStartEnd = _getStartEndForRange(centromereStart, centromereEnd, range);
-
-                    if (!newCentStartEnd) {
-                        //this centrome is not in the range so we will not render it
-                        centromere = false;
-                    } else {
-                        centromereStart = newCentStartEnd.start;
-                        centromereEnd = newCentStartEnd.end;
-                        centromereCenter = (centromereEnd - centromereStart) / 2;
-                    }
-                }
-            }
-
-            //create a new group for this chromosome
-            let chromosomeGroup = svg.append('g')
-                .attr('transform', `translate(${x(chromStartUpdated)}, 0)`)
-                .attr('class', 'chromosome-group')
-                .attr('id', `chr-${chr}-group`);
-
-            let chromosomeColor = d3.interpolate('#1F68C1', '#A63D40')(chromosomeEnd / genomeSize);
-
-            let idioHeight = 10;
-            let idioPosOffset = 10;
-
-            if (!centromere) {
-                //add another rectangle slightly smaller and under the last one to start to make the idiograms
-                chromosomeGroup.append('rect')
-                    //class will be idiogram
-                    .attr('class', 'upper-idiogram')
-                    .attr('x', 1)
-                    .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
-                    .attr('height', idioHeight)
-                    .attr('transform', `translate(0, ${idioPosOffset})` )
-                    .attr('fill', 'white')
-                    .attr('stroke', chromosomeColor)
-                    //make the corners rounded
-                    .attr('rx', 3);
-            } else {
-                chromosomeGroup.append('rect')
-                    //class will be idiogram
-                    .attr('class', 'upper-idiogram-parm')
-                    .attr('x', 1)
-                    .attr('width', function(){
-                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(centromereStart + centromereCenter) - x(chromStartUpdated) - 1;
-                    })
-                    .attr('height', idioHeight)
-                    .attr('transform', `translate(0, ${idioPosOffset})` )
-                    .attr('fill', 'white')
-                    .attr('stroke', chromosomeColor)
-                    //make the corners rounded
-                    .attr('rx', 3);
-                
-                //now to make the q arm
-                chromosomeGroup.append('rect')
-                    //class will be idi
-                    .attr('class', 'lower-idiogram-qarm')
-                    .attr('x', function(){
-                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(centromereStart + centromereCenter) - x(chromStartUpdated);
-                    })
-                    .attr('width', function(){
-                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(chromEndUpdated) - x(centromereEnd - centromereCenter);
-                    })
-                    .attr('height', idioHeight)
-                    .attr('transform', `translate(0, ${idioPosOffset})` )
-                    .attr('fill', 'white')
-                    .attr('stroke', chromosomeColor)
-                    //make the corners rounded
-                    .attr('rx', 3);   
-            }
-            
-            //if there are bands filter for the bands that are in this chromosome
-            if (bands) {
-                let chrBands = bands.filter(band => band.chr == chr);
-
-                for (let band of chrBands) {
-                    //get the band start and end in the absolute base pair space for calculations
-                    let bandStartAbs = chromosomeStart + band.start;
-                    let bandEndAbs = chromosomeStart + band.end;
-
-                    //check and see if the band is in the zoomed selection
-                    let newBandStartEnd = _getStartEndForRange(bandStartAbs, bandEndAbs, range);
-
-                    if (!newBandStartEnd) {
-                        //if we get nothing back we dont render this band at all
-                        continue;
-                    } else {
-                        //we will either get back the truncated start/ends or the original start/ends depending on if the band is in the range
-                        bandStartAbs = newBandStartEnd.start;
-                        bandEndAbs = newBandStartEnd.end;
-                    }
-
-                    let bandStartX = x(bandStartAbs) - x(chromStartUpdated);
-                    let bandEndX = x(bandEndAbs) - x(chromStartUpdated);
-
-                    let bandHeight = 8;
-
-                    //get the intensity based on the gieStain number after gpos
-                    let intensity = band.gieStain.replace('gpos', '')/100;
-
-                    //create my band rectangle
-                    chromosomeGroup.append('rect')
-                        .attr('x', function(){
-                            return bandStartX;
-                        })
-                        .attr('width', function(){
-                            return bandEndX - bandStartX;
-                        })
-                        .attr('height', bandHeight)
-                        .attr('transform', `translate(0, 11)`)
-                        .attr('fill', chromosomeColor)
-                        .attr('fill-opacity', intensity)
-                        .raise();
-                }
-            }
-
-            chromosomeGroup.append('circle')
-                .attr('cx', function(){
-                    return (x(chromEndUpdated) - x(chromStartUpdated) +2)/2;
-                })
-                .attr('cy', 5)
-                .attr('r', 8)
-                .attr('fill', 'white');
-
-            //add the labels
-            chromosomeGroup.append('text')
-                .attr('x', (x(chromEndUpdated) - x(chromStartUpdated) - 6)/2)
-                //if the label is two characters long, move it over a bit so it's centered
-                .attr('transform', function() {
-                    if (chr.length == 2) {
-                        return `translate(${-4}, 0)`;
-                    }
-                })
-                .attr('y', 10)
-                .text(chr)
-                .attr('font-size', "14px")
-                .attr('font-weight', 'bold')
-                .attr('fill', chromosomeColor);
-        };
     }
 
     function _renderGenes(range) {
@@ -532,43 +321,25 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
     //render brush later so it's on top
     if (brush) {
-        //if there is a selection then we want to brush to that selection
-        if (selection) {
-            let start = selection.start;
-            let end = selection.end;
+        let brush = d3.brushX()
+            .extent([[0, 0], [width, 25]])
+            .on('brush', function (event) {
+                let brushArea = d3.select(this);
+                let selection = brushArea.select('.selection')
+                // Customize the brush rectangle during brushing
+                selection
+                    .attr('fill', 'rgba(0, 100, 255, 0.3)')
+                    .attr('stroke', '#4C709B')
+                    .attr('stroke-width', 1)
+                    .attr('height', height)
+                    .attr('rx', 2);
+            })
+            .on('end', brushed);
 
-            //selection will be in the base pair space so need to convert it to the pixel space
-            let startPixel = x(start);
-            let endPixel = x(end);
-            
-            let brush = d3.brushX()
-                .extent([[0, 0], [width, 25]])
-                .on('end', brushed);
-
-            //this is the acutal brushable area
-            svg.append('g')
-                .attr('class', 'brush-area')
-                .call(brush)
-                .raise();
-            
-            //set the brush to the selection but dont fire the callback
-            svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
-
-            //get the selection and setits styles
-            let brushRec = svg.select('.brush-area').select('.selection');
-            brushRec.attr('fill', 'grey')
-                .attr('fill-opacity', 0.2)
-                .attr('stroke', 'white');
-        } else {
-            let brush = d3.brushX()
-                .extent([[0, 0], [width, 25]])
-                .on('end', brushed);
-
-            svg.append('g')
-                .attr('class', 'brush-area')
-                .call(brush)
-                .raise();
-        }
+        svg.append('g')
+            .attr('class', 'brush-area')
+            .call(brush)
+            .raise();
     }
 
     function brushed(event) {
