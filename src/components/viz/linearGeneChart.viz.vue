@@ -147,6 +147,7 @@ export default {
       text-orientation: upright
       position: absolute
       left: -10px
+      top: 20%
     .drag-handle
       height: 30px
       width: 15px
