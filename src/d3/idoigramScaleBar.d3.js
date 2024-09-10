@@ -346,63 +346,24 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
 
     //render brush later so it's on top
     if (brush) {
-        //if there is a selection then we want to brush to that selection
-        if (selection) {
-            let start = selection.start;
-            let end = selection.end;
+        let brush = d3.brushX()
+            .extent([[0, 0], [width, height]])
+            .on('brush', function (event) {
+                let brushArea = d3.select(this);
+                let selection = brushArea.select('.selection')
+                // Customize the brush rectangle during brushing
+                selection
+                    .attr('fill', 'rgba(0, 100, 255, 0.3)')  // Change fill color
+                    .attr('stroke', 'blue')                  // Change stroke color
+                    .attr('stroke-width', 1)
+                    .attr('rx', 1);                // Change stroke width  
+            })
+            .on('end', brushed);
 
-            //selection will be in the base pair space so need to convert it to the pixel space
-            let startPixel = x(start);
-            let endPixel = x(end);
-            
-            let brush = d3.brushX()
-                .extent([[0, 6], [width, height + 4]])
-                .on('end', brushed);
-
-            //this is the acutal brushable area
-            svg.append('g')
-                .attr('class', 'brush-area')
-                .call(brush)
-                .raise();
-            
-            //set the brush to the selection but dont fire the callback
-            svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
-
-            //get the selection and set its styles
-            let brushRec = svg.select('.brush-area').select('.selection');
-            brushRec.attr('fill', 'red')
-                .attr('fill-opacity', 0.2)
-                .attr('stroke', 'red');
-
-            //append <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>map-marker</title><path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z" /></svg>
-            //just above the start of the brush
-            svg.append('g')
-                .attr('class', 'poi')
-                .attr('transform', `translate(${startPixel - 5}, 0)`)
-                .append('svg')
-                .attr('xmlns', 'http://www.w3.org/2000/svg')
-                .attr('viewBox', '0 0 24 24')
-                .attr('width', 11)
-                .attr('height', 11)
-                .append('path')
-                .attr('d', "M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z")
-                .attr('fill', 'red')
-                .attr('stroke', 'red')
-                .attr('stroke-width', 0.5)
-                .attr('stroke-linecap', 'round')
-                .attr('stroke-linejoin', 'round')
-                .attr('stroke-miterlimit', 10);
-
-        } else {
-            let brush = d3.brushX()
-                .extent([[0, 6], [width, height + 4]])
-                .on('end', brushed);
-
-            svg.append('g')
-                .attr('class', 'brush-area')
-                .call(brush)
-                .raise();
-        }
+        svg.append('g')
+            .attr('class', 'brush-area')
+            .call(brush)
+            .raise();
     }
 
     function brushed(event) {

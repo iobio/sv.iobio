@@ -169,6 +169,7 @@ export default {
       border-radius: 5px
       margin: 0px
       position: absolute
+      pointer-events: none
       left: -10px
     p
       color: #2A65B7

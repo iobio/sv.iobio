@@ -328,43 +328,25 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
     //render brush later so it's on top
     if (brush) {
-        //if there is a selection then we want to brush to that selection
-        if (selection) {
-            let start = selection.start;
-            let end = selection.end;
+        let brush = d3.brushX()
+            .extent([[0, 0], [width, 20]])
+            .on('brush', function (event) {
+                let brushArea = d3.select(this);
+                let selection = brushArea.select('.selection')
+                // Customize the brush rectangle during brushing
+                selection
+                    .attr('fill', 'rgba(0, 100, 255, 0.3)')
+                    .attr('stroke', 'blue')
+                    .attr('stroke-width', 1)
+                    .attr('height', height)
+                    .attr('rx', 1);
+            })
+            .on('end', brushed);
 
-            //selection will be in the base pair space so need to convert it to the pixel space
-            let startPixel = x(start);
-            let endPixel = x(end);
-            
-            let brush = d3.brushX()
-                .extent([[0, 0], [width, 25]])
-                .on('end', brushed);
-
-            //this is the acutal brushable area
-            svg.append('g')
-                .attr('class', 'brush-area')
-                .call(brush)
-                .raise();
-            
-            //set the brush to the selection but dont fire the callback
-            svg.select('.brush-area').call(brush.move, [startPixel, endPixel]);
-
-            //get the selection and setits styles
-            let brushRec = svg.select('.brush-area').select('.selection');
-            brushRec.attr('fill', 'grey')
-                .attr('fill-opacity', 0.2)
-                .attr('stroke', 'white');
-        } else {
-            let brush = d3.brushX()
-                .extent([[0, 0], [width, 25]])
-                .on('end', brushed);
-
-            svg.append('g')
-                .attr('class', 'brush-area')
-                .call(brush)
-                .raise();
-        }
+        svg.append('g')
+            .attr('class', `brush-area`)
+            .call(brush)
+            .raise();
     }
 
     function brushed(event) {

@@ -312,7 +312,17 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let endPixel = x(end);
             
             let brush = d3.brushX()
-                .extent([[0, 6], [width, height + 4]])
+                .extent([[0, 6], [width, height]])
+                .on('brush', function (event) {
+                    let brushArea = d3.select(this);
+                    let selection = brushArea.select('.selection')
+                    // Customize the brush rectangle during brushing
+                    selection
+                        .attr('fill', 'rgba(0, 100, 255, 0.3)')  // Change fill color
+                        .attr('stroke', 'blue')                  // Change stroke color
+                        .attr('stroke-width', 1)
+                        .attr('rx', 1);                // Change stroke width  
+                })
                 .on('end', brushed);
 
             //this is the acutal brushable area
@@ -328,9 +338,9 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             let brushRec = svg.select('.brush-area').select('.selection');
             brushRec.attr('fill', 'red')
                 .attr('fill-opacity', 0.2)
-                .attr('stroke', 'red');
+                .attr('stroke', 'red')
+                .attr('rx', 1);
 
-            //append <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>map-marker</title><path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z" /></svg>
             //just above the start of the brush
             svg.append('g')
                 .attr('class', 'poi')
@@ -351,7 +361,17 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
         } else {
             let brush = d3.brushX()
-                .extent([[0, 6], [width, height + 4]])
+                .extent([[0, 6], [width, height]])
+                .on('brush', function (event) {
+                    let brushArea = d3.select(this);
+                    let selection = brushArea.select('.selection')
+                    // Customize the brush rectangle during brushing
+                    selection
+                        .attr('fill', 'rgba(0, 100, 255, 0.3)')  // Change fill color
+                        .attr('stroke', 'blue')                  // Change stroke color
+                        .attr('stroke-width', 1)
+                        .attr('rx', 1);                // Change stroke width  
+                })
                 .on('end', brushed);
 
             svg.append('g')
