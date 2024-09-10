@@ -131,7 +131,7 @@ export default {
     margin-top: 5px
     padding: 5px
     border-radius: 5px
-    background-color: white
+    background-color: #F8F8F8
     p
       color: #2A65B7
       font-weight: bold
@@ -142,12 +142,12 @@ export default {
       margin: 0px
       margin-bottom: 5px
       padding: 0px 2px
-      background-color: whitesmoke
+      background-color: #F8F8F8
       writing-mode: vertical-rl
       text-orientation: upright
       position: absolute
       left: -10px
-      top: 20%
+      top: 15%
     .drag-handle
       height: 30px
       width: 15px

@@ -507,13 +507,15 @@
     selectedArea: {
       handler(newVal, oldVal) {
         if (newVal && newVal !== oldVal) {
-          this.chartsData.forEach(chart => {
-            chart.props.selectedArea = this.selectedArea;
-          });
+            this.geneChartData.props.selectedArea = this.selectedArea
+            this.chartsData.forEach(chart => {
+                chart.props.selectedArea = this.selectedArea;
+            });
         } else if (!newVal) {
-          this.chartsData.forEach(chart => {
-            chart.props.selectedArea = null;
-          });
+            this.geneChartData.props.selectedArea = null;
+            this.chartsData.forEach(chart => {
+                chart.props.selectedArea = null;
+            });
         }
       },
       deep: true
