@@ -141,7 +141,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
         .call(xAxis);
     
     svg.selectAll('.domain').remove()
-    svg.selectAll('.tick line').attr('stroke', '#858585').attr('transform', 'translate(0, 2)')
+    svg.selectAll('.tick line').attr('stroke', '#858585').attr('transform', 'translate(1, 2)')
 
     _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
 
