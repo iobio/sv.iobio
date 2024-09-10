@@ -113,6 +113,36 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
 
+    let xAxis = g => g
+        .attr('transform', `translate(0, ${height - margin.bottom - 15})`)
+        .call(d3.axisBottom(x)
+            .ticks(width / 80)
+            .tickSizeOuter(0)
+            .tickFormat(
+                function (d) {
+                    //At the whole genome level we can just show the base pair number
+                    if (zoomedSelection.size == genomeSize) {
+                        return `${d / 1000000}Mb`;
+                    } else {
+                        for (let [chr, chromosome] of chromosomeMap) {
+                            if (d >= chromosome.start && d <= chromosome.end) {
+                                return `${chr}:${parseFloat(((d - chromosome.start) / 1000000).toFixed(3))}Mb`;
+                            }
+                        }
+                    }
+                }
+            ))
+        //tics need to be rotated slightly so they don't overlap
+        .selectAll('text')
+        .attr('transform', 'rotate(8) translate(3, 0)')
+        .attr('fill', '#474747');
+
+    svg.append('g')
+        .call(xAxis);
+    
+    svg.selectAll('.domain').remove()
+    svg.selectAll('.tick line').attr('stroke', '#858585').attr('transform', 'translate(0, 2)')
+
     _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
 
     function _genChromosomeAccumulatedMap(chromosomeList){
@@ -198,7 +228,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
             let chromosomeColor = d3.interpolate('#1F68C1', '#A63D40')(chromosomeEnd / genomeSize);
 
             let idioHeight = 12;
-            let idioPosOffset = 8;
+            let idioPosOffset = 16;
 
             if (!centromere) {
                 //add another rectangle slightly smaller and under the last one to start to make the idiograms
@@ -286,7 +316,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                         .attr('x', function(){
                             return bandStartX;
                         })
-                        .attr('y', 0)
+                        .attr('y', 8)
                         .attr('width', function(){
                             return bandEndX - bandStartX;
                         })
@@ -307,7 +337,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                         return `translate(${-4}, 0)`;
                     }
                 })
-                .attr('y', height - margin.bottom - margin.top + 2)
+                .attr('y', height - margin.bottom - margin.top - 20)
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
