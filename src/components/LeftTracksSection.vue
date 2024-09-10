@@ -55,13 +55,9 @@
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <div id="linear-marker-line" v-if="tools.line"></div>
         <component
-            v-for="(chartData, index) in chartsData.slice(0, 1)"
-            :key="index"
-            :is="chartData.component"
-            v-bind="chartData.props"
-            @dragstart="handleDragStart(index, $event)"
+            :is="geneChartData.component"
+            v-bind="geneChartData.props"
             @selectAreaEvent="selectAreaEventFired"
-            @removeTrack="removeTrack(index - 1)"
             class="draggable-chart"/>
 
           <IdiogramScaleBarViz
@@ -85,13 +81,13 @@
             @selectAreaEvent="selectAreaEventFired"/>
 
           <component
-            v-for="(chartData, index) in chartsData.slice(1)"
+            v-for="(chartData, index) in chartsData"
             :key="index"
             :is="chartData.component"
             v-bind="chartData.props"
             @dragstart="handleDragStart(index, $event)"
             @selectAreaEvent="selectAreaEventFired"
-            @removeTrack="removeTrack(index - 1)"
+            @removeTrack="removeTrack(index)"
             class="draggable-chart"
           />
         </div>
@@ -142,6 +138,7 @@
       chromosomeAccumulatedMap: null,
       genes: null,
       zoomHistory: [],
+      geneChartData: {},
       chartsData: [],
       samplesTitles: [],
       samplesLists: [],
@@ -187,7 +184,7 @@
         let data = await dataHelper.getGenes(build, source);
         this.genes = data;
 
-        this.chartsData.push({
+        this.geneChartData = {
           component: 'LinearGeneChartViz',
           props: {
             genesList: this.genes,
@@ -200,14 +197,14 @@
             genesOfInterest: this.genesOfInterest,
             batchNum: this.batchNum
           }
-        })
+        }
       } catch (error) {
         console.error('Error fetching genes:', error);
       }
     },
     async fetchSamples() {
       let locComparisons = this.samples.comparisons;
-      let locChartsData = this.chartsData.filter(chart => chart.props.name=== 'Genes');
+      let locChartsData = [];
       let locSamplesLists = new Array(this.samples.comparisons.length);
       let locSamplesTitles = new Array(this.samples.comparisons.length);
 
@@ -241,7 +238,7 @@
             svData = data.map(item => new Sv(item));
           }
 
-          locChartsData[i + 1].props.svList = svData;
+          locChartsData[i].props.svList = svData;
           locSamplesLists[i] = svData;
           locSamplesTitles[i] = sample.name;
         } catch (error) {
@@ -382,7 +379,7 @@
       let obj = event.target;
       obj.style.cursor = 'grab';
       //Subtract one because the first element is the proband chart in this case
-      const targetIndex = Array.from(event.currentTarget.children).indexOf(event.target.closest('.draggable-chart')) - 1;
+      const targetIndex = Array.from(event.currentTarget.children).indexOf(event.target.closest('.draggable-chart'));
       if (targetIndex !== -1 && targetIndex !== this.draggedIndex) {
         this.reorderCharts(this.draggedIndex, targetIndex);
         this.draggedIndex = null;
