@@ -57,8 +57,7 @@
         <component
             :is="geneChartData.component"
             v-bind="geneChartData.props"
-            @selectAreaEvent="selectAreaEventFired"
-            class="draggable-chart"/>
+            @selectAreaEvent="selectAreaEventFired"/>
 
           <IdiogramScaleBarViz
             :selectedArea="selectedArea"

@@ -148,31 +148,6 @@ export default {
       position: absolute
       left: -10px
       top: 15%
-    .drag-handle
-      height: 30px
-      width: 15px
-      border: 2px solid #2A65B7
-      display: flex
-      justify-content: center
-      align-items: center
-      background-color: white
-      position: absolute
-      top: 40%
-      left: -10px
-      font-weight: bold
-      border-radius: 5px
-      cursor: grab
-      writing-mode: vertical-rl
-      text-align: center
-      line-height: .3em
-      color: #2A65B7
-      box-sizing: content-box
-      &:hover
-        background-color: #C1D1EA
-      svg
-        width: 20px
-        height: 20px
-        fill: #2A65B7
   .linear-gene-chart 
     height: 120px
     width: 100%
