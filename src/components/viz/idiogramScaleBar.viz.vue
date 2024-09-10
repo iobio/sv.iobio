@@ -50,13 +50,17 @@
   
       let options = {
         centromeres: this.centromeres,
+        selectionCallback: this.selectedAreaCallback,
         bands: this.bands,
         brush: true,
-        selectedArea: this.selectedArea,
+        selection: this.selectedArea,
       };
   
       this.idogramScaleBarChart = new idiogramScaleBar(container, this.chromosomes, options);
       container.appendChild(this.idogramScaleBarChart);
+    },
+    selectedAreaCallback(selectedArea) {
+        this.$emit('selectAreaEvent', selectedArea);
     },
   },
   computed: {

@@ -151,7 +151,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     svg.append('g')
         .call(xAxis);
 
-    _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
+    // _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
     _renderGenes([zoomedSelection.start, zoomedSelection.end])
 
     function _genChromosomeAccumulatedMap(chromosomeList){

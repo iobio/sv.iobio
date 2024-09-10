@@ -54,11 +54,22 @@
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
           <div id="linear-marker-line" v-if="tools.line"></div>
+        <component
+            v-for="(chartData, index) in chartsData.slice(0, 1)"
+            :key="index"
+            :is="chartData.component"
+            v-bind="chartData.props"
+            @dragstart="handleDragStart(index, $event)"
+            @selectAreaEvent="selectAreaEventFired"
+            @removeTrack="removeTrack(index - 1)"
+            class="draggable-chart"/>
+
           <IdiogramScaleBarViz
             :selectedArea="selectedArea"
             :bands="bands"
             :centromeres="centromeres"
-            :chromosomes="chromosomes"/>
+            :chromosomes="chromosomes"
+            @selectAreaEvent="selectAreaEventFired"/>
 
           <LinearSvChartViz
             v-if="svList && svList.length > 0" 
@@ -74,7 +85,7 @@
             @selectAreaEvent="selectAreaEventFired"/>
 
           <component
-            v-for="(chartData, index) in chartsData"
+            v-for="(chartData, index) in chartsData.slice(1)"
             :key="index"
             :is="chartData.component"
             v-bind="chartData.props"

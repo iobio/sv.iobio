@@ -159,15 +159,17 @@ export default {
     z-index: 10
   .linear-sv-chart-wrapper
     position: relative
-    // margin-top: 5px
     padding: 5px
     border-radius: 5px
     background-color: white
+    border-bottom: 1px solid whitesmoke
     .title
       box-sizing: border-box
       padding: 0px 5px
       border-radius: 5px
-      margin: 0px 0px 5px 0px
+      margin: 0px
+      position: absolute
+      left: -10px
     p
       color: #2A65B7
       box-sizing: border-box
@@ -177,14 +179,14 @@ export default {
     .drag-handle
       height: 30px
       width: 15px
-      border: 2px solid #2A65B7
+      border: 1px solid #2A65B7
       background-color: white
       display: flex
       justify-content: center
       align-items: center
       position: absolute
-      top: 40%
-      left: -10px
+      top: 50%
+      left: -9px
       font-weight: bold
       border-radius: 5px
       cursor: grab
@@ -201,12 +203,12 @@ export default {
         fill: #2A65B7
     .remove-button
       position: absolute
-      top: 25%
+      top: 26%
       left: -10px
       cursor: pointer
       color: #2A65B7
-      width: 20px
-      height: 20px
+      width: 18px
+      height: 18px
       border-radius: 50%
       border: 1px solid #2A65B7
       display: flex
@@ -222,7 +224,7 @@ export default {
         svg
           fill: red
   .linear-sv-chart 
-    height: 120px
+    height: 90px
     width: 100%
     box-sizing: border-box
     overflow: hidden

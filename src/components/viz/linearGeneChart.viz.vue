@@ -1,12 +1,6 @@
 <template>
     <div draggable="true" class="linear-gene-chart-wrapper" ref="rootDraggableContainer">
       <p v-if="name">{{ name }}</p>
-      <div class="drag-handle" @mousedown="dragChartStart($event)" @mouseup="changeCursorToGrab($event)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <title>drag up/down</title>
-          <path d="M10,8H6L12,2L18,8H14V16H18L12,22L6,16H10V8Z" />
-        </svg>
-      </div>
       <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
     </div>
 </template>
@@ -147,8 +141,12 @@ export default {
       text-transform: uppercase
       margin: 0px
       margin-bottom: 5px
-      padding: 0px 5px
+      padding: 0px 2px
       background-color: whitesmoke
+      writing-mode: vertical-rl
+      text-orientation: upright
+      position: absolute
+      left: -10px
     .drag-handle
       height: 30px
       width: 15px

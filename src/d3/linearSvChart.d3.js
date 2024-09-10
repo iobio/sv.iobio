@@ -141,10 +141,10 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
             .selectAll('text')
             .attr('transform', 'rotate(10) translate(2, 0)');
 
-    svg.append('g')
-        .call(xAxis);
+    // svg.append('g')
+    //     .call(xAxis);
 
-    _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
+    // _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
     _renderSVs([zoomedSelection.start, zoomedSelection.end])
 
     function _genChromosomeAccumulatedMap(chromosomeList){

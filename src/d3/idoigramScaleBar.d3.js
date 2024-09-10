@@ -88,7 +88,21 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
         size: genomeSize
     }
 
-    zoomedSelection = originZoom;
+    if (selection) {
+        if (selection.end - selection.start >= genomeSize) {
+            zoomedSelection = originZoom;
+            selection = null;
+        } else {
+            zoomedSelection = {
+                start: selection.start,
+                end: selection.end,
+                size: selection.end - selection.start
+            }
+            selection = null; //setting selection to null so that we can keep zooming if we like
+        }
+    } else {
+        zoomedSelection = originZoom;
+    }
 
     //if the selection is the origin zoom then we want to set the selection to null
     if (selection && selection.start == 0 && selection.end == genomeSize) {
@@ -96,8 +110,8 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
     }
 
     let x = d3.scaleLinear()
-    .domain([zoomedSelection.start, zoomedSelection.end])
-    .range([margin.left, width - margin.right]);
+        .domain([zoomedSelection.start, zoomedSelection.end])
+        .range([margin.left, width - margin.right]);
 
     _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
 
