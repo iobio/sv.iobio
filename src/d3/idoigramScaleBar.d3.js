@@ -134,7 +134,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
             ))
         //tics need to be rotated slightly so they don't overlap
         .selectAll('text')
-        .attr('transform', 'rotate(8) translate(3, 0)')
+        .attr('transform', 'rotate(8) translate(10, 0)')
         .attr('fill', '#474747');
 
     svg.append('g')
