@@ -521,7 +521,7 @@
     },
     genesOfInterest: {
       handler() {
-        const genesChart = this.chartsData.find(chart => chart.props.name === 'Genes');
+        const genesChart = this.geneChartData;
         if (genesChart) {
           genesChart.props.genesOfInterest = this.genesOfInterest;
         }
@@ -530,7 +530,7 @@
     },
     phenRelatedGenes: {
       handler() {
-        const genesChart = this.chartsData.find(chart => chart.props.name === 'Genes');
+        const genesChart = this.geneChartData;
         if (genesChart) {
           genesChart.props.phenRelatedGenes = this.phenRelatedGenes;
         }
