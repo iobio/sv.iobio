@@ -354,7 +354,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 // Customize the brush rectangle during brushing
                 selection
                     .attr('fill', 'rgba(0, 100, 255, 0.3)')  // Change fill color
-                    .attr('stroke', 'blue')                  // Change stroke color
+                    .attr('stroke', '#4C709B')                  // Change stroke color
                     .attr('stroke-width', 1)
                     .attr('rx', 1);                // Change stroke width  
             })

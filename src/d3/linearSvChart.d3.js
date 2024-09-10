@@ -336,10 +336,10 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 // Customize the brush rectangle during brushing
                 selection
                     .attr('fill', 'rgba(0, 100, 255, 0.3)')
-                    .attr('stroke', 'blue')
+                    .attr('stroke', '#4C709B')
                     .attr('stroke-width', 1)
                     .attr('height', height)
-                    .attr('rx', 1);
+                    .attr('rx', 2);
             })
             .on('end', brushed);
 
