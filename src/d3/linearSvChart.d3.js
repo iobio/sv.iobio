@@ -118,32 +118,6 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
 
-    let xAxis = g => g
-        .attr('transform', `translate(0, ${height - margin.bottom - 20})`)
-        .call(d3.axisBottom(x)
-            .ticks(width / 80)
-            .tickSizeOuter(0)
-            .tickFormat(
-                function(d) {
-                    //At the whole genome level we can just show the base pair number
-                    if (zoomedSelection.size == genomeSize) {
-                        return `${d/1000000}Mb`;
-                    } else {
-                        for (let [chr, chromosome] of chromosomeMap) {
-                            if (d >= chromosome.start && d <= chromosome.end) {
-                                return `${chr}:${parseFloat(((d - chromosome.start)/1000000).toFixed(3))}Mb`;
-                            }
-                        }
-                    }
-                }
-            ))
-            //tics need to be rotated slightly so they don't overlap
-            .selectAll('text')
-            .attr('transform', 'rotate(10) translate(2, 0)');
-
-    // svg.append('g')
-    //     .call(xAxis);
-
     // _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
     _renderSVs([zoomedSelection.start, zoomedSelection.end])
 
