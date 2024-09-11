@@ -143,11 +143,10 @@ export default {
       margin-bottom: 5px
       padding: 0px 2px
       background-color: #F8F8F8
-      writing-mode: vertical-rl
-      text-orientation: upright
+      pointer-events: none
       position: absolute
       left: -10px
-      top: 15%
+      top: 0px
   .linear-gene-chart 
     height: 120px
     width: 100%
