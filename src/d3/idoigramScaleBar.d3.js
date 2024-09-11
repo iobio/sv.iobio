@@ -235,7 +235,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 chromosomeGroup.append('rect')
                     //class will be idiogram
                     .attr('class', 'upper-idiogram')
-                    .attr('x', 1)
+                    .attr('x', 0)
                     .attr('y', 0)
                     .attr('width', x(chromEndUpdated) - x(chromStartUpdated))
                     .attr('height', idioHeight)
@@ -248,7 +248,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 chromosomeGroup.append('rect')
                     //class will be idiogram
                     .attr('class', 'upper-idiogram-parm')
-                    .attr('x', 1)
+                    .attr('x', 0)
                     .attr('y', 0)
                     .attr('width', function(){
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
