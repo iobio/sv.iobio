@@ -89,7 +89,8 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     const svg = d3.create('svg')
         .attr('viewBox', [0, 0, width, height])
         .attr('class', 'linear-gene-chart-d3')
-        .attr('width', width, height);
+        .attr('width', width)
+        .attr('height', height);
 
     let { chromosomeMap, genomeSize } = _genChromosomeAccumulatedMap(chromosomes);
 
@@ -126,6 +127,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
     _renderGenes([zoomedSelection.start, zoomedSelection.end])
 
+    //============================ INTERNAL FUNCTIONS ============================//
     function _genChromosomeAccumulatedMap(chromosomeList){
         let accumulatedBP = 0;
 
@@ -232,43 +234,44 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
                 let geneGroup = _createGene(xMap, idMap, gene, range, geneType, isLessThanOneChr);
 
-                let currentTrac = 1; 
-                let length = Object.keys(tracMap).length + 1;
-                let trackRange = Array.from({ length }, (_, i) => i + 1);
-
-                let measureSvg = d3.create('svg');
-                parentElement.appendChild(measureSvg.node());
-
                 let label = geneGroup.select('.gene-label');
                 let mTextWidth = 0;
+
                 if (label.node()) {
+                    let measureSvg = d3.create('svg');
+                    parentElement.appendChild(measureSvg.node());
+
                     let measureText = measureSvg.node().appendChild(label.node().cloneNode(true));
                     mTextWidth = measureText.getBBox().width;
                     measureSvg.remove();
                 }
 
-                for (let x of trackRange) {
-                    if (tracMap[x] && ((startX - mTextWidth) > tracMap[x])) {
-                        tracMap[x] = endX;
-                        currentTrac = x;
-                        break;
-                    } else if (tracMap[x] && ((startX - mTextWidth) < tracMap[x])) {
-                        continue;
-                    }
+                let currentTrac = 1; 
+                let length = Object.keys(tracMap).length + 1;
+                let trackRange = Array.from({ length }, (_, i) => i + 1);
 
+                for (let x of trackRange) {
                     if (!tracMap[x]) {
                         tracMap[x] = endX;
                         currentTrac = x;
                         break;
                     }
+
+                    if ((startX - mTextWidth) > tracMap[x]) {
+                        tracMap[x] = endX;
+                        currentTrac = x;
+                        break;
+                    } else if ((startX - mTextWidth) < tracMap[x]) {
+                        continue;
+                    }
                 }
 
                 let translateY = (currentTrac - 1) * 9;
 
-                if (translateY > height) {
+                if (translateY >= height) {
                     height += 9;
                     svg.attr('viewBox', [0, 0, width, height])
-                        .attr('width', width, height);
+                        .attr('height', height);
                 }
 
                 geneGroup.attr('transform', `translate(${startX - margin.left}, ${translateY + 25})`);
@@ -413,13 +416,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             let mTextWidth = measureText.node().getBBox().width;
             measureSvg.remove();
 
-            let rect = geneGroup.append('rect')
-                .attr('x', 0 + margin.left)
-                .attr('width', mTextWidth)
-                .attr('height', 8)
-                .attr('fill', 'white')
-                .attr('fill-opacity', 0.85);
-
             //add the labels
             let text = geneGroup.append('text')
                 .attr('class', 'gene-label')
@@ -430,7 +426,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('fill', 'red');
 
             text.attr('transform', `translate(-${mTextWidth}, 0)`);
-            rect.attr('transform', `translate(-${mTextWidth}, -${4})`);
+
             return geneGroup;
         } else if (geneType == 'phenRelatedGene') {
             //Phen related genes
@@ -464,13 +460,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 let mTextWidth = measureText.node().getBBox().width;
                 measureSvg.remove();
 
-                let rect = geneGroup.append('rect')
-                    .attr('x', 0 + margin.left)
-                    .attr('width', mTextWidth)
-                    .attr('height', 8)
-                    .attr('fill', 'white')
-                    .attr('fill-opacity', 0.85);
-
                 //add the labels
                 let text = geneGroup.append('text')
                     .attr('class', 'gene-label')
@@ -481,7 +470,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     .attr('fill', 'blue');
 
                 text.attr('transform', `translate(-${mTextWidth}, 0)`);
-                rect.attr('transform', `translate(-${mTextWidth}, -${4})`);
             }
 
             return geneGroup;
