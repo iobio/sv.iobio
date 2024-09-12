@@ -396,14 +396,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('class', 'gene-rect')
                 .attr('width', function() {
                     if (endX - startX < 1) {
-                        return 2;
+                        return 1;
                     }
                     return endX - startX;
                 })
                 .attr('height', 4)
                 .attr('fill', 'red')
                 .attr('rx', function() {
-                    if (endX - startX < 1) {
+                    if (endX - startX < 3) {
                         return 0;
                     }
                     return 1; 
@@ -445,14 +445,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('class', 'gene-rect')
                 .attr('width', function() {
                     if (endX - startX < 1) {
-                        return 2;
+                        return 1;
                     }
                     return endX - startX;
                 })
                 .attr('height', 4)
                 .attr('fill', 'blue')
                 attr('rx', function() {
-                    if (endX - startX < 1) {
+                    if (endX - startX < 3) {
                         return 0;
                     }
                     return 1; 
@@ -501,14 +501,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('class', 'gene-rect')
                 .attr('width', function() {
                     if (endX - startX < 1) {
-                        return 2;
+                        return 1;
                     }
                     return endX - startX;
                 })
                 .attr('height', 4)
                 .attr('fill', 'black')
                 .attr('rx', function() {
-                    if (endX - startX < 1) {
+                    if (endX - startX < 3) {
                         return 0;
                     }
                     return 1; 
