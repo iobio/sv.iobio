@@ -1,5 +1,7 @@
 <template>
-    <div class="idiogram-scale-bar-viz" ref="idiogramScaleContainer"></div>
+    <div class="idiogram-scale-bar-wrapper">
+        <div class="idiogram-scale-bar-viz" ref="idiogramScaleContainer"></div>
+    </div>
   </template>
   
   <script>
@@ -80,8 +82,11 @@
   </script>
   
   <style lang="sass">
+    .idiogram-scale-bar-wrapper
+        width: 100%
+        padding: 5px
     .idiogram-scale-bar-viz
         width: 100%
         height: 45px
-        padding: 0px 5px 
+        padding: 0px
   </style>

@@ -1,5 +1,5 @@
 <template>
-    <div draggable="true" class="linear-gene-chart-wrapper" ref="rootDraggableContainer">
+    <div class="linear-gene-chart-wrapper" ref="rootDraggableContainer">
       <p v-if="name">{{ name }}</p>
       <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
     </div>
@@ -143,15 +143,16 @@ export default {
       margin-bottom: 5px
       padding: 0px 2px
       background-color: #F8F8F8
-      writing-mode: vertical-rl
-      text-orientation: upright
+      pointer-events: none
       position: absolute
       left: -10px
-      top: 15%
+      top: 0px
   .linear-gene-chart 
+    padding: 0px
+    margin: 0px
     height: 120px
     width: 100%
     box-sizing: border-box
     overflow: hidden
-
+    overflow-y: auto
 </style>

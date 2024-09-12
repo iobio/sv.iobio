@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 
 export default function linearGeneChart(parentElement, refChromosomes, data, options=null) {
-    let width = parentElement.clientWidth;
+    let width = parentElement.clientWidth - 10;
     let height = parentElement.clientHeight;
     let chromosomes = refChromosomes;
     let genes = data;
@@ -84,8 +84,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         }
     }
 
-    const margin = {top: 5, right: 10, bottom: 5, left: 10};
-
     const svg = d3.create('svg')
         .attr('viewBox', [0, 0, width, height])
         .attr('class', 'linear-gene-chart-d3')
@@ -123,10 +121,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
     let x = d3.scaleLinear()
         .domain([zoomedSelection.start, zoomedSelection.end])
-        .range([margin.left, width - margin.right]);
+        .range([0, width]);
 
     _renderGenes([zoomedSelection.start, zoomedSelection.end])
 
+    //============================ INTERNAL FUNCTIONS ============================//
     function _genChromosomeAccumulatedMap(chromosomeList){
         let accumulatedBP = 0;
 
@@ -148,85 +147,67 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     }
 
     function _renderGenes(range) {
-        //grab all the point-group groups and remove them before rendering the new ones
-        svg.selectAll('.point-group').remove();
+        //grab all the gene-group groups and remove them before rendering the new ones
+        svg.selectAll('.gene-group').remove();
+        svg.selectAll('.gene-group-phenrelated').remove();
+        svg.selectAll('.gene-group-geneofinterest').remove();
+
+        let isWholeGenome = range[0] == 0 && range[1] == genomeSize;
+        let isLessThanOneChr = range[1] - range[0] <= chromosomeMap.get('1').end;
+
+        //if we are rendering the whole genome and don't have any GOI or phenRelatedGenes, return early
+        if (isWholeGenome && (!phenRelatedGenes || phenRelatedGenes.length == 0) && (!genesOfInterest || genesOfInterest.length == 0)) {
+            svg.append('text')
+                .attr('x', width/2 - 80)
+                .attr('y', height/2)
+                .text('Select an area to view genes')
+                .attr('font-size', '15px')
+                .attr('fill', '#2A65B7')
+                .attr('font-style', 'italic');
+            return;
+        } 
 
         let localGenes = JSON.parse(JSON.stringify(genes));
-        //TODO: I think I can borrow a more dynamic way of rendering this from my side project
+
         let tracMap = {
             1: false,
-            2: false,
-            3: false,
-            4: false,
-            5: false,
-            6: false,
         };
 
         let genesMap = {};
-        //if the range is the whole genome then we dont need to render the genes
-        if (range[0] == 0 && range[1] == genomeSize) {
-            if (phenRelatedGenes && phenRelatedGenes.length > 0) {
-                _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
-            }
-            //If there are genes of interest then we want to render them
-            if (genesOfInterest && genesOfInterest.length > 0) {
-                _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
-            }
-            //if there are no genes of interest or phen related genes then we want to just put a text that says "Zoom in to see genes"
-            if ((!phenRelatedGenes || phenRelatedGenes.length == 0) && (!genesOfInterest || genesOfInterest.length == 0)) {
-                svg.append('text')
-                    .attr('x', width/2 - 80)
-                    .attr('y', height/2)
-                    .text('Select an area to view genes')
-                    .attr('font-size', '15px')
-                    .attr('fill', '#2A65B7')
-                    .attr('font-style', 'italic');
-            }
-            return;
-        }
-
-        //otherwise we still render the genes of interest and phen related genes but we also remove that gene from our typical genes
-        if (phenRelatedGenes && phenRelatedGenes.length > 0) {
-            for (let gene of phenRelatedGenes) {
-                delete localGenes[gene.gene_symbol];
-            }
-        }
-        if (genesOfInterest && genesOfInterest.length > 0) {
-            for (let gene of genesOfInterest) {
-                delete localGenes[gene.gene_symbol];
-            }
-        }
-
-        //iterate over the genes
         for (let gene of Object.values(localGenes)) {
-            //get the chromosome and position
+            
+            let geneType = _determineGeneType(gene, genesOfInterest, phenRelatedGenes);
+
+            //if we are rendering the whole genome and the gene is a normal gene then we skip it
+            if (isWholeGenome && geneType == 'normal') {
+                continue;
+            }
+
             let chr = gene.chr.replace('chr', '');
             
             let start = gene.start;
             let end = gene.end;
 
-            //get the corresponding chromosome from the accumulated map
             let chromosome = chromosomeMap.get(chr);
             if (!chromosome) {
                 continue;
             }
+
             let absoluteStart = chromosome.start + start;
             let absoluteEnd = chromosome.start + end;
 
             let startUpdated = absoluteStart;
             let endUpdated = absoluteEnd;
 
-            let startX = null; //no sense in setting these yet
+            let startX = null;
             let endX = null;
 
-            //check and see if the point of interest is in the zoomed selection
+            //check and see if the gene is in the zoomed selection
             let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
 
             if (!newStartEnd) {
-                //if we get nothing back we dont render this point of interest at all
                 continue;
             } else {
-                //we will either get back the truncated start/ends or the original start/ends depending on if the point of interest is in the range
                 startUpdated = newStartEnd.start;
                 endUpdated = newStartEnd.end;
 
@@ -234,88 +215,70 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 endX = x(endUpdated);
             }
 
-            //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
+            //add the gene to the map if it doesn't exist
             if (!genesMap[`${absoluteStart}-${absoluteEnd}`]) {
                 genesMap[`${absoluteStart}-${absoluteEnd}`] = [gene];
 
-                //create a new group for this point of interest
-                let pointGroup = svg.append('g')
-                    .attr('transform', `translate(${startX - margin.left}, 30)`)
-                    .attr('class', 'point-group')
-                    .attr('id', `poi-${chr}-${start}-${end}-group`);
+                let idMap = {
+                    'start': start,
+                    'end': end,
+                    'chr': chr
+                };
 
-                let currentTrac = 0;
+                let xMap = {
+                    'startX': startX,
+                    'endX': endX
+                };
 
-                for (let x of Object.keys(tracMap)) {
-                    if (tracMap[x] != false && (startX > tracMap[x])) {
+                let geneGroup = _createGene(xMap, idMap, gene, range, geneType, isLessThanOneChr);
+
+                let label = geneGroup.select('.gene-label');
+                let mTextWidth = 0;
+
+                if (label.node()) {
+                    let measureSvg = d3.create('svg');
+                    parentElement.appendChild(measureSvg.node());
+
+                    let measureText = measureSvg.node().appendChild(label.node().cloneNode(true));
+                    mTextWidth = measureText.getBBox().width;
+                    measureSvg.remove();
+                }
+
+                let currentTrac = 1; 
+                let length = Object.keys(tracMap).length + 1;
+                let trackRange = Array.from({ length }, (_, i) => i + 1);
+
+                for (let x of trackRange) {
+                    if (!tracMap[x]) {
                         tracMap[x] = endX;
                         currentTrac = x;
                         break;
-                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
+                    }
+
+                    if ((startX - mTextWidth) > tracMap[x] + 2) {
+                        tracMap[x] = endX;
+                        currentTrac = x;
+                        break;
+                    } else if ((startX - mTextWidth) < tracMap[x] + 2) {
                         continue;
                     }
-
-                    if (tracMap[x] == false) {
-                        tracMap[x] = endX;
-                        currentTrac = x;
-                        break;
-                    }
                 }
 
-                let translateY = (currentTrac - 1) * 8;
+                let translateY = (currentTrac - 1) * 9;
 
-                pointGroup.append('rect')
-                    .attr('x', 0 + margin.left)
-                    .attr('width', function() {
-                        //if the block is too small to see make it 2 pixels wide
-                        if (endX - startX < 1) {
-                            return 1;
-                        }
-                        return endX - startX;
-                    })
-                    .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 2)
-                    .attr('fill', 'black');
-
-                if (range[1] - range[0] < chromosomeMap.get('1').end) {
-                    //the font needs to be scaled based on the size of the zoomed section inversely proportional to the size of the zoomed section
-                    let zoomedSize = range[1] - range[0];
-                    let baseFontSize = 20;
-
-                    // Ensure zoomedSize is at least 1 to avoid taking the logarithm of 0 or a negative number.
-                    if (zoomedSize < 1) {
-                        zoomedSize = 1;
-                    }
-
-                    let bpGenomeSize = originZoom.size;
-
-                    // Normalize zoomedSize logarithmically
-                    let normalized_window = Math.log(zoomedSize) / Math.log(bpGenomeSize);
-
-                    // Calculate the scaled font size
-                    let scaledFontSize = baseFontSize * (1 - normalized_window);
-
-                    //add the labels
-                    pointGroup.append('text')
-                        .attr('x', 0 + margin.left)
-                        .attr('y', `${scaledFontSize + 2}`)
-                        .text(gene.gene_symbol)
-                        .attr('font-size', `${scaledFontSize}` + "px")
-                        .attr('fill', 'black')
-                        .attr('transform', `translate(0, ${translateY})`);
+                if (translateY >= height) {
+                    height += 9;
+                    svg.attr('viewBox', [0, 0, width, height])
+                        .attr('height', height);
                 }
+
+                geneGroup.attr('transform', `translate(${startX + 30}, ${translateY + 25})`);
+
+                svg.append(() => geneGroup.node()); //append the gene group to the svg
             } else {
-                //dont render the point of interest if it already exists
+                //dont render the gene if it already exists
                 genesMap[`${absoluteStart}-${absoluteEnd}`].push(gene);
             }
-        }
-        
-        //otherwise we still render the genes of interest and phen related genes but we also remove that gene from our typical genes
-        if (phenRelatedGenes && phenRelatedGenes.length > 0) {
-            _renderPhenRelatedGenes(phenRelatedGenes, chromosomeMap, range, svg);
-        }
-        if (genesOfInterest && genesOfInterest.length > 0) {
-            _renderGenesOfInterest(genesOfInterest, chromosomeMap, range, svg);
         }
     }
 
@@ -368,252 +331,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         }
     }
 
-    function _renderPhenRelatedGenes(genes, chromosomeMap, range, svg) {
-        //Remove all the point-group-phenrelated groups before rendering the new ones
-        svg.selectAll('.point-group-phenrelated').remove();
-        
-        //TODO: I think I can borrow a more dynamic way of rendering this from my side project
-        let tracMap = {
-            1: false,
-            2: false,
-            3: false,
-            4: false,
-            5: false,
-            6: false,
-            7: false,
-        };
-
-        let genesMap = {};
-
-        //iterate over the genes
-        for (let gene of Object.values(genes)) {
-            //get the chromosome and position
-            let chr = gene.chr.replace('chr', '');
-            
-            let start = gene.start;
-            let end = gene.end;
-
-            //get the corresponding chromosome from the accumulated map
-            let chromosome = chromosomeMap.get(chr);
-            if (!chromosome) {
-                continue;
-            }
-            let absoluteStart = chromosome.start + start;
-            let absoluteEnd = chromosome.start + end;
-
-            let startUpdated = absoluteStart;
-            let endUpdated = absoluteEnd;
-
-            let startX = null; //no sense in setting these yet
-            let endX = null;
-
-            //check and see if the point of interest is in the zoomed selection
-            let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
-            
-            if (!newStartEnd) {
-                //if we get nothing back we dont render this point of interest at all
-                continue;
-            } else {
-                //we will either get back the truncated start/ends or the original start/ends depending on if the point of interest is in the range
-                startUpdated = newStartEnd.start;
-                endUpdated = newStartEnd.end;
-
-                startX = x(startUpdated);
-                endX = x(endUpdated);
-            }
-
-            //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
-            if (!genesMap[`${absoluteStart}-${absoluteEnd}`]) {
-                genesMap[`${absoluteStart}-${absoluteEnd}`] = [gene];
-
-                //create a new group for this point of interest
-                let pointGroup = svg.append('g')
-                    .attr('transform', `translate(${startX - margin.left}, 30)`)
-                    .attr('class', 'point-group-phenrelated')
-                    .attr('id', `poi-${chr}-${start}-${end}-group`);
-
-                let currentTrac = 0;
-
-                for (let x of Object.keys(tracMap)) {
-                    if (tracMap[x] != false && (startX > tracMap[x])) {
-                        tracMap[x] = endX;
-                        currentTrac = x;
-                        break;
-                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
-                        continue;
-                    }
-
-                    if (tracMap[x] == false) {
-                        tracMap[x] = endX;
-                        currentTrac = x;
-                        break;
-                    }
-                }
-
-                let translateY = (currentTrac - 1) * 8;
-
-                pointGroup.append('rect')
-                    .attr('x', 0 + margin.left)
-                    .attr('width', function() {
-                        //if the block is too small to see make it 2 pixels wide
-                        if (endX - startX < 1) {
-                            return 1;
-                        }
-                        return endX - startX;
-                    })
-                    .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 2)
-                    .attr('fill', 'blue')
-                    .attr('fill-opacity', 0.75);
-                
-                //we dont show labels for these at the global level
-                
-                if (range[0] !== 0 && range[1] !== genomeSize) {
-                    //add a rectangle that is the width of the text
-                    let textWidth = gene.gene_symbol.length * 5;
-                    pointGroup.append('rect')
-                        .attr('x', 0 + margin.left)
-                        .attr('width', textWidth)
-                        .attr('transform', `translate(0, ${translateY + 2})`)
-                        .attr('height', 8)
-                        .attr('fill', 'white')
-                        .attr('fill-opacity', 0.85);
-
-                    //add the labels
-                    pointGroup.append('text')
-                        .attr('x', 0 + margin.left)
-                        .attr('y', 9)
-                        .text(gene.gene_symbol)
-                        .attr('font-size', "8px")
-                        .attr('fill', 'blue')
-                        .attr('transform', `translate(0, ${translateY})`);
-                }
-
-
-            } else {
-                //dont render the point of interest if it already exists
-                genesMap[`${absoluteStart}-${absoluteEnd}`].push(gene);
-            }
-        }
-    }
-
-    function _renderGenesOfInterest(genes, chromosomeMap, range, svg) {
-        //Remove all the point-group-geneofinterest groups before rendering the new ones
-        svg.selectAll('.point-group-geneofinterest').remove();
-
-        //TODO: I think I can borrow a more dynamic way of rendering this from my side project
-        let tracMap = {
-            1: false,
-            2: false,
-            3: false,
-            4: false,
-            5: false,
-            6: false,
-            7: false,
-        };
-
-        let genesMap = {};
-
-        //iterate over the genes
-        for (let gene of Object.values(genes)) {
-            if (!gene || !gene.chr || !gene.start || !gene.end) {
-                continue;
-            }
-
-            //get the chromosome and position
-            let chr = gene.chr.replace('chr', '');
-            
-            let start = gene.start;
-            let end = gene.end;
-
-            //get the corresponding chromosome from the accumulated map
-            let chromosome = chromosomeMap.get(chr);
-            if (!chromosome) {
-                continue;
-            }
-            let absoluteStart = chromosome.start + start;
-            let absoluteEnd = chromosome.start + end;
-
-            let startUpdated = absoluteStart;
-            let endUpdated = absoluteEnd;
-
-            let startX = null; //no sense in setting these yet
-            let endX = null;
-
-            //check and see if the point of interest is in the zoomed selection
-            let newStartEnd = _getStartEndForRange(absoluteStart, absoluteEnd, range);
-
-            if (!newStartEnd) {
-                //if we get nothing back we dont render this point of interest at all
-                continue;
-            } else {
-                //we will either get back the truncated start/ends or the original start/ends depending on if the point of interest is in the range
-                startUpdated = newStartEnd.start;
-                endUpdated = newStartEnd.end;
-
-                startX = x(startUpdated);
-                endX = x(endUpdated);
-            }
-
-            //add the point of interest to the map with the absolute start and end as the key "absoluteStart-absoluteEnd"
-            if (!genesMap[`${absoluteStart}-${absoluteEnd}`]) {
-                genesMap[`${absoluteStart}-${absoluteEnd}`] = [gene];
-
-                //create a new group for this point of interest
-                let pointGroup = svg.append('g')
-                    .attr('transform', `translate(${startX - margin.left}, 30)`)
-                    .attr('class', 'point-group-geneofinterest')
-                    .attr('id', `poi-${chr}-${start}-${end}-group`);
-
-                let currentTrac = 0;
-
-                for (let x of Object.keys(tracMap)) {
-                    if (tracMap[x] != false && (startX > tracMap[x])) {
-                        tracMap[x] = endX;
-                        currentTrac = x;
-                        break;
-                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
-                        continue;
-                    }
-
-                    if (tracMap[x] == false) {
-                        tracMap[x] = endX;
-                        currentTrac = x;
-                        break;
-                    }
-                }
-
-                let translateY = (currentTrac - 1) * 8;
-
-                pointGroup.append('rect')
-                    .attr('x', 0 + margin.left)
-                    .attr('width', function() {
-                        //if the block is too small to see make it 2 pixels wide
-                        if (endX - startX < 1) {
-                            return 1;
-                        }
-                        return endX - startX;
-                    })
-                    .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 2)
-                    .attr('fill', 'red');
-            
-                //add the labels
-                pointGroup.append('text')
-                    .attr('x', 0)
-                    .attr('y', 9)
-                    .text(gene.gene_symbol)
-                    .attr('font-size', "8px")
-                    .attr('fill', 'red')
-                    .attr('transform', `translate(0, ${translateY})`);
-
-            } else {
-                //dont render the point of interest if it already exists
-                genesMap[`${absoluteStart}-${absoluteEnd}`].push(gene);
-            }
-        }
-    }
-
     function _getStartEndForRange(start, end, range) {
         let st = start;
         let en = end;
@@ -632,6 +349,211 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
         return {start: st, end: en};
     }
-    
+
+    function _determineGeneType(gene, genesOfInterest, phenRelatedGenes) {
+        let type = 'normal';
+        if (genesOfInterest && genesOfInterest.length > 0) {
+            for (let geneOfInterest of genesOfInterest) {
+                if (gene.gene_symbol == geneOfInterest.gene_symbol) {
+                    type = 'geneOfInterest';
+                    return type;
+                }
+            }
+        }
+        
+        if (phenRelatedGenes && phenRelatedGenes.length > 0) {
+            for (let phenRelatedGene of phenRelatedGenes) {
+                if (gene.gene_symbol == phenRelatedGene.gene_symbol) {
+                    type = 'phenRelatedGene';
+                    return type;
+                }
+            }
+        }
+
+        return type;
+    }
+
+    function _createGene(xMap, idMap, gene, range, geneType, isLessThanOneChr) {
+        let chr = idMap.chr;
+        let start = idMap.start;
+        let end = idMap.end;
+
+        let startX = xMap.startX;
+        let endX = xMap.endX;
+        let geneGroup;
+
+        let isWholeGenome = range[0] == 0 && range[1] == genomeSize;
+
+        if (geneType == 'geneOfInterest') {
+            //Genes of interest
+            geneGroup = svg.append('g')
+                .attr('class', 'gene-group-geneofinterest')
+                .data([gene])
+                .attr('id', `poi-${chr}-${start}-${end}-group`);
+
+            geneGroup.append('rect')
+                .attr('x', 0)
+                .attr('class', 'gene-rect')
+                .attr('width', function() {
+                    if (endX - startX < 1) {
+                        return 1;
+                    }
+                    return endX - startX;
+                })
+                .attr('height', 4)
+                .attr('fill', 'red')
+                .attr('rx', function() {
+                    if (endX - startX < 3) {
+                        return 0;
+                    }
+                    return 1; 
+                });
+
+            let measureSvg = d3.create('svg');
+            parentElement.appendChild(measureSvg.node());
+            
+            let measureText = measureSvg.append('text')
+                .attr('x', 0)
+                .attr('y', 5)
+                .text(gene.gene_symbol)
+                .attr('font-size', `${10}` + "px");
+            
+            let mTextWidth = measureText.node().getBBox().width;
+            measureSvg.remove();
+
+            //add the labels
+            let text = geneGroup.append('text')
+                .attr('class', 'gene-label')
+                .attr('x', 0)
+                .attr('y', 5)
+                .text(gene.gene_symbol)
+                .attr('font-size', "10px")
+                .attr('fill', 'red');
+
+            text.attr('transform', `translate(-${mTextWidth}, 0)`);
+
+            return geneGroup;
+        } else if (geneType == 'phenRelatedGene') {
+            //Phen related genes
+            geneGroup = svg.append('g')
+                .attr('class', 'gene-group-phenrelated')
+                .data([gene])
+                .attr('id', `poi-${chr}-${start}-${end}-group`);
+
+            geneGroup.append('rect')
+                .attr('x', 0)
+                .attr('class', 'gene-rect')
+                .attr('width', function() {
+                    if (endX - startX < 1) {
+                        return 1;
+                    }
+                    return endX - startX;
+                })
+                .attr('height', 4)
+                .attr('fill', 'blue')
+                attr('rx', function() {
+                    if (endX - startX < 3) {
+                        return 0;
+                    }
+                    return 1; 
+                });
+
+            //we dont show labels for these at the global level
+            if (!isWholeGenome) {
+                let measureSvg = d3.create('svg');
+                parentElement.appendChild(measureSvg.node());
+                
+                let measureText = measureSvg.append('text')
+                    .attr('x', 0)
+                    .attr('y', 5)
+                    .text(gene.gene_symbol)
+                    .attr('font-size', `${10}` + "px");
+                
+                let mTextWidth = measureText.node().getBBox().width;
+                measureSvg.remove();
+
+                //add the labels
+                let text = geneGroup.append('text')
+                    .attr('class', 'gene-label')
+                    .attr('x', 0)
+                    .attr('y', 5)
+                    .text(gene.gene_symbol)
+                    .attr('font-size', "10px")
+                    .attr('fill', 'blue')
+                    .attr('rx', 1);
+
+                text.attr('transform', `translate(-${mTextWidth}, 0)`);
+            }
+
+            return geneGroup;
+        } else {
+            //All normal genes
+            geneGroup = svg.append('g')
+                .attr('class', 'gene-group')
+                .data([gene])
+                .attr('id', `poi-${chr}-${start}-${end}-group`)
+                .on('click', function(event, d) {
+                    console.log('clicked on gene', d);
+                });
+
+            geneGroup.append('rect')
+                .attr('x', 0)
+                .attr('class', 'gene-rect')
+                .attr('width', function() {
+                    if (endX - startX < 1) {
+                        return 1;
+                    }
+                    return endX - startX;
+                })
+                .attr('height', 4)
+                .attr('fill', 'black')
+                .attr('rx', function() {
+                    if (endX - startX < 3) {
+                        return 0;
+                    }
+                    return 1; 
+                });
+
+            if (isLessThanOneChr) {
+                //the font needs to be scaled based on the size of the zoomed section inversely proportional to the size of the zoomed section
+                let zoomedSize = range[1] - range[0];
+                // Ensure zoomedSize is at least 1 to avoid taking the logarithm of 0 or a negative number.
+                if (zoomedSize < 1) zoomedSize = 1;
+
+                let bpGenomeSize = originZoom.size;
+                let normalized_window = Math.log(zoomedSize) / Math.log(bpGenomeSize);
+
+                let baseFontSize = 20;
+                let scaledFontSize = baseFontSize * (1 - normalized_window);
+                let minFontSize = 8;
+                scaledFontSize = Math.max(scaledFontSize, minFontSize);
+
+                let measureSvg = d3.create('svg');
+                parentElement.appendChild(measureSvg.node());
+                
+                let measureText = measureSvg.append('text')
+                    .attr('x', 0)
+                    .attr('y', 4)
+                    .text(gene.gene_symbol)
+                    .attr('font-size', `${scaledFontSize}` + "px");
+                
+                let mTextWidth = measureText.node().getBBox().width;
+                measureSvg.remove();
+
+                //add the labels
+                let text = geneGroup.append('text')
+                    .attr('class', 'gene-label')
+                    .attr('x', 0)
+                    .attr('y', 4)
+                    .text(gene.gene_symbol)
+                    .attr('font-size', `${scaledFontSize}` + "px")
+                    .attr('fill', 'black');
+
+                text.attr('transform', `translate(-${mTextWidth + 1}, 0)`);
+            }  
+            return geneGroup;
+        }
+    }
+
     return svg.node();
 }

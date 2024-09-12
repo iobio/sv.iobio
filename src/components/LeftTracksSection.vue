@@ -272,6 +272,7 @@
 
       let chrom = focusedVariant.chromosome;
       let chromStart = this.chromosomeAccumulatedMap.get(chrom).start;
+      let chromEnd = this.chromosomeAccumulatedMap.get(chrom).end;
       let varStartAbs = parseInt(focusedVariant.start) + chromStart;
       let varEndAbs = parseInt(focusedVariant.end) + chromStart;
       let varSize = varEndAbs - varStartAbs;
@@ -288,10 +289,14 @@
 
       if (focusedStart < 0) {
           focusedStart = 0;
+      } else if (focusedStart < chromStart) {
+          focusedStart = chromStart;
       }
 
       if (focusedEnd >= this.genomeEnd) {
           focusedEnd = this.genomeEnd;
+      } else if (focusedEnd > chromEnd) {
+          focusedEnd = chromEnd;
       }
 
       let zoomedSection = {
