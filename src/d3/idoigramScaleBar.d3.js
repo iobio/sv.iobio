@@ -130,11 +130,11 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                                 let sizeInMb = parseFloat(((d - chromosome.start) / 1000000).toFixed(5));
 
                                 if (sizeInMb < 1) {
-                                    return `${parseFloat(((d - chromosome.start) / 1000).toFixed(3))}Kb`;
+                                    return `${parseFloat(((d - chromosome.start) / 1000).toFixed(4))}K`;
                                 }
 
-                                let num = parseFloat(((d - chromosome.start) / 1000000).toFixed(5));
-                                return `${num}Mb`;
+                                let num = parseFloat(((d - chromosome.start) / 1000000).toFixed(4));
+                                return `${num}M`;
                             }
                         }
                     }
