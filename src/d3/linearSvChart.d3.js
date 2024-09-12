@@ -114,6 +114,17 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         selection = null;
     }
 
+    //Put a message at the top of the chart 'Click and drag to select a region'
+    svg.append('text')
+        .attr('x', '60px')
+        .attr('y', 13)
+        .attr('text-anchor', 'start')
+        .attr('font-size', '13px')
+        .attr('font-weight', '100')
+        .attr('font-style', 'italic')
+        .text('Click and drag to select a region')
+        .attr('fill', '#A3A3A3');
+
     let x = d3.scaleLinear()
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
