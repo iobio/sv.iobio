@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { parse } from 'vue/compiler-sfc';
 
 export default function idoigramScaleBar(parentElementTag, refChromosomes, options) {
     let parentElement = d3.select(parentElementTag);
@@ -126,7 +127,14 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                     } else {
                         for (let [chr, chromosome] of chromosomeMap) {
                             if (d >= chromosome.start && d <= chromosome.end) {
-                                return `${chr}:${parseFloat(((d - chromosome.start) / 1000000).toFixed(3))}Mb`;
+                                let sizeInMb = parseFloat(((d - chromosome.start) / 1000000).toFixed(5));
+
+                                if (sizeInMb < 1) {
+                                    return `${parseFloat(((d - chromosome.start) / 1000).toFixed(3))}Kb`;
+                                }
+
+                                let num = parseFloat(((d - chromosome.start) / 1000000).toFixed(5));
+                                return `${num}Mb`;
                             }
                         }
                     }
@@ -134,7 +142,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
             ))
         //tics need to be rotated slightly so they don't overlap
         .selectAll('text')
-        .attr('transform', 'rotate(6) translate(10, 0)')
+        .attr('transform', 'rotate(0) translate(6, 0)')
         .attr('fill', '#474747');
 
     svg.append('g')
@@ -341,6 +349,20 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 .text(chr)
                 .attr('font-size', "14px")
                 .attr('fill', chromosomeColor);
+
+            let rangeLen = range[1] - range[0];
+            let chromosome1Length = chromosomeMap.get('1').end - chromosomeMap.get('1').start;
+
+            if (rangeLen <= chromosome1Length) {
+                //add the chromosome label at 10 10
+                chromosomeGroup.append('text')
+                    .attr('x', 10)
+                    .attr('y', 14)
+                    .text(chr)
+                    .attr('font-size', "18px")
+                    .attr('font-weight', 'bold')
+                    .attr('fill', chromosomeColor);
+            }
         };
     }
 
