@@ -451,7 +451,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 })
                 .attr('height', 4)
                 .attr('fill', 'blue')
-                attr('rx', function() {
+                .attr('rx', function() {
                     if (endX - startX < 3) {
                         return 0;
                     }
