@@ -1,6 +1,7 @@
 <template>
     <div id="left-tracks-section">
       <div class="upper-track-selectors-bar">
+
         <div id="radios-tools-container">
           <fieldset class="location-indicator">
             <legend>Location</legend>
@@ -18,7 +19,24 @@
             <span>Line<br>Tool</span>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>drag-vertical-variant</title><path d="M11 21H9V3H11V21M15 3H13V21H15V3Z" /></svg>
           </button>
+
+          <fieldset class="zoom-buttons-container" v-if="!isGlobalView">
+            <legend>Zoom</legend>
+            <button class="zoom-tool-btn" @click="zoom('in')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>zoom in</title>
+                    <path d="M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14M12,10H10V12H9V10H7V9H9V7H10V9H12V10Z" />
+                </svg>
+            </button>
+            <button class="zoom-tool-btn" @click="zoom('out')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>zoom out</title>
+                    <path d="M15.5,14H14.71L14.43,13.73C15.41,12.59 16,11.11 16,9.5A6.5,6.5 0 0,0 9.5,3A6.5,6.5 0 0,0 3,9.5A6.5,6.5 0 0,0 9.5,16C11.11,16 12.59,15.41 13.73,14.43L14,14.71V15.5L19,20.5L20.5,19L15.5,14M9.5,14C7,14 5,12 5,9.5C5,7 7,5 9.5,5C12,5 14,7 14,9.5C14,12 12,14 9.5,14M7,9H12V10H7V9Z" />
+                </svg>
+            </button>
+          </fieldset>
         </div>
+
         <div v-if="(showButton && focusedVariant) || zoomHistory.length > 1" id="buttons-container">
           <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus On <br> Variant</button>
           <button v-if="zoomHistory.length > 1" @click="focusOnPrevious" id="prev-zoom-btn">Prev. <br> Zoom</button>
@@ -266,6 +284,40 @@
 
         this.$emit('set-chromosome-accumulated-map', chromosomeAccumulatedMap);
         return chromosomeAccumulatedMap;
+    },
+    zoom(direction) {
+        //Zoom can be in or out
+        let zoomedSection = this.selectedArea;
+        let zoomSize = zoomedSection.end - zoomedSection.start;
+        let zoomCenter = zoomedSection.start + (zoomSize / 2);
+
+        let zoomFactor = 0.2;
+        let zoomedSize = zoomSize * zoomFactor;
+
+        if (direction === 'in') {
+            zoomedSize = zoomSize - zoomedSize;
+        } else if (direction === 'out') {
+            zoomedSize = zoomSize + zoomedSize;
+        }
+
+        let zoomedStart = zoomCenter - (zoomedSize / 2);
+        let zoomedEnd = zoomCenter + (zoomedSize / 2);
+
+        if (zoomedStart < 0) {
+            zoomedStart = 0;
+        }
+
+        if (zoomedEnd >= this.genomeEnd) {
+            zoomedEnd = this.genomeEnd;
+        }
+
+        zoomedSection = {
+            start: zoomedStart,
+            end: zoomedEnd,
+            size: zoomedSize
+        };
+
+        this.$emit('zoomEvent', zoomedSection);
     },
     findZoomFromFocus() {
       let focusedVariant = this.focusedVariant;
@@ -611,6 +663,43 @@
         padding: 0px
         font-size: 0.8em
         border-radius: 5px
+    .zoom-buttons-container
+        display: flex
+        flex-direction: row
+        align-items: center
+        padding: 5px
+        border: 1px solid #E0E0E0
+        border-radius: 5px
+        margin-left: 10px
+        legend
+          margin: 0px
+          padding: 0px
+          font-size: 0.6em
+          text-transform: uppercase
+          font-style: italic
+          color: #474747
+        button
+            display: flex
+            flex-direction: row
+            align-items: center
+            justify-content: center
+            padding: 2px
+            border: none
+            border-radius: 5px
+            text-transform: uppercase
+            color: #474747
+            height: 100%
+            &:first-of-type
+                margin-right: 5px
+            &:hover
+                cursor: pointer
+                background-color: #E0E0E0
+            svg
+                width: 18px
+                height: 18px
+                fill: #2A65B7
+                border-radius: 50%
+                margin-left: 3px
   #left-tracks-section
     box-sizing: border-box
     display: flex
