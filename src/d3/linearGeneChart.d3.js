@@ -283,7 +283,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         .attr('height', height);
                 }
 
-                geneGroup.attr('transform', `translate(${startX + 30}, ${translateY + 25})`);
+                geneGroup.attr('transform', `translate(${startX + 10}, ${translateY + 25})`);
 
                 svg.append(() => geneGroup.node()); //append the gene group to the svg
             } else {
@@ -296,7 +296,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     //render brush later so it's on top
     if (brush) {
         let brush = d3.brushX()
-            .extent([[0, 0], [width, 25]])
+            .extent([[5, 0], [width, 25]])
             .on('brush', function (event) {
                 let brushArea = d3.select(this);
                 let selection = brushArea.select('.selection')
@@ -325,9 +325,12 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             return;
         }
 
+        let bs0 = brushSelection[0] - 10; //subtract 10 to account for the padding
+        let bs1 = brushSelection[1] - 10; //subtract 10 to account for the padding
+
         //selection will be in the pixel space so need to convert it to the base pair space
-        let start = x.invert(brushSelection[0]);
-        let end = x.invert(brushSelection[1]);
+        let start = x.invert(bs0);
+        let end = x.invert(bs1);
 
         //send the rounded start and end to the callback to the nearest whole number
         start = Math.round(start);
@@ -400,7 +403,10 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             geneGroup = svg.append('g')
                 .attr('class', 'gene-group-geneofinterest')
                 .data([gene])
-                .attr('id', `poi-${chr}-${start}-${end}-group`);
+                .attr('id', `poi-${chr}-${start}-${end}-group`)
+                .on('click', function(event, d) {
+                    console.log('clicked on gene', d);
+                });
 
             geneGroup.append('rect')
                 .attr('x', 0)
@@ -449,7 +455,10 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             geneGroup = svg.append('g')
                 .attr('class', 'gene-group-phenrelated')
                 .data([gene])
-                .attr('id', `poi-${chr}-${start}-${end}-group`);
+                .attr('id', `poi-${chr}-${start}-${end}-group`)
+                .on('click', function(event, d) {
+                    console.log('clicked on gene', d);
+                });
 
             geneGroup.append('rect')
                 .attr('x', 0)
