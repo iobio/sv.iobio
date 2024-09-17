@@ -628,7 +628,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('transform', `translate(${width / 2}, ${height / 2})`)
                     .attr('fill', 'white')
                     .attr('stroke', color)
-                    .attr('stroke-width', 1)
+                    .attr('stroke-width', .75)
                     .attr('class', 'chromosome-p');
                 
                 chromosomeGroup.append('path')
@@ -637,7 +637,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('transform', `translate(${width / 2}, ${height / 2})`)
                     .attr('fill', 'white')
                     .attr('stroke', color)
-                    .attr('stroke-width', 1)
+                    .attr('stroke-width', .75)
                     .attr('class', 'chromosome-q');
                 
                 //create an arc for the centromere itself
@@ -667,7 +667,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('fill', color)
                     .attr('stroke', color)
                     .attr('opacity', 0.5)
-                    .attr('stroke-width', 1)
+                    .attr('stroke-width', .5)
                     .attr('class', 'centromere');
             } else {
                 //if there is no centromere it means that the range includes something smaller than a chromosome and that range does not have a centromere in it
@@ -689,7 +689,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     .attr('transform', `translate(${width / 2}, ${height / 2})`)
                     .attr('fill', 'white')
                     .attr('stroke', color)
-                    .attr('stroke-width', 1)
+                    .attr('stroke-width', .5)
                     .attr('class', 'chromosome-p');
             }
 
@@ -779,7 +779,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                 .attr('fill', color)
                 .attr('fill-opacity', 0.1)
                 .attr('stroke', color)
-                .attr('stroke-width', 1)
+                .attr('stroke-width', .5)
                 .attr('class', 'chromosome-background')
                 .lower();
 

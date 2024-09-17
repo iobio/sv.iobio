@@ -1,5 +1,13 @@
 <template>
     <div id="left-tracks-section">
+        <div id="circos-mini-wrapper" v-if="globalView === 'circos'">
+            <SvCirosMiniViz
+                :zoomZone="selectedArea"
+                :centromeres="centromeres"
+                :bands="bands"
+                :chromosomes="chromosomes"/>
+        </div>
+
       <div class="upper-track-selectors-bar">
 
         <div id="radios-tools-container">
@@ -42,8 +50,9 @@
           <button v-if="zoomHistory.length > 1" @click="focusOnPrevious" id="prev-zoom-btn">Prev. <br> Zoom</button>
         </div>
       </div>
+
       <div class="wrapper-95">
-        <div id="chrom-select-bar-div">
+        <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
           <ChromSelectBarViz v-if="chromSelectBarDataReady"
           :selectedArea="selectedArea"
           :centromeres="centromeres"
@@ -122,6 +131,7 @@
   import LinearSvChartViz from './viz/linearSvChart.viz.vue';
   import LinearGeneChartViz from './viz/linearGeneChart.viz.vue'
   import IdiogramScaleBarViz from './viz/idiogramScaleBar.viz.vue'
+  import SvCirosMiniViz from './viz/svCircosMini.viz.vue';
 
   export default {
   name: "LeftTracksSection",
@@ -130,7 +140,8 @@
     ChromSelectBarViz,
     LinearSvChartViz,
     LinearGeneChartViz, 
-    IdiogramScaleBarViz
+    IdiogramScaleBarViz,
+    SvCirosMiniViz
   },
   props: {
     svList: Array,
@@ -710,6 +721,11 @@
     padding: 5px 10px
     position: relative
     transition: all 0.5s
+    #circos-mini-wrapper
+        position: absolute
+        right: 5px
+        top: 5px
+        width: 22%
     .upper-track-selectors-bar
       align-items: center
       box-sizing: border-box
@@ -717,6 +733,7 @@
       width: 100%
       padding-bottom: 5px
     .wrapper-95
+      position: relative
       box-sizing: border-box
       display: flex
       flex-direction: column
