@@ -52,6 +52,10 @@
             let container = document.getElementById('sv-circos-mini-viz');
             d3.select(container).selectAll('*').remove();
 
+            if (!container) {
+                return;
+            }
+            
             let options = {
                 centromeres: this.centromeres,
                 bands: this.bands,
