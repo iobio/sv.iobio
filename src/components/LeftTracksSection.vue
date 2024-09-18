@@ -5,7 +5,8 @@
                 :zoomZone="selectedArea"
                 :centromeres="centromeres"
                 :bands="bands"
-                :chromosomes="chromosomes"/>
+                :chromosomes="chromosomes"
+                @selectAreaEvent="selectAreaEventFired"/>
         </div>
 
       <div class="upper-track-selectors-bar">

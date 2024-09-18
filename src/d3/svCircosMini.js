@@ -8,7 +8,6 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
 
     //Zoom Variables
     let zoomedCallback = null;
-    let zoomZone = null;
     let zoomedSection = null;
 
     let { chromosomeAccumulatedMap, bpGenomeSize } = _genChromosomeAccumulatedMap(chromosomes);
@@ -35,34 +34,15 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                 }
             }
         }
-        if (options.zoomCallback) {
-            zoomedCallback = options.zoomCallback;
+        if (options.zoomedCallback) {
+            zoomedCallback = options.zoomedCallback;
         }
+
         if (options.zoomZone) {
-            zoomZone = options.zoomZone;
-            //Ensure that start is less than end if not swap them
-            if (zoomZone.start > zoomZone.end) {
-                let temp = zoomZone.start;
-                zoomZone.start = zoomZone.end;
-                zoomZone.end = temp;
-            }
-
-            let zoomStart = zoomZone.start;
-            let zoomEnd = zoomZone.end;
-            let zoomSize = zoomEnd - zoomStart;
-
-            zoomedSection = {
-                start: zoomStart,
-                end: zoomEnd,
-                size: zoomSize
-            };
-        } else {
-            zoomedSection = originZoom;
+            zoomZone
         }
 
-        if (options.focusedVariant) {
-            focusedVariant = options.focusedVariant;
-        }
+        zoomedSection = originZoom;
     }
 
     _setBaseStyles();
@@ -96,7 +76,7 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
     
     // Change the range to radians (0 to 2π)
     let angleScale = d3.scaleLinear()
-        .domain([zoomedSection.start, zoomedSection.end])
+        .domain([originZoom.start, originZoom.end])
         .range([startAngleRad, endAngleRad]);
 
     //process centromeres to put them into the correct chromosomes and format
@@ -117,7 +97,7 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
     let endColor = '#A63D40'
 
     //TODO: If we were able to specify options on the track such as minRadius, maxRadius, color, background (on/off), label etc we could make this more dynamic and have one function
-    _renderChromosomes([zoomedSection.start, zoomedSection.end], chromosomes);
+    _renderChromosomes([originZoom.start, originZoom.end], chromosomes);
 
 //HELPER FUNCTIONS
     function _setBaseStyles() {
@@ -185,6 +165,8 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
 
             let arcDrag = d3.drag()
                 .on('start', function (event, d) {
+                    //if there is aready a brush then remove it
+                    d3.select('.arc-brush-mini').remove();
                     //if we are directly over a chromosome-label then we dont want to drag we want to allow the event to go to the chromosome-label
                     //We need this because the brushable area is on top so it will take precedence
                     if (event.sourceEvent.target.classList.contains('chromosome-label')) {
@@ -205,7 +187,7 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                         .padAngle(0)
                         .cornerRadius(0);
                     //selecte the brush group and append the arc brush
-                    let brushGroup = d3.select('.brush-group');
+                    let brushGroup = d3.select('.brush-group-mini');
 
                     brushGroup.append('path')
                         .datum({startAngle: startAngle, endAngle: endAngle})
@@ -215,20 +197,20 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                         .attr('fill-opacity', 0.7)
                         .attr('stroke', 'white')
                         .attr('stroke-width', 1)
-                        .attr('class', 'arc-brush')
+                        .attr('class', 'arc-brush-mini')
                         .raise();
                 })
                 .on('drag', function (event, d) {
                     //grab the arc-brush and update the end angle based on the event
-                    let arcBrush = svg.select('.arc-brush');
+                    let arcBrush = svg.select('.arc-brush-mini');
                     let x = event.x - center.x;
                     let y = event.y - center.y;
                     let newAngle = Math.atan2(y, x) + Math.PI/2;
 
                     // Redefine the arc with the updated endAngle
                     arcBrush.attr('d', d3.arc()
-                        .innerRadius(maxRadius * 0.96)
-                        .outerRadius(maxRadius * 1.085)
+                        .innerRadius(maxRadius * 0.85)
+                        .outerRadius(maxRadius * 1.05)
                         .startAngle(arcBrush.datum().startAngle)
                         .endAngle(newAngle)
                         .padAngle(0)
@@ -236,7 +218,7 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                 })
                 .on('end', function (event, d) {
                     //get the start and end of the brush arc so that we can zoom in on that section
-                    let arcBrush = svg.select('.arc-brush');
+                    let arcBrush = svg.select('.arc-brush-mini');
 
                     if (!arcBrush || arcBrush.empty()) {
                         return //This ends up getting called when we click to zoom on a chromosome so just make sure it isnt empty
@@ -259,7 +241,7 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
 
                     //if the start and end angles are the same then we dont want to zoom in at all just remove the brush
                     if (startAngle === endAngle) {
-                        d3.select('.arc-brush').remove();
+                        d3.select('.arc-brush-mini').remove();
                         return;
                     }
 
@@ -442,8 +424,8 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                     });
         }
         //append a new group for the brush to be added to
-        let brushGroup = svg.append('g')
-            .attr('class', 'brush-group');
+        svg.append('g')
+            .attr('class', 'brush-group-mini');
     }
     return svg.node();
 }

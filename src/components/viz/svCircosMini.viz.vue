@@ -49,19 +49,23 @@
             }
 
             let container = document.getElementById('sv-circos-mini-viz');
-            container.innerHTML = '';
+            d3.select(container).selectAll('*').remove();
 
             let options = {
                 centromeres: this.centromeres,
                 bands: this.bands,
                 zoomZone: this.zoomZone,
+                zoomedCallback: this.emitZoomEvent,
             };
 
             this.svCircosMiniChart = new svCircosMini(container, this.chromosomes, options);
             container.appendChild(this.svCircosMiniChart);
             
             let miniCircos = document.getElementById('sv-circos-mini');
-            miniCircos.style.zIndex = 3;
+            miniCircos.style.zIndex = 2;
+        },
+        emitZoomEvent(zoomZone) {
+            this.$emit('selectAreaEvent', zoomZone);
         }
     },
     computed: {

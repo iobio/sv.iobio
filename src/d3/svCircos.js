@@ -482,6 +482,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
             let arcDrag = d3.drag()
                 .on('start', function (event, d) {
+                    d3.select('.arc-brush').remove();
                     //if we are directly over a chromosome-label then we dont want to drag we want to allow the event to go to the chromosome-label
                     //We need this because the brushable area is on top so it will take precedence
                     if (event.sourceEvent.target.classList.contains('chromosome-label')) {
@@ -504,7 +505,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     //selecte the brush group and append the arc brush
                     let brushGroup = d3.select('.brush-group');
 
-                    brushGroup.append('path')
+                    let brush = brushGroup.append('path')
                         .datum({startAngle: startAngle, endAngle: endAngle})
                         .attr('d', arcBrush)
                         .attr('transform', `translate(${width / 2}, ${height / 2})`)
@@ -514,6 +515,8 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                         .attr('stroke-width', 1)
                         .attr('class', 'arc-brush')
                         .raise();
+                    
+                    console.log(brush)
                 })
                 .on('drag', function (event, d) {
                     //grab the arc-brush and update the end angle based on the event
@@ -849,9 +852,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                     }
                 });
         }
+
         //append a new group for the brush to be added to
-        let brushGroup = svg.append('g')
-            .attr('class', 'brush-group');
+        svg.append('g')
+        .attr('class', 'brush-group');
     }
 
     function _renderProbTrack(range, data, options=null) {

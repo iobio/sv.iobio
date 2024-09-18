@@ -41,7 +41,7 @@ export default {
   data () {
     return {
         circosChart: null,
-        resizeObserver: null
+        resizeObserver: null,
     }
   },
   mounted () {
