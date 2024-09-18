@@ -515,8 +515,7 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
                         .attr('stroke-width', 1)
                         .attr('class', 'arc-brush')
                         .raise();
-                    
-                    console.log(brush)
+
                 })
                 .on('drag', function (event, d) {
                     //grab the arc-brush and update the end angle based on the event

@@ -9,6 +9,7 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
     //Zoom Variables
     let zoomedCallback = null;
     let zoomedSection = null;
+    let zoomZone = null;
 
     let { chromosomeAccumulatedMap, bpGenomeSize } = _genChromosomeAccumulatedMap(chromosomes);
     
@@ -39,7 +40,7 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
         }
 
         if (options.zoomZone) {
-            zoomZone
+            zoomZone = options.zoomZone;
         }
 
         zoomedSection = originZoom;
@@ -194,8 +195,8 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                         .attr('d', arcBrush)
                         .attr('transform', `translate(${width / 2}, ${height / 2})`)
                         .attr('fill', 'grey')
-                        .attr('fill-opacity', 0.7)
-                        .attr('stroke', 'white')
+                        .attr('fill-opacity', 0.4)
+                        .attr('stroke', 'red')
                         .attr('stroke-width', 1)
                         .attr('class', 'arc-brush-mini')
                         .raise();
@@ -209,12 +210,12 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
 
                     // Redefine the arc with the updated endAngle
                     arcBrush.attr('d', d3.arc()
-                        .innerRadius(maxRadius * 0.85)
-                        .outerRadius(maxRadius * 1.05)
+                        .innerRadius(maxRadius * 0.9)
+                        .outerRadius(maxRadius * 1)
                         .startAngle(arcBrush.datum().startAngle)
                         .endAngle(newAngle)
                         .padAngle(0)
-                        .cornerRadius(0));
+                        .cornerRadius(2));
                 })
                 .on('end', function (event, d) {
                     //get the start and end of the brush arc so that we can zoom in on that section
@@ -426,6 +427,126 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
         //append a new group for the brush to be added to
         svg.append('g')
             .attr('class', 'brush-group-mini');
+
+        //if there is a zoom zone then add an arc to show the zoom zone
+        if (zoomZone) {
+            let startAngle = angleScale(zoomZone.start);
+            let endAngle = angleScale(zoomZone.end);
+
+            let arc = d3.arc()
+                .innerRadius(maxRadius * 0.9)
+                .outerRadius(maxRadius * 1)
+                .startAngle(startAngle)
+                .endAngle(endAngle)
+                .padAngle(0)
+                .cornerRadius(2);
+
+            svg.select('.brush-group-mini').append('path')
+                .datum({startAngle: startAngle, endAngle: endAngle})
+                .attr('d', arc)
+                .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                .attr('fill', 'grey')
+                .attr('fill-opacity', 0.4)
+                .attr('stroke', 'red')
+                .attr('stroke-width', 1)
+                .attr('class', 'arc-brush-mini')
+                .raise();
+        } else {
+            //put one with the origin zoom
+            let startAngle = angleScale(originZoom.start);
+            let endAngle = angleScale(originZoom.end);
+
+            let arc = d3.arc()
+                .innerRadius(maxRadius * 0.9)
+                .outerRadius(maxRadius * 1)
+                .startAngle(startAngle)
+                .endAngle(endAngle)
+                .padAngle(0)
+                .cornerRadius(2);
+
+            svg.select('.brush-group-mini').append('path')
+                .datum({startAngle: startAngle, endAngle: endAngle})
+                .attr('d', arc)
+                .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                .attr('fill', 'grey')
+                .attr('fill-opacity', 0.4)
+                .attr('stroke', 'red')
+                .attr('stroke-width', 1)
+                .attr('class', 'arc-brush-mini')
+                .raise();
+        }
     }
-    return svg.node();
+
+    function updateZoomZone(zoomZone) {
+        //if there is no zoomZone start or end set them to the start and end of the genome
+        if (!zoomZone) {
+            zoomZone = {};
+        }
+
+        if (!zoomZone.start) {
+            zoomZone.start = originZoom.start;
+        }
+
+        if (!zoomZone.end) {
+            zoomZone.end = originZoom.end;
+        }
+
+        // Create the arc generator outside the functions
+        const arcGenerator = d3.arc()
+            .innerRadius(maxRadius * 0.9)
+            .outerRadius(maxRadius * 1)
+            .padAngle(0)
+            .cornerRadius(2);
+
+        // Select the existing arc-brush-mini
+        let arcBrush = d3.select('.arc-brush-mini');
+        if (!arcBrush.empty()) {
+            let d = arcBrush.datum();
+            let newStartAngle = angleScale(zoomZone.start);
+            let newEndAngle = angleScale(zoomZone.end);
+
+            arcBrush.datum({ ...d, newStartAngle, newEndAngle })
+                .transition()
+                .duration(500)
+                .attrTween('d', function(d) {
+                    let interpolateStart = d3.interpolate(d.startAngle, d.newStartAngle);
+                    let interpolateEnd = d3.interpolate(d.endAngle, d.newEndAngle);
+                    return function(t) {
+                        let currentStartAngle = interpolateStart(t);
+                        let currentEndAngle = interpolateEnd(t);
+                        return arcGenerator({
+                            startAngle: currentStartAngle,
+                            endAngle: currentEndAngle
+                        });
+                    };
+                })
+                .on('end', function() {
+                    // Update the datum with the new angles after the transition
+                    arcBrush.datum({
+                        startAngle: newStartAngle,
+                        endAngle: newEndAngle
+                    });
+                });
+        } else {
+            // Create a new arc-brush-mini
+            let startAngle = angleScale(zoomZone.start);
+            let endAngle = angleScale(zoomZone.end);
+
+            let arcData = { startAngle, endAngle };
+
+            d3.select('.brush-group-mini').append('path')
+                .datum(arcData)
+                .attr('d', arcGenerator)
+                .attr('transform', `translate(${width / 2}, ${height / 2})`)
+                .attr('fill', 'grey')
+                .attr('fill-opacity', 0.4)
+                .attr('stroke', 'red')
+                .attr('stroke-width', 1)
+                .attr('class', 'arc-brush-mini')
+                .raise();
+        }
+    }
+
+    return {svg: svg.node(), updateZoomZone: updateZoomZone};
 }
+

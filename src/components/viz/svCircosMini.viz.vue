@@ -23,6 +23,7 @@
         return {
             svCircosMiniChart: null,
             resizeObserver: null,
+            updateZoomZone: null,
         }
     },
     mounted () {
@@ -58,7 +59,10 @@
                 zoomedCallback: this.emitZoomEvent,
             };
 
-            this.svCircosMiniChart = new svCircosMini(container, this.chromosomes, options);
+            let { svg, updateZoomZone } = svCircosMini(container, this.chromosomes, options);
+            this.svCircosMiniChart = svg;
+            this.updateZoomZone = updateZoomZone;
+
             container.appendChild(this.svCircosMiniChart);
             
             let miniCircos = document.getElementById('sv-circos-mini');
@@ -75,9 +79,14 @@
     },
     watch: {
         hasAllOptions: function(newVal, oldVal) {
-        if (newVal) {
-            this.drawMiniCircos();
-        }
+            if (newVal) {
+                this.drawMiniCircos();
+            }
+        },
+        zoomZone: function(newVal, oldVal) {
+            if (this.svCircosMiniChart) {
+                this.updateZoomZone(newVal);
+            }
         }
     },
     }
