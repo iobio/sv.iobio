@@ -246,6 +246,9 @@ export default {
         box-sizing: border-box
         z-index: 4
         overflow-y: auto
+        h1
+            color: #2A65B7
+            font-weight: normal
         &.hidden
             height: 0px
             width: 0px
