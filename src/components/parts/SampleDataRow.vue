@@ -6,15 +6,32 @@
             <img v-else src="/arrow-up-circle.svg" alt="close">
         </button>
         <div class="sample-row-info-form" v-if="!collapse">
+            <div class="label-input-wrapper link">
+                <label for="file-format">File Format:</label>
+                <select name="file-format" id="format" v-model="fileFormat">
+                    <option value="single">single sample</option>
+                    <option value="joint">joint call</option>
+                </select>
+                
+                <label for="vcf">VCF:</label>
+                <input type="text" class="vcf-link" v-model="sample.vcf" placeholder="Paste a link or select a local file..."/>
+                <button @click="openFileSelect($event)">Choose Local</button>
+                <button v-if="fileFormat == 'joint'">Fetch Samples</button>
+
+                <select v-if="sampleOptions" name="samples" id="">
+                    <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
+                </select>
+            </div>
+
             <div class="label-input-wrapper">
                 <label for="sample-id">Sample Name:</label>
                 <input type="text" id="sample-id" v-model="sample.name"/>
+
+                <div v-if="sampleOptions">
+                    <button>create</button>
+                </div>
             </div>
-            <div class="label-input-wrapper link">
-                <label for="vcf">VCF:</label>
-                <input type="text" id="vcf" v-model="sample.vcf" placeholder="Paste a link or select a local file..."/>
-                <button @click="openFileSelect($event)">Choose Local</button>
-            </div>
+
             <!-- <div class="label-input-wrapper link">
                 <label for="bam">BAM (opt.): </label>
                 <input type="text" id="bam" v-model="sample.bam" placeholder="Paste a link or select a local file..."/>
@@ -47,6 +64,8 @@ export default {
     data () {
         return {
             collapse: false,
+            fileFormat: 'single',
+            sampleOptions: null,
         }
     },
     mounted () {
@@ -146,16 +165,33 @@ export default {
                 align-items: center
                 margin: 5px 0px
                 label
-                    width: 20%
-                    min-width: 100px
+                    width: fit-content
                     text-align: right
                     margin-right: 10px
+                    margin-left: 10px
                 input
                     padding: 5px
                     border: 1px solid #2A65B7
                     border-radius: 5px
                     box-sizing: border-box
                     flex-grow: 1
+                    //standard-modern
+                    &::placeholder
+                        font-style: italic
+                    // firefox
+                    &:-moz-placeholder
+                        font-style: italic
+                    // safari
+                    &::-webkit-input-placeholder
+                        font-style: italic
+                    // edge
+                    &:-ms-input-placeholder
+                        font-style: italic
+                select
+                    padding: 5px
+                    border: 1px solid #2A65B7
+                    border-radius: 5px
+                    box-sizing: border-box
                     //standard-modern
                     &::placeholder
                         font-style: italic
