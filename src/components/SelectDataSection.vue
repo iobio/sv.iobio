@@ -1,12 +1,6 @@
 <template>
     <div class="select-data-section" :class="{hidden: !show}">
-        <fieldset>
-            <legend>VCF Input Format</legend>
-            <input type="radio" id="joint" name="vcfs-format" value="joint" v-model="samplesFormat">
-            <label for="multiple">Joint-Called VCF</label>
-            <input type="radio" id="individual" name="vcfs-format" value="individual" v-model="samplesFormat">
-            <label for="individual">Seperate VCFs</label>
-        </fieldset>
+        <h1>FILES</h1>
 
         <div id="individual-samples-container" v-if="samplesFormat == 'individual'">
             <SampleDataRow 
@@ -26,60 +20,7 @@
                 @update-sample="(sample) => updateSample(index, sample)"
                 @update-sample-files="addFileToWaygate"/>            
         </div>
-
-        <div id="joint-samples-container" v-if="samplesFormat == 'joint'">
-            <div class="label-input-wrapper">
-                <label for="vcf">VCF:</label>
-                <input type="text" id="vcf" placeholder="Paste a link or select a local file..." v-model="jointVcfUrl"/>
-                <button @click="openFileSelect">Choose Local</button>
-                <button @click="getSampleNames" id="fetch-samples-btn">Fetch Samples</button>
-            </div>
-
-            <div id="samples-section" v-if="jointVcfHeaders.length > 0">
-                <fieldset>
-                    <legend>Proband Sample</legend>
-                    <div class="label-input-wrapper">
-                        <label for="proband">Proband Sample Id</label>
-                        <select id="proband" v-model="samplesLocal.proband.id">
-                            <option v-for="header in jointVcfHeaders" :key="header">{{header}}</option>
-                        </select>
-                    </div>
-                    <div class="label-input-wrapper">
-                        <label for="proband-name">Sample Name</label>
-                        <input type="text" id="proband-name" v-model="samplesLocal.proband.name"/>
-                    </div>
-                </fieldset>
-
-                <div class="label-input-wrapper" v-if="jointVcfHeaders.filter(id => id !== samplesLocal.proband.id).length > 0">
-                    <label for="comparison-samples">Select Comparison Samples</label>
-                    <select name="comparison-samples" id="comparisons" multiple v-model="selectedComparisonSamples">
-                        <option v-for="header in jointVcfHeaders.filter(id => id !== samplesLocal.proband.id)" :key="header">{{header}}</option>
-                    </select>
-                </div>
-                <div v-else><strong>Only one sample detected in:</strong> {{ jointVcfUrl }}</div>
-
-                <div class="sample-fieldset-wrapper" v-for="(sample, index) in selectedComparisonSamples" :key="index">
-                    <fieldset>
-                        <legend>ID: {{sample}}</legend>
-                        <div class="label-input-wrapper">
-                            <label for="comparison-name">Sample Name</label>
-                            <input type="text" id="comparison-name" v-model="samplesLocal.comparisons[index].name"/>
-                        </div>
-                    </fieldset>
-                </div>
-
-                <SampleDataRow 
-                    v-for="(sample, index) in samplesLocal.comparisons.filter(sample => !jointVcfHeaders.includes(sample.id))" 
-                    :key="index" 
-                    :sample="sample"
-                    @close-row="removeRow(index)"
-                    @open-waygate="startWaygate"
-                    @update-sample-files="addFileToWaygate"/>
-            </div>
-        </div>
-
         <button class="add-btn" @click="addNewSample" v-if="samplesFormat == 'individual'">+</button>
-        <button class="add-additional-btn" @click="addNewSample" v-if="samplesFormat == 'joint' && (jointVcfHeaders && samplesLocal.proband.id)">Add Additional VCF</button>
         <button class="go-btn" @click="sendSamples" v-if="samplesFormat == 'individual' || (jointVcfHeaders && samplesLocal.proband.id)">GO</button>
     </div>
 </template>
