@@ -23,12 +23,17 @@
                 <label for="sample-id">Sample Name:</label>
                 <input type="text" id="sample-id" v-model="sampleLocal.name"/>
 
-                <div v-if="sampleOptions && fileFormat == 'joint'">
+                <div class="row" v-if="sampleOptions && fileFormat == 'joint'">
                     <label for="sample-id">Sample Id:</label>
                     <select name="sample-id" id="sample-id" v-model="sampleLocal.id">
                         <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
                     </select>
-                    <button>Create All Samples</button>
+                    <button>Add Other Samples
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <title>add remaining samples</title>
+                            <path d="M19 17V19H7V17S7 13 13 13 19 17 19 17M16 8A3 3 0 1 0 13 11A3 3 0 0 0 16 8M19.2 13.06A5.6 5.6 0 0 1 21 17V19H24V17S24 13.55 19.2 13.06M18 5A2.91 2.91 0 0 0 17.11 5.14A5 5 0 0 1 17.11 10.86A2.91 2.91 0 0 0 18 11A3 3 0 0 0 18 5M8 10H5V7H3V10H0V12H3V15H5V12H8Z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -238,12 +243,20 @@ export default {
                     background-color: #2A65B7
                     color: white
                     border: none
+                    display: flex
+                    justify-content: center
+                    align-items: center
                     border-radius: 5px
                     padding: 5px 10px
                     cursor: pointer
                     margin-left: 10px
                     &:hover
                         background-color: #1A4B97
+                    svg
+                        height: 20px
+                        width: 20px
+                        margin-left: 5px
+                        fill: white
         .collapsed-alt-text
             width: 100%
             text-align: center
@@ -269,4 +282,17 @@ export default {
                 &:hover
                     background-color: #F0F0F0
                     box-shadow: 0px 0px 5px 0px #2A65B7
+
+        .row
+            display: flex
+            justify-content: flex-start
+            align-items: center
+            .label-input-wrapper
+                margin: 0px
+                label
+                    margin: 0px
+                select
+                    margin: 0px
+                button
+                    margin: 0px
 </style>
