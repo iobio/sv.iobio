@@ -14,21 +14,21 @@
                 </select>
                 
                 <label for="vcf">VCF:</label>
-                <input type="text" class="vcf-link" v-model="sample.vcf" placeholder="Paste a link or select a local file..."/>
+                <input type="text" class="vcf" v-model="sampleLocal.vcf" placeholder="Paste a link or select a local file..."/>
                 <button @click="openFileSelect($event)">Choose Local</button>
-                <button v-if="fileFormat == 'joint'">Fetch Samples</button>
-
-                <select v-if="sampleOptions" name="samples" id="">
-                    <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
-                </select>
+                <button v-if="fileFormat == 'joint'" @click="getSampleNames">Fetch Samples</button>
             </div>
 
             <div class="label-input-wrapper">
                 <label for="sample-id">Sample Name:</label>
-                <input type="text" id="sample-id" v-model="sample.name"/>
+                <input type="text" id="sample-id" v-model="sampleLocal.name"/>
 
                 <div v-if="sampleOptions">
-                    <button>create</button>
+                    <label for="sample-id">Sample Id:</label>
+                    <select name="sample-id" id="sample-id" v-model="sampleLocal.id">
+                        <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
+                    </select>
+                    <button></button>
                 </div>
             </div>
 
@@ -43,11 +43,12 @@
                 <button @click="openFileSelect($event)">Choose Local</button>
             </div> -->
         </div>
-        <div class="collapsed-alt-text" v-else>{{ sample.name }}</div>
+        <div class="collapsed-alt-text" v-else>{{ sampleLocal.name }}</div>
     </div>
 </template>
 
 <script>
+    import * as dataHelper from '../../dataHelpers/dataHelpers.js'
 
 export default {
     name: 'SampleDataRow',
@@ -66,6 +67,7 @@ export default {
             collapse: false,
             fileFormat: 'single',
             sampleOptions: null,
+            sampleLocal: JSON.parse(JSON.stringify(this.sample))
         }
     },
     mounted () {
@@ -96,16 +98,42 @@ export default {
                 fileInput.click();
             });
 
-            //get the file type from the input field's id
-            let fileType = event.target.previousElementSibling.id;
+            //get the file type from the input field's class
+            let fileType = event.target.previousElementSibling.classList[0]
             //give the files to the parent
-            this.$emit('update-sample-files', files, this.sample.name, fileType)
+            this.$emit('update-sample-files', files, this.sampleLocal.name, fileType)
+        },
+        async getSampleNames() {
+            let headers = [];
+            try {
+                headers = await dataHelper.getVCFSamplesFromURL(this.sampleLocal.vcf)
+                this.sampleOptions = headers;
+            } catch (error) {
+                this.$emit('emit-toast', {
+                    message: 'Error fetching sample names',
+                    type: 'error'
+                })
+            }
         }
     },
     watch: {
         sample: {
-            handler: function (val) {
-                this.$emit('update-sample', val)
+            handler: function (val, oldVal) {
+                let copy = JSON.parse(JSON.stringify(val))
+                let localCopy = JSON.parse(JSON.stringify(this.sampleLocal))
+
+                if (JSON.stringify(copy) !== JSON.stringify(localCopy)) {
+                    this.sampleLocal = copy
+                }
+            },
+            deep: true
+        },
+        sampleLocal: {
+            handler: function (val, oldVal) {
+                if (val !== oldVal) {
+                    console.log('emitting update-sample')
+                    this.$emit('update-sample', val)
+                }
             },
             deep: true
         }

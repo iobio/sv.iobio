@@ -14,6 +14,7 @@
                 :sample="samplesLocal.proband" 
                 :isProband="true"
                 @open-waygate="startWaygate"
+                @update-sample="(sample) => updateSample('proband', sample)"
                 @update-sample-files="addFileToWaygate"/>
 
             <SampleDataRow 
@@ -22,6 +23,7 @@
                 :sample="sample"
                 @close-row="removeRow(index)"
                 @open-waygate="startWaygate"
+                @update-sample="(sample) => updateSample(index, sample)"
                 @update-sample-files="addFileToWaygate"/>            
         </div>
 
@@ -114,6 +116,13 @@ export default {
         this.samplesLocal = JSON.parse(JSON.stringify(this.samples))
     },
     methods: {
+        updateSample(loc, sample) {
+            if (loc === 'proband') {
+                this.samplesLocal.proband = sample
+            } else {
+                this.samplesLocal.comparisons[loc] = sample
+            }
+        },
         addNewSample() {
             this.samplesLocal.comparisons.push({
                 name: '',
