@@ -66,8 +66,8 @@ export default {
         },
         addNewSample() {
             this.samplesLocal.comparisons.push({
-                name: '',
-                id: '',
+                name: 'New Sample',
+                id: null,
                 vcf: '',
                 tbi: '',
                 bam: '',
@@ -76,11 +76,7 @@ export default {
             })
         },
         sendSamples () {
-            if (this.samplesFormat === 'individual') {
-                this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)), false)
-            } else {
-                this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)), true)
-            }
+            this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)))
             this.$emit('toggle-show')
         },
         removeRow (index) {
@@ -248,7 +244,7 @@ export default {
         transition: height 0.5s ease-in-out, width 0.5s ease-in-out
         box-shadow: 0px 0px 5px 0px #2A65B7
         box-sizing: border-box
-        z-index: 3
+        z-index: 4
         overflow-y: auto
         &.hidden
             height: 0px

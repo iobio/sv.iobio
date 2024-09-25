@@ -10,7 +10,7 @@
                 <label for="file-format">File Format:</label>
                 <select name="file-format" id="format" v-model="fileFormat">
                     <option value="single">single sample</option>
-                    <option value="joint">joint call</option>
+                    <option value="joint">joint called</option>
                 </select>
                 
                 <label for="vcf">VCF:</label>
@@ -23,12 +23,12 @@
                 <label for="sample-id">Sample Name:</label>
                 <input type="text" id="sample-id" v-model="sampleLocal.name"/>
 
-                <div v-if="sampleOptions">
+                <div v-if="sampleOptions && fileFormat == 'joint'">
                     <label for="sample-id">Sample Id:</label>
                     <select name="sample-id" id="sample-id" v-model="sampleLocal.id">
                         <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
                     </select>
-                    <button></button>
+                    <button>Create All Samples</button>
                 </div>
             </div>
 
@@ -65,7 +65,7 @@ export default {
     data () {
         return {
             collapse: false,
-            fileFormat: 'single',
+            fileFormat: 'joint',
             sampleOptions: null,
             sampleLocal: JSON.parse(JSON.stringify(this.sample))
         }
@@ -131,7 +131,6 @@ export default {
         sampleLocal: {
             handler: function (val, oldVal) {
                 if (val !== oldVal) {
-                    console.log('emitting update-sample')
                     this.$emit('update-sample', val)
                 }
             },
@@ -150,13 +149,14 @@ export default {
         position: relative
         display: flex
         border-radius: 5px
-        margin: 5px 0px
+        margin: 10px 0px
         justify-content: space-between
         align-items: center
-        padding: 5px 10px
+        padding: 10px 10px
         box-sizing: border-box
         border: 1px solid #2A65B7
         transition: height 0.5s ease-in-out
+        background-color: white
         &.collapse
             height: 50px
         .collapse-row-btn
@@ -199,10 +199,11 @@ export default {
                     margin-left: 10px
                 input
                     padding: 5px
-                    border: 1px solid #2A65B7
+                    border: none
                     border-radius: 5px
                     box-sizing: border-box
                     flex-grow: 1
+                    background-color: #F2F5FD
                     //standard-modern
                     &::placeholder
                         font-style: italic
@@ -217,9 +218,10 @@ export default {
                         font-style: italic
                 select
                     padding: 5px
-                    border: 1px solid #2A65B7
+                    border: none
                     border-radius: 5px
                     box-sizing: border-box
+                    background-color: #F2F5FD
                     //standard-modern
                     &::placeholder
                         font-style: italic

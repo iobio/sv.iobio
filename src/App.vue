@@ -96,7 +96,6 @@
         :genesOfInterest="genesOfInterest"
         :phenRelatedGenes="overlappedPhenGenes"
         :batchNum="batchNum"
-        :multiSampleVcf="multiSampleVcf"
         :focusedGeneName="focusedGeneName"
         :genomeEnd="genomeEnd"
         :genomeStart="genomeStart"
@@ -164,6 +163,7 @@
         samples: {
           proband: {
             name: 'Proband',
+            id: null,
             vcf: '',
             tbi: '',
             bam: '',
@@ -173,7 +173,6 @@
           comparisons: []
         },
         toasts: [],
-        multiSampleVcf: false,
         variantsSorted: false,
         qualityStats: {},
         variantsFilteredOut: [],
@@ -236,7 +235,7 @@
         let newGenes = this.genesOfInterest.filter(g => g !== gene);
         this.updateGenesOfInterest(newGenes);
       },
-      async loadData(isMultiple=false) {
+      async loadData() {
         if (this.samples.proband.vcf == '') {
           //open the select data section too
           this.selectDataSectionOpen = true;
@@ -250,7 +249,7 @@
         let svList; 
         
         try {
-          if (!isMultiple) {
+          if (!this.samples.proband.id || this.samples.proband.id == '') {
             svList = await dataHelper.getSVsFromVCF(url);
           } else {
             svList = await dataHelper.getSVsFromVCF(url, this.samples.proband.id)
@@ -395,8 +394,7 @@
          */
         return Object.values(overlappedGenes).some(gene => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0);
       },
-      async updateSamples(samples, isMultiple=false) {
-        this.multiSampleVcf = isMultiple;
+      async updateSamples(samples) {
         //if samples @ 0 is the same as the old samples @ 0 then we dont need to load data again but 
         //if the vcf is different we do
         if (samples.proband.vcf == this.samples.proband.vcf) {
@@ -405,11 +403,11 @@
           return;
         } else {
           this.samples.proband = samples.proband;
-          this.loadData(this.multiSampleVcf);
+          this.loadData();
         }
         this.samples.comparisons = samples.comparisons;
         
-        if (!isMultiple) {
+        if (!samples.proband.id || samples.proband.id == '') {
           this.qualityStats.proband = await dataHelper.getQualityFromVCF(samples.proband.vcf);
         } else {
           this.qualityStats.proband = await dataHelper.getQualityFromVCF(samples.proband.vcf, samples.proband.id);
@@ -671,7 +669,7 @@
       samples: {
         handler(newVal, oldVal) {
           if (newVal.proband.vcf !== oldVal.proband.vcf) {
-            this.loadData(this.multiSampleVcf);
+            this.loadData();
           }
         },
         deep: true
