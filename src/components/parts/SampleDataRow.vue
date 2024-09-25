@@ -7,16 +7,16 @@
         </button>
         <div class="sample-row-info-form" v-if="!collapse">
             <div class="label-input-wrapper link">
-                <label for="file-format">File Format:</label>
-                <select name="file-format" id="format" v-model="fileFormat">
-                    <option value="single">single sample</option>
-                    <option value="joint">joint called</option>
+                <label for="file-format">Format:</label>
+                <select class="type" name="file-format" id="format" v-model="fileFormat">
+                    <option value="single">Single Sample</option>
+                    <option value="joint">Joint Called</option>
                 </select>
                 
                 <label for="vcf">VCF:</label>
                 <input type="text" class="vcf" v-model="sampleLocal.vcf" placeholder="Paste a link or select a local file..."/>
-                <button @click="openFileSelect($event)">Choose Local</button>
-                <button v-if="fileFormat == 'joint'" @click="getSampleNames">Fetch Samples</button>
+                <button @click="openFileSelect($event)">Select Local</button>
+                <button v-if="fileFormat == 'joint'" @click="getSampleNames">Get Samples</button>
             </div>
 
             <div class="label-input-wrapper">
@@ -28,7 +28,7 @@
                     <select name="sample-id" id="sample-id" v-model="sampleLocal.id">
                         <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
                     </select>
-                    <button>Add Other Samples
+                    <button class="special-btn">Add Other Samples
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>add remaining samples</title>
                             <path d="M19 17V19H7V17S7 13 13 13 19 17 19 17M16 8A3 3 0 1 0 13 11A3 3 0 0 0 16 8M19.2 13.06A5.6 5.6 0 0 1 21 17V19H24V17S24 13.55 19.2 13.06M18 5A2.91 2.91 0 0 0 17.11 5.14A5 5 0 0 1 17.11 10.86A2.91 2.91 0 0 0 18 11A3 3 0 0 0 18 5M8 10H5V7H3V10H0V12H3V15H5V12H8Z" />
@@ -205,10 +205,11 @@ export default {
                 input
                     padding: 5px
                     border: none
-                    border-radius: 5px
+                    border-radius: 5px 5px 0px 0px
+                    border-bottom: 1px solid transparent
                     box-sizing: border-box
                     flex-grow: 1
-                    background-color: #F2F5FD
+                    background-color: #F8F8F8
                     //standard-modern
                     &::placeholder
                         font-style: italic
@@ -221,12 +222,15 @@ export default {
                     // edge
                     &:-ms-input-placeholder
                         font-style: italic
+                    &:focus
+                        outline: none
+                        border-bottom: 1px solid #1A4B97
                 select
                     padding: 5px
                     border: none
                     border-radius: 5px
                     box-sizing: border-box
-                    background-color: #F2F5FD
+                    background-color: #EBEBEB
                     //standard-modern
                     &::placeholder
                         font-style: italic
@@ -239,9 +243,12 @@ export default {
                     // edge
                     &:-ms-input-placeholder
                         font-style: italic
+                    &.type
+                        font-weight: bold
+                        text-align: center
                 button
-                    background-color: #2A65B7
-                    color: white
+                    background-color: #EBEBEB
+                    color: #474747
                     border: none
                     display: flex
                     justify-content: center
@@ -250,13 +257,24 @@ export default {
                     padding: 5px 10px
                     cursor: pointer
                     margin-left: 10px
+                    text-transform: uppercase
                     &:hover
-                        background-color: #1A4B97
+                        background-color: #D9D9D9
                     svg
                         height: 20px
                         width: 20px
                         margin-left: 5px
                         fill: white
+                .special-btn
+                    background-color: #8BB0E5
+                    color: black
+                    border: 1px solid #2A65B7
+                    text-transform: none
+                    font-weight: 600
+                    svg
+                        fill: black
+                    &:hover
+                        background-color: #6B90D5
         .collapsed-alt-text
             width: 100%
             text-align: center
