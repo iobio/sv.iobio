@@ -14,18 +14,18 @@
                 </select>
                 
                 <label for="vcf">VCF:</label>
-                <input type="text" class="vcf" v-model="sampleLocal.vcf" placeholder="Paste a link or select a local file..."/>
+                <input type="text" class="vcf" @input="this.$emit('update-sample', this.sampleLocal)" v-model="sampleLocal.vcf" placeholder="Paste a link or select a local file..."/>
                 <button @click="openFileSelect($event)">Select Local</button>
                 <button v-if="fileFormat == 'joint'" @click="getSampleNames">Get Samples</button>
             </div>
 
             <div class="label-input-wrapper">
                 <label for="sample-id">Sample Name:</label>
-                <input type="text" id="sample-id" v-model="sampleLocal.name"/>
+                <input type="text" id="sample-id" v-model="sampleLocal.name" @input="this.$emit('update-sample', this.sampleLocal)"/>
 
                 <div class="row" v-if="(sampleOptions && fileFormat == 'joint') || sampleLocal.id">
                     <label for="sample-id">Sample Id:</label>
-                    <select name="sample-id" id="sample-id" v-model="sampleLocal.id">
+                    <select name="sample-id" id="sample-id" @change="this.$emit('update-sample', this.sampleLocal)" v-model="sampleLocal.id">
                         <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
                         <option v-if="!sampleOptions" :value="sampleLocal.id">{{ sampleLocal.id }}</option>
                     </select>
@@ -153,13 +153,12 @@ export default {
             },
             deep: true
         },
-        sampleLocal: {
+        sampleOptions: {
             handler: function (val, oldVal) {
-                if (val !== oldVal) {
-                    this.$emit('update-sample', val)
+                if (!oldVal || oldVal.length === 0) {
+                    this.sampleLocal.id = val[0]
                 }
-            },
-            deep: true
+            }
         }
     },
     computed: {
