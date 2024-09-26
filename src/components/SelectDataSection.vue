@@ -9,6 +9,7 @@
                 :isProband="true"
                 @open-waygate="startWaygate"
                 @update-sample="(sample) => updateSample('proband', sample)"
+                @add-other-samples="addMultipleSamples"
                 @update-sample-files="addFileToWaygate"/>
 
             <SampleDataRow 
@@ -18,6 +19,7 @@
                 @close-row="removeRow(index)"
                 @open-waygate="startWaygate"
                 @update-sample="(sample) => updateSample(index, sample)"
+                @add-other-samples="addMultipleSamples"
                 @update-sample-files="addFileToWaygate"/>            
         </div>
         <button class="add-btn" @click="addNewSample" v-if="samplesFormat == 'individual'">+</button>
@@ -74,6 +76,20 @@ export default {
                 bai: '',
                 svList: [],
             })
+        },
+        addMultipleSamples(samples) {
+            for (let sample of samples) {
+                this.samplesLocal.comparisons.push({
+                    name: 'New Sample',
+                    id: sample.id,
+                    vcf: sample.vcf,
+                    tbi: '',
+                    bam: '',
+                    bai: '',
+                    svList: [],
+                })
+
+            }
         },
         sendSamples () {
             this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)))
