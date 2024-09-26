@@ -139,7 +139,7 @@
       width: 100%
       background-color: #0D60C3
       color: white
-      z-index: 4
+      z-index: 5
       .column-container
         display: flex
         flex-direction: column

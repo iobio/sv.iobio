@@ -153,7 +153,6 @@
     focusedGeneName: String,
     batchNum: Number,
     samples: Object,
-    multiSampleVcf: Boolean,
     genomeStart: Number,
     genomeEnd: Number
   },
@@ -259,7 +258,7 @@
           let data;
           let svData;
           
-          if (!this.multiSampleVcf && !sample.id) {
+          if (!sample.id || sample.id === '') {
             data = await dataHelper.getSVsFromVCF(sample.vcf);
             svData = data.map(item => new Sv(item));
           } else {

@@ -1,12 +1,6 @@
 <template>
     <div class="select-data-section" :class="{hidden: !show}">
-        <fieldset>
-            <legend>VCF Input Format</legend>
-            <input type="radio" id="joint" name="vcfs-format" value="joint" v-model="samplesFormat">
-            <label for="multiple">Joint-Called VCF</label>
-            <input type="radio" id="individual" name="vcfs-format" value="individual" v-model="samplesFormat">
-            <label for="individual">Seperate VCFs</label>
-        </fieldset>
+        <h1>FILES</h1>
 
         <div id="individual-samples-container" v-if="samplesFormat == 'individual'">
             <SampleDataRow 
@@ -14,6 +8,8 @@
                 :sample="samplesLocal.proband" 
                 :isProband="true"
                 @open-waygate="startWaygate"
+                @update-sample="(sample) => updateSample('proband', sample)"
+                @add-other-samples="addMultipleSamples"
                 @update-sample-files="addFileToWaygate"/>
 
             <SampleDataRow 
@@ -22,62 +18,11 @@
                 :sample="sample"
                 @close-row="removeRow(index)"
                 @open-waygate="startWaygate"
+                @update-sample="(sample) => updateSample(index, sample)"
+                @add-other-samples="addMultipleSamples"
                 @update-sample-files="addFileToWaygate"/>            
         </div>
-
-        <div id="joint-samples-container" v-if="samplesFormat == 'joint'">
-            <div class="label-input-wrapper">
-                <label for="vcf">VCF:</label>
-                <input type="text" id="vcf" placeholder="Paste a link or select a local file..." v-model="jointVcfUrl"/>
-                <button @click="openFileSelect">Choose Local</button>
-                <button @click="getSampleNames" id="fetch-samples-btn">Fetch Samples</button>
-            </div>
-
-            <div id="samples-section" v-if="jointVcfHeaders.length > 0">
-                <fieldset>
-                    <legend>Proband Sample</legend>
-                    <div class="label-input-wrapper">
-                        <label for="proband">Proband Sample Id</label>
-                        <select id="proband" v-model="samplesLocal.proband.id">
-                            <option v-for="header in jointVcfHeaders" :key="header">{{header}}</option>
-                        </select>
-                    </div>
-                    <div class="label-input-wrapper">
-                        <label for="proband-name">Sample Name</label>
-                        <input type="text" id="proband-name" v-model="samplesLocal.proband.name"/>
-                    </div>
-                </fieldset>
-
-                <div class="label-input-wrapper" v-if="jointVcfHeaders.filter(id => id !== samplesLocal.proband.id).length > 0">
-                    <label for="comparison-samples">Select Comparison Samples</label>
-                    <select name="comparison-samples" id="comparisons" multiple v-model="selectedComparisonSamples">
-                        <option v-for="header in jointVcfHeaders.filter(id => id !== samplesLocal.proband.id)" :key="header">{{header}}</option>
-                    </select>
-                </div>
-                <div v-else><strong>Only one sample detected in:</strong> {{ jointVcfUrl }}</div>
-
-                <div class="sample-fieldset-wrapper" v-for="(sample, index) in selectedComparisonSamples" :key="index">
-                    <fieldset>
-                        <legend>ID: {{sample}}</legend>
-                        <div class="label-input-wrapper">
-                            <label for="comparison-name">Sample Name</label>
-                            <input type="text" id="comparison-name" v-model="samplesLocal.comparisons[index].name"/>
-                        </div>
-                    </fieldset>
-                </div>
-
-                <SampleDataRow 
-                    v-for="(sample, index) in samplesLocal.comparisons.filter(sample => !jointVcfHeaders.includes(sample.id))" 
-                    :key="index" 
-                    :sample="sample"
-                    @close-row="removeRow(index)"
-                    @open-waygate="startWaygate"
-                    @update-sample-files="addFileToWaygate"/>
-            </div>
-        </div>
-
         <button class="add-btn" @click="addNewSample" v-if="samplesFormat == 'individual'">+</button>
-        <button class="add-additional-btn" @click="addNewSample" v-if="samplesFormat == 'joint' && (jointVcfHeaders && samplesLocal.proband.id)">Add Additional VCF</button>
         <button class="go-btn" @click="sendSamples" v-if="samplesFormat == 'individual' || (jointVcfHeaders && samplesLocal.proband.id)">GO</button>
     </div>
 </template>
@@ -114,10 +59,17 @@ export default {
         this.samplesLocal = JSON.parse(JSON.stringify(this.samples))
     },
     methods: {
+        updateSample(loc, sample) {
+            if (loc === 'proband') {
+                this.samplesLocal.proband = sample
+            } else {
+                this.samplesLocal.comparisons[loc] = sample
+            }
+        },
         addNewSample() {
             this.samplesLocal.comparisons.push({
-                name: '',
-                id: '',
+                name: 'New Sample',
+                id: null,
                 vcf: '',
                 tbi: '',
                 bam: '',
@@ -125,12 +77,22 @@ export default {
                 svList: [],
             })
         },
-        sendSamples () {
-            if (this.samplesFormat === 'individual') {
-                this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)), false)
-            } else {
-                this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)), true)
+        addMultipleSamples(samples) {
+            for (let sample of samples) {
+                this.samplesLocal.comparisons.push({
+                    name: 'New Sample',
+                    id: sample.id,
+                    vcf: sample.vcf,
+                    tbi: '',
+                    bam: '',
+                    bai: '',
+                    svList: [],
+                })
+
             }
+        },
+        sendSamples () {
+            this.$emit('update-samples', JSON.parse(JSON.stringify(this.samplesLocal)))
             this.$emit('toggle-show')
         },
         removeRow (index) {
@@ -298,8 +260,11 @@ export default {
         transition: height 0.5s ease-in-out, width 0.5s ease-in-out
         box-shadow: 0px 0px 5px 0px #2A65B7
         box-sizing: border-box
-        z-index: 3
+        z-index: 4
         overflow-y: auto
+        h1
+            color: #2A65B7
+            font-weight: normal
         &.hidden
             height: 0px
             width: 0px
