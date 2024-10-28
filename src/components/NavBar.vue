@@ -61,6 +61,7 @@
     loaded: Boolean,
     progressPercent: Number,
     goiFromParent: Array,
+    poiFromParent: Array,
   },
   data () {
     return {
@@ -123,6 +124,14 @@
 
       if (goiText !== localText) {
         this.genesOfInterestText = goiText;
+      }
+    },
+    poiFromParent() {
+      let poiText = this.poiFromParent.join('; ');
+      let localText = this.phenotypesOfInterestText;
+
+      if (poiText !== localText) {
+        this.phenotypesOfInterestText = poiText;
       }
     }
   },

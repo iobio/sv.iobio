@@ -7,6 +7,7 @@
         :loaded="loadedInitiallyComplete"
         :progressPercent="progressPercent"
         :goiFromParent="genesOfInterest"
+        :poiFromParent="phenotypesOfInterest"
         @toggleSelectDataSection="selectDataSectionOpen = !selectDataSectionOpen; filterDataSectionOpen = false"
         @toggleFilterDataSection="filterDataSectionOpen = !filterDataSectionOpen; selectDataSectionOpen = false" 
         @updateGenesOfInterest="updateGenesOfInterest"
@@ -119,6 +120,7 @@
   import SelectDataSection from './components/SelectDataSection.vue'
   import FilterDataSection from './components/FilterDataSection.vue'
   import ToastsSection from './components/ToastsSection.vue'
+  import MosaicSession from './models/MosaicSession.js';
 
   export default {
     name: 'app',
@@ -176,13 +178,60 @@
         variantsSorted: false,
         qualityStats: {},
         variantsFilteredOut: [],
+        //Mosaic Session Items
+        mosaicSession: null,
+        mosaicUrlParams: null,
+        mosaidProjectId: null,
+        mosaicSampleId: null,
+        validFromMosaic: true,
+        mosaidVcfUrl: null,
       }
     },
     async mounted() {
-      //open the select data section by default
-      this.selectDataSectionOpen = true;
+        //this.selectDataSectionOpen = true;
+        await this.initMosaicSession();
+    },
+    created() {
+        this.mosaicUrlParams = new URLSearchParams(window.location.search);
+        if (this.mosaicUrlParams.get('access_token')){
+            localStorage.setItem('mosaic-iobio-tkn', this.mosaicUrlParams.get('access_token'));
+        } else {
+            localStorage.setItem('mosaic-iobio-tkn', '');
+        }
     },
     methods: {
+      async initMosaicSession() {
+        if (localStorage.getItem('mosaic-iobio-tkn') && localStorage.getItem('mosaic-iobio-tkn').length > 0){
+          //Gets everything from the URL and assigns what is needed
+          this.mosaicProjectId = Number(this.mosaicUrlParams.get('project_id'));
+          this.mosaicSampleId = Number(this.mosaicUrlParams.get('sample_id'));
+          let tokenType = this.mosaicUrlParams.get('token_type');
+          let source = this.mosaicUrlParams.get('source');
+          source = decodeURIComponent(source);
+          let clientAppNumber = this.mosaicUrlParams.get('client_application_id');
+
+          //Create a new MosaicSession object
+          this.mosaicSession = new MosaicSession(clientAppNumber);
+          try {
+            await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType, this.mosaicSampleId);
+          } catch (error) {
+            console.error('Error initializing MosaicSession', error);
+            this.validFromMosaic = false;
+          }
+          //If we succeeded 
+          let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, this.mosaicSampleId);
+          this.phenotypesOfInterest = terms.map(term => term.hpo_id);
+
+          //Rework once we have a vcf url
+          if (!this.mosaicVcfUrl) {
+            this.selectDataSectionOpen = true;
+          }
+        } else {
+            //set not launched from mosaic or not valid
+            this.validFromMosaic = false;
+            this.selectDataSectionOpen = true;
+        }
+      },
       returnDenovo(svList, comps, chromMap) {
         let joinedCompList = [];
         let denovoList = [];
@@ -190,7 +239,7 @@
         for (let list of comps) {
           joinedCompList.push(...list)
         }
-        
+    
         for (let sv of svList) {
           let overlapSize = 0;
           let olprop = 0;
