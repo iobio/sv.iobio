@@ -205,22 +205,26 @@
         if (localStorage.getItem('mosaic-iobio-tkn') && localStorage.getItem('mosaic-iobio-tkn').length > 0){
           //Gets everything from the URL and assigns what is needed
           this.mosaicProjectId = Number(this.mosaicUrlParams.get('project_id'));
-        //   this.mosaicSampleId = Number(this.mosaicUrlParams.get('sample_id'));
           let tokenType = this.mosaicUrlParams.get('token_type');
+
           let source = this.mosaicUrlParams.get('source');
           source = decodeURIComponent(source);
+
           let clientAppNumber = this.mosaicUrlParams.get('client_application_id');
           this.mosaicExperimentId = this.mosaicUrlParams.get('experiment_id');
 
           //Create a new MosaicSession object
           this.mosaicSession = new MosaicSession(clientAppNumber);
+
           try {
             await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType);
           } catch (error) {
-            console.error('Error initializing MosaicSession', error);
             this.validFromMosaic = false;
+            this.selectDataSectionOpen = true;
+            this.toasts.push({message: `Error initializing Mosaic Session: ${error}`, type: 'error'})
           }
-          //If we succeeded 
+
+          //Go through the samples and get just names and ids
           let samples = await this.mosaicSession.promiseGetProjectSamples(this.mosaicProjectId);
           samples = samples.map(sample => {
             return {
@@ -229,8 +233,8 @@
             }
           })
           
+          //Find the proband from the relation attribute out of mosaic
           let probandId;
-          
           for (let sample of samples) {
             let attributes = await this.mosaicSession.promiseGetSampleAttributes(this.mosaicProjectId, sample.id);
             let relationships = attributes.find(attr => attr.name == 'Relation').values;
@@ -242,31 +246,36 @@
             }
           }
 
-          //We need this for the sample building as this is what is in the vcf
+          //Get the proband name to use for samples
           let probandName = samples.find(sample => sample.id == probandId).name;
-
+          
+          //Set the proband id and get the phenotypes from mosaic
           this.mosaicSampleId = probandId;
           let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, this.mosaicSampleId);
           this.phenotypesOfInterest = terms.map(term => term.hpo_id);
 
+          //Get the proband's vcf file using the mosaicSession and experimentId
           let experiment = await this.mosaicSession.promiseGetExperiment(this.mosaicProjectId, this.mosaicExperimentId);
           let vcfFiles = experiment.files.filter(file => file.type == 'vcf');
           let probandFile = vcfFiles.find(file => file.sample_id == this.mosaicSampleId);
           let fileId = probandFile.id;
 
+          //Get the signed url for the proband's vcf file that can be accessed via http
           this.mosaicVcfUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, fileId);
+
           if (this.mosaicVcfUrl) {
+            //If everything worked update the sample and open the select data section for the user to get the comparisons
             this.samples.proband.vcf = this.mosaicVcfUrl.url;
             this.samples.proband.id = probandName;
             this.validFromMosaic = true;
             this.selectDataSectionOpen = true;
           } else {
-            //set not launched from mosaic or not valid
+            //set not launched from mosaic not valid something went wrong
             this.validFromMosaic = false;
             this.selectDataSectionOpen = true;
           }
         } else {
-            //set not launched from mosaic or not valid
+            //set not launched from mosaic not valid something went wrong
             this.validFromMosaic = false;
             this.selectDataSectionOpen = true;
         }
@@ -485,7 +494,7 @@
       async updateSamples(samples) {
         this.samples.proband = samples.proband;
         this.loadData();
-        
+
         this.samples.comparisons = samples.comparisons;
         
         if (!samples.proband.id || samples.proband.id == '') {
