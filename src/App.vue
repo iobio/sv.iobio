@@ -483,15 +483,9 @@
         return Object.values(overlappedGenes).some(gene => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0);
       },
       async updateSamples(samples) {
-        //if samples @ 0 is the same as the old samples @ 0 then we dont need to load data again but 
-        //if the vcf is different we do
-        if (samples.proband.vcf == this.samples.proband.vcf) {
-          this.samples.proband = samples.proband;
-          this.loadData();
-        } else {
-          this.samples.proband = samples.proband;
-          this.loadData();
-        }
+        this.samples.proband = samples.proband;
+        this.loadData();
+        
         this.samples.comparisons = samples.comparisons;
         
         if (!samples.proband.id || samples.proband.id == '') {
