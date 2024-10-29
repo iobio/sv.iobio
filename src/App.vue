@@ -429,6 +429,8 @@
           this.progressPercent = Math.round((i + batchSize) / svListCopy.length * 100);
         }
         this.loadedInitiallyComplete = true;
+        //We just want to make sure we trigger this incase we got phenotypes while we were loading or before
+        await this.updatePhenotypesOfInterest(this.phenotypesOfInterest);
       },
       updateFocusedVariant(variant, flag) {
         if (this.focusedVariant === variant) {
