@@ -269,6 +269,7 @@
             this.samples.proband.id = probandName;
             this.validFromMosaic = true;
             this.selectDataSectionOpen = true;
+
           } else {
             //set not launched from mosaic not valid something went wrong
             this.validFromMosaic = false;
@@ -587,18 +588,7 @@
           }
         })
       },
-      async updatePhenotypesOfInterest(newPOI) {
-        /**
-         * Updates the phenotypes of interest
-         * 
-         * Phenotypes of interest are used to determine which SVs are displayed first so
-         * if this list changes we need to update the SVs.
-         */
-
-        if (newPOI.length == this.phenotypesOfInterest.length && newPOI.every((v, i) => v === this.phenotypesOfInterest[i])){
-          return;
-        }
-        
+      async updatePhenotypesOfInterest(newPOI) {    
         this.variantsSorted = false;
         this.phenotypesOfInterest = newPOI;
 
