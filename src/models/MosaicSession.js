@@ -6,6 +6,7 @@ export default class MosaicSession {
   
       this.user = null;
       this.experiment_id = null;
+      this.experiment = 'sv';
       this.project = null;
       this.geneSet = null;
   
@@ -137,7 +138,175 @@ export default class MosaicSession {
   
       return response.json();
     }
+
+    promiseGetProjectSamples(projectId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getProjectSamples(projectId)
+            .then(response => {
+                resolve(response);
+            })
+            .catch(error => {
+                const errorMsg = self.getErrorMessage(error);
+                console.error(`Error getting project samples from Mosaic with project_id ${projectId}`);
+                console.error(errorMsg);
+                reject(`Error getting project samples ${projectId}: ${errorMsg}`);
+            });
+        });
+    }
+
+    async getProjectSamples(projectId) {
+        let self = this;
+        const response = await fetch(`${self.api}/projects/${projectId}/samples`, {
+            method: 'GET',
+            headers: {
+                Authorization: self.authorizationString,
+                accept: 'application/json',
+            },
+        });
+        
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        return response.json();
+    }
+
+    promiseGetSampleAttributes(projectId, sampleId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getSampleAttributes(projectId, sampleId)
+            .then(response => {
+                resolve(response);
+            })
+            .catch(error => {
+                const errorMsg = self.getErrorMessage(error);
+                console.error(`Error getting sample attributes from Mosaic with sample_id ${sampleId}`);
+                console.error(errorMsg);
+                reject(`Error getting sample attributes ${sampleId}: ${errorMsg}`);
+            });
+        });
+    }
+
+    async getSampleAttributes(projectId, sampleId) {
+        let self = this;
+        const response = await fetch(`${self.api}/projects/${projectId}/samples/${sampleId}/attributes`, {
+            method: 'GET',
+            headers: {
+                Authorization: self.authorizationString,
+                accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        return response.json();
+    }
+
+    promiseGetFileForSvIobio(projectId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getFileForSvIobio(projectId)
+            .then(response => {
+                resolve(response);
+            })
+            .catch(error => {
+                const errorMsg = self.getErrorMessage(error);
+                console.error(`Error getting file for sv iobio from Mosaic with project_id ${projectId}`);
+                console.error(errorMsg);
+                reject(`Error getting file for sv iobio ${projectId}: ${errorMsg}`);
+            });
+        });
+
+    }
+
+    async getFileForSvIobio(projectId) {
+      let self = this;
+      //TODO: not sure if this will actually work I dont see this in the api docs
+      const response = await fetch(`${self.api}/projects/${projectId}/files?experiment%5B%5D=${self.experiment}`, {
+        method: 'GET',
+        headers: {
+          Authorization: self.authorizationString,
+          accept: 'application/json',
+        },
+      });
   
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+  
+      return response.json();
+    }
+
+    promiseGetSignedUrlForFile(projectId, fileId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getSignedUrlForFile(projectId, fileId)
+            .then(response => {
+                resolve(response);
+            })
+            .catch(error => {
+                const errorMsg = self.getErrorMessage(error);
+                console.error(`Error getting signed url for file from Mosaic with project_id ${projectId}`);
+                console.error(errorMsg);
+                reject(`Error getting signed url for file ${projectId}: ${errorMsg}`);
+            });
+        });
+
+    }
+
+    async getSignedUrlForFile(projectId, fileId) {
+      let self = this;
+      const response = await fetch(`${self.api}/projects/${projectId}/files/${fileId}/url`, {
+        method: 'GET',
+        headers: {
+          Authorization: self.authorizationString,
+          accept: 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+  
+      return response.json();
+    }
+
+    promiseGetExperiment(projectId, experimentId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getExperiment(projectId, experimentId)
+            .then(response => {
+                resolve(response);
+            })
+            .catch(error => {
+                const errorMsg = self.getErrorMessage(error);
+                console.error(`Error getting experiment from Mosaic with project_id ${projectId}`);
+                console.error(errorMsg);
+                reject(`Error getting experiment ${projectId}: ${errorMsg}`);
+            });
+        });
+    }
+
+    async getExperiment(projectId, experimentId) {
+      let self = this;
+      const response = await fetch(`${self.api}/projects/${projectId}/experiments/${experimentId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: self.authorizationString,
+          accept: 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+  
+      return response.json();
+    }
+
     getErrorMessage(error) {
       if (error.hasOwnProperty('message')) {
         return error.message;

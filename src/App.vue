@@ -183,6 +183,7 @@
         mosaicUrlParams: null,
         mosaidProjectId: null,
         mosaicSampleId: null,
+        mosaicExperimentId: null,
         validFromMosaic: true,
         mosaidVcfUrl: null,
       }
@@ -204,26 +205,64 @@
         if (localStorage.getItem('mosaic-iobio-tkn') && localStorage.getItem('mosaic-iobio-tkn').length > 0){
           //Gets everything from the URL and assigns what is needed
           this.mosaicProjectId = Number(this.mosaicUrlParams.get('project_id'));
-          this.mosaicSampleId = Number(this.mosaicUrlParams.get('sample_id'));
+        //   this.mosaicSampleId = Number(this.mosaicUrlParams.get('sample_id'));
           let tokenType = this.mosaicUrlParams.get('token_type');
           let source = this.mosaicUrlParams.get('source');
           source = decodeURIComponent(source);
           let clientAppNumber = this.mosaicUrlParams.get('client_application_id');
+          this.mosaicExperimentId = this.mosaicUrlParams.get('experiment_id');
 
           //Create a new MosaicSession object
           this.mosaicSession = new MosaicSession(clientAppNumber);
           try {
-            await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType, this.mosaicSampleId);
+            await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType);
           } catch (error) {
             console.error('Error initializing MosaicSession', error);
             this.validFromMosaic = false;
           }
           //If we succeeded 
+          let samples = await this.mosaicSession.promiseGetProjectSamples(this.mosaicProjectId);
+          samples = samples.map(sample => {
+            return {
+                name: sample.name,
+                id: sample.id,
+            }
+          })
+          
+          let probandId;
+          
+          for (let sample of samples) {
+            let attributes = await this.mosaicSession.promiseGetSampleAttributes(this.mosaicProjectId, sample.id);
+            let relationships = attributes.find(attr => attr.name == 'Relation').values;
+            let isProband = relationships.find(rel => rel.value == 'Proband');
+            
+            if (isProband) {
+              probandId = sample.id;
+              break;
+            }
+          }
+
+          //We need this for the sample building as this is what is in the vcf
+          let probandName = samples.find(sample => sample.id == probandId).name;
+
+          this.mosaicSampleId = probandId;
           let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, this.mosaicSampleId);
           this.phenotypesOfInterest = terms.map(term => term.hpo_id);
 
-          //Rework once we have a vcf url
-          if (!this.mosaicVcfUrl) {
+          let experiment = await this.mosaicSession.promiseGetExperiment(this.mosaicProjectId, this.mosaicExperimentId);
+          let vcfFiles = experiment.files.filter(file => file.type == 'vcf');
+          let probandFile = vcfFiles.find(file => file.sample_id == this.mosaicSampleId);
+          let fileId = probandFile.id;
+
+          this.mosaicVcfUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, fileId);
+          if (this.mosaicVcfUrl) {
+            this.samples.proband.vcf = this.mosaicVcfUrl.url;
+            this.samples.proband.id = probandName;
+            this.validFromMosaic = true;
+            this.selectDataSectionOpen = true;
+          } else {
+            //set not launched from mosaic or not valid
+            this.validFromMosaic = false;
             this.selectDataSectionOpen = true;
           }
         } else {
@@ -448,8 +487,7 @@
         //if the vcf is different we do
         if (samples.proband.vcf == this.samples.proband.vcf) {
           this.samples.proband = samples.proband;
-          this.samples.comparisons = samples.comparisons;
-          return;
+          this.loadData();
         } else {
           this.samples.proband = samples.proband;
           this.loadData();

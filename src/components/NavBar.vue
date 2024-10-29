@@ -61,7 +61,7 @@
     loaded: Boolean,
     progressPercent: Number,
     goiFromParent: Array,
-    poiFromParent: Array,
+    poiFromParent: Array
   },
   data () {
     return {
