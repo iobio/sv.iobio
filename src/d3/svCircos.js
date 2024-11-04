@@ -24,6 +24,10 @@ export default function svCircos(parentTag, refChromosomes, data=null, options=n
 
     let deleteTrackCallback = null;
 
+    //remove tooltip hover variant
+    d3.select('.tooltip-hover-variant').remove();
+    d3.select('.tooltip-hover-gene').remove();
+
     let { chromosomeAccumulatedMap, bpGenomeSize } = _genChromosomeAccumulatedMap(chromosomes);
     
     let originZoom = {
