@@ -69,7 +69,6 @@
         background-color: #707070
         color: white
         span
-          .close-btn
           svg
             fill: white
         &:hover
