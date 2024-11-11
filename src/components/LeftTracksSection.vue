@@ -19,7 +19,6 @@
         </div>
 
       <div class="upper-track-selectors-bar">
-
         <div id="radios-tools-container">
           <fieldset class="location-indicator">
             <legend>Location</legend>
@@ -81,42 +80,42 @@
           @selectAreaEvent="selectAreaEventFired"/>
 
         <div id="linear-section-container" v-if="globalView === 'linear'" @dragover.prevent="handleDragOver" @drop="handleDrop">
-          <div id="linear-marker-line" v-if="tools.line"></div>
-        <component
-            :is="geneChartData.component"
-            v-bind="geneChartData.props"
-            @selectAreaEvent="selectAreaEventFired"/>
+            <div id="linear-marker-line" v-if="tools.line"></div>
+            <IdiogramScaleBarViz
+                :selectedArea="selectedArea"
+                :bands="bands"
+                :centromeres="centromeres"
+                :chromosomes="chromosomes"
+                @selectAreaEvent="selectAreaEventFired"/>
 
-          <IdiogramScaleBarViz
-            :selectedArea="selectedArea"
-            :bands="bands"
-            :centromeres="centromeres"
-            :chromosomes="chromosomes"
-            @selectAreaEvent="selectAreaEventFired"/>
+            <component
+                :is="geneChartData.component"
+                v-bind="geneChartData.props"
+                @selectAreaEvent="selectAreaEventFired"/>
 
-          <LinearSvChartViz
-            v-if="svList && svList.length > 0" 
-            class="proband-chart"
-            :svList="svList"
-            :focusedVariant="focusedVariant"
-            :name="samples.proband.name"
-            :chromosomes="chromosomes"
-            :centromeres="centromeres"
-            :bands="bands"
-            :selectedArea="selectedArea"
-            :isProband="true"
-            @selectAreaEvent="selectAreaEventFired"/>
+            <LinearSvChartViz
+                v-if="svList && svList.length > 0" 
+                class="proband-chart"
+                :svList="svList"
+                :focusedVariant="focusedVariant"
+                :name="samples.proband.name"
+                :chromosomes="chromosomes"
+                :centromeres="centromeres"
+                :bands="bands"
+                :selectedArea="selectedArea"
+                :isProband="true"
+                @selectAreaEvent="selectAreaEventFired"/>
 
-          <component
-            v-for="(chartData, index) in chartsData"
-            :key="index"
-            :is="chartData.component"
-            v-bind="chartData.props"
-            @dragstart="handleDragStart(index, $event)"
-            @selectAreaEvent="selectAreaEventFired"
-            @removeTrack="removeTrack(index)"
-            class="draggable-chart"
-          />
+            <component
+                v-for="(chartData, index) in chartsData"
+                :key="index"
+                :is="chartData.component"
+                v-bind="chartData.props"
+                @dragstart="handleDragStart(index, $event)"
+                @selectAreaEvent="selectAreaEventFired"
+                @removeTrack="removeTrack(index)"
+                class="draggable-chart"
+            />
         </div>
        
       </div>
