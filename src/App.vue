@@ -837,7 +837,7 @@
         border: 1px solid #EBEBEB
         transform: translate(0px, 0px)
         margin-left: auto
-        margin-right: 10px
+        margin-right: 15px
         border-radius: 50%
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.2)
         transition: border-radius 0.2s
