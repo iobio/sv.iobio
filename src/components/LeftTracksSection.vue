@@ -159,7 +159,7 @@
   data () {
     return {
       showButton: false,
-      globalView: 'circos',
+      globalView: 'linear',
       centromeres: null,
       bands: null,
       chromosomes: null,
