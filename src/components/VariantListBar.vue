@@ -292,7 +292,7 @@
           .sort-options-popup
             position: absolute
             top: 109%
-            left: 0px
+            right: 0px
             width: 250px
             height: 90px
             padding: 5px
