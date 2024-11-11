@@ -53,10 +53,16 @@
                 <span class="gene-symbol-span">{{ gene.gene_symbol }} <sup><i>({{ percentOverlappedByGene(gene) }}%)</i></sup></span>
                 <div class="gene-information-section">
                     <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
-                        <span v-for="phenotype in sortByInPatientPhens(gene.phenotypes)" :class="{green: patientPhenotypes.includes(phenotype)}">{{ gene.phenotypes[phenotype].name + ` (${phenotype})` }}</span>
+                        <span v-for="phenotype in sortByInPatientPhens(gene.phenotypes)" :class="{green: patientPhenotypes.includes(phenotype)}">{{ gene.phenotypes[phenotype].name}}
+                            (<a :href="`https://hpo.jax.org/app/browse/term/${phenotype}`" target="_blank" rel="noopener noreferrer">{{ phenotype }}</a>)
+                        </span>
                     </p>
                     <p class="column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
-                        <span v-for="disease in gene.diseases">{{ (disease.disease_name !== null ? disease.disease_name : 'No Name Found') +' ('+disease.disease_id +')' }}</span>
+                        <span v-for="disease in gene.diseases">{{ (disease.disease_name !== null ? disease.disease_name : 'No Name Found')}}
+                            (<a v-if="disease.disease_id.slice(0, 4) == 'OMIM'" :href="`https://www.omim.org/entry/${disease.disease_id.slice(5)}`" target="_blank" rel="noopener noreferrer">{{ disease.disease_id }}</a>
+                                <a v-else-if="disease.disease_name" :href="`https://hpo.jax.org/browse/disease/${disease.disease_id}`" target="_blank" rel="noopener noreferrer">{{ disease.disease_id }}</a>
+                                <span v-else>{{ disease.disease_id }}</span>)
+                        </span>
                     </p>
                 </div>
             </div>
