@@ -23,25 +23,30 @@
             </span>
 
             
-            <div class="chr-text">{{ variant.chromosome }}</div>
+            <div class="origin-text">
+                <div class="novel-tag" v-if="reciprocalOverlap !== ''">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>denovo at overlap threshold</title>
+                        <path d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M13,17H11V15H13V17M13,13H11V7H13V13Z" />
+                    </svg>
+                </div>
+                <span class="novel" v-if="reciprocalOverlap !== ''">DeNovo</span>
+                <div class="novel-tag inherited" v-else>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>evidence of inheritance</title>
+                        <path d="M14,7V9H13V15H14V17H10V15H11V9H10V7H14M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+                </div>
+                <span class="inherited" v-if="reciprocalOverlap === ''">Inherited</span>
+            </div>
+
             <div class="genotype-text" :class="{het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom Alt'}">
                 {{ formatGenotype(variant.genotype) }}
             </div>
-            <div class="size-text">{{ bpFormatted((variant.end + 1) - variant.start) }}</div>
+            <div class="size-text" v-html="bpFormatted((variant.end + 1) - variant.start)"></div>
             <div class="type-text" :class="{red: variant.type === 'DEL'}"> {{ variant.type }}</div>
 
-            <div class="novel-tag" v-if="reciprocalOverlap !== ''">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>denovo at overlap threshold</title>
-                    <path d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M13,17H11V15H13V17M13,13H11V7H13V13Z" />
-                </svg>
-            </div>
-            <div class="novel-tag inherited" v-else>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>evidence of inheritance</title>
-                    <path d="M14,7V9H13V15H14V17H10V15H11V9H10V7H14M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
-                </svg>
-            </div>
+
 
             <span class="exp-collapse-carrot" @click="variantOpened">
                 <svg v-if="!showMore" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-down</title><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
@@ -177,11 +182,11 @@
     },
     bpFormatted(valuebp) {
         if (valuebp > 1000000) {
-            return `${(valuebp / 1000000).toFixed(2)}Mb`;
+            return `${(valuebp / 1000000).toFixed(2)}<span class="bp-sc">Mb</span>`;
         } else if (valuebp > 1000) {
-            return `${(valuebp / 1000).toFixed(2)}Kb`;
+            return `${(valuebp / 1000).toFixed(2)}<span class="bp-sc">kb</span>`;
         }
-        return `${valuebp}bp`;
+        return `${valuebp}<span class="bp-sc">bp</span>`;
     },
     percentOverlappedByGene(gene) {
         if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
@@ -320,10 +325,10 @@
             align-items: center
             position: absolute
             top: 0px
-            right: 0px
+            left: 0px
             svg
-                height: 17px
-                width: 17px
+                height: 13px
+                width: 13px
                 fill: red
                 pointer-events: none
             &.inherited
@@ -346,7 +351,7 @@
         .preview
             position: relative
             display: grid
-            grid-template-columns: .21fr .15fr .25fr .25fr .15fr .025fr
+            grid-template-columns: .21fr .2fr .25fr .2fr .15fr .025fr
             grid-template-rows: 1fr
             padding: 5px
             width: 100%
@@ -432,9 +437,20 @@
             .size-text
                 font-size: 0.8em
                 color: #474747
-            .chr-text
-                font-size: .9em
+                .bp-sc
+                    font-size: 0.9em
+                    color: #858585
+                    transform: translateY(4px) translateX(1px)
+            .origin-text
+                font-size: .8em
                 color: #474747
+                position: relative
+                .novel
+                    color: red
+                    font-size: 0.9em
+                    margin-right: 5px
+                .inherited
+                    color: #5C9A5C
             .type-text
                 border-radius: 5px
                 font-size: 0.75em

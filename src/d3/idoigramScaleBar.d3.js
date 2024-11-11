@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { parse } from 'vue/compiler-sfc';
 
 export default function idoigramScaleBar(parentElementTag, refChromosomes, options) {
     let parentElement = d3.select(parentElementTag);
