@@ -2,6 +2,13 @@
   <div id="variant-sudo-scroll-wrapper">
     <div id="variant-list-bar">
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
+
+        <div>Variant <br> Overlaps</div>
+        <div>Chr</div>
+        <div>Genotype</div>
+        <div>Size</div>
+        <div>Type</div>
+
         <div @click="showSortOptions = !showSortOptions" class="sort-btn">
           <div class="sort-options-popup" :class="{hidden: !showSortOptions}">
             <span @click="emitSortVariants($event, 'goi')">Genes of Interest (GOI)</span>
@@ -18,11 +25,6 @@
             <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
           </svg>
         </div>
-        <div>Variant <br> Overlaps</div>
-        <div>Chr</div>
-        <div>Location</div>
-        <div>Size</div>
-        <div>Type</div>
       </div>
       <VariantListItem 
         v-for="(variant, index ) in svListSelection" 
@@ -239,7 +241,7 @@
       transition: width 0.4s, min-width 0.4s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: .025fr .21fr .15fr .25fr .25fr .15fr
+        grid-template-columns: .21fr .15fr .25fr .25fr .15fr .025fr
         font-size: .8em
         width: 100%
         height: 50px
