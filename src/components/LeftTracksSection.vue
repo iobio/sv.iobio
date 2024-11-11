@@ -9,6 +9,15 @@
                 @selectAreaEvent="selectAreaEventFired"/>
         </div>
 
+        <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
+          <ChromSelectBarViz v-if="chromSelectBarDataReady"
+          :selectedArea="selectedArea"
+          :centromeres="centromeres"
+          :bands="bands"
+          :chromosomes="chromosomes"
+          @selectAreaEvent="selectAreaEventFired"/>
+        </div>
+
       <div class="upper-track-selectors-bar">
 
         <div id="radios-tools-container">
@@ -53,15 +62,6 @@
       </div>
 
       <div class="wrapper-95">
-        <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
-          <ChromSelectBarViz v-if="chromSelectBarDataReady"
-          :selectedArea="selectedArea"
-          :centromeres="centromeres"
-          :bands="bands"
-          :chromosomes="chromosomes"
-          @selectAreaEvent="selectAreaEventFired"/>
-        </div>
-
         <svCircos 
           v-if="globalView === 'circos' && circosDataReady"
           :svList="svList"
@@ -786,7 +786,7 @@
   #chrom-select-bar-div
     height: 32px
     padding: 8px 0px 2px 0px
-    border-bottom: 1px solid #E0E0E0
+    margin-bottom: 5px
     box-sizing: content-box
   #global-chart-style-selection
     width: fit-content
