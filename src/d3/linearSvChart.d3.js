@@ -129,6 +129,9 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
 
+    //print out the x scale so we can see what it is
+    console.log(x.domain(), x.range());
+
     _renderSVs([zoomedSelection.start, zoomedSelection.end])
 
     function _genChromosomeAccumulatedMap(chromosomeList){
@@ -210,7 +213,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
                 //create a new group for this point of interest
                 let pointGroup = svg.append('g')
-                    .attr('transform', `translate(${startX - margin.left}, 30)`)
+                    .attr('transform', `translate(${startX}, 30)`)
                     .attr('class', 'point-group')
                     .attr('id', `poi-${chr}-${start}-${end}-group`);
 
@@ -235,7 +238,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 let translateY = (currentTrac - 1) * 8;
 
                 pointGroup.append('rect')
-                    .attr('x', 0 + margin.left)
+                    .attr('x', 0)
                     .attr('width', function() {
                         //if the block is too small to see make it 2 pixels wide
                         if (endX - startX < 1) {

@@ -158,11 +158,11 @@ export default {
     overflow: hidden
     z-index: 10
   .linear-sv-chart-wrapper
-    position: relative
-    padding: 5px
-    border-radius: 5px
     background-color: white
     border-bottom: 1px solid whitesmoke
+    border-radius: 5px
+    padding: 5px
+    position: relative
     .title
       box-sizing: border-box
       padding: 0px 5px
@@ -227,7 +227,6 @@ export default {
   .linear-sv-chart 
     height: 90px
     width: 100%
-    box-sizing: border-box
     overflow: hidden
     &.hidden
       display: none

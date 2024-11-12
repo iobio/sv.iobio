@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 export default function idoigramScaleBar(parentElementTag, refChromosomes, options) {
     let parentElement = d3.select(parentElementTag);
 
-    let width = parentElement.node().clientWidth - 10;
+    let width = parentElement.node().clientWidth;
     let height = parentElement.node().clientHeight;
     let chromosomes = refChromosomes;
     let bands = null;
@@ -153,12 +153,6 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
     _renderChromosomes([zoomedSelection.start, zoomedSelection.end]); //function that renders the actual chromosome sections of the chart
 
     function _genChromosomeAccumulatedMap(chromosomeList){
-        /**
-         * This function takes a list of chromosomes and generates a map of the chromosomes with their absolute start and end positions
-         *
-         * returns Object {chromosomeMap, genomeSize}
-         */
-
         let accumulatedBP = 0;
 
         let chromosomeAccumulatedMap = new Map();

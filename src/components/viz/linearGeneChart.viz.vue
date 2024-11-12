@@ -127,11 +127,12 @@ export default {
 
 <style lang="sass">
   .linear-gene-chart-wrapper
-    position: relative
+    background-color: #F8F8F8
+    border-bottom: 1px solid transparent
+    border-radius: 5px
     margin-top: 5px
     padding: 5px
-    border-radius: 5px
-    background-color: #F8F8F8
+    position: relative
     p
       color: #2A65B7
       font-weight: bold
@@ -148,11 +149,11 @@ export default {
       left: -10px
       top: 0px
   .linear-gene-chart 
-    padding: 0px
-    margin: 0px
     height: 120px
     width: 100%
-    box-sizing: border-box
     overflow: hidden
-    overflow-y: auto
+    overflow-y: scroll
+    scrollbar-width: none
+    ::-webkit-scrollbar
+      display: none
 </style>

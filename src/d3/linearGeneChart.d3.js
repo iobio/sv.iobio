@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 
 export default function linearGeneChart(parentElement, refChromosomes, data, options=null) {
-    let width = parentElement.clientWidth - 10;
+    let width = parentElement.clientWidth;
     let height = parentElement.clientHeight;
     let chromosomes = refChromosomes;
     let genes = data;
@@ -130,9 +130,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         .text('Click and drag to select a region')
         .attr('fill', 'gray');
 
+    const margin = {top: 5, right: 10, bottom: 5, left: 10};
+
     let x = d3.scaleLinear()
         .domain([zoomedSelection.start, zoomedSelection.end])
-        .range([0, width]);
+        .range([margin.left, width - margin.right]);
+
+    //print out the x scale so we can see the range
+    console.log('x scale', x.domain(), x.range());
 
     _renderGenes([zoomedSelection.start, zoomedSelection.end])
 
@@ -283,7 +288,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         .attr('height', height);
                 }
 
-                geneGroup.attr('transform', `translate(${startX + 10}, ${translateY + 25})`);
+                geneGroup.attr('transform', `translate(${startX}, ${translateY + 25})`);
 
                 svg.append(() => geneGroup.node()); //append the gene group to the svg
             } else {
@@ -325,8 +330,8 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             return;
         }
 
-        let bs0 = brushSelection[0] - 10; //subtract 10 to account for the padding
-        let bs1 = brushSelection[1] - 10; //subtract 10 to account for the padding
+        let bs0 = brushSelection[0];
+        let bs1 = brushSelection[1];
 
         //selection will be in the pixel space so need to convert it to the base pair space
         let start = x.invert(bs0);
