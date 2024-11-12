@@ -136,9 +136,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
 
-    //print out the x scale so we can see the range
-    console.log('x scale', x.domain(), x.range());
-
     _renderGenes([zoomedSelection.start, zoomedSelection.end])
 
     //============================ INTERNAL FUNCTIONS ============================//

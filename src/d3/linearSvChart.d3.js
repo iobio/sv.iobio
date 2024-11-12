@@ -129,9 +129,6 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
 
-    //print out the x scale so we can see what it is
-    console.log(x.domain(), x.range());
-
     _renderSVs([zoomedSelection.start, zoomedSelection.end])
 
     function _genChromosomeAccumulatedMap(chromosomeList){
