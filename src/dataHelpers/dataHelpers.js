@@ -122,3 +122,15 @@ export async function getGenesForPhenotypes(phenotypes) {
     }
 
 }
+
+//GET TRANSCRIPTS FOR GENE LIST
+export async function getTranscriptsForGenes(geneList) {
+    const geneListString = geneList.join(',');
+    try {
+        const response = await fetch(`${BACKEND_URL_BASE}/transcripts?genes=${geneList}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error Getting Transcripts for Gene List:', error);
+    }
+}

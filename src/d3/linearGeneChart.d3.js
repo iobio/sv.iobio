@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as beHelper from '../dataHelpers/dataHelpers.js';
 
 export default function linearGeneChart(parentElement, refChromosomes, data, options=null) {
     let width = parentElement.clientWidth;
@@ -277,12 +278,12 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                 }
 
-                let translateY = (currentTrac - 1) * 9;
+                let translateY = (currentTrac - 1) * 18;
 
                 if (translateY >= height) {
-                    height += 9;
+                    height += 18;
                     svg.attr('viewBox', [0, 0, width, height])
-                        .attr('height', height);
+                        .attr('height', height + 3);
                 }
 
                 geneGroup.attr('transform', `translate(${startX}, ${translateY + 25})`);
@@ -298,7 +299,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     //render brush later so it's on top
     if (brush) {
         let brush = d3.brushX()
-            .extent([[5, 0], [width, 25]])
+            .extent([[5, 0], [width, 20]])
             .on('brush', function (event) {
                 let brushArea = d3.select(this);
                 let selection = brushArea.select('.selection')
@@ -406,12 +407,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('class', 'gene-group-geneofinterest')
                 .data([gene])
                 .attr('id', `poi-${chr}-${start}-${end}-group`)
+                .style('cursor', 'pointer')
                 .on('click', function(event, d) {
                     console.log('clicked on gene', d);
                 });
 
             geneGroup.append('rect')
                 .attr('x', 0)
+                .attr('y', -7)
                 .attr('class', 'gene-rect')
                 .attr('width', function() {
                     if (endX - startX < 1) {
@@ -419,7 +422,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                     return endX - startX;
                 })
-                .attr('height', 4)
+                .attr('height', 14)
                 .attr('fill', 'red')
                 .attr('rx', function() {
                     if (endX - startX < 3) {
@@ -451,6 +454,8 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
             text.attr('transform', `translate(-${mTextWidth}, 0)`);
 
+            _createGeneDiagram(gene, geneGroup, geneType);
+
             return geneGroup;
         } else if (geneType == 'phenRelatedGene') {
             //Phen related genes
@@ -458,12 +463,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('class', 'gene-group-phenrelated')
                 .data([gene])
                 .attr('id', `poi-${chr}-${start}-${end}-group`)
+                .style('cursor', 'pointer')
                 .on('click', function(event, d) {
                     console.log('clicked on gene', d);
                 });
 
             geneGroup.append('rect')
                 .attr('x', 0)
+                .attr('y', -7)
                 .attr('class', 'gene-rect')
                 .attr('width', function() {
                     if (endX - startX < 1) {
@@ -471,7 +478,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                     return endX - startX;
                 })
-                .attr('height', 4)
+                .attr('height', 14)
                 .attr('fill', 'blue')
                 .attr('rx', function() {
                     if (endX - startX < 3) {
@@ -507,6 +514,8 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 text.attr('transform', `translate(-${mTextWidth}, 0)`);
             }
 
+            _createGeneDiagram(gene, geneGroup, geneType);
+
             return geneGroup;
         } else {
             //All normal genes
@@ -514,12 +523,15 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('class', 'gene-group')
                 .data([gene])
                 .attr('id', `poi-${chr}-${start}-${end}-group`)
+                .style('cursor', 'pointer')
                 .on('click', function(event, d) {
                     console.log('clicked on gene', d);
+                    _createGeneDiagram(gene, geneGroup);
                 });
 
             geneGroup.append('rect')
                 .attr('x', 0)
+                .attr('y', -7)
                 .attr('class', 'gene-rect')
                 .attr('width', function() {
                     if (endX - startX < 1) {
@@ -527,7 +539,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                     return endX - startX;
                 })
-                .attr('height', 4)
+                .attr('height', 14)
                 .attr('fill', 'black')
                 .attr('rx', function() {
                     if (endX - startX < 3) {
@@ -547,7 +559,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
                 let baseFontSize = 20;
                 let scaledFontSize = baseFontSize * (1 - normalized_window);
-                let minFontSize = 8;
+                let minFontSize = 9;
                 scaledFontSize = Math.max(scaledFontSize, minFontSize);
 
                 let measureSvg = d3.create('svg');
@@ -555,7 +567,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 
                 let measureText = measureSvg.append('text')
                     .attr('x', 0)
-                    .attr('y', 4)
+                    .attr('y', (scaledFontSize / 2))
                     .text(gene.gene_symbol)
                     .attr('font-size', `${scaledFontSize}` + "px");
                 
@@ -566,15 +578,185 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 let text = geneGroup.append('text')
                     .attr('class', 'gene-label')
                     .attr('x', 0)
-                    .attr('y', 4)
+                    .attr('y', (scaledFontSize / 2))
                     .text(gene.gene_symbol)
                     .attr('font-size', `${scaledFontSize}` + "px")
                     .attr('fill', 'black');
 
                 text.attr('transform', `translate(-${mTextWidth + 1}, 0)`);
             }  
+
+            _createGeneDiagram(gene, geneGroup);
+
             return geneGroup;
         }
+    }
+
+    function _createGeneDiagram(gene, geneGroup, geneType=null) {
+        //Essentially if click for now we will take the gene group which includes the label and the rect and we will replace the rect with a diagram
+        //We will use the beHelper to get the mane transcript for the particular gene
+
+        //get the mane transcript using the beHelper it is async though
+        beHelper.getTranscriptsForGenes([gene.gene_name])
+        .then(data => {
+            let strand = data[gene.gene_name].strand;
+            let transcript_type = data[gene.gene_name].transcript_type;
+            let geneRectangle = geneGroup.select('.gene-rect');
+            let rectX = 0;
+            let rectY = 7;
+            let geneHeight = geneRectangle.attr('height');
+            let geneWidth = geneRectangle.attr('width');
+
+            console.log('data', data);
+
+            //we will need a new x scale for the transcript based on the gene width
+            let x = d3.scaleLinear()
+                .domain([gene.start, gene.end])
+                .range([0, geneWidth]);
+            
+            let transcript_id = data[gene.gene_name].transcript_id;
+
+            //The transcript is the group that will hold the transcript diagram and it will be put in the same position as the gene rectangle
+            const transcript = geneGroup.append('g')
+                .data([data[gene.gene_name]])
+                .attr('class', 'transcript')
+                .attr("id", 'transcript_' +  transcript_id.split(".").join("_"))
+                .attr('transform', `translate(${rectX}, ${rectY})`);
+
+            //The line that will be the reference line
+            transcript.selectAll(".reference").remove();
+            transcript.append('line')
+                .attr('class', 'reference')
+                .attr('x1', 0)
+                .attr('x2', geneWidth)
+                .attr('y1', -geneHeight/2)
+                .attr('y2', -geneHeight/2)
+                .attr('stroke', function() {
+                    if (geneType == 'geneOfInterest') {
+                        return 'red';
+                    } else if (geneType == 'phenRelatedGene') {
+                        return 'blue';
+                    } else {
+                        return 'black';
+                    }
+                })
+                .style("pointer-events", "none");
+
+            //The arrow that will show the strand direction
+            transcript.selectAll(".arrow").remove();
+            transcript.selectAll('.arrow')
+                .append('path')
+                .attr('class', 'arrow')
+                .attr('d', d3.symbol().type(d3.symbolTriangle).size(10))
+                .attr('transform', function() {
+                    if(strand == '+') return 'translate(' + geneWidth + ',' + geneHeight/2 + ') rotate(0)';
+                    else return 'translate(0,' + geneHeight/2 + ') rotate(180)';
+                });
+
+            const filterFeature = function(feature, transcript_type) {
+                if ( transcript_type == 'protein_coding'
+                    || transcript_type == 'mRNA'
+                    || transcript_type == 'transcript'
+                    || transcript_type == 'primary_transcript') {
+                    return feature.feature_type.toLowerCase() == 'utr' || feature.feature_type.toLowerCase() == 'cds';
+                } else {
+                    return feature.feature_type.toLowerCase() == 'exon';
+                }
+            }
+
+            const featureClass = function(d,i) {
+                return d.feature_type.toLowerCase();
+            }
+
+            const featureGlyph = function(d,i) {
+            };        
+        
+            transcript.selectAll('.transcript rect.utr, .transcript rect.cds, .transcript rect.exon')
+                .data(function(d) {
+                    return d['features'].filter( function(d) {
+                        return filterFeature(d, transcript_type);
+                        }, function(d) {
+                            return d.feature_type + "-" + d.seq_id + "-" + d.start + "-" + d.end;
+                });
+            }).enter().append('rect')
+                .attr('class', function(d,i) {
+                    return featureClass(d,i);
+                })
+                .attr("modelName", function(d) { return d.seq_id; })
+                .attr('rx', .5)
+                .attr('ry', .5)
+                .attr('fill', function(d) {
+                    if (geneType == 'geneOfInterest') {
+                        return 'red';
+                    } else if (geneType == 'phenRelatedGene') {
+                        return 'blue';
+                    } else {
+                        return 'black';
+                    }
+                })
+                .attr('stroke', function(d) {
+                    if (geneType == 'geneOfInterest') {
+                        return 'red';
+                    }
+                    else if (geneType == 'phenRelatedGene') {
+                        return 'blue';
+                    }
+                    else {
+                        return 'black';
+                    }
+                })
+                .attr('stroke-width', 0.5)
+                .attr('fill-opacity', 0.5)
+                .attr('x', function(d) { return Math.round(x(d.start))})
+                .attr('width', function(d) { return Math.max(0.5, Math.round(x(d.end) - x(d.start)))})
+                .attr('y', function(d) {
+                    if(d.feature_type.toLowerCase() =='utr') return -(geneHeight/2 + geneHeight/4);
+                    else if(d.feature_type.toLowerCase() =='cds') return -(geneHeight/2 + geneHeight/3);
+                    else return -geneHeight;
+                })
+                .attr('height', function(d) {
+                    if(d.feature_type.toLowerCase() =='utr') return geneHeight/2;
+                    else if(d.feature_type.toLowerCase() =='cds') return geneHeight/1.5;
+                    else return geneHeight; 
+                })
+        
+                .attr("pointer-events", "all")
+                .style("cursor", "pointer");
+        
+            // Add any feature glyphs
+            transcript.selectAll(".feature_glyph").remove();
+            transcript.selectAll('.transcript rect.utr, .transcript rect.cds, .transcript rect.exon').data(function(d) {
+                return d['features'].filter( function(d) {
+                return filterFeature(d, transcript_type);
+                }, function(d) {
+                return d.feature_type + "-" + d.seq_id + "-" + d.start + "-" + d.end;
+                });
+            })
+            .each(function(d,i) {
+                var me = this;
+                var featureX = Math.round(x(d.start));
+                featureGlyph.call(me, d, i, featureX);
+            });
+        
+        
+            // Update class
+            transcript.selectAll('.transcript rect.utr, .transcript rect.cds, .transcript rect.exon').data(function(d) {
+                return d['features'].filter( function(d) {
+                return filterFeature(d, transcript_type);
+                }, function(d) {
+                return d.feature_type + "-" + d.seq_id + "-" + d.start + "-" + d.end;
+                });
+            })
+            .attr('class', function(d,i) {
+                    return featureClass(d,i);
+            });
+
+            // Remove the gene rectangle
+            geneGroup.select('.gene-rect').remove();
+        })
+        .catch(error => {
+            //if we cant get the transcript that is okay we will have a gene rectangle
+        });
     }
 
     return svg.node();
