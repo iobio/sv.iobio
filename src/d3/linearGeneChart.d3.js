@@ -583,7 +583,13 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     .attr('font-size', `${scaledFontSize}` + "px")
                     .attr('fill', 'black');
 
-                text.attr('transform', `translate(-${mTextWidth + 1}, 0)`);
+                //if the text is going to go off the screen then don't move it to the left
+                //Shift down by 1/2 the track height
+                if (startX - mTextWidth < 0) {
+                    text.attr('transform', `translate( 0, 7)`);
+                } else {
+                    text.attr('transform', `translate(-${mTextWidth + 1}, 0)`);
+                }
             }  
 
             _createGeneDiagram(gene, geneGroup);
@@ -606,8 +612,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             let rectY = 7;
             let geneHeight = geneRectangle.attr('height');
             let geneWidth = geneRectangle.attr('width');
-
-            console.log('data', data);
 
             //we will need a new x scale for the transcript based on the gene width
             let x = d3.scaleLinear()
