@@ -239,9 +239,15 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     'chr': chr
                 };
 
+                //convert the new start and end to relative to chromosome
+                startUpdated = startUpdated - chromosome.start;
+                endUpdated = endUpdated - chromosome.start;
+
                 let xMap = {
                     'startX': startX,
-                    'endX': endX
+                    'endX': endX,
+                    'startUpdated': startUpdated,
+                    'endUpdated': endUpdated
                 };
 
                 let geneGroup = _createGene(xMap, idMap, gene, range, geneType, isLessThanOneChr);
@@ -397,6 +403,8 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
         let startX = xMap.startX;
         let endX = xMap.endX;
+        let startUpdated = xMap.startUpdated;
+        let endUpdated = xMap.endUpdated;
         let geneGroup;
 
         let isWholeGenome = range[0] == 0 && range[1] == genomeSize;
@@ -454,7 +462,12 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
             text.attr('transform', `translate(-${mTextWidth}, 0)`);
 
-            _createGeneDiagram(gene, geneGroup, geneType);
+            let options = {
+                geneType: geneType,
+                range: range,
+                xMap: xMap,
+            }
+            _createGeneDiagram(gene, geneGroup, options);
 
             return geneGroup;
         } else if (geneType == 'phenRelatedGene') {
@@ -514,7 +527,13 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 text.attr('transform', `translate(-${mTextWidth}, 0)`);
             }
 
-            _createGeneDiagram(gene, geneGroup, geneType);
+            let options = {
+                geneType: geneType,
+                range: range,
+                xMap: xMap,
+            }
+
+            _createGeneDiagram(gene, geneGroup, options);
 
             return geneGroup;
         } else {
@@ -592,15 +611,38 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 }
             }  
 
-            _createGeneDiagram(gene, geneGroup);
+            let options = {
+                range: range,
+                xMap: xMap,
+            }
+            _createGeneDiagram(gene, geneGroup, options);
 
             return geneGroup;
         }
     }
 
-    function _createGeneDiagram(gene, geneGroup, geneType=null) {
-        //Essentially if click for now we will take the gene group which includes the label and the rect and we will replace the rect with a diagram
-        //We will use the beHelper to get the mane transcript for the particular gene
+    function _createGeneDiagram(gene, geneGroup, options=null) {
+        let geneType = null;
+        let xMap = null;
+        let range = null;
+        let startUpdated = null;
+        let endUpdated = null;
+
+        if (options) {
+            if (options.geneType) {
+                geneType = options.geneType;
+            }
+            if (options.range) {
+                range = options.range;
+            }
+            if (options.xMap) {
+                xMap = options.xMap;
+                startUpdated = xMap.startUpdated;
+                endUpdated = xMap.endUpdated;
+            }
+        }
+
+        //if the gene has been truncated we need the new start and end b
 
         //get the mane transcript using the beHelper it is async though
         beHelper.getTranscriptsForGenes([gene.gene_name])
@@ -615,7 +657,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
             //we will need a new x scale for the transcript based on the gene width
             let x = d3.scaleLinear()
-                .domain([gene.start, gene.end])
+                .domain([startUpdated, endUpdated])
                 .range([0, geneWidth]);
             
             let transcript_id = data[gene.gene_name].transcript_id;
@@ -647,6 +689,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .style("pointer-events", "none");
 
             //The arrow that will show the strand direction
+            //TODO: make this actually work
             transcript.selectAll(".arrow").remove();
             transcript.selectAll('.arrow')
                 .append('path')
@@ -657,7 +700,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     else return 'translate(0,' + geneHeight/2 + ') rotate(180)';
                 });
 
-            const filterFeature = function(feature, transcript_type) {
+            function filterFeature(feature, transcript_type) {
                 if ( transcript_type == 'protein_coding'
                     || transcript_type == 'mRNA'
                     || transcript_type == 'transcript'
@@ -668,11 +711,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 }
             }
 
-            const featureClass = function(d,i) {
+            function featureClass(d,i) {
                 return d.feature_type.toLowerCase();
             }
 
-            const featureGlyph = function(d,i) {
+            function featureGlyph(d,i) {
             };        
         
             transcript.selectAll('.transcript rect.utr, .transcript rect.cds, .transcript rect.exon')
