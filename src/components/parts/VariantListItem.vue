@@ -355,7 +355,7 @@
         .preview
             position: relative
             display: grid
-            grid-template-columns: .21fr .2fr .25fr .2fr .15fr
+            grid-template-columns: .23fr .23fr .23fr .11fr .2fr
             grid-template-rows: 1fr 1fr
             padding: 5px
             width: 100%
