@@ -38,25 +38,42 @@
           @updateFilters="updateDataFilters"/>
 
         <div class="button-container">
-          <div class="tab-select-wrapper">
-            <nav class="tab-select" :class="{collapsed: !variantListBarOpen}">
-              <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">Variants</div>
-              <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes</div>
-            </nav>
-          </div>
+            <div @click="showSortOptions = !showSortOptions" class="sort-btn">
+                <div class="sort-options-popup" :class="{hidden: !showSortOptions}">
+                    <span @click="sortSvList('goi')">Genes of Interest (GOI)</span>
+                    <span @click="sortSvList('percentOverlapped')">Phenotypes % Max</span>
+                    <span @click="sortSvList('genesOverlapped')"># Genes</span>
+                </div>
+                <svg class="sort-svg" v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>Sort SVs</title>
+                    <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
+                </svg>
+
+                <svg class="loading-svg" v-if="!loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>loading</title>
+                    <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
+                </svg>
+            </div>
+
+            <div class="tab-select-wrapper">
+                <nav class="tab-select" :class="{collapsed: !variantListBarOpen}">
+                <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">Variants</div>
+                <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes</div>
+                </nav>
+            </div>
 
 
-          <div class="filter-button" @click="filterDataSectionOpen = !filterDataSectionOpen; selectDataSectionOpen = false">
-            <svg v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <title>Filter SVs</title>
-              <path d="M12 18.88A1 1 0 0 1 11.71 19.71A1 1 0 0 1 10.3 19.71L6.3 15.71A1 1 0 0 1 6 14.87V9.75L1.21 3.62A1 1 0 0 1 1.38 2.22A1 1 0 0 1 2 2H16A1 1 0 0 1 16.62 2.22A1 1 0 0 1 16.79 3.62L12 9.75V18.88M4 4L8 9.06V14.58L10 16.58V9.05L14 4M13 16L18 21L23 16Z" />
-            </svg>
+            <div class="filter-button" @click="filterDataSectionOpen = !filterDataSectionOpen; selectDataSectionOpen = false">
+                <svg v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>Filter SVs</title>
+                <path d="M12 18.88A1 1 0 0 1 11.71 19.71A1 1 0 0 1 10.3 19.71L6.3 15.71A1 1 0 0 1 6 14.87V9.75L1.21 3.62A1 1 0 0 1 1.38 2.22A1 1 0 0 1 2 2H16A1 1 0 0 1 16.62 2.22A1 1 0 0 1 16.79 3.62L12 9.75V18.88M4 4L8 9.06V14.58L10 16.58V9.05L14 4M13 16L18 21L23 16Z" />
+                </svg>
 
-            <svg class="loading-svg" v-if="!loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <title>loading</title>
-              <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
-            </svg>
-          </div>
+                <svg class="loading-svg" v-if="!loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>loading</title>
+                <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
+                </svg>
+            </div>
         </div>
 
 
@@ -143,6 +160,7 @@
         svListChart: [],
         svListVariantBar: [],
         comparisonsLists: [],
+        showSortOptions: false,
         chromosomeAccumulatedMap: {},
         loadedInitiallyComplete: false,
         progressPercent: 0,
@@ -857,6 +875,73 @@
             transform: rotate(0deg)
           100%
             transform: rotate(360deg)
+    .sort-btn
+        cursor: pointer
+        overflow: visible
+        position: relative
+        display: flex
+        justify-content: center
+        align-items: center
+        border-radius: 50%
+        border: 1px solid #EBEBEB
+        transition: all 0.25s
+        padding: 2px
+        height: 30px
+        width: 30px
+        box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.2)
+        &.sorted
+            cursor: not-allowed
+        svg
+            width: 20px
+            height: 20px
+            fill: #2A65B7
+            pointer-events: none
+        &.sorted
+            filter: grayscale(100%)
+        &.loading-svg
+            animation: spin 1s linear infinite
+        @keyframes spin
+            0%
+            transform: rotate(0deg)
+            100%
+            transform: rotate(360deg)
+        &:hover
+            border-radius: 5px
+        .sort-options-popup
+            position: absolute
+            top: 109%
+            left: 0px
+            width: 250px
+            height: 100px
+            padding: 5px
+            font-weight: normal
+            background-color: white
+            border: 1px solid #ADC2DF
+            border-radius: 5px
+            display: flex
+            flex-direction: column
+            justify-content: space-around
+            align-items: flex-start
+            transition: height 0.25s, opacity 0.15s
+            opacity: .95
+            z-index: 2
+            &.hidden
+                opacity: 0
+                pointer-events: none
+                height: 0px
+                border: 0px
+        span
+            cursor: pointer
+            padding: 5px
+            width: 100%
+            border-radius: 5px 5px 0px 0px
+            text-align: left
+            border-bottom: 1px solid #ADC2DF
+            &:hover
+                background-color: #F5F5F5
+            &:last-of-type
+                border-radius: 0px 0px 5px 5px
+                border-bottom: none
     .tab-select
       display: flex
       justify-content: flex-end

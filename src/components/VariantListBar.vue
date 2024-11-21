@@ -9,22 +9,6 @@
         <div>Size</div>
         <div>Type</div>
 
-        <div @click="showSortOptions = !showSortOptions" class="sort-btn">
-          <div class="sort-options-popup" :class="{hidden: !showSortOptions}">
-            <span @click="emitSortVariants($event, 'goi')">Genes of Interest (GOI)</span>
-            <span @click="emitSortVariants($event, 'percentOverlapped')">Phenotypes % Max</span>
-            <span @click="emitSortVariants($event, 'genesOverlapped')"># Genes</span>
-          </div>
-          <svg class="sort-svg" v-if="!loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <title>Sort SVs</title>
-            <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
-          </svg>
-
-          <svg class="loading-svg" v-if="loading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <title>loading</title>
-            <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
-          </svg>
-        </div>
       </div>
       <VariantListItem 
         v-for="(variant, index ) in svListSelection" 
@@ -77,8 +61,7 @@
     return {
       open: true,
       scrollSelection: [0, 40],
-      openedSvSet: {}, 
-      showSortOptions: false
+      openedSvSet: {}
     }
   },
   mounted () {
@@ -182,15 +165,6 @@
         top = 100;
       }
       thumb.style.top = top + '%';
-    },
-    emitSortVariants(event, sortCategory) {
-      if (this.loading === true) {
-        return
-      }
-      //stop the propagation of the event
-      event.stopPropagation();
-      this.showSortOptions = false;
-      this.$emit('sort-variants', sortCategory)
     }
   },
   computed: {
@@ -260,69 +234,6 @@
           display: flex
           justify-content: center
           align-items: center
-        .sort-btn
-          cursor: pointer
-          overflow: visible
-          border-radius: 50%
-          border: 1px solid #EBEBEB
-          transition: all 0.25s
-          position: relative
-          padding: 2px
-          height: 30px
-          width: 30px
-          box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.2)
-          &.sorted
-            cursor: not-allowed
-          svg
-            width: 20px
-            height: 20px
-            fill: #2A65B7
-            pointer-events: none
-            &.sorted
-              filter: grayscale(100%)
-            &.loading-svg
-              animation: spin 1s linear infinite
-            @keyframes spin
-              0%
-                transform: rotate(0deg)
-              100%
-                transform: rotate(360deg)
-          &:hover
-            border-radius: 5px
-          .sort-options-popup
-            position: absolute
-            top: 109%
-            right: 0px
-            width: 250px
-            height: 90px
-            padding: 5px
-            font-weight: normal
-            background-color: white
-            border: 1px solid #ADC2DF
-            border-radius: 5px
-            display: flex
-            flex-direction: column
-            justify-content: space-around
-            align-items: flex-start
-            transition: height 0.25s, opacity 0.15s
-            opacity: .95
-            &.hidden
-              opacity: 0
-              pointer-events: none
-              height: 0px
-              border: 0px
-            span
-              cursor: pointer
-              padding: 5px
-              width: 100%
-              border-radius: 5px 5px 0px 0px
-              text-align: left
-              border-bottom: 1px solid #ADC2DF
-              &:hover
-                background-color: #F5F5F5
-              &:last-of-type
-                border-radius: 0px 0px 5px 5px
-                border-bottom: none
     //Webkit scrollbar
     #variant-list-bar::-webkit-scrollbar
       display: none
