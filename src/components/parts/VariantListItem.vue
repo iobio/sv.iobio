@@ -5,20 +5,28 @@
             <div class="focus-indicator" v-if="isFocusedVariant">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Focused On</title><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" /></svg>
             </div>
+
             <span class="overlap-tip">
                 <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">
                     <strong>
-                        {{ Math.round(maxSingularPhenotypes)}}%
+                        <span :class="{subtle: Math.round(maxSingularPhenotypes.max) == 0 }">{{ Math.round(maxSingularPhenotypes.max)}}</span> <span class="subtle">/{{ patientPhenotypes.length }}</span>
                     </strong>
-                    Phens
+                    <span class="max-gene" v-if="Math.round(maxSingularPhenotypes.max) !== 0">{{ maxSingularPhenotypes.geneName }}</span>
                 </span>
-                <span v-else class="num-genes-overlapped-tip">
-                    <strong>{{ numberOfGenes }}</strong>
-                    genes
+                <span v-else class="num-phens-accounted-perc-tip">
+                    <strong>
+                        <span class="subtle">n/a</span> <span class="subtle">/{{ patientPhenotypes.length }}</span>
+                    </strong>
                 </span>
-                <span v-if="variant.overlappedGenes && geneCandidates && geneCandidates.length > 0" class="goi-ol-tip">
-                    <strong>{{ numberOfGenesOfInterest }}</strong>
-                    GoI
+
+                <span class="goi-ol-tip">
+                    <strong>
+                        <span :class="{subtle: numberOfGenesOfInterest == 0 }" v-if="variant.overlappedGenes && geneCandidates && geneCandidates.length > 0">{{ numberOfGenesOfInterest }}</span>
+                        <span class="na subtle" v-else>n/a</span>
+                        <span class="num-genes-overlapped-tip subtle">
+                            /{{ numberOfGenes }}
+                        </span>
+                    </strong>    
                 </span>
             </span>
 
@@ -34,8 +42,8 @@
 
             <div class="size-text" v-html="bpFormatted((variant.end + 1) - variant.start)"></div>
             <div class="type-text"> {{ variant.type }}</div>
-<!-- 
-            <span class="exp-collapse-carrot" @click="variantOpened">
+
+            <!-- <span class="exp-collapse-carrot" @click="variantOpened">
                 <svg v-if="!showMore" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-down</title><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
                 <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-up</title><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
             </span> -->
@@ -89,7 +97,7 @@
   mounted () {
     let svKey = `${this.variant.chromosome}-${this.variant.start}-${this.variant.end}`
     if (svKey in this.openedSvSet) {
-        this.showMore = true
+        // this.showMore = true
     }
   },
   methods: {
@@ -283,16 +291,20 @@
     maxSingularPhenotypes() {
         if (this.patientPhenotypes && this.patientPhenotypes.length > 0 && this.variant.overlappedGenes && Object.values(this.variant.overlappedGenes).length > 0) {
             let maxPercent = 0;
+            let maxPhens = 0;
+            let geneName = '';
             for (let gene of Object.values(this.variant.overlappedGenes)) {
                 let inCommonPhens = Object.keys(gene.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype))
                 let percent = inCommonPhens.length / this.patientPhenotypes.length * 100
                 if (percent > maxPercent) {
                     maxPercent = percent
+                    maxPhens = inCommonPhens.length
+                    geneName = gene.gene_symbol
                 }
             }
-            return maxPercent
+            return { max: maxPhens, geneName: geneName}
         } else {
-            return 0;
+            return { max: 0 };
         }
     }
   },
@@ -374,48 +386,69 @@
                     fill: #2A65B7
                     pointer-events: none
             .overlap-tip
-                display: flex
-                flex-direction: row
-                justify-content: flex-start
-                font-family: 'Courier New', Courier, monospace
+                display: grid
+                grid-template-columns: 1fr 1fr
+                grid-template-rows: 1fr 1fr
+                font-weight: 200
                 font-size: 0.75em
                 margin-left: 1px
+                grid-row: 1/3
+                grid-column: 1/3
                 strong
-                    font-weight: 900
+                    font-weight: 600
+                    margin-left: 5px
                 .goi-ol-tip
                     padding: 3px 3px
-                    border-radius: 0px 5px 5px 0px
-                    background-color: #FFEBEB
-                    color: red
                     display: flex
-                    flex-direction: column
                     align-items: center
                     justify-content: center
                     text-align: center
                     box-sizing: border-box
+                    grid-row: 1/3
+                    grid-column: 2
                     strong
-                        font-size: 1.3em
+                        font-size: 1.2em
+                        display: flex
+                        align-items: center
+                        justify-content: center
+                    .subtle
+                        font-weight: 200
+                        opacity: .7
+                    .na
+                        font-weight: 200
+                        opacity: .7
+                    .num-genes-overlapped-tip
+                        padding: 3px 3px
+                        display: flex
+                        align-items: center
+                        justify-content: center
+                        text-align: center
+                        box-sizing: border-box
+                        grid-row: 2
+                        grid-column: 2
+                        b
+                            padding: 0px 2px
                 .num-phens-accounted-perc-tip
                     padding: 3px 3px
-                    border-radius: 5px 0px 0px 5px
-                    background-color: #C5DFFC
                     display: flex
                     flex-direction: column
                     align-items: center
                     justify-content: center
                     text-align: center
                     box-sizing: border-box
+                    grid-row: 1/3
+                    grid-column: 1
                     strong
-                        font-size: 1.25em
-                .num-genes-overlapped-tip
-                    padding: 3px 3px
-                    border-radius: 5px 0px 0px 5px
-                    display: flex
-                    flex-direction: column
-                    align-items: center
-                    justify-content: center
-                    text-align: center
-                    box-sizing: border-box
+                        font-size: 1.2em
+                        margin: 0px
+                    .subtle
+                        opacity: .7
+                        font-weight: 200
+                        color: #474747
+                    .max-gene
+                        font-weight: 400
+                        padding-top: 3px
+
             .origin-text
                 font-size: .8em
                 color: #474747

@@ -1,14 +1,22 @@
 <template>
   <div id="variant-sudo-scroll-wrapper">
     <div id="variant-list-bar">
+
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
-
-        <div>Variant <br> Overlaps</div>
-        <div></div>
-        <div>Inheritance</div>
-        <div>Type</div>
-        <div>Size</div>
-
+        <div class="upper">SV Overlaps</div>
+        <div class="lower">
+            <div class="col">
+                <span>Max Patient</span>
+                <span>Phenotypes</span>
+            </div>
+            <div class="col">
+                <span>Genes</span>
+                <span>GoI<b>/</b>Total</span>
+            </div>
+        </div>
+        <div class="span-rows">Inheritance</div>
+        <div class="span-rows">Type</div>
+        <div class="span-rows">Size</div>
       </div>
       <VariantListItem 
         v-for="(variant, index ) in svListSelection" 
@@ -72,7 +80,7 @@
 
     //the initial thumb size will be the size of the scrollSelection[1] / svList.length * 100
     let thumb = document.getElementById('variant-list-bar-sudo-scroll-thumb');
-    let height = (this.scrollSelection[1] / this.svList.length * 100);
+    let height = (this.scrollSelection[1] / (this.svList.length - 1)* 100);
     if (height > 100) {
       height = 99.5;
     }
@@ -207,7 +215,7 @@
       justify-content: flex-start
       padding-bottom: 10px
       width: 100%
-      min-width: 250px
+      min-width: 350px
       height: 100%
       box-sizing: border-box
       overflow-y: auto
@@ -216,19 +224,39 @@
       #variant-list-bar-header
         display: grid
         grid-template-columns: .21fr .2fr .25fr .2fr .15fr
+        grid-template-rows: 1fr 1fr
         font-size: .8em
         width: 100%
-        height: 50px
+        height: 90px
         margin: 0px
         padding: 5px
         box-sizing: border-box
         position: sticky
+        text-transform: uppercase
         top: 0
         background-color: white
         color: #474747
         border-bottom: 1px solid #E0E0E0
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
         z-index: 1
+        .span-rows
+            grid-row: 1/3
+        .upper
+            grid-column: 1/3
+            grid-row: 1
+        .lower
+            grid-column: 1/3
+            grid-row: 2
+            justify-content: space-evenly
+            text-transform: none
+            font-weight: 200
+            .col
+                display: flex
+                flex-direction: column
+                justify-content: space-evenly
+                align-items: center
+                b
+                    padding: 0px 2px
         div
           text-align: center
           display: flex
