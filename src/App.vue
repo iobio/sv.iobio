@@ -49,7 +49,7 @@
                     <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
                 </svg>
 
-                <svg class="loading-svg" v-if="!loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <svg class="loading-svg" v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>loading</title>
                     <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
                 </svg>
@@ -869,7 +869,7 @@
           width: 20px
           transform: translate(0px, 0px)
         .loading-svg
-          animation: spin 1s linear infinite
+            animation: spin 1s linear infinite
         @keyframes spin
           0%
             transform: rotate(0deg)
@@ -897,17 +897,12 @@
             height: 20px
             fill: #2A65B7
             pointer-events: none
-        &.sorted
-            filter: grayscale(100%)
-        &.loading-svg
-            animation: spin 1s linear infinite
-        @keyframes spin
-            0%
-            transform: rotate(0deg)
-            100%
-            transform: rotate(360deg)
-        &:hover
-            border-radius: 5px
+            &.sorted
+                filter: grayscale(100%)
+            &.loading-svg
+                animation: spin 1s linear infinite
+            &:hover
+                border-radius: 5px
         .sort-options-popup
             position: absolute
             top: 109%

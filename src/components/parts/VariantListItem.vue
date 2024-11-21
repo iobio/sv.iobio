@@ -414,6 +414,7 @@
                     .subtle
                         font-weight: 200
                         opacity: .7
+                        color: #474747
                     .na
                         font-weight: 200
                         opacity: .7
