@@ -467,8 +467,12 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 range: range,
                 xMap: xMap,
             }
-            _createGeneDiagram(gene, geneGroup, options);
 
+            if (isLessThanOneChr == true) {
+                //Don't render the transcript diagram if the window is more than one chromosome
+                _createGeneDiagram(gene, geneGroup, options);
+            }
+            
             return geneGroup;
         } else if (geneType == 'phenRelatedGene') {
             //Phen related genes
@@ -533,7 +537,10 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 xMap: xMap,
             }
 
-            _createGeneDiagram(gene, geneGroup, options);
+            if (isLessThanOneChr == true) {
+                //Don't render the transcript diagram if the window is more than one chromosome
+                _createGeneDiagram(gene, geneGroup, options);
+            }
 
             return geneGroup;
         } else {
@@ -615,7 +622,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 range: range,
                 xMap: xMap,
             }
-            _createGeneDiagram(gene, geneGroup, options);
+
+            if (isLessThanOneChr == true) {
+                //Don't render the transcript diagram if the window is more than one chromosome
+                _createGeneDiagram(gene, geneGroup, options);
+            }
 
             return geneGroup;
         }
