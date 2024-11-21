@@ -57,8 +57,8 @@
 
             <div class="tab-select-wrapper">
                 <nav class="tab-select" :class="{collapsed: !variantListBarOpen}">
-                <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">Variants</div>
-                <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes</div>
+                <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">Variants <span class="tip">{{ svListVariantBar.length }}</span></div>
+                <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes <span class="tip">{{ genesOfInterest.length }}</span></div>
                 </nav>
             </div>
 
@@ -957,6 +957,17 @@
         margin: 0px
         text-transform: uppercase
         font-weight: 200
+        position: relative
+        .tip
+            font-size: 12px
+            font-weight: 200
+            color: #474747
+            position: relative
+            top: -7px
+            left: 3px
+            border: .5px solid #474747
+            border-radius: 5px
+            padding: 0px 2px
         &.selected
           background-color: #EBEBEB
           font-weight: 400
