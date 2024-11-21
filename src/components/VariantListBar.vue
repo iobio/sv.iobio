@@ -4,10 +4,10 @@
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
 
         <div>Variant <br> Overlaps</div>
-        <div>Origin</div>
-        <div>Genotype</div>
-        <div>Size</div>
+        <div></div>
+        <div>Inheritance</div>
         <div>Type</div>
+        <div>Size</div>
 
       </div>
       <VariantListItem 
@@ -215,7 +215,7 @@
       transition: width 0.4s, min-width 0.4s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: .21fr .2fr .25fr .2fr .15fr .025fr
+        grid-template-columns: .21fr .2fr .25fr .2fr .15fr
         font-size: .8em
         width: 100%
         height: 50px

@@ -886,6 +886,7 @@
         border: 1px solid #EBEBEB
         transition: all 0.25s
         padding: 2px
+        margin-left: 3px
         height: 30px
         width: 30px
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.2)

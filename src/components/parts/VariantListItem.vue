@@ -22,22 +22,18 @@
                 </span>
             </span>
 
-            
-            <div class="origin-text">
-                <span class="novel" v-if="reciprocalOverlap == 'N'">DeNovo</span>
-                <div class="novel-tag inherited" v-if="reciprocalOverlap === 'I'">
-                </div>
-                <span class="inherited" v-if="reciprocalOverlap === 'I'">Inherited</span>
-                <span class="novel ar" v-if="reciprocalOverlap === 'AR'">Rec.Inherit</span>
-            </div>
+            <!-- Row 1 -->
+            <div class="origin-text novel" v-if="reciprocalOverlap == 'N'">DeNovo <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Noteworthy</title><path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" /></svg></span></div>
+            <div class="origin-text inherited" v-if="reciprocalOverlap === 'I'">Inherited</div>
+            <div class="origin-text novel ar" v-if="reciprocalOverlap === 'AR'">Rec.Inherit <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Noteworthy</title><path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" /></svg></span></div>
 
+            <!-- Row 2 -->
             <div class="genotype-text" :class="{het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom Alt'}">
                 {{ formatGenotype(variant.genotype) }}
             </div>
+
             <div class="size-text" v-html="bpFormatted((variant.end + 1) - variant.start)"></div>
             <div class="type-text"> {{ variant.type }}</div>
-
-
 <!-- 
             <span class="exp-collapse-carrot" @click="variantOpened">
                 <svg v-if="!showMore" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-down</title><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
@@ -347,7 +343,7 @@
         .preview
             position: relative
             display: grid
-            grid-template-columns: .21fr .2fr .25fr .2fr .15fr .025fr
+            grid-template-columns: .21fr .2fr .25fr .2fr .15fr
             grid-template-rows: 1fr 1fr
             padding: 5px
             width: 100%
@@ -420,36 +416,51 @@
                     justify-content: center
                     text-align: center
                     box-sizing: border-box
-            .genotype-text
-                font-size: 0.75em
-                border-radius: 5px
-                text-transform: uppercase
-                font-weight: 200
-            .size-text
-                font-size: 0.8em
-                font-weight: 200
-                color: #474747
-                .bp-sc
-                    font-size: 0.9em
-                    opacity: .7
-                    transform: translateY(4px) translateX(1px)
             .origin-text
                 font-size: .8em
                 color: #474747
                 position: relative
                 font-weight: 200
-                .novel
-                    color: red
-                    margin-right: 5px
-                    &.ar
-                        white-space: pre-wrap
-                        font-weight: 200
-                        color: #474747
+                grid-row: 1
+                grid-column: 3
+                display: flex
+                align-items: flex-end
+                svg
+                    height: 15px
+                    width: 15px
+                    position: absolute
+                    bottom: 5px
+                    right: 5px
+                    fill: red
+                    margin-left: 5px
+                    pointer-events: none
+            .genotype-text
+                font-size: 0.75em
+                border-radius: 5px
+                text-transform: uppercase
+                color: #474747
+                font-weight: 200
+                grid-row: 2
+                grid-column: 3
+                display: flex
+                align-items: flex-start
+            .size-text
+                font-size: 0.8em
+                font-weight: 200
+                color: #474747
+                grid-row: 1/3
+                grid-column: 5
+                .bp-sc
+                    font-size: 0.9em
+                    opacity: .7
+                    transform: translateY(4px) translateX(1px)
             .type-text
                 border-radius: 5px
                 font-size: 0.75em
                 font-weight: 200
                 opacity: .8
+                grid-row: 1/3
+                grid-column: 4
             div
                 display: flex
                 align-items: center
