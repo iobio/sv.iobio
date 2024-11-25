@@ -357,12 +357,12 @@
             align-items: center
             position: absolute
             top: 0px
-            left: 0px
-            width: 20px
-            height: 20px
+            right: 0px
+            width: 25px
+            height: 25px
             svg
-                height: 15px
-                width: 15px
+                height: 20px
+                width: 20px
                 fill: #FFB60A
                 pointer-events: none
         .preview
@@ -374,8 +374,6 @@
             width: 100%
             box-sizing: border-box
             border-bottom: 1px solid #F5F5F5
-            &.focusedVariant
-                background-color: #FFF3D6
             &.opened
                 box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
                 background-color: #DEE9F7

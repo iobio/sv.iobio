@@ -254,9 +254,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                     })
                     .attr('fill', function(){
                         //should be red if it's a deletion
-                        if (isFocused) {
-                            return '#FFD700';
-                        } else if (sv.type == 'DEL') {
+                        if (sv.type == 'DEL') {
                             return '#CC0000';
                         } else {
                             return '#4C709B';
@@ -267,7 +265,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                         d3.select('.tooltip-hover-variant').remove();
 
                         d3.select(this)
-                            .style('fill', '#C6A619')
+                            .style('fill', 'gray')
                             .style('cursor', 'pointer');
 
                         //append a tooltip that is absolutely positioned to the mouse position
@@ -320,15 +318,63 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                         d3.select('.tooltip-hover-variant').remove();
                         d3.select(this)
                             .style('fill', function(){
-                                if (isFocused) {
-                                    return '#FFD700';
-                                } else if (sv.type == 'DEL') {
+                                if (sv.type == 'DEL') {
                                     return '#CC0000';
                                 } else {
                                     return '#4C709B';
                                 }
                             });
                     })
+
+                //if the point of interest is the focused variant then we want to put a border around it
+                if (isFocused) {
+                    pointGroup.append('rect')
+                        .attr('x', -2)
+                        .attr('width', function() {
+                            //if the block is too small to see make it 2 pixels wide
+                            if (endX - startX < 1) {
+                                return 3;
+                            }
+                            return endX - startX + 4;
+                        })
+                        .attr('transform', function() {
+                            if (endX - startX < 1) {
+                                return `translate(1, ${translateY - 2})`
+                            } else {
+                                return `translate(0, ${translateY - 2})`
+                            }
+                        })
+                        .attr('height', 9)
+                        .attr('rx', function() {
+                            if (endX - startX < 3) {
+                                return 0
+                            } else {
+                                return 2
+                            }
+                        })
+                        .attr('fill', 'none')
+                        .attr('stroke', '#FFB60A')
+                        .attr('stroke-width', 2)
+                        .attr('class', 'focused-variant-border');
+
+                    //also put the star svg at the top left of the point of interest
+                    pointGroup.append('svg')
+                        .attr('x', -5)
+                        .attr('y', -18)
+                        .attr('width', 20)
+                        .attr('height', 20)
+                        .append('path')
+                        .attr('d', 'M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z')
+                        .attr('fill', '#FFB60A')
+                        .attr('transform', function() {
+                            if (endX - startX < 1) {
+                                return `translate(-1, 0) scale(0.75)`
+                            } else {
+                                return `translate(0, 0) scale(0.75)`
+                            }
+                        })
+                        .attr('class', 'star-svg');
+                }
 
             } else {
                 //dont render the point of interest if it already exists
