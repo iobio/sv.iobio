@@ -335,6 +335,19 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 svMap[`${absoluteStart}-${absoluteEnd}`].push(sv);
             }
         }
+
+        //If svMap is empty then we want to put a message in the middle of the chart that says 'No SVs in this region'
+        if (Object.keys(svMap).length == 0) {
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', height / 2)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '16px')
+                .attr('font-weight', '100')
+                .attr('font-style', 'italic')
+                .text('No SVs in this region')
+                .attr('fill', '#A3A3A3');
+        }
     }
 
     //render brush later so it's on top

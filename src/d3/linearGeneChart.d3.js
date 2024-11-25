@@ -300,6 +300,18 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 genesMap[`${absoluteStart}-${absoluteEnd}`].push(gene);
             }
         }
+
+        //if genes map is empty and we aren't the full genome then we want to display a message that says 'No genes in this region'
+        if (Object.keys(genesMap).length == 0 && !isWholeGenome) {
+            svg.append('text')
+                .attr('x', width/2 - 80)
+                .attr('y', height/2)
+                .text('No genes in this region')
+                .attr('font-size', '16px')
+                .attr('fill', '#A3A3A3')
+                .attr('font-style', 'italic')
+                .attr('font-weight', '100');
+        }
     }
 
     //render brush later so it's on top
