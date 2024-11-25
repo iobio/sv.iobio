@@ -208,6 +208,8 @@
             let svEnd = this.variant.end + svChrStart
             let svSize = svEnd - svStart
 
+            let firstParent = false;
+
             for (let variant of joinedCompList) {
                 let compGenotype = variant.genotype.slice(0, 3);
                 let chr2Start = this.chromosomeAccumulatedMap.get(variant.chromosome).start
@@ -223,14 +225,25 @@
                             if (compGenotype == '1/1') {
                                 return 'I'
                             } else {
-                                return 'AR'
+                                if (!firstParent) {
+                                    firstParent = true
+                                    continue
+                                } else {
+                                    return 'AR'
+                                }
                             }
+                        } else {
+                            return 'I'
                         } 
-                        return 'I'
                     }
                 }
             }
-            return 'N'
+
+            if (firstParent) {
+                return 'AR'
+            } else {
+                return 'N'
+            }
         } else if (this.filters && this.filters.denovoOnly) {
             return 'N'
         } else {
