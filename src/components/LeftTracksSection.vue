@@ -33,8 +33,7 @@
           </div>
 
           <button @click="toggleLineTool" v-if="globalView == 'linear'" class="line-tool-btn"> 
-            <span>Line<br>Tool</span>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>drag-vertical-variant</title><path d="M11 21H9V3H11V21M15 3H13V21H15V3Z" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>enable ruler line</title><path d="M11 21V3" stroke-width="3"/></svg>
           </button>
 
           <fieldset class="zoom-buttons-container" v-if="!isGlobalView">
@@ -650,7 +649,7 @@
       svg
         width: 20px
         height: 20px
-        fill: #2A65B7
+        stroke: #2A65B7
         border-radius: 50%
         margin-left: 3px
     .location-indicator
