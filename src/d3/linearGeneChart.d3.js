@@ -182,9 +182,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
         let isWholeGenome = range[0] == 0 && range[1] == genomeSize;
         let isLessThanOneChr = range[1] - range[0] <= chromosomeMap.get('1').end;
+        let hasPhenGenes = phenRelatedGenes && phenRelatedGenes.length > 0;
+        let hasGOIGenes = genesOfInterest && genesOfInterest.length > 0;
 
         //if we are rendering the whole genome and don't have any GOI or phenRelatedGenes, return early
-        if (isWholeGenome && (!phenRelatedGenes || phenRelatedGenes.length == 0) && (!genesOfInterest || genesOfInterest.length == 0)) {
+        if (isWholeGenome && (!hasPhenGenes) && (!hasGOIGenes)) {
             svg.append('text')
                 .attr('x', width/2 - 100)
                 .attr('y', height/2)
@@ -201,9 +203,9 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('class', 'global-gene-tip')
                 .attr('position', 'absolute')
                 .text(function() {
-                    if (genesOfInterest && genesOfInterest.length > 0 && (!phenRelatedGenes || phenRelatedGenes.length == 0)) {
+                    if (genesOfInterest && genesOfInterest.length > 0 && (!hasPhenGenes)) {
                         return `Showing only GOI`;
-                    } else if (phenRelatedGenes && phenRelatedGenes.length > 0 && (!genesOfInterest || genesOfInterest.length == 0)) {
+                    } else if (phenRelatedGenes && phenRelatedGenes.length > 0 && (!hasGOIGenes)) {
                         return `Showing only phenotype related genes`;
                     } else {
                         return `Showing GOI and phenotype related genes`;
@@ -264,6 +266,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 if (geneType == 'normal') {
                     normalGenesCount += 1;
                 }
+
                 if (hideNormalGenes && geneType == 'normal') {
                     continue;
                 }
@@ -351,8 +354,8 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('fill', '#A3A3A3')
                 .attr('font-style', 'italic')
                 .attr('font-weight', '100');
-        } else if (normalGenesCount > 0 && !isWholeGenome) {
-            d3.select('.linear-gene-chart-wrapper')
+        } else if (normalGenesCount > 0 && !isWholeGenome && (hasGOIGenes || hasPhenGenes)) {
+            d3.select('.linear-gene-chart-wrapper') 
                 .append('div')
                 .attr('class', 'show-hide-toggle')
                 .attr('position', 'absolute')
