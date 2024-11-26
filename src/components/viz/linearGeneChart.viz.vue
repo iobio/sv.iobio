@@ -133,6 +133,33 @@ export default {
     margin-top: 5px
     padding: 5px
     position: relative
+    .show-hide-toggle
+      position: absolute
+      right: 45%
+      bottom: 5px
+      cursor: pointer
+      font-size: 14px
+      color: #666666
+      font-weight: 200
+      font-style: italic
+      background-color: rgba(255, 255, 255, 0.8)
+      border-radius: 5px
+      box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
+      padding: 2px 5px
+      &:hover
+        color: #2A65B7
+    .global-gene-tip
+        position: absolute
+        right: 43%
+        bottom: 5px
+        cursor: pointer
+        font-size: 14px
+        color: #666666
+        font-weight: 200
+        font-style: italic
+        border-radius: 5px
+        padding: 2px 5px
+        cursor: default
     p
       color: #2A65B7
       font-weight: bold

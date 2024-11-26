@@ -3,6 +3,8 @@ import * as beHelper from '../dataHelpers/dataHelpers.js';
 
 export default function linearGeneChart(parentElement, refChromosomes, data, options=null) {
     let width = parentElement.clientWidth;
+    const parHeight = parentElement.clientHeight;
+
     let height = parentElement.clientHeight;
     let chromosomes = refChromosomes;
     let genes = data;
@@ -12,7 +14,8 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     let genesOfInterest = null;
     let phenRelatedGenes = null;  
     let centromeres = null;
-    let bands = null; 
+    let bands = null;
+    let hideNormalGenes = true;
 
     //zoom variables
     let zoomedSelection = null;
@@ -83,6 +86,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             }
             bands = newBands;
         }
+    }
+
+    //if there are not genes of interest or phen related genes then we want to show all the genes
+    if (!genesOfInterest && !phenRelatedGenes) {
+        hideNormalGenes = false;
     }
 
     const svg = d3.create('svg')
@@ -165,6 +173,12 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         svg.selectAll('.gene-group').remove();
         svg.selectAll('.gene-group-phenrelated').remove();
         svg.selectAll('.gene-group-geneofinterest').remove();
+        d3.select('.show-hide-toggle').remove();
+        d3.select('.global-gene-tip').remove();
+        
+        height = parHeight;
+        svg.attr('viewBox', [0, 0, width, height])
+            .attr('height', height + 3);
 
         let isWholeGenome = range[0] == 0 && range[1] == genomeSize;
         let isLessThanOneChr = range[1] - range[0] <= chromosomeMap.get('1').end;
@@ -172,14 +186,31 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         //if we are rendering the whole genome and don't have any GOI or phenRelatedGenes, return early
         if (isWholeGenome && (!phenRelatedGenes || phenRelatedGenes.length == 0) && (!genesOfInterest || genesOfInterest.length == 0)) {
             svg.append('text')
-                .attr('x', width/2 - 80)
+                .attr('x', width/2 - 100)
                 .attr('y', height/2)
                 .text('Select an area to view genes')
                 .attr('font-size', '15px')
                 .attr('fill', '#2A65B7')
                 .attr('font-style', 'italic');
             return;
-        } 
+            
+            //If we are whole genome but we have one of the two then we just want to note that only genes of interest or phenotype related genes are being shown
+        } else if (isWholeGenome) {
+            d3.select('.linear-gene-chart-wrapper')
+                .append('div')
+                .attr('class', 'global-gene-tip')
+                .attr('position', 'absolute')
+                .text(function() {
+                    if (genesOfInterest && genesOfInterest.length > 0 && (!phenRelatedGenes || phenRelatedGenes.length == 0)) {
+                        return `Showing only GOI`;
+                    } else if (phenRelatedGenes && phenRelatedGenes.length > 0 && (!genesOfInterest || genesOfInterest.length == 0)) {
+                        return `Showing only phenotype related genes`;
+                    } else {
+                        return `Showing GOI and phenotype related genes`;
+                    }
+                
+                });
+        }
 
         let localGenes = JSON.parse(JSON.stringify(genes));
 
@@ -188,6 +219,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         };
 
         let genesMap = {};
+        let normalGenesCount = 0;
         for (let gene of Object.values(localGenes)) {
             
             let geneType = _determineGeneType(gene, genesOfInterest, phenRelatedGenes);
@@ -227,6 +259,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
                 startX = x(startUpdated);
                 endX = x(endUpdated);
+
+                //if the gene type is normal then we want to increment the normal genes count to use later
+                if (geneType == 'normal') {
+                    normalGenesCount += 1;
+                }
+                if (hideNormalGenes && geneType == 'normal') {
+                    continue;
+                }
             }
 
             //add the gene to the map if it doesn't exist
@@ -288,8 +328,8 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
                 if (translateY >= height) {
                     height += 18;
-                    svg.attr('viewBox', [0, 0, width, height])
-                        .attr('height', height + 3);
+                    svg.attr('viewBox', [0, 0, width, height + 50])
+                        .attr('height', height + 50);
                 }
 
                 geneGroup.attr('transform', `translate(${startX}, ${translateY + 25})`);
@@ -311,6 +351,27 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr('fill', '#A3A3A3')
                 .attr('font-style', 'italic')
                 .attr('font-weight', '100');
+        } else if (normalGenesCount > 0 && !isWholeGenome) {
+            d3.select('.linear-gene-chart-wrapper')
+                .append('div')
+                .attr('class', 'show-hide-toggle')
+                .attr('position', 'absolute')
+                .text(function() {
+                    if (hideNormalGenes == true) {
+                        return `Show ${normalGenesCount} other genes`;
+                    } else {
+                        return `Hide ${normalGenesCount} other genes`;
+                    }
+                })
+                .on('click', function(event) {
+                    if (hideNormalGenes) {
+                        hideNormalGenes = false;
+                        _renderGenes([zoomedSelection.start, zoomedSelection.end]);
+                    } else {
+                        hideNormalGenes = true;
+                        _renderGenes([zoomedSelection.start, zoomedSelection.end]);
+                    }
+                });
         }
     }
 
