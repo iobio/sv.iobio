@@ -116,7 +116,7 @@
                 class="draggable-chart"
             />
         </div>
-       
+       <LowerModal :hidden="hideLowerModal" @close="closeLowerModal"/>
       </div>
 
     </div>
@@ -131,6 +131,7 @@
   import LinearGeneChartViz from './viz/linearGeneChart.viz.vue'
   import IdiogramScaleBarViz from './viz/idiogramScaleBar.viz.vue'
   import SvCirosMiniViz from './viz/svCircosMini.viz.vue';
+  import LowerModal from './LowerModal.vue';
 
   export default {
   name: "LeftTracksSection",
@@ -140,7 +141,8 @@
     LinearSvChartViz,
     LinearGeneChartViz, 
     IdiogramScaleBarViz,
-    SvCirosMiniViz
+    SvCirosMiniViz,
+    LowerModal
   },
   props: {
     svList: Array,
@@ -171,6 +173,7 @@
       tools: {
         line: false
       },
+      hideLowerModal: false,
     }
   },
   async mounted () {
@@ -178,6 +181,9 @@
     await this.fetchSamples();
   },
   methods: {
+    closeLowerModal() {
+      this.hideLowerModal = true;
+    },
     toggleLineTool() {
       this.tools.line = !this.tools.line
     },
