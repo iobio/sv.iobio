@@ -116,7 +116,15 @@
                 class="draggable-chart"
             />   
         </div>
-        <LowerModal :hidden="hideLowerModal" @close="closeLowerModal"/>
+        <LowerModal
+            v-if="focusedVariant" 
+            :hidden="hideLowerModal" 
+            :type="lowerModalType"
+            :variant="focusedVariant"
+            :patientPhenotypes="patientPhenotypes"
+            :geneCandidates="genesOfInterest"
+            :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+            @close="closeLowerModal"/>
       </div>
 
     </div>
@@ -150,6 +158,7 @@
     focusedVariant: Object,
     genesOfInterest: Array,
     phenRelatedGenes: Array,
+    patientPhenotypes: Array,
     focusedGeneName: String,
     batchNum: Number,
     samples: Object,
@@ -174,6 +183,7 @@
         line: false
       },
       hideLowerModal: true,
+      lowerModalType: ''
     }
   },
   async mounted () {
@@ -558,6 +568,7 @@
   watch: {
     focusedGeneName(newVal, oldVal) {
         this.hideLowerModal = false;
+        this.lowerModalType = 'gene';
       if (newVal && newVal !== oldVal && this.genes) {
         this.findZoomFromFocusedGene();
       }
@@ -571,6 +582,7 @@
     focusedVariant(newVal, oldVal) {
       if (this.focusedVariant) {
         this.hideLowerModal = false;
+        this.lowerModalType = 'variant';
         this.focusOnVariant();
       } else if (!this.focusedVariant) {
         this.$emit('zoomEvent', null)

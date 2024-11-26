@@ -112,6 +112,7 @@
         :selectedArea="selectedArea"
         :focusedVariant="focusedVariant"
         :genesOfInterest="genesOfInterest"
+        :patientPhenotypes="phenotypesOfInterest"
         :phenRelatedGenes="overlappedPhenGenes"
         :batchNum="batchNum"
         :focusedGeneName="focusedGeneName"
