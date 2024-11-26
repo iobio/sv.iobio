@@ -37,18 +37,16 @@
   
 <style lang="sass">
     #lower-modal
-        height: 55%
+        height: 45vh
         width: 100%
         box-sizing: border-box
         position: absolute
-        bottom: 0
+        bottom: 5px
         right: 0
         background-color: #F8F8F8
         opacity: 0.85
-        border-radius: 5px 5px 0 0
-        border-top: 1px solid #E0E0E0
-        border-left: 1px solid #E0E0E0
-        border-right: 1px solid #E0E0E0
+        border-radius: 5px
+        border: 1px solid #E0E0E0
         z-index: 1
         &.hidden
             display: none

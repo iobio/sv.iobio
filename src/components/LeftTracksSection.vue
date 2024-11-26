@@ -114,9 +114,9 @@
                 @selectAreaEvent="selectAreaEventFired"
                 @removeTrack="removeTrack(index)"
                 class="draggable-chart"
-            />
+            />   
         </div>
-       <LowerModal :hidden="hideLowerModal" @close="closeLowerModal"/>
+        <LowerModal :hidden="hideLowerModal" @close="closeLowerModal"/>
       </div>
 
     </div>
@@ -173,7 +173,7 @@
       tools: {
         line: false
       },
-      hideLowerModal: false,
+      hideLowerModal: true,
     }
   },
   async mounted () {
@@ -557,6 +557,7 @@
   },
   watch: {
     focusedGeneName(newVal, oldVal) {
+        this.hideLowerModal = false;
       if (newVal && newVal !== oldVal && this.genes) {
         this.findZoomFromFocusedGene();
       }
@@ -569,6 +570,7 @@
     },
     focusedVariant(newVal, oldVal) {
       if (this.focusedVariant) {
+        this.hideLowerModal = false;
         this.focusOnVariant();
       } else if (!this.focusedVariant) {
         this.$emit('zoomEvent', null)
