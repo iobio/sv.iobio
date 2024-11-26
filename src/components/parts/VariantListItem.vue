@@ -42,30 +42,6 @@
 
             <div class="size-text" v-html="bpFormatted((variant.end + 1) - variant.start)"></div>
             <div class="type-text"> {{ variant.type }}</div>
-
-            <!-- <span class="exp-collapse-carrot" @click="variantOpened">
-                <svg v-if="!showMore" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-down</title><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
-                <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>chevron-up</title><path d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
-            </span> -->
-        </div>
-        <div v-if="showMore && variant.overlappedGenes" class="more-info">
-            <div class="gene-row" v-for="gene in variant.overlappedGenes">
-                <span class="gene-symbol-span">{{ gene.gene_symbol }} <sup><i>({{ percentOverlappedByGene(gene) }}%)</i></sup></span>
-                <div class="gene-information-section">
-                    <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
-                        <span v-for="phenotype in sortByInPatientPhens(gene.phenotypes)" :class="{green: patientPhenotypes.includes(phenotype)}">{{ gene.phenotypes[phenotype].name}}
-                            (<a :href="`https://hpo.jax.org/app/browse/term/${phenotype}`" target="_blank" rel="noopener noreferrer">{{ phenotype }}</a>)
-                        </span>
-                    </p>
-                    <p class="column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
-                        <span v-for="disease in gene.diseases">{{ (disease.disease_name !== null ? disease.disease_name : 'No Name Found')}}
-                            (<a v-if="disease.disease_id.slice(0, 4) == 'OMIM'" :href="`https://www.omim.org/entry/${disease.disease_id.slice(5)}`" target="_blank" rel="noopener noreferrer">{{ disease.disease_id }}</a>
-                                <a v-else-if="disease.disease_name" :href="`https://hpo.jax.org/browse/disease/${disease.disease_id}`" target="_blank" rel="noopener noreferrer">{{ disease.disease_id }}</a>
-                                <span v-else>{{ disease.disease_id }}</span>)
-                        </span>
-                    </p>
-                </div>
-            </div>
         </div>
     </div>
   </template>
@@ -158,23 +134,6 @@
             return this.variant.overlappedGenes
         }
     },
-    sortByInPatientPhens(phenotypesObj) {
-        /**
-         * Turns a phenotypes object into an array of the phenotypes which are the keys 
-         * the array is sorted by if that phenotype is in the patient phenotypes
-         */
-        let phenotypes = Object.keys(phenotypesObj)
-        phenotypes.sort((a, b) => {
-            if (this.patientPhenotypes.includes(a) && !this.patientPhenotypes.includes(b)) {
-                return -1
-            } else if (!this.patientPhenotypes.includes(a) && this.patientPhenotypes.includes(b)) {
-                return 1
-            } else {
-                return 0
-            }
-        })
-        return phenotypes
-    },
     bpFormatted(valuebp) {
         if (valuebp > 1000000) {
             return `${(valuebp / 1000000).toFixed(2)}<span class="bp-sc">Mb</span>`;
@@ -182,15 +141,7 @@
             return `${(valuebp / 1000).toFixed(2)}<span class="bp-sc">kb</span>`;
         }
         return `${valuebp}<span class="bp-sc">bp</span>`;
-    },
-    percentOverlappedByGene(gene) {
-        if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
-            let inCommonPhens = Object.keys(gene.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype))
-            return Math.round(inCommonPhens.length / this.patientPhenotypes.length * 100)
-        } else {
-            return 0;
-        }
-    },
+    }
   },
   computed: {
     reciprocalOverlap() {
