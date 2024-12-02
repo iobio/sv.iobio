@@ -980,6 +980,8 @@
       min-width: 0px
       .filter-button
         display: none
+      .sort-btn
+        display: none
   #var-list-bar-toggle-btn
     position: absolute
     bottom: 10px
