@@ -8,26 +8,51 @@
         </div>
 
         <h3 v-if="type == 'variant'"> Variant Information</h3>
-        <!-- Currently replicate what used to be in the Variant List Item -->
-        <div v-if="type == 'variant' && variant && variant.overlappedGenes" class="more-info">
-            <div class="gene-row" v-for="gene in sortVariantInformation">
-                <span class="gene-symbol-span">{{ gene.gene_symbol }} <sup><i>({{ percentOverlappedByGene(gene) }}%)</i></sup></span>
-                <div class="gene-information-section">
-                    <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
-                        <span v-for="phenotype in sortByInPatientPhens(gene.phenotypes)" :class="{green: patientPhenotypes.includes(phenotype)}">{{ gene.phenotypes[phenotype].name}}
-                            (<a :href="`https://hpo.jax.org/app/browse/term/${phenotype}`" target="_blank" rel="noopener noreferrer">{{ phenotype }}</a>)
-                        </span>
-                    </p>
-                    <p class="column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
-                        <span v-for="disease in gene.diseases">{{ (disease.disease_name !== null ? disease.disease_name : 'No Name Found')}}
-                            (<a v-if="disease.disease_id.slice(0, 4) == 'OMIM'" :href="`https://www.omim.org/entry/${disease.disease_id.slice(5)}`" target="_blank" rel="noopener noreferrer">{{ disease.disease_id }}</a>
-                                <a v-else-if="disease.disease_name" :href="`https://hpo.jax.org/browse/disease/${disease.disease_id}`" target="_blank" rel="noopener noreferrer">{{ disease.disease_id }}</a>
-                                <span v-else>{{ disease.disease_id }}</span>)
-                        </span>
-                    </p>
+
+        <div class="column">
+            <div class="column-header">Overlapped Genes</div>
+            <div v-if="type == 'variant' && variant && variant.overlappedGenes" class="more-info">
+
+                <div class="gene-row" v-for="gene in sortVariantInformation">
+                    <span class="gene-symbol-span"><b>{{ gene.gene_symbol }}</b> Phenotypes: {{ percentOverlappedByGene(gene) }}/{{ patientPhenotypes.length }}</span>
+
+                    <div class="gene-information-section">
+                        <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
+                            <span v-for="phenotype in inPatientPhens(gene.phenotypes).inPatientPhens" :class="{patient: patientPhenotypes.includes(phenotype)}">
+                                <svg class="patient-relevant" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <title>patient-phenotype</title>
+                                    <path d="M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M10,17L13,20H3V18C3,15.79 6.58,14 11,14L12.89,14.11L10,17M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4Z" />
+                                </svg>
+                                {{ gene.phenotypes[phenotype].name}}
+                                <a class="hpo-link" :href="`https://hpo.jax.org/app/browse/term/${phenotype}`" target="_blank" rel="noopener noreferrer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ phenotype }}</title>
+                                        <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
+                                    </svg>
+                                </a>
+                            </span>
+                            <span class="additional-information" v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0">Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span>
+                        </p>
+
+                        <p class="column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
+                            <span class="disease-row" v-for="disease in gene.diseases">{{ (disease.disease_name !== null ? disease.disease_name : 'No Name Found')}}
+                                <a class="disease-link" v-if="disease.disease_id.slice(0, 4) == 'OMIM'" :href="`https://www.omim.org/entry/${disease.disease_id.slice(5)}`" target="_blank" rel="noopener noreferrer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ disease.disease_id }}</title>
+                                        <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
+                                    </svg>
+                                </a>
+                                <a class="disease-link" v-else-if="disease.disease_name" :href="`https://hpo.jax.org/browse/disease/${disease.disease_id}`" target="_blank" rel="noopener noreferrer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ disease.disease_id }}</title>
+                                        <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
+                                    </svg>
+                                </a>
+                                <span v-else>{{ disease.disease_id }}</span>
+                            </span>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </template>
   
@@ -57,23 +82,22 @@
     percentOverlappedByGene(gene) {
         if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
             let inCommonPhens = Object.keys(gene.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype))
-            return Math.round(inCommonPhens.length / this.patientPhenotypes.length * 100)
+            return inCommonPhens.length
         } else {
             return 0;
         }
     },
-    sortByInPatientPhens(phenotypesObj) {
+    inPatientPhens(phenotypesObj) {
         let phenotypes = Object.keys(phenotypesObj)
-        phenotypes.sort((a, b) => {
-            if (this.patientPhenotypes.includes(a) && !this.patientPhenotypes.includes(b)) {
-                return -1
-            } else if (!this.patientPhenotypes.includes(a) && this.patientPhenotypes.includes(b)) {
-                return 1
-            } else {
-                return 0
-            }
-        })
-        return phenotypes
+        let inPatientPhens = []
+        let nonAssociatedPhens = []
+
+        inPatientPhens = phenotypes.filter(phenotype => this.patientPhenotypes.includes(phenotype))
+        nonAssociatedPhens = phenotypes.filter(phenotype => !this.patientPhenotypes.includes(phenotype))
+        return {
+            inPatientPhens: inPatientPhens,
+            nonAssociatedPhens: nonAssociatedPhens
+        }
     }
   },
   computed: {
@@ -108,18 +132,20 @@
         align-items: flex-start
         bottom: 5px
         right: 0
-        background-color: #F8F8F8
-        opacity: 0.85
+        background-color: white
         border-radius: 5px
         border: 1px solid #E0E0E0
         z-index: 1
+        overflow: hidden
         transition: height 0.4s, border 0.4s
         h3
             margin: 0px
             padding: 5px
             width: 100%
             text-align: center
-            border-bottom: 1px solid #F5F5F5
+            font-weight: 200
+            font-size: 1em
+            text-transform: uppercase
         &.hidden
             height: 0vh
             border: 1px solid transparent
@@ -144,13 +170,28 @@
                     fill: red
             &:hover
                 color: #2A65B7
+        .column
+            display: flex
+            flex-direction: column
+            align-items: center
+            width: 50%
+            padding: 5px
+            box-sizing: border-box
+            overflow: hidden
+            .column-header
+                width: 100%
+                text-align: center
+                padding: 2px
+                font-weight: 200
+                font-size: 0.9em
+                text-transform: uppercase
         .more-info
             display: flex
             flex-direction: column
             align-items: flex-start
             justify-content: flex-start
             padding: 5px
-            width: 45%
+            width: 100%
             overflow-y: auto
             max-height: 800px
             box-sizing: border-box
@@ -193,11 +234,16 @@
             max-height: 200px
             display: flex
             flex-direction: column
+            border: 1px solid #C1D1EA
+            border-radius: 5px
+            margin-top: 3px
+            padding: 0px
             .gene-symbol-span
                 width: 100%
                 text-align: center
-                border-bottom: 1px solid #C1D1EA
-                border-top: 1px solid #C1D1EA
+                padding: 5px
+                background-color: #EBEBEB
+                border-radius: 5px 5px 0px 0px
             .gene-information-section
                 display: flex
                 flex-grow: 1
@@ -210,12 +256,67 @@
                     box-sizing: border-box
                     display: flex
                     flex-direction: column
+                    align-items: flex-start
+                    position: relative
                     overflow-y: auto
                     overflow-x: hidden
                     &:first-of-type
                         flex-grow: 1
-    .green
-        background-color: #8BBEF9
-        border: 1px solid white
+                    .additional-information
+                        font-size: 0.8em
+                        color: #666666
+                        margin-top: 5px
+                        text-align: center
+                        bottom: 0px
+                        padding: 2px
+                        border-radius: 5px
+                        cursor: pointer
+                        &:hover
+                            background-color: #F5F5F5
+                    .disease-row
+                        display: flex
+                        align-items: center
+                        margin-top: 2px
+                        padding: 1px 3px
+                        border: 1px solid #C1D1EA
+                        border-radius: 5px
+                    .disease-link
+                        margin-left: 5px
+                        padding: 2px
+                        border-radius: 5px
+                        display: flex
+                        justify-content: center
+                        align-items: center
+                        width: 18px
+                        height: 18px
+                        svg
+                            fill: #0C5FC3
+                            height: 15px
+                            width: 15px
+                        &:hover
+                            background-color: #F5F5F5
+    .patient
         border-radius: 5px
+        padding: 2px
+        display: flex
+        align-items: center
+        .patient-relevant
+            fill: #0C5FC3
+            height: 15px
+            width: 15px
+        .hpo-link
+            margin-left: 5px
+            padding: 2px
+            border-radius: 5px
+            display: flex
+            justify-content: center
+            align-items: center
+            width: 18px
+            height: 18px
+            svg
+                fill: #0C5FC3
+                height: 15px
+                width: 15px
+            &:hover
+                background-color: #F5F5F5
 </style>
