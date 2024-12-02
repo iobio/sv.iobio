@@ -345,7 +345,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         }
 
         //if genes map is empty and we aren't the full genome then we want to display a message that says 'No genes in this region'
-        if (Object.keys(genesMap).length == 0 && !isWholeGenome) {
+        if (Object.keys(genesMap).length == 0 && !isWholeGenome && normalGenesCount == 0) {
             svg.append('text')
                 .attr('x', width/2 - 80)
                 .attr('y', height/2)
