@@ -7,52 +7,76 @@
             </svg>
         </div>
 
-        <h3 v-if="type == 'variant'"> Variant Information</h3>
+        <div id="upper-section">
+            <h3 v-if="type == 'variant'">Variant Information</h3>
+            <div class="column">
+                <div class="top-row">
+                    <div class="variant-information">
+                        <div>Type: {{ variant.type }}</div>
+                        <div>Genotype: {{ variant.genotype.slice(0, 3) }}</div>
+                        <div>Chromosome: {{ variant.chromosome }}</div>
+                        <div>Size: {{  }}</div>
+                        <div class="scroll-y">{{ variant }}</div> 
+                    </div>
 
-        <div class="column">
-            <div class="column-header">Overlapped Genes</div>
-            <div v-if="type == 'variant' && variant && variant.overlappedGenes" class="more-info">
-
-                <div class="gene-row" v-for="gene in sortVariantInformation">
-                    <span class="gene-symbol-span"><b>{{ gene.gene_symbol }}</b> Phenotypes: {{ percentOverlappedByGene(gene) }}/{{ patientPhenotypes.length }}</span>
-
-                    <div class="gene-information-section">
-                        <p class="column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
-                            <span v-for="phenotype in inPatientPhens(gene.phenotypes).inPatientPhens" :class="{patient: patientPhenotypes.includes(phenotype)}">
-                                <svg class="patient-relevant" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <title>patient-phenotype</title>
-                                    <path d="M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M10,17L13,20H3V18C3,15.79 6.58,14 11,14L12.89,14.11L10,17M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4Z" />
-                                </svg>
-                                {{ gene.phenotypes[phenotype].name}}
-                                <a class="hpo-link" :href="`https://hpo.jax.org/app/browse/term/${phenotype}`" target="_blank" rel="noopener noreferrer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ phenotype }}</title>
-                                        <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
-                                    </svg>
-                                </a>
-                            </span>
-                            <span class="additional-information" v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0">Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span>
-                        </p>
-
-                        <p class="column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
-                            <span class="disease-row" v-for="disease in gene.diseases">{{ (disease.disease_name !== null ? disease.disease_name : 'No Name Found')}}
-                                <a class="disease-link" v-if="disease.disease_id.slice(0, 4) == 'OMIM'" :href="`https://www.omim.org/entry/${disease.disease_id.slice(5)}`" target="_blank" rel="noopener noreferrer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ disease.disease_id }}</title>
-                                        <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
-                                    </svg>
-                                </a>
-                                <a class="disease-link" v-else-if="disease.disease_name" :href="`https://hpo.jax.org/browse/disease/${disease.disease_id}`" target="_blank" rel="noopener noreferrer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ disease.disease_id }}</title>
-                                        <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
-                                    </svg>
-                                </a>
-                                <span v-else>{{ disease.disease_id }}</span>
-                            </span>
-                        </p>
+                    <div class="actions">
+                        <button>IGV Breakends</button>
+                        <button>Pull SNPs</button>
+                        <button>Sample Coverage</button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div id="lower-section">
+            <div class="column gene-cards">
+                <div class="column-header">Overlapped Genes</div>
+                <div v-if="type == 'variant' && variant && variant.overlappedGenes" class="card-row">
+
+                    <div class="gene-row" v-for="gene in sortVariantInformation">
+                        <span class="gene-symbol-span"><b>{{ gene.gene_symbol }}</b> Phenotypes: {{ percentOverlappedByGene(gene) }}/{{ patientPhenotypes.length }}</span>
+
+                        <div class="gene-information-section">
+                            <p class="inner-column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
+                                <span v-for="phenotype in inPatientPhens(gene.phenotypes).inPatientPhens" :class="{patient: patientPhenotypes.includes(phenotype)}">
+                                    <svg class="patient-relevant" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <title>patient-phenotype</title>
+                                        <path d="M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M10,17L13,20H3V18C3,15.79 6.58,14 11,14L12.89,14.11L10,17M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4Z" />
+                                    </svg>
+                                    {{ gene.phenotypes[phenotype].name}}
+                                    <a class="hpo-link" :href="`https://hpo.jax.org/app/browse/term/${phenotype}`" target="_blank" rel="noopener noreferrer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ phenotype }}</title>
+                                            <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
+                                        </svg>
+                                    </a>
+                                </span>
+                                <span class="additional-information" v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0">Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span>
+                            </p>
+
+                            <p class="inner-column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
+                                <span class="disease-row" v-for="disease in gene.diseases">{{ (disease.disease_name !== null ? disease.disease_name : 'No Name Found')}}
+                                    <a class="disease-link" v-if="disease.disease_id.slice(0, 4) == 'OMIM'" :href="`https://www.omim.org/entry/${disease.disease_id.slice(5)}`" target="_blank" rel="noopener noreferrer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ disease.disease_id }}</title>
+                                            <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
+                                        </svg>
+                                    </a>
+                                    <a class="disease-link" v-else-if="disease.disease_name" :href="`https://hpo.jax.org/browse/disease/${disease.disease_id}`" target="_blank" rel="noopener noreferrer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ disease.disease_id }}</title>
+                                            <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
+                                        </svg>
+                                    </a>
+                                    <span v-else>{{ disease.disease_id }}</span>
+                                </span>
+                            </p>
+
+                            <p class="additional-information" v-if="(!gene.diseases || !(Object.keys(gene.diseases).length > 0)) && (!gene.phenotypes || !(Object.keys(gene.phenotypes).length > 0))">
+                                <span>No Associations</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
   
@@ -129,26 +153,38 @@
         display: flex
         flex-direction: column
         justify-content: flex-start
-        align-items: flex-start
+        align-items: space-between
         bottom: 5px
         right: 0
         background-color: white
         border-radius: 5px
         border: 1px solid #E0E0E0
+        box-shadow: -1px 0px 5px 0px rgba(0,0,0,0.1), 0px 2px 5px 0px rgba(0,0,0,0.1)
         z-index: 1
         overflow: hidden
         transition: height 0.4s, border 0.4s
+        #upper-section
+            height: 40%
+            box-sizing: border-box
+            display: flex
+            flex-direction: column
+        #lower-section
+            height: 60%
+            box-sizing: border-box
+            display: flex
+            flex-direction: column
         h3
             margin: 0px
             padding: 5px
             width: 100%
             text-align: center
-            font-weight: 200
+            font-weight: 400
             font-size: 1em
             text-transform: uppercase
         &.hidden
             height: 0vh
             border: 1px solid transparent
+            box-shadow: none
         .close-button
             position: absolute
             height: 30px
@@ -174,9 +210,9 @@
             display: flex
             flex-direction: column
             align-items: center
-            width: 50%
+            width: 100%
+            height: 100%
             padding: 5px
-            box-sizing: border-box
             overflow: hidden
             .column-header
                 width: 100%
@@ -185,17 +221,57 @@
                 font-weight: 200
                 font-size: 0.9em
                 text-transform: uppercase
-        .more-info
+            &.gene-cards
+                height: 100%
+        .top-row
             display: flex
-            flex-direction: column
+            flex-direction: row
+            align-items: center
+            justify-content: space-between
+            width: 100%
+            padding: 5px
+            max-height: 100%
+            overflow: hidden
+            .variant-information
+                border: 1px solid #C1D1EA
+                border-radius: 5px
+                margin-right: 5px
+                height: 100%
+                overflow: hidden
+                .scroll-y
+                    overflow-y: auto
+                    white-space: pre-wrap
+                    height: 100px
+                    padding: 5px
+                    width: 100%
+            .actions
+                display: flex
+                flex-direction: column
+                align-items: center
+                justify-content: flex-start
+                max-width: 140px
+                button
+                    margin: 5px
+                    padding: 5px
+                    border-radius: 5px
+                    background-color: white
+                    color: #2A65B7
+                    width: 120px
+                    border: 1px solid #2A65B7
+                    font-size: 0.8em
+                    cursor: pointer
+                    &:hover
+                        background-color: #2A65B7
+                        color: white
+        .card-row
+            display: flex
+            flex-direction: row
             align-items: flex-start
             justify-content: flex-start
             padding: 5px
             width: 100%
-            overflow-y: auto
-            max-height: 800px
-            box-sizing: border-box
-            border-bottom: 1px solid #F5F5F5
+            flex: 1 0
+            overflow-x: auto
             div
                 width: 100%
                 display: flex
@@ -231,13 +307,19 @@
                             color: white
                             cursor: pointer
         .gene-row
-            max-height: 200px
+            height: 100%
             display: flex
             flex-direction: column
             border: 1px solid #C1D1EA
             border-radius: 5px
-            margin-top: 3px
+            margin-right: 3px
             padding: 0px
+            .additional-information
+                font-size: 1em
+                color: #666666
+                margin-top: 5px
+                text-align: center
+                padding: 2px
             .gene-symbol-span
                 width: 100%
                 text-align: center
@@ -250,7 +332,7 @@
                 flex-direction: row
                 overflow-x: hidden
                 overflow-y: hidden
-                .column
+                .inner-column
                     margin: 0px
                     padding: 5px 3px 5px 3px
                     box-sizing: border-box
@@ -258,6 +340,7 @@
                     flex-direction: column
                     align-items: flex-start
                     position: relative
+                    min-width: 220px
                     overflow-y: auto
                     overflow-x: hidden
                     &:first-of-type
