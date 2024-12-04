@@ -651,6 +651,7 @@
         display: flex
         flex-direction: row
         align-items: center
+        justify-content: center
         padding: 5px
         border: 1px solid #E0E0E0
         border-radius: 5px
@@ -667,7 +668,7 @@
             flex-direction: row
             align-items: center
             justify-content: center
-            padding: 2px
+            padding: 3px
             margin: 0px 2px
             border: none
             border-radius: 5px
@@ -689,8 +690,6 @@
     align-items: flex-end
     height: 100%
     .line-tool-btn
-      padding: 5px 5px
-      margin-left: 10px
       display: flex
       flex-direction: row
       align-items: center
@@ -706,8 +705,6 @@
         cursor: pointer
         background-color: #E0E0E0
       svg
-        width: 20px
-        height: 20px
         stroke: #2A65B7
         border-radius: 50%
         margin-left: 3px
