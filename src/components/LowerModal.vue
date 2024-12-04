@@ -256,33 +256,34 @@
                     min-width: 150px
                     justify-content: space-between
                     .item
-                        background-color: #ebebeb
+                        border: 1px solid #C1D1EA
+                        color: #2A65B7
                         border-radius: 5px
                         padding: 5px
                         font-weight: 200
                         text-align: center
                         margin-top: 5px
             .actions
+                align-items: center
                 display: flex
                 flex-direction: column
-                align-items: center
+                height: 100%
                 justify-content: space-evenly
                 max-width: 140px
-                height: 100%
                 button
-                    margin-top: 2px
-                    margin-left: auto
-                    padding: 5px
+                    background-color: #ebebeb
                     border-radius: 5px
+                    border: 1px solid transparent
                     color: #2A65B7
-                    background-color: inherit
-                    width: 100%
-                    border: 1px solid #2A65B7
-                    font-size: 0.8em
                     cursor: pointer
+                    font-size: 0.8em
+                    margin-left: auto
+                    margin-top: 2px
+                    padding: 5px
+                    width: 100%
                     &:hover
-                        background-color: #2A65B7
-                        color: white
+                        background-color: #C1D1EA
+                        border: 1px solid #2A65B7
         .card-row
             display: flex
             flex-direction: row
@@ -385,19 +386,21 @@
                         border-radius: 5px
                     .disease-link
                         margin-left: 5px
-                        padding: 2px
                         border-radius: 5px
                         display: flex
                         justify-content: center
+                        border: 1px solid transparent
                         align-items: center
                         width: 18px
                         height: 18px
+                        transition: background-color 0.2s, border 0.2s
                         svg
                             fill: #0C5FC3
                             height: 15px
                             width: 15px
                         &:hover
-                            background-color: #F5F5F5
+                            background-color: #C1D1EA
+                            border: 1px solid #2A65B7
     .patient
         border-radius: 5px
         padding: 2px
@@ -409,17 +412,19 @@
             width: 15px
         .hpo-link
             margin-left: 5px
-            padding: 2px
             border-radius: 5px
             display: flex
             justify-content: center
+            border: 1px solid transparent
             align-items: center
             width: 18px
             height: 18px
+            transition: background-color 0.2s, border 0.2s
             svg
                 fill: #0C5FC3
                 height: 15px
                 width: 15px
             &:hover
-                background-color: #F5F5F5
+                background-color: #C1D1EA
+                border: 1px solid #2A65B7
 </style>

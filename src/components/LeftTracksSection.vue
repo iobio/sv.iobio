@@ -35,7 +35,10 @@
           <fieldset class="fieldset-buttons-container">
             <legend>ruler line</legend>
             <button @click="toggleLineTool" v-if="globalView == 'linear'" class="line-tool-btn"> 
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>enable ruler line</title><path d="M11 21V3" stroke-width="3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>activate/deactivate ruler line</title>
+                    <path d="M11,2V4.07C7.38,4.53 4.53,7.38 4.07,11H2V13H4.07C4.53,16.62 7.38,19.47 11,19.93V22H13V19.93C16.62,19.47 19.47,16.62 19.93,13H22V11H19.93C19.47,7.38 16.62,4.53 13,4.07V2M11,6.08V8H13V6.09C15.5,6.5 17.5,8.5 17.92,11H16V13H17.91C17.5,15.5 15.5,17.5 13,17.92V16H11V17.91C8.5,17.5 6.5,15.5 6.08,13H8V11H6.09C6.5,8.5 8.5,6.5 11,6.08M12,11A1,1 0 0,0 11,12A1,1 0 0,0 12,13A1,1 0 0,0 13,12A1,1 0 0,0 12,11Z" />
+                </svg>
             </button>
           </fieldset>
 
@@ -57,8 +60,25 @@
         </div>
 
         <div v-if="(showButton && focusedVariant) || zoomHistory.length > 1" id="buttons-container">
-          <button v-if="showButton && focusedVariant" id="focus-chart-btn" @click="focusOnVariant">Focus On <br> Variant</button>
-          <button v-if="zoomHistory.length > 1" @click="focusOnPrevious" id="prev-zoom-btn">Prev. <br> Zoom</button>
+            <fieldset v-if="showButton && focusedVariant" class="fieldset-buttons-container">
+                <legend>Focused SV</legend>
+                <button id="focus-chart-btn" @click="focusOnVariant">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>zoom to focused sv</title>
+                        <path d="M12,20L7,22L12,11L17,22L12,20M8,2H16V5H22V7H16V10H8V7H2V5H8V2M10,4V8H14V4H10Z" />
+                    </svg>
+                </button>
+            </fieldset>
+
+            <fieldset class="fieldset-buttons-container" v-if="zoomHistory.length > 1" @click="focusOnPrevious">
+            <legend>Previous Z</legend>
+            <button  id="prev-zoom-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>previous-zoom</title>
+                    <path d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z" />
+                </svg>
+            </button>
+            </fieldset>
+
         </div>
       </div>
 
@@ -679,20 +699,21 @@
             justify-content: center
             padding: 3px
             margin: 0px 2px
-            border: none
+            border: 1px solid transparent
             border-radius: 5px
             text-transform: uppercase
             color: #474747
             height: 100%
+            transition: background-color 0.2s, border 0.2s
             &:hover
                 cursor: pointer
-                background-color: #E0E0E0
+                background-color: #C1D1EA
+                border: 1px solid #2A65B7
             svg
                 width: 18px
                 height: 18px
                 fill: #2A65B7
                 border-radius: 50%
-                margin-left: 3px
   .show-modal-btn
     position: absolute
     right: 5px
@@ -716,25 +737,6 @@
     justify-content: flex-start
     align-items: flex-end
     height: 100%
-    .line-tool-btn
-      display: flex
-      flex-direction: row
-      align-items: center
-      border: none
-      color: #474747
-      background-color: #EBEBEB
-      font-size: 0.8em
-      border-radius: 5px
-      text-transform: uppercase
-      text-align: left
-      height: 100%
-      &:hover
-        cursor: pointer
-        background-color: #E0E0E0
-      svg
-        stroke: #2A65B7
-        border-radius: 50%
-        margin-left: 3px
     .location-indicator
       display: flex
       flex-direction: row
@@ -805,28 +807,18 @@
           z-index: 1
   #buttons-container
     height: 100%
-    #focus-chart-btn
-      padding: 5px
-      border: none
-      margin-left: 10px
-      border-radius: 5px
-      text-transform: uppercase
-      color: #474747
-      height: 100%
-      &:hover
-        cursor: pointer
-        background-color: #E0E0E0
     #prev-zoom-btn
-      padding: 5px
-      border: none
-      margin-left: 10px
-      border-radius: 5px
-      text-transform: uppercase
-      color: #474747
-      height: 100%
-      &:hover
-        cursor: pointer
-        background-color: #E0E0E0
+        border: 1px solid transparent
+        border-radius: 5px
+        text-transform: uppercase
+        color: #2A65B7
+        height: 100%
+        &:hover
+            cursor: pointer
+            background-color: #C1D1EA
+            border: 1px solid #2A65B7
+        svg
+            fill: #2A65B7
   #chrom-select-bar-div
     height: 32px
     padding: 8px 0px 2px 0px
@@ -836,24 +828,27 @@
     width: fit-content
     color: #2A65B7
     background-color: #EBEBEB
+    border: 1px solid transparent
     border-radius: 5px
     margin-left: 10px
     padding: 5px
     height: 100%
     display: flex
     align-items: center
+    transition: background-color 0.2s, border 0.2s
     &:hover
       cursor: pointer
-      background-color: #E0E0E0
+      background-color: #C1D1EA
+      border: 1px solid #2A65B7
     select
       border: none
       font-weight: bold
+      color: #2A65B7
       font-size: 1em
       text-transform: uppercase
       background-color: inherit
       &:hover
         cursor: pointer
-        background-color: #E0E0E0
       &:focus
         outline: none
 </style>
