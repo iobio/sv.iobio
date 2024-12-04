@@ -11,18 +11,21 @@
             <h3 v-if="type == 'variant'">Variant Information</h3>
             <div class="column">
                 <div class="top-row">
-                    <div class="variant-information">
-                        <div>Type: {{ variant.type }}</div>
-                        <div>Genotype: {{ variant.genotype.slice(0, 3) }}</div>
-                        <div>Chromosome: {{ variant.chromosome }}</div>
-                        <div>Size: {{  }}</div>
-                        <div class="scroll-y">{{ variant }}</div> 
-                    </div>
-
-                    <div class="actions">
+                    <fieldset class="actions fieldset-buttons-container">
+                        <legend>Actions</legend>
                         <button>IGV Breakends</button>
-                        <button>Pull SNPs</button>
                         <button>Sample Coverage</button>
+                        <button>Pull SNPs</button>
+                    </fieldset>
+
+                    <div class="variant-information">
+                        <div class="variant-summary-col">
+                            <div class="item">
+                                <span v-html="bpFormatted(variant.size)"></span>
+                            </div>
+                            <div class="item">{{ formatGenotype(variant.genotype, true) }} ({{ variant.genotype.slice(0, 3) }})</div>
+                            <div class="item">{{ formatType(variant.type) }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -32,9 +35,8 @@
             <div class="column gene-cards">
                 <div class="column-header">Overlapped Genes</div>
                 <div v-if="type == 'variant' && variant && variant.overlappedGenes" class="card-row">
-
                     <div class="gene-row" v-for="gene in sortVariantInformation">
-                        <span class="gene-symbol-span"><b>{{ gene.gene_symbol }}</b> Phenotypes: {{ percentOverlappedByGene(gene) }}/{{ patientPhenotypes.length }}</span>
+                        <span class="gene-symbol-span"><b>{{ gene.gene_symbol }}</b> Phenotypes: {{ numOverlappedByGene(gene) }}/{{ patientPhenotypes.length }}</span>
 
                         <div class="gene-information-section">
                             <p class="inner-column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
@@ -81,6 +83,8 @@
 </template>
   
 <script>
+  import * as common from '../dataHelpers/commonFunctions.js'
+
   export default {
   name: 'LowerModal',
   components: {
@@ -100,10 +104,13 @@
   mounted () {
   },
   methods: {
+    formatGenotype: common.formatGenotype,
+    bpFormatted: common.bpFormatted,
+    formatType: common.formatType,
     close() {
         this.$emit('close')
     },
-    percentOverlappedByGene(gene) {
+    numOverlappedByGene(gene) {
         if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
             let inCommonPhens = Object.keys(gene.phenotypes).filter(phenotype => this.patientPhenotypes.includes(phenotype))
             return inCommonPhens.length
@@ -126,6 +133,7 @@
   },
   computed: {
     sortVariantInformation(){
+        // TODO: We want to sort by genes with num of phens and also if there are genes of interest by that as well
         if (this.patientPhenotypes && this.patientPhenotypes.length > 0 && this.variant.overlappedGenes && Object.values(this.variant.overlappedGenes).length > 0) {
             let overlappedGenes = Object.values(this.variant.overlappedGenes)
             overlappedGenes.sort((a, b) => {
@@ -163,6 +171,9 @@
         z-index: 1
         overflow: hidden
         transition: height 0.4s, border 0.4s
+        .bp-sc
+            font-size: 0.8em
+            margin-right: 5px
         #upper-section
             height: 40%
             box-sizing: border-box
@@ -233,30 +244,39 @@
             max-height: 100%
             overflow: hidden
             .variant-information
-                border: 1px solid #C1D1EA
                 border-radius: 5px
-                margin-right: 5px
+                padding-left: 10px
                 height: 100%
+                flex: 1 0
                 overflow: hidden
-                .scroll-y
-                    overflow-y: auto
-                    white-space: pre-wrap
-                    height: 100px
-                    padding: 5px
-                    width: 100%
+                .variant-summary-col
+                    display: flex
+                    flex-direction: column
+                    width: 15%
+                    min-width: 150px
+                    justify-content: space-between
+                    .item
+                        background-color: #ebebeb
+                        border-radius: 5px
+                        padding: 5px
+                        font-weight: 200
+                        text-align: center
+                        margin-top: 5px
             .actions
                 display: flex
                 flex-direction: column
                 align-items: center
-                justify-content: flex-start
+                justify-content: space-evenly
                 max-width: 140px
+                height: 100%
                 button
-                    margin: 5px
+                    margin-top: 2px
+                    margin-left: auto
                     padding: 5px
                     border-radius: 5px
                     background-color: white
                     color: #2A65B7
-                    width: 120px
+                    width: 100%
                     border: 1px solid #2A65B7
                     font-size: 0.8em
                     cursor: pointer
