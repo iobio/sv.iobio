@@ -47,6 +47,8 @@
   </template>
 
 <script>
+  import * as common from '../../dataHelpers/commonFunctions.js'
+
   export default {
   name: 'VariantListItem',
   components: {
@@ -77,23 +79,9 @@
     }
   },
   methods: {
-    formatGenotype(genotype) {
-        let numcode = genotype.slice(0, 3);
-        if (numcode === '0/0') {
-            return 'Hom Ref'
-        } else if (numcode === '0/1') {
-            return 'Het'
-        } else if (numcode === '1/1') {
-            return 'Hom Alt'
-        } else {
-            return genotype
-        }
-    },
-    roundScore(score) {
-        //turn score to number
-        score = parseFloat(score)
-        return Math.round(score * 1000) / 1000
-    }, 
+    formatGenotype: common.formatGenotype,
+    bpFormatted: common.bpFormatted,
+    formatType: common.formatType,
     variantOpened(event) {
         event.stopPropagation();
         this.showMore = !this.showMore
@@ -134,14 +122,6 @@
             return this.variant.overlappedGenes
         }
     },
-    bpFormatted(valuebp) {
-        if (valuebp > 1000000) {
-            return `${(valuebp / 1000000).toFixed(2)}<span class="bp-sc">Mb</span>`;
-        } else if (valuebp > 1000) {
-            return `${(valuebp / 1000).toFixed(2)}<span class="bp-sc">kb</span>`;
-        }
-        return `${valuebp}<span class="bp-sc">bp</span>`;
-    }
   },
   computed: {
     reciprocalOverlap() {

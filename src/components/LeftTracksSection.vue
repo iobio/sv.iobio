@@ -32,11 +32,14 @@
             </select>
           </div>
 
-          <button @click="toggleLineTool" v-if="globalView == 'linear'" class="line-tool-btn"> 
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>enable ruler line</title><path d="M11 21V3" stroke-width="3"/></svg>
-          </button>
+          <fieldset class="fieldset-buttons-container">
+            <legend>ruler line</legend>
+            <button @click="toggleLineTool" v-if="globalView == 'linear'" class="line-tool-btn"> 
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>enable ruler line</title><path d="M11 21V3" stroke-width="3"/></svg>
+            </button>
+          </fieldset>
 
-          <fieldset class="zoom-buttons-container" v-if="!isGlobalView">
+          <fieldset class="fieldset-buttons-container" v-if="!isGlobalView">
             <legend>Zoom</legend>
             <button class="zoom-tool-btn" @click="zoom('in')">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -644,6 +647,42 @@
 </script>
 
 <style lang="sass">
+  .fieldset-buttons-container
+        display: flex
+        flex-direction: row
+        align-items: center
+        padding: 5px
+        border: 1px solid #E0E0E0
+        border-radius: 5px
+        margin-left: 10px
+        legend
+          margin: 0px
+          padding: 0px
+          font-size: 0.6em
+          text-transform: uppercase
+          font-style: italic
+          color: #474747
+        button
+            display: flex
+            flex-direction: row
+            align-items: center
+            justify-content: center
+            padding: 2px
+            margin: 0px 2px
+            border: none
+            border-radius: 5px
+            text-transform: uppercase
+            color: #474747
+            height: 100%
+            &:hover
+                cursor: pointer
+                background-color: #E0E0E0
+            svg
+                width: 18px
+                height: 18px
+                fill: #2A65B7
+                border-radius: 50%
+                margin-left: 3px
   #radios-tools-container
     display: flex
     justify-content: flex-start
@@ -692,43 +731,6 @@
         padding: 0px
         font-size: 0.8em
         border-radius: 5px
-    .zoom-buttons-container
-        display: flex
-        flex-direction: row
-        align-items: center
-        padding: 5px
-        border: 1px solid #E0E0E0
-        border-radius: 5px
-        margin-left: 10px
-        legend
-          margin: 0px
-          padding: 0px
-          font-size: 0.6em
-          text-transform: uppercase
-          font-style: italic
-          color: #474747
-        button
-            display: flex
-            flex-direction: row
-            align-items: center
-            justify-content: center
-            padding: 2px
-            border: none
-            border-radius: 5px
-            text-transform: uppercase
-            color: #474747
-            height: 100%
-            &:first-of-type
-                margin-right: 5px
-            &:hover
-                cursor: pointer
-                background-color: #E0E0E0
-            svg
-                width: 18px
-                height: 18px
-                fill: #2A65B7
-                border-radius: 50%
-                margin-left: 3px
   #left-tracks-section
     box-sizing: border-box
     display: flex
