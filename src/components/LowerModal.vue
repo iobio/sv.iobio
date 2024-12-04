@@ -271,19 +271,12 @@
                 justify-content: space-evenly
                 max-width: 140px
                 button
-                    background-color: #ebebeb
-                    border-radius: 5px
-                    border: 1px solid transparent
                     color: #2A65B7
-                    cursor: pointer
                     font-size: 0.8em
-                    margin-left: auto
                     margin-top: 2px
                     padding: 5px
                     width: 100%
-                    &:hover
-                        background-color: #C1D1EA
-                        border: 1px solid #2A65B7
+                    cursor: not-allowed
         .card-row
             display: flex
             flex-direction: row
