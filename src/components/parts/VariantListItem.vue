@@ -40,7 +40,7 @@
                 {{ formatGenotype(variant.genotype) }}
             </div>
 
-            <div class="size-text" v-html="bpFormatted((variant.end + 1) - variant.start)"></div>
+            <div class="size-text" v-html="bpFormatted(variant.size)"></div>
             <div class="type-text"> {{ variant.type }}</div>
         </div>
     </div>
