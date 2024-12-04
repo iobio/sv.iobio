@@ -8,7 +8,11 @@ class Sv {
             this.chromosome = input.contigName || input.chromosome;
             this.start = input.start;
             this.end = input.end;
-            this.type = input.type;
+            //The svlen is negative when the variant is a deletion which really doesn't make sense for our use case so we will just take the absolute value
+            //If for some reason we don't have an svlen then we will just take the absolute value of the difference between the start and end
+            this.size = Math.abs(parseInt(input.size)) || Math.abs(parseInt(input.end) - parseInt(input.start));
+            //If we couldn't find the svtype and it is falsey then we will just set it to 'unknown'
+            this.type = input.type || 'unknown';
             this.genotype = input.genotype;
             this.ref = input.ref || '.';
             this.alt = input.alt || '.';
