@@ -262,30 +262,4 @@
                             background-color: #2A65B7
                             color: white
                             cursor: pointer
-    .patient
-        border-radius: 5px
-        padding: 2px
-        display: flex
-        align-items: center
-        .patient-relevant
-            fill: #0C5FC3
-            height: 15px
-            width: 15px
-        .hpo-link
-            margin-left: 5px
-            border-radius: 5px
-            display: flex
-            justify-content: center
-            border: 1px solid transparent
-            align-items: center
-            width: 18px
-            height: 18px
-            transition: background-color 0.2s, border 0.2s
-            svg
-                fill: #0C5FC3
-                height: 15px
-                width: 15px
-            &:hover
-                background-color: #C1D1EA
-                border: 1px solid #2A65B7
 </style>

@@ -4,7 +4,7 @@
 
         <div class="gene-information-section">
             <p class="inner-column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
-                <span v-for="phenotype in inPatientPhens(gene.phenotypes).inPatientPhens" :class="{patient: patientPhenotypes.includes(phenotype)}">
+                <span v-for="phenotype in inPatientPhens(gene.phenotypes).inPatientPhens" class="phenotype" :class="{patient: patientPhenotypes.includes(phenotype)}">
                     <svg class="patient-relevant" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <title>patient-phenotype</title>
                         <path d="M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M10,17L13,20H3V18C3,15.79 6.58,14 11,14L12.89,14.11L10,17M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4Z" />
@@ -16,7 +16,19 @@
                         </svg>
                     </a>
                 </span>
-                <span class="additional-information" v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0">Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span>
+                <span v-if="showMorePhenotypes" v-for="phenotype in inPatientPhens(gene.phenotypes).nonAssociatedPhens" class="phenotype">
+                    <svg class="non-relevant" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>non-patient relevant</title>
+                        <path d="M12 2C17.5 2 22 6.5 22 12S17.5 22 12 22 2 17.5 2 12 6.5 2 12 2M12 4C10.1 4 8.4 4.6 7.1 5.7L18.3 16.9C19.3 15.5 20 13.8 20 12C20 7.6 16.4 4 12 4M16.9 18.3L5.7 7.1C4.6 8.4 4 10.1 4 12C4 16.4 7.6 20 12 20C13.9 20 15.6 19.4 16.9 18.3Z" />
+                    </svg>
+                    {{ gene.phenotypes[phenotype].name}}
+                    <a class="hpo-link" :href="`https://hpo.jax.org/app/browse/term/${phenotype}`" target="_blank" rel="noopener noreferrer">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Link to: {{ phenotype }}</title>
+                            <path d="M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z" />
+                        </svg>
+                    </a>
+                </span>
+                <span @click="showMorePhenotypes = true" class="additional-information" v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0 && !showMorePhenotypes">Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span>
             </p>
 
             <p class="inner-column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
@@ -94,6 +106,43 @@
 </script>
 
 <style lang="sass">
+    .phenotype
+        border-radius: 5px
+        padding: 2px
+        display: flex
+        align-items: center
+        color: #666666
+        font-weight: 200
+        svg
+            fill: #0C5FC3
+            height: 15px
+            min-height: 15px
+            width: 15px
+            min-width: 15px
+        &.patient
+            color: black
+            font-weight: 400
+        .non-relevant
+            fill: #666666
+            height: 15px
+            width: 15px
+        .hpo-link
+            margin-left: 5px
+            border-radius: 5px
+            display: flex
+            justify-content: center
+            border: 1px solid transparent
+            align-items: center
+            width: 18px
+            height: 18px
+            transition: background-color 0.2s, border 0.2s
+            svg
+                fill: #0C5FC3
+                height: 15px
+                width: 15px
+            &:hover
+                background-color: #C1D1EA
+                border: 1px solid #2A65B7
     .gene-row
         height: 100%
         display: flex
