@@ -40,9 +40,9 @@
         <div class="button-container">
             <div @click="showSortOptions = !showSortOptions" class="sort-btn">
                 <div class="sort-options-popup" :class="{hidden: !showSortOptions}">
+                    <span @click="sortSvList('percentOverlapped')">Max Patient Phenotypes</span>
                     <span @click="sortSvList('goi')">Genes of Interest (GOI)</span>
-                    <span @click="sortSvList('percentOverlapped')">Phenotypes % Max</span>
-                    <span @click="sortSvList('genesOverlapped')"># Genes</span>
+                    <span @click="sortSvList('genesOverlapped')">Number of Genes Overlapped</span>
                 </div>
                 <svg class="sort-svg" v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>Sort SVs</title>
@@ -57,7 +57,7 @@
 
             <div class="tab-select-wrapper">
                 <nav class="tab-select" :class="{collapsed: !variantListBarOpen}">
-                <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">Variants <span class="tip">{{ svListVariantBar.length }}</span></div>
+                <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">SVs <span class="tip">{{ svListVariantBar.length }}</span></div>
                 <div class="tab" :class="{selected: selectedTab == 'goi'}" @click="selectedTab = 'goi'" v-if="genesOfInterest.length > 0">Genes <span class="tip">{{ genesOfInterest.length }}</span></div>
                 </nav>
             </div>
