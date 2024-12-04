@@ -8,7 +8,7 @@
         </div>
 
         <div id="upper-section">
-            <h3 v-if="type == 'variant'">Variant Information</h3>
+            <h3 v-if="type == 'variant'">SV Information</h3>
             <div class="column">
                 <div class="top-row">
                     <fieldset class="actions fieldset-buttons-container">
@@ -164,10 +164,10 @@
         align-items: space-between
         bottom: 5px
         right: 0
-        background-color: white
+        background-color: #FCFCFC
         border-radius: 5px
         border: 1px solid #E0E0E0
-        box-shadow: -1px 0px 5px 0px rgba(0,0,0,0.1), 0px 2px 5px 0px rgba(0,0,0,0.1)
+        box-shadow: -2px 0px 5px 0px rgba(0,0,0,0.1), 0px 2px 5px 0px rgba(0,0,0,0.1)
         z-index: 1
         overflow: hidden
         transition: height 0.4s, border 0.4s
@@ -274,8 +274,8 @@
                     margin-left: auto
                     padding: 5px
                     border-radius: 5px
-                    background-color: white
                     color: #2A65B7
+                    background-color: inherit
                     width: 100%
                     border: 1px solid #2A65B7
                     font-size: 0.8em
