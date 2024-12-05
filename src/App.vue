@@ -201,10 +201,8 @@
         mosaicSession: null,
         mosaicUrlParams: null,
         mosaidProjectId: null,
-        mosaicSampleId: null,
         mosaicExperimentId: null,
         validFromMosaic: true,
-        mosaidVcfUrl: null,
       }
     },
     async mounted() {
@@ -222,10 +220,8 @@
     methods: {
       async initMosaicSession() {
         if (localStorage.getItem('mosaic-iobio-tkn') && localStorage.getItem('mosaic-iobio-tkn').length > 0){
-          //Gets everything from the URL and assigns what is needed
           this.mosaicProjectId = Number(this.mosaicUrlParams.get('project_id'));
           let tokenType = this.mosaicUrlParams.get('token_type');
-
           let source = this.mosaicUrlParams.get('source');
           source = decodeURIComponent(source);
 
@@ -249,55 +245,85 @@
             return {
                 name: sample.name,
                 id: sample.id,
+                relation: ''
             }
           })
-          
-          //Find the proband from the relation attribute out of mosaic
-          let probandId;
+
+          let experiment = await this.mosaicSession.promiseGetExperiment(this.mosaicProjectId, this.mosaicExperimentId);
+          let vcfFiles = experiment.files.filter(file => file.type == 'vcf');
+
+          let probandFound = false;
           for (let sample of samples) {
             let attributes = await this.mosaicSession.promiseGetSampleAttributes(this.mosaicProjectId, sample.id);
             let relationships = attributes.find(attr => attr.name == 'Relation').values;
+            sample.relation = relationships[0].value;
+
+            let vcfFile = vcfFiles.find(file => file.sample_id == sample.id);
+            let sampleVcfName = vcfFile.vcf_sample_name;
+
+            let mosaicVcfUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, vcfFile.id);
+
             let isProband = relationships.find(rel => rel.value == 'Proband');
-            
+
             if (isProband) {
-              probandId = sample.id;
-              break;
+                let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, sample.id);
+                this.phenotypesOfInterest = terms.map(term => term.hpo_id);
+                
+                this.samples.proband.vcf = mosaicVcfUrl.url;
+                this.samples.proband.id = sampleVcfName;
+
+                probandFound = true;
+            } else {
+                let newComparison = {
+                    name: sample.relation,
+                    id: sampleVcfName,
+                    vcf: mosaicVcfUrl.url,
+                    tbi: '',
+                    bam: '',
+                    bai: '',
+                    svList: [],
+                }
+
+                this.samples.comparisons.push(newComparison);
             }
           }
 
-          //Get the proband name to use for samples
-          let probandName = samples.find(sample => sample.id == probandId).name;
-          
-          //Set the proband id and get the phenotypes from mosaic
-          this.mosaicSampleId = probandId;
-          let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, this.mosaicSampleId);
-          this.phenotypesOfInterest = terms.map(term => term.hpo_id);
-
-          //Get the proband's vcf file using the mosaicSession and experimentId
-          let experiment = await this.mosaicSession.promiseGetExperiment(this.mosaicProjectId, this.mosaicExperimentId);
-          let vcfFiles = experiment.files.filter(file => file.type == 'vcf');
-          let probandFile = vcfFiles.find(file => file.sample_id == this.mosaicSampleId);
-          let fileId = probandFile.id;
-
-          //Get the signed url for the proband's vcf file that can be accessed via http
-          this.mosaicVcfUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, fileId);
-
-          if (this.mosaicVcfUrl) {
-            //If everything worked update the sample and open the select data section for the user to get the comparisons
-            this.samples.proband.vcf = this.mosaicVcfUrl.url;
-            this.samples.proband.id = probandName;
+          if (probandFound) {
             this.validFromMosaic = true;
             this.selectDataSectionOpen = true;
-
           } else {
             //set not launched from mosaic not valid something went wrong
             this.validFromMosaic = false;
             this.selectDataSectionOpen = true;
+
+            //reset samples
+            this.samples.proband = {
+              name: 'Proband',
+              id: null,
+              vcf: '',
+              tbi: '',
+              bam: '',
+              bai: '',
+              svList: [],
+            }
+            this.samples.comparisons = []
           }
         } else {
             //set not launched from mosaic not valid something went wrong
             this.validFromMosaic = false;
             this.selectDataSectionOpen = true;
+
+            //reset samples
+            this.samples.proband = {
+              name: 'Proband',
+              id: null,
+              vcf: '',
+              tbi: '',
+              bam: '',
+              bai: '',
+              svList: [],
+            }
+            this.samples.comparisons = []
         }
       },
       returnDenovo(svList, comps, chromMap) {
