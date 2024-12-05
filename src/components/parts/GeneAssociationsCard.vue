@@ -1,6 +1,18 @@
 <template>
     <div class="gene-associations-card gene-row">
-        <span class="gene-symbol-span"><b>{{ gene.gene_symbol }}</b> Phenotypes: {{ numOverlappedByGene(gene) }}/{{ patientPhenotypes.length }}</span>
+        <div class="gene-card-header">
+            <div class="symbol-row">{{ gene.gene_symbol }}</div> 
+            <div class="header-row">
+                <div class="centered">
+                    Phenotypes <span class="blue">{{ numOverlappedByGene(gene) }}</span>/{{ patientPhenotypes.length }}
+                    <svg class="patient-relevant" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>patient-phenotype</title>
+                        <path d="M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M10,17L13,20H3V18C3,15.79 6.58,14 11,14L12.89,14.11L10,17M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4Z" />
+                    </svg>
+                </div>
+                <div class="centered">Diseases</div>
+            </div>
+        </div>
 
         <div class="gene-information-section">
             <p class="inner-column" v-if="gene.phenotypes && Object.keys(gene.phenotypes).length > 0">
@@ -28,7 +40,7 @@
                         </svg>
                     </a>
                 </span>
-                <span @click="showMorePhenotypes = true" class="additional-information" v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0 && !showMorePhenotypes">Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span>
+                <span @click="showMorePhenotypes = true" class="additional-information phenotypes" v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0 && !showMorePhenotypes">Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span>
             </p>
 
             <p class="inner-column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
@@ -113,6 +125,7 @@
         align-items: center
         color: #666666
         font-weight: 200
+        font-size: 0.85em
         svg
             fill: #0C5FC3
             height: 15px
@@ -152,17 +165,50 @@
         margin-right: 3px
         padding: 0px
         .additional-information
-            font-size: 1em
+            font-size: .8em
             color: #666666
             margin-top: 5px
             text-align: center
+            width: 100%
             padding: 2px
-        .gene-symbol-span
+        .gene-card-header
+            display: flex
+            flex-direction: column
             width: 100%
             text-align: center
             padding: 5px
+            font-size: .8em
             background-color: #EBEBEB
             border-radius: 5px 5px 0px 0px
+            .symbol-row
+                font-weight: 400
+                width: 100%
+                display: flex
+                justify-content: center
+                align-items: center
+            .header-row
+                display: flex
+                flex-direction: row
+                justify-content: space-between
+                align-items: center
+                padding: 5px
+                font-weight: 200
+                font-size: 1em
+                .blue
+                    color: #0C5FC3
+                    font-weight: bold
+                    margin-left: 5px
+            .centered
+                display: flex
+                align-items: center
+                justify-content: center
+                width: 50%
+                .patient-relevant
+                    fill: #0C5FC3
+                    height: 15px
+                    width: 15px
+                    margin-left: 5px
+                    margin-right: 5px
         .gene-information-section
             display: flex
             flex-grow: 1
@@ -186,7 +232,7 @@
                     font-size: 0.8em
                     color: #666666
                     margin-top: 5px
-                    text-align: center
+                    text-align: left
                     font-weight: 200
                     bottom: 0px
                     padding: 2px
@@ -201,6 +247,7 @@
                     padding: 1px 3px
                     border: 1px solid #C1D1EA
                     border-radius: 5px
+                    font-size: 0.85em
                 .disease-link
                     margin-left: 5px
                     border-radius: 5px

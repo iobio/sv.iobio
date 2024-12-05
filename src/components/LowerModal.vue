@@ -228,38 +228,4 @@
             width: 100%
             flex: 1 0
             overflow-x: auto
-            div
-                width: 100%
-                display: flex
-                justify-content: space-between
-                span
-                    font-size: 0.8em
-                    margin-right: 5px
-                .gene-span
-                    padding: 2px
-                    border-radius: 5px
-                    font-size: 0.8em
-                    border: 1px solid #2A65B7
-                    background-color: #C1D1EA
-                    color: #2A65B7
-                    &:hover
-                        background-color: #2A65B7
-                        color: white
-                        cursor: pointer
-                .other-genes-container
-                    display: flex
-                    flex-wrap: wrap
-                    span
-                        margin-right: 3px
-                        margin-top: 3px
-                        padding: 2px
-                        border-radius: 5px
-                        font-size: 0.8em
-                        border: 1px solid #2A65B7
-                        background-color: #C1D1EA
-                        color: #2A65B7
-                        &:hover
-                            background-color: #2A65B7
-                            color: white
-                            cursor: pointer
 </style>
