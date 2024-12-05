@@ -290,7 +290,9 @@
 
           if (probandFound) {
             this.validFromMosaic = true;
-            this.selectDataSectionOpen = true;
+            this.selectDataSectionOpen = false;
+            //Call update samples to load the data and close the select data section
+            this.updateSamples(this.samples);
           } else {
             //set not launched from mosaic not valid something went wrong
             this.validFromMosaic = false;
