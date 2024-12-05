@@ -11,12 +11,12 @@
             <h3 v-if="type == 'variant'">SV Information</h3>
             <div class="column">
                 <div class="top-row">
-                    <fieldset class="actions fieldset-buttons-container">
+                    <!-- <fieldset class="actions fieldset-buttons-container">
                         <legend>Actions</legend>
                         <button>IGV Breakends</button>
                         <button>Sample Coverage</button>
                         <button>Pull SNPs</button>
-                    </fieldset>
+                    </fieldset> -->
 
                     <div class="variant-information">
                         <div class="variant-summary-col">
