@@ -104,7 +104,40 @@ export default class MosaicSession {
   
       return response.json();
     }
-  
+
+    promiseGetProjectSettings(projectId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getProjectSettings(projectId)
+            .then(response => {
+                resolve(response);
+            })
+            .catch(error => {
+                const errorMsg = self.getErrorMessage(error);
+                console.error(`Error getting project settings from Mosaic with project_id ${projectId}`);
+                console.error(errorMsg);
+                reject(`Error getting project settings ${projectId}: ${errorMsg}`);
+            });
+        });
+    }
+
+    async getProjectSettings(projectId) {
+        let self = this;
+        const response = await fetch(`${self.api}/projects/${projectId}/settings`, {
+            method: 'GET',
+            headers: {
+                Authorization: self.authorizationString,
+                accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        return response.json();
+    }
+
     // ---- Get the sample HPO terms
     promiseGetSampleHpoTerms(projectId, sampleId) {
       let self = this;

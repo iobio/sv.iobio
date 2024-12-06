@@ -4,6 +4,7 @@
       <NavBar
         :selectDataOpen="selectDataSectionOpen"
         :filterDataOpen="filterDataSectionOpen"
+        :hgBuild="hgBuild"
         :loaded="loadedInitiallyComplete"
         :progressPercent="progressPercent"
         :goiFromParent="genesOfInterest"
@@ -109,6 +110,7 @@
       <LeftTracksSection
         :samples="samples" 
         :svList="svListChart"
+        :hgBuild="hgBuild"
         :selectedArea="selectedArea"
         :focusedVariant="focusedVariant"
         :genesOfInterest="genesOfInterest"
@@ -156,6 +158,7 @@
         genomeStart: 0,
         genomeEnd: 0,
         overlapProp: .8,
+        hgBuild: 'hg38',
         selectedTab: 'svList',
         svListData: [],
         svListChart: [],
@@ -218,6 +221,15 @@
         }
     },
     methods: {
+        updateHgBuild(hgBuild) {
+            if (hgBuild == 'hg38' || hgBuild == 'hg19') {
+                this.hgBuild = hgBuild;
+            } else if (hgBuild == 'GRCh37' || hgBuild == 'GRCh38') {
+                this.hgBuild = hgBuild == 'GRCh37' ? 'hg19' : 'hg38';
+            } else {
+                this.toasts.push({message: `Invalid build: ${hgBuild}`, type: 'error'})
+            }
+        },
       async initMosaicSession() {
         if (localStorage.getItem('mosaic-iobio-tkn') && localStorage.getItem('mosaic-iobio-tkn').length > 0){
           this.mosaicProjectId = Number(this.mosaicUrlParams.get('project_id'));
@@ -238,6 +250,9 @@
             this.selectDataSectionOpen = true;
             this.toasts.push({message: `Error initializing Mosaic Session: ${error}`, type: 'error'})
           }
+
+          let projectAttributes = await this.mosaicSession.promiseGetProjectSettings(this.mosaicProjectId);
+          this.updateHgBuild(projectAttributes.reference);
 
           //Go through the samples and get just names and ids
           let samples = await this.mosaicSession.promiseGetProjectSamples(this.mosaicProjectId);

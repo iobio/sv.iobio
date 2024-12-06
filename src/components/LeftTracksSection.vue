@@ -183,6 +183,7 @@
   },
   props: {
     svList: Array,
+    hgBuild: String,
     selectedArea: Object,
     focusedVariant: Object,
     genesOfInterest: Array,
@@ -216,7 +217,7 @@
     }
   },
   async mounted () {
-    await this.getBaseData();
+    await this.getBaseData(this.hgBuild);
     await this.fetchSamples();
   },
   methods: {

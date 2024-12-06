@@ -26,6 +26,7 @@
       </div>
 
       <button @click="this.$emit('toggleSelectDataSection')" :class="{highlight: selectDataOpen}">Select Data</button>
+      <span id="build-span"> <b>Build</b> <br> {{ formattedHgBuild }}</span>
       <button id="disclaimer-btn" @click="toggleDisclaimer"><img src="/dots-vertical.svg" alt=""></button>
 
       <div id="disclaimer-overlay" v-if="showDisclaimer">
@@ -59,6 +60,7 @@
     selectDataOpen: Boolean,
     filterDataOpen: Boolean,
     loaded: Boolean,
+    hgBuild: String,
     progressPercent: Number,
     goiFromParent: Array,
     poiFromParent: Array
@@ -110,6 +112,19 @@
     }
   },
   computed: {
+    formattedHgBuild() {
+        if (this.hgBuild === 'GRCh37' || this.hgBuild === 'GRCh38') {
+            return this.hgBuild;
+        } 
+        
+        if (this.hgBuild === 'hg19') {
+            return 'GRCh37';
+        } else if (this.hgBuild === 'hg38') {
+            return 'GRCh38';
+        } else {
+            return 'Unknown';
+        }
+    }
   },
   watch: {
     progressPercent() {
@@ -287,4 +302,9 @@
       text-align: start
     button.nav-bar-item-sub
       height: 100%
+    #build-span
+      font-weight: 200
+      font-style: italic
+      margin-left: 20px
+      text-align: center
   </style>
