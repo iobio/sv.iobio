@@ -124,10 +124,10 @@ export async function getGenesForPhenotypes(phenotypes) {
 }
 
 //GET TRANSCRIPTS FOR GENE LIST
-export async function getTranscriptsForGenes(geneList) {
+export async function getTranscriptsForGenes(geneList, build='hg38', source='gencode') {
     const geneListString = geneList.join(',');
     try {
-        const response = await fetch(`${BACKEND_URL_BASE}/transcripts?genes=${geneList}`);
+        const response = await fetch(`${BACKEND_URL_BASE}/transcripts?genes=${geneList}&build=${build}&source=${source}`);
         const data = await response.json();
         return data;
     } catch (error) {

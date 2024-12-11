@@ -22,6 +22,7 @@ export default {
     phenRelatedGenes: Array,
     name: String,
     batchNum: Number,
+    build: String,
   },
   data () {
     return {
@@ -64,6 +65,7 @@ export default {
         phenRelatedGenes: this.phenRelatedGenes,
         centromeres: this.centromeres, 
         bands: this.bands,
+        build: this.build,
       };
       this.linearGeneChart = new linearGeneChart(container, this.chromosomes, this.genesList,  options);
 

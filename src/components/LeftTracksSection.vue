@@ -270,7 +270,8 @@
             bands: this.bands,
             phenRelatedGenes: this.phenRelatedGenes,
             genesOfInterest: this.genesOfInterest,
-            batchNum: this.batchNum
+            batchNum: this.batchNum,
+            build: this.hgBuild
           }
         }
       } catch (error) {

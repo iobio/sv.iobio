@@ -16,6 +16,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     let centromeres = null;
     let bands = null;
     let hideNormalGenes = true;
+    let build = 'hg38';
 
     //zoom variables
     let zoomedSelection = null;
@@ -85,6 +86,9 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 newBands.push(band);
             }
             bands = newBands;
+        }
+        if (options.build) {
+            build = options.build;
         }
     }
 
@@ -732,7 +736,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         //if the gene has been truncated we need the new start and end b
 
         //get the mane transcript using the beHelper it is async though
-        beHelper.getTranscriptsForGenes([gene.gene_name])
+        beHelper.getTranscriptsForGenes([gene.gene_name], build)
         .then(data => {
             let strand = data[gene.gene_name].strand;
             let transcript_type = data[gene.gene_name].transcript_type;
