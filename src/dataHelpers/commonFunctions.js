@@ -23,7 +23,10 @@ export function formatGenotype(genotype, full=false) {
         if (numcode === '1/1') {
             return 'Homozygous Alternate'
         }
-        return genotype
+        if (numcode === './1') {
+            return 'Unknown Alternate'
+        }
+        return numcode
     } else {
         if (numcode === '0/0') {
             return 'Hom Ref'
@@ -31,9 +34,11 @@ export function formatGenotype(genotype, full=false) {
             return 'Het'
         } else if (numcode === '1/1') {
             return 'Hom Alt'
+        } else if (numcode === './1') {
+            return 'UnKnown Alt'
         } else {
-            return genotype
-        }   
+            return numcode
+        } 
     }
 
 }
