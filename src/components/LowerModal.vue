@@ -19,7 +19,7 @@
                     </fieldset> -->
 
                     <div class="variant-information">
-                        <div class="variant-summary-col">
+                        <div class="variant-summary-row">
                             <div class="item">
                                 <span v-html="bpFormatted(variant.size)"></span>
                             </div>
@@ -34,9 +34,10 @@
         <div id="lower-section">
             <div class="column gene-cards">
                 <div class="column-header">Overlapped Genes</div>
-                <div v-if="type == 'variant' && variant && variant.overlappedGenes" class="card-row">
+                <div v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length > 0" class="card-row">
                     <GeneAssociationsCard v-for="gene in sortVariantInformation" :key="gene.gene_symbol" :gene="gene" :patientPhenotypes="patientPhenotypes" />
                 </div>
+                <div class="card-row no-genes" v-else-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length == 0">No Genes Overlapped</div>
             </div>
         </div>
     </div>
@@ -191,11 +192,11 @@
                 height: 100%
                 flex: 1 0
                 overflow: hidden
-                .variant-summary-col
+                .variant-summary-row
                     display: flex
-                    flex-direction: column
-                    width: 15%
-                    min-width: 150px
+                    flex-direction: row
+                    width: 25%
+                    min-width: 310px
                     justify-content: space-between
                     .item
                         border: 1px solid #C1D1EA
@@ -204,6 +205,9 @@
                         padding: 5px
                         font-weight: 200
                         text-align: center
+                        display: flex
+                        flex-direction: column
+                        justify-content: center
                         margin-top: 5px
             .actions
                 align-items: center
@@ -228,4 +232,14 @@
             width: 100%
             flex: 1 0
             overflow-x: auto
+            &.no-genes
+                justify-content: center
+                align-items: center
+                font-weight: 200
+                font-style: italic
+                color: #666666
+                border-radius: 5px
+                width: 100%
+                overflow: hidden
+                background-color: #F5F5F5
 </style>
