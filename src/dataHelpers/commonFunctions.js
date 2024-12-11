@@ -26,6 +26,9 @@ export function formatGenotype(genotype, full=false) {
         if (numcode === './1') {
             return 'Unknown Alternate'
         }
+        if (numcode === './.') {
+            return 'Unknown'
+        }
         return numcode
     } else {
         if (numcode === '0/0') {
@@ -36,6 +39,8 @@ export function formatGenotype(genotype, full=false) {
             return 'Hom Alt'
         } else if (numcode === './1') {
             return 'UnKnown Alt'
+        } else if (numcode === './.') {
+            return 'UnKnown'
         } else {
             return numcode
         } 
