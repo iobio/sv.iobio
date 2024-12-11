@@ -8,7 +8,7 @@
         </div>
 
         <div id="upper-section">
-            <h3 v-if="type == 'variant'">SV Information</h3>
+            <h3 v-if="type == 'variant'">SV Details</h3>
             <div class="column">
                 <div class="top-row">
                     <!-- <fieldset class="actions fieldset-buttons-container">
