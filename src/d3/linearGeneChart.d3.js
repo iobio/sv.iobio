@@ -539,8 +539,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .text(gene.gene_symbol)
                 .attr('font-size', "10px")
                 .attr('fill', 'red');
-
-            text.attr('transform', `translate(-${mTextWidth}, 0)`);
+            
+                //if the text is going to go off the screen then don't move it to the left
+                //Shift down by 1/2 the track height
+                if (startX - mTextWidth < 0) {
+                    text.attr('transform', `translate( 0, 7)`);
+                } else {
+                    text.attr('transform', `translate(-${mTextWidth + 1}, 0)`);
+                }
 
             let options = {
                 geneType: geneType,
@@ -608,7 +614,14 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     .attr('fill', 'blue')
                     .attr('rx', 1);
 
-                text.attr('transform', `translate(-${mTextWidth}, 0)`);
+                //if the text is going to go off the screen then don't move it to the left
+                //Shift down by 1/2 the track height
+                if (startX - mTextWidth < 0) {
+                    text.attr('transform', `translate( 0, 7)`);
+                } else {
+                    text.attr('transform', `translate(-${mTextWidth + 1}, 0)`);
+                }
+
             }
 
             let options = {
