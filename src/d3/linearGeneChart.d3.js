@@ -747,7 +747,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         }
 
         //if the gene has been truncated we need the new start and end b
-
         //get the mane transcript using the beHelper it is async though
         beHelper.getTranscriptsForGenes([gene.gene_name], build)
         .then(data => {
