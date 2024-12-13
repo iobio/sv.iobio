@@ -6,6 +6,8 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Focused On</title><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" /></svg>
             </div>
 
+            <span class="code-text">{{ variant.svCode }}</span>
+
             <span class="overlap-tip">
                 <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">
                     <strong>
@@ -299,7 +301,7 @@
         .preview
             position: relative
             display: grid
-            grid-template-columns: .23fr .23fr .23fr .11fr .2fr
+            grid-template-columns: minmax(0, .15fr) minmax(0, .21fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .1fr)
             grid-template-rows: 1fr 1fr
             padding: 5px
             width: 100%
@@ -335,7 +337,7 @@
                 font-size: 0.75em
                 margin-left: 1px
                 grid-row: 1/3
-                grid-column: 1/3
+                grid-column: 2/4
                 strong
                     font-weight: 600
                     margin-left: 5px
@@ -391,14 +393,13 @@
                     .max-gene
                         font-weight: 400
                         padding-top: 3px
-
             .origin-text
                 font-size: .8em
                 color: #474747
                 position: relative
                 font-weight: 200
                 grid-row: 1
-                grid-column: 3
+                grid-column: 4
                 display: flex
                 align-items: flex-end
                 svg
@@ -417,7 +418,7 @@
                 color: #474747
                 font-weight: 200
                 grid-row: 2
-                grid-column: 3
+                grid-column: 4
                 display: flex
                 align-items: flex-start
             .size-text
@@ -425,7 +426,7 @@
                 font-weight: 200
                 color: #474747
                 grid-row: 1/3
-                grid-column: 5
+                grid-column: 6
                 .bp-sc
                     font-size: 0.9em
                     opacity: .7
@@ -436,7 +437,16 @@
                 font-weight: 200
                 opacity: .8
                 grid-row: 1/3
-                grid-column: 4
+                grid-column: 5
+            .code-text
+                font-size: 0.8em
+                font-weight: 200
+                grid-row: 1/3
+                color: #474747
+                display: flex
+                align-items: center
+                justify-content: center
+                text-align: center
             div
                 display: flex
                 align-items: center

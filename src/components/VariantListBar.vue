@@ -3,6 +3,7 @@
     <div id="variant-list-bar">
 
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
+        <div class="span-rows first">SV Summary</div>
         <div class="upper">SV Overlaps</div>
         <div class="lower">
             <div class="col">
@@ -14,9 +15,9 @@
                 <span>GoI<b>/</b>Total</span>
             </div>
         </div>
-        <div class="span-rows">Inheritance</div>
-        <div class="span-rows">Type</div>
-        <div class="span-rows">Size</div>
+        <div class="span-rows second">Inheritance</div>
+        <div class="span-rows third">Type</div>
+        <div class="span-rows fourth">Size</div>
       </div>
       <VariantListItem 
         v-for="(variant, index ) in svListSelection" 
@@ -223,7 +224,7 @@
       transition: width 0.4s, min-width 0.4s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: .21fr .2fr .25fr .2fr .15fr
+        grid-template-columns: minmax(0, .15fr) minmax(0, .21fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .1fr)
         grid-template-rows: 1fr 1fr
         font-size: .8em
         width: 100%
@@ -241,19 +242,36 @@
         z-index: 1
         .span-rows
             grid-row: 1/3
+            overflow-wrap: break-word
+            max-width: 100%
+            text-overflow: ellipsis
+            &.first
+                grid-column: 1
+            &.second
+                grid-column: 4
+            &.third
+                grid-column: 5
+            &.fourth
+                grid-column: 6
         .upper
-            grid-column: 1/3
+            grid-column: 2/4
             grid-row: 1
+            max-width: 100%
+            text-overflow: ellipsis
         .lower
-            grid-column: 1/3
+            max-width: 100%
+            grid-column: 2/4
             grid-row: 2
             justify-content: space-evenly
             text-transform: none
+            overflow-wrap: break-word
             font-weight: 200
+            text-overflow: ellipsis
             .col
                 display: flex
                 flex-direction: column
                 justify-content: space-evenly
+                overflow-wrap: break-word
                 align-items: center
                 b
                     padding: 0px 2px
