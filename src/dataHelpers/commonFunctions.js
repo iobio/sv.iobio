@@ -10,6 +10,15 @@ export function bpFormatted(valuebp) {
     return `${valuebp}<span class="bp-sc">bp</span>`;
 }
 
+function bpFormattedSansHtml(valuebp) {
+    if (valuebp > 1000000) {
+        return `${(valuebp / 1000000).toFixed(2)}Mb`;
+    } else if (valuebp > 1000) {
+        return `${(valuebp / 1000).toFixed(2)}kb`;
+    }
+    return `${valuebp}bp`;
+}
+
 export function formatGenotype(genotype, full=false) {
     //Returns a formatted string for genotype values
     let numcode = genotype.slice(0, 3);
@@ -63,4 +72,10 @@ export function formatType(type) {
         return 'Copy Number Variation'
     }
     return type
+}
+
+export function generateSvCode(sv) {
+    //We are going to do Chr#-SizeInFormat-Type
+    let code = `Chr${sv.chromosome}-${bpFormattedSansHtml(sv.size)}-${sv.type.toUpperCase()}`;
+    return code;
 }
