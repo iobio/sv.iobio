@@ -8,7 +8,7 @@
         </div>
 
         <div id="upper-section">
-            <h3 v-if="type == 'variant'">SV Details</h3>
+            <h3 v-if="type == 'variant'">SV Details (<span class="variant-code">{{ variant.svCode }}</span>)</h3>
             <div class="column">
                 <div class="top-row">
                     <!-- <fieldset class="actions fieldset-buttons-container">
@@ -44,7 +44,8 @@
 </template>
   
 <script>
-  import * as common from '../dataHelpers/commonFunctions.js'
+  import { variance } from 'd3';
+import * as common from '../dataHelpers/commonFunctions.js'
   import GeneAssociationsCard from './parts/GeneAssociationsCard.vue';
 
   export default {
@@ -135,6 +136,11 @@
             font-weight: 400
             font-size: 1em
             text-transform: uppercase
+            .variant-code
+                font-weight: 200
+                font-size: 0.9em
+                text-transform: none
+                color: #666666
         &.hidden
             height: 0vh
             border: 1px solid transparent
