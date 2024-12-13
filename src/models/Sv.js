@@ -17,6 +17,7 @@ class Sv {
             this.ref = input.ref || '.';
             this.alt = input.alt || '.';
             this.quality = input.quality;
+            this.svCode = input.svCode || '';
 
             //if we get vcfInfo then parse otherwise don't
             if (input.vcfInfo != '' && input.vcfInfo != undefined) {
@@ -41,6 +42,14 @@ class Sv {
             infoObj[key] = value;
         });
         return infoObj;
+    }
+
+    setSvCode(code) {
+        this.svCode = code;
+    }
+
+    getSvCode() {
+        return this.svCode;
     }
 }
 
