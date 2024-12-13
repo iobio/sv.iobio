@@ -132,6 +132,7 @@
 
 <script>
   import * as dataHelper from './dataHelpers/dataHelpers.js';
+  import * as common from './dataHelpers/commonFunctions.js';
   import LeftTracksSection from './components/LeftTracksSection.vue';
   import VariantListBar from './components/VariantListBar.vue';
   import GenesOfInterestListBar from './components/GenesOfInterestListBar.vue';
@@ -428,12 +429,18 @@
         }
         
         //We use a separate list for the variant bar so we can sort it differently
-        this.svListVariantBar = svList.map(sv => new Sv(sv));
+        this.svListVariantBar = svList.map(sv => {
+            let newSv = new Sv(sv);
+            newSv.setSvCode(common.generateSvCode(newSv));
+            return newSv;
+        });
         this.svListData = svList;
         this.variantListBarOpen = true;
 
-        //We use a separate list for the chart so we can sort it differently
-        this.svListChart = svList.map(sv => new Sv(sv));
+        //Shallow copy the svListVariantBar to the svListChart so we can sort it differently
+        //It is confusing to see the svs move around in the chart in most situations
+        this.svListChart = [...this.svListVariantBar];
+
         //Copying the bar list so we can sort it in batches and get information about the overlapped genes
         let svListCopy = [...this.svListVariantBar];
 
