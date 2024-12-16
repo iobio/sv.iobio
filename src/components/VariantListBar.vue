@@ -3,7 +3,7 @@
     <div id="variant-list-bar">
 
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
-        <div class="span-rows first">SV Summary</div>
+        <div class="span-rows first">Chr</div>
         <div class="upper">SV Overlaps</div>
         <div class="lower">
             <div class="col">
@@ -15,7 +15,7 @@
                 <span>GoI<b>/</b>Total</span>
             </div>
         </div>
-        <div class="span-rows second">Inheritance</div>
+        <div class="span-rows second">Zygosity</div>
         <div class="span-rows third">Type</div>
         <div class="span-rows fourth">Size</div>
       </div>
