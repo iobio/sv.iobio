@@ -356,24 +356,6 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                         .attr('stroke', '#FFB60A')
                         .attr('stroke-width', 2)
                         .attr('class', 'focused-variant-border');
-
-                    //also put the star svg at the top left of the point of interest
-                    pointGroup.append('svg')
-                        .attr('x', -5)
-                        .attr('y', -18)
-                        .attr('width', 20)
-                        .attr('height', 20)
-                        .append('path')
-                        .attr('d', 'M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z')
-                        .attr('fill', '#FFB60A')
-                        .attr('transform', function() {
-                            if (endX - startX < 1) {
-                                return `translate(-1, 0) scale(0.75)`
-                            } else {
-                                return `translate(0, 0) scale(0.75)`
-                            }
-                        })
-                        .attr('class', 'star-svg');
                 }
 
             } else {
