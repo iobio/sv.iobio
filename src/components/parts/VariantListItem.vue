@@ -1,45 +1,49 @@
 <template>
     <div id="variant-list-item">
+        <div class="preview" :class="{opened: showMore, focusedVariant: isFocusedVariant, hasGoi: geneCandidates && geneCandidates.length > 0}" @click="focusOnVariant">
+            <!-- col1 -->
+            <div class="chr-text">{{ variant.chromosome }}</div>
 
-        <div class="preview" :class="{opened: showMore, focusedVariant: isFocusedVariant}" @click="focusOnVariant">
-            <span class="code-text">{{ variant.svCode }}</span>
+            <!-- col2 -->
+            <div v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-text">
+                <strong>
+                    <span :class="{subtle: Math.round(maxSingularPhenotypes.max) == 0 }">{{ Math.round(maxSingularPhenotypes.max)}}</span>
+                </strong>
+                <span class="max-gene" v-if="Math.round(maxSingularPhenotypes.max) !== 0">{{ maxSingularPhenotypes.geneName }}</span>
+            </div>
+            <!-- OR -->
+            <div v-else class="num-phens-text">
+                <strong>
+                    <span class="subtle">n/a</span>
+                </strong>
+            </div>
 
-            <span class="overlap-tip">
-                <span v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-accounted-perc-tip">
-                    <strong>
-                        <span :class="{subtle: Math.round(maxSingularPhenotypes.max) == 0 }">{{ Math.round(maxSingularPhenotypes.max)}}</span> <span class="subtle">/{{ patientPhenotypes.length }}</span>
-                    </strong>
-                    <span class="max-gene" v-if="Math.round(maxSingularPhenotypes.max) !== 0">{{ maxSingularPhenotypes.geneName }}</span>
-                </span>
-                <span v-else class="num-phens-accounted-perc-tip">
-                    <strong>
-                        <span class="subtle">n/a</span> <span class="subtle">/{{ patientPhenotypes.length }}</span>
-                    </strong>
-                </span>
+            <!-- col3 -->
+            <div class="goi-ol-text" v-if="geneCandidates && geneCandidates.length > 0" :class="{subtle: numberOfGenesOfInterest == 0 }">
+                {{ numberOfGenesOfInterest }}
+            </div>
 
-                <span class="goi-ol-tip">
-                    <strong>
-                        <span :class="{subtle: numberOfGenesOfInterest == 0 }" v-if="variant.overlappedGenes && geneCandidates && geneCandidates.length > 0">{{ numberOfGenesOfInterest }}</span>
-                        <span class="na subtle" v-else>n/a</span>
-                        <span class="num-genes-overlapped-tip subtle">
-                            /{{ numberOfGenes }}
-                        </span>
-                    </strong>    
-                </span>
-            </span>
+            <!-- col4 -->
+            <div class="total-text">{{ numberOfGenes }}</div>
 
-            <!-- Row 1 -->
-            <div class="origin-text novel" v-if="reciprocalOverlap == 'N'">DeNovo <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Noteworthy</title><path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" /></svg></span></div>
-            <div class="origin-text inherited" v-if="reciprocalOverlap === 'I'">Inherited</div>
-            <div class="origin-text novel ar" v-if="reciprocalOverlap === 'AR'">Rec.Inherit <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Noteworthy</title><path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" /></svg></span></div>
-
-            <!-- Row 2 -->
+            <!-- col5 Top -->
+            <div class="origin-text novel" v-if="reciprocalOverlap == 'N'">DeNovo 
+                <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Noteworthy</title><path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" /></svg></span>
+            </div>
+            <div class="origin-text inherited" v-else-if="reciprocalOverlap === 'I'">Inherited</div>
+            <div class="origin-text novel ar" v-else-if="reciprocalOverlap === 'AR'">Rec.Inherit 
+                <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Noteworthy</title><path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" /></svg></span>
+            </div>
+            <!-- col5 Bottom-->
             <div class="genotype-text" :class="{het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom Alt'}">
                 {{ formatGenotype(variant.genotype) }}
             </div>
 
-            <div class="size-text" v-html="bpFormatted(variant.size)"></div>
+            <!-- col6 -->
             <div class="type-text"> {{ variant.type }}</div>
+
+            <!-- col7 -->
+            <div class="size-text" v-html="bpFormatted(variant.size)"></div>
         </div>
     </div>
   </template>
@@ -297,7 +301,8 @@
         .preview
             position: relative
             display: grid
-            grid-template-columns: minmax(0, .15fr) minmax(0, .21fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .1fr)
+            grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
+            
             grid-template-rows: 1fr 1fr
             padding: 5px
             width: 100%
@@ -306,6 +311,8 @@
             border-top: 2px solid transparent
             border-left: 2px solid transparent
             border-right: 2px solid transparent
+            &.hasGoi
+                grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .3fr) minmax(0, .15fr) minmax(0, .15fr)
             &.focusedVariant
                 border: 2px solid #FFB60A
                 border-radius: 5px
@@ -331,77 +338,43 @@
                     width: 20px
                     fill: #2A65B7
                     pointer-events: none
-            .overlap-tip
-                display: grid
-                grid-template-columns: 1fr 1fr
-                grid-template-rows: 1fr 1fr
+            .goi-ol-text
                 font-weight: 200
-                font-size: 0.75em
-                margin-left: 1px
                 grid-row: 1/3
-                grid-column: 2/4
+                color: #474747
+                display: flex
+                align-items: center
+                justify-content: center
+                text-align: center
+                .na
+                    
+                    opacity: .7
+            .num-phens-text
+                padding: 3px 3px
+                display: flex
+                flex-direction: column
+                align-items: center
+                justify-content: center
+                text-align: center
+                box-sizing: border-box
+                grid-row: 1/3
+                font-size: 0.8em
                 strong
-                    font-weight: 600
-                    margin-left: 5px
-                .goi-ol-tip
-                    padding: 3px 3px
-                    display: flex
-                    align-items: center
-                    justify-content: center
-                    text-align: center
-                    box-sizing: border-box
-                    grid-row: 1/3
-                    grid-column: 2
-                    strong
-                        font-size: 1.2em
-                        display: flex
-                        align-items: center
-                        justify-content: center
-                    .subtle
-                        font-weight: 200
-                        opacity: .7
-                        color: #474747
-                    .na
-                        font-weight: 200
-                        opacity: .7
-                    .num-genes-overlapped-tip
-                        padding: 3px 3px
-                        display: flex
-                        align-items: center
-                        justify-content: center
-                        text-align: center
-                        box-sizing: border-box
-                        grid-row: 2
-                        grid-column: 2
-                        b
-                            padding: 0px 2px
-                .num-phens-accounted-perc-tip
-                    padding: 3px 3px
-                    display: flex
-                    flex-direction: column
-                    align-items: center
-                    justify-content: center
-                    text-align: center
-                    box-sizing: border-box
-                    grid-row: 1/3
-                    grid-column: 1
-                    strong
-                        font-size: 1.2em
-                        margin: 0px
-                    .subtle
-                        opacity: .7
-                        font-weight: 200
-                        color: #474747
-                    .max-gene
-                        font-weight: 400
-                        padding-top: 3px
+                    font-size: 1.2em
+                    margin: 0px
+                .subtle
+                    opacity: .7
+                    font-weight: 200
+                    color: #474747
+                .max-gene
+                    font-weight: 400
+                    padding-top: 3px
             .origin-text
                 font-size: .8em
                 color: #474747
                 position: relative
                 font-weight: 200
                 grid-row: 1
-                grid-column: 4
                 display: flex
                 align-items: flex-end
                 svg
@@ -420,7 +393,6 @@
                 color: #474747
                 font-weight: 200
                 grid-row: 2
-                grid-column: 4
                 display: flex
                 align-items: flex-start
             .size-text
@@ -428,20 +400,24 @@
                 font-weight: 200
                 color: #474747
                 grid-row: 1/3
-                grid-column: 6
                 .bp-sc
                     font-size: 0.9em
-                    opacity: .7
-                    transform: translateY(4px) translateX(1px)
+                    opacity: .8
             .type-text
                 border-radius: 5px
                 font-size: 0.75em
                 font-weight: 200
                 opacity: .8
                 grid-row: 1/3
-                grid-column: 5
-            .code-text
-                font-size: 0.8em
+            .chr-text
+                font-weight: 200
+                grid-row: 1/3
+                color: #474747
+                display: flex
+                align-items: center
+                justify-content: center
+                text-align: cente
+            .total-text
                 font-weight: 200
                 grid-row: 1/3
                 color: #474747
