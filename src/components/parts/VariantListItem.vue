@@ -2,10 +2,6 @@
     <div id="variant-list-item">
 
         <div class="preview" :class="{opened: showMore, focusedVariant: isFocusedVariant}" @click="focusOnVariant">
-            <div class="focus-indicator" v-if="isFocusedVariant">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Focused On</title><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" /></svg>
-            </div>
-
             <span class="code-text">{{ variant.svCode }}</span>
 
             <span class="overlap-tip">
@@ -307,6 +303,12 @@
             width: 100%
             box-sizing: border-box
             border-bottom: 1px solid #F5F5F5
+            border-top: 2px solid transparent
+            border-left: 2px solid transparent
+            border-right: 2px solid transparent
+            &.focusedVariant
+                border: 2px solid #FFB60A
+                border-radius: 5px
             &.opened
                 box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
                 background-color: #DEE9F7
