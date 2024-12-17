@@ -3,21 +3,13 @@
     <div id="variant-list-bar">
 
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
-        <div class="span-rows first">Chr</div>
-        <div class="upper">SV Overlaps</div>
-        <div class="lower">
-            <div class="col">
-                <span>Max Patient</span>
-                <span>Phenotypes</span>
-            </div>
-            <div class="col">
-                <span>Genes</span>
-                <span>GoI<b>/</b>Total</span>
-            </div>
-        </div>
-        <div class="span-rows second">Zygosity</div>
-        <div class="span-rows third">Type</div>
-        <div class="span-rows fourth">Size</div>
+        <div class="span-rows">Chr</div>
+        <div class="span-rows">Gene:HPO</div>
+        <div class="span-rows">GoI</div>
+        <div class="span-rows">Genes <br> Total</div>
+        <div class="span-rows">Zygosity</div>
+        <div class="span-rows">Type</div>
+        <div class="span-rows">Size</div>
       </div>
       <VariantListItem 
         v-for="(variant, index ) in svListSelection" 
@@ -224,7 +216,7 @@
       transition: width 0.4s, min-width 0.4s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: minmax(0, .15fr) minmax(0, .21fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .1fr)
+        grid-template-columns: minmax(0, .1fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
         grid-template-rows: 1fr 1fr
         font-size: .8em
         width: 100%
@@ -245,14 +237,6 @@
             overflow-wrap: break-word
             max-width: 100%
             text-overflow: ellipsis
-            &.first
-                grid-column: 1
-            &.second
-                grid-column: 4
-            &.third
-                grid-column: 5
-            &.fourth
-                grid-column: 6
         .upper
             grid-column: 2/4
             grid-row: 1
