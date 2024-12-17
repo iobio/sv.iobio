@@ -728,12 +728,12 @@
         justify-content: center
         align-items: center
         &:hover
-        cursor: pointer
-        background-color: #3778D2
+            cursor: pointer
+            background-color: #3778D2
         svg
-        fill: white
-        width: 20px
-        height: 20px
+            fill: white
+            width: 20px
+            height: 20px
 #radios-tools-container
     display: flex
     justify-content: flex-start
