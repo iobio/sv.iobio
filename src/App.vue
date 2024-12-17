@@ -880,23 +880,23 @@
         justify-content: center
       .filter-button
         display: flex
-        justify-content: center
+        flex-direction: row
         align-items: center
-        height: 30px
-        width: 30px
-        margin: 0px
-        padding: 0px
-        border: 1px solid #EBEBEB
-        transform: translate(0px, 0px)
-        margin-left: auto
-        margin-right: 15px
-        border-radius: 50%
-        box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.2)
-        transition: border-radius 0.2s
+        justify-content: center
+        padding: 3px 5px
+        margin: 0px 2px
+        border: 1px solid transparent
+        border-radius: 5px
+        text-transform: uppercase
+        background-color: #EBEBEB
+        color: #474747
+        height: 100%
+        transition: background-color 0.2s, border 0.2s
         z-index: 3
         &:hover
-          cursor: pointer
-          border-radius: 5px
+            cursor: pointer
+            background-color: #C1D1EA
+            border: 1px solid #2A65B7
         svg
           fill: #2A65B7
           height: 20px
