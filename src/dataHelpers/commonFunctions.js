@@ -24,16 +24,16 @@ export function formatGenotype(genotype, full=false) {
     let numcode = genotype.slice(0, 3);
     if (full) {
         if (numcode === '0/0') {
-            return 'Homozygous Reference'
+            return 'Homozygous'
         }
         if (numcode === '0/1') {
             return 'Heterozygous'
         }
         if (numcode === '1/1') {
-            return 'Homozygous Alternate'
+            return 'Homozygous'
         }
         if (numcode === './1') {
-            return 'Unknown Alternate'
+            return 'Heterozygous'
         }
         if (numcode === './.') {
             return 'Unknown'
@@ -41,13 +41,13 @@ export function formatGenotype(genotype, full=false) {
         return numcode
     } else {
         if (numcode === '0/0') {
-            return 'Hom Ref'
+            return 'Hom'
         } else if (numcode === '0/1') {
             return 'Het'
         } else if (numcode === '1/1') {
-            return 'Hom Alt'
+            return 'Hom'
         } else if (numcode === './1') {
-            return 'UnKnown Alt'
+            return 'Het'
         } else if (numcode === './.') {
             return 'UnKnown'
         } else {
