@@ -2,10 +2,10 @@
   <div id="variant-sudo-scroll-wrapper">
     <div id="variant-list-bar">
 
-      <div v-if="svList && svList.length > 0" id="variant-list-bar-header">
+      <div v-if="svList && svList.length > 0" id="variant-list-bar-header" :class="{hasGoi: geneCandidates && geneCandidates.length > 0}">
         <div class="span-rows">Chr</div>
         <div class="span-rows">Gene:HPO</div>
-        <div class="span-rows">GoI</div>
+        <div class="span-rows" v-if="geneCandidates && geneCandidates.length > 0">GoI</div>
         <div class="span-rows">Genes <br> Total</div>
         <div class="span-rows">Zygosity</div>
         <div class="span-rows">Type</div>
@@ -216,7 +216,7 @@
       transition: width 0.4s, min-width 0.4s
       #variant-list-bar-header
         display: grid
-        grid-template-columns: minmax(0, .1fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
+        grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
         grid-template-rows: 1fr 1fr
         font-size: .8em
         width: 100%
@@ -232,6 +232,8 @@
         border-bottom: 1px solid #E0E0E0
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
         z-index: 1
+        &.hasGoi
+            grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .3fr) minmax(0, .15fr) minmax(0, .15fr)
         .span-rows
             grid-row: 1/3
             overflow-wrap: break-word
