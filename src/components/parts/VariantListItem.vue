@@ -35,7 +35,7 @@
                 <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Noteworthy</title><path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" /></svg></span>
             </div>
             <!-- col5 Bottom-->
-            <div class="genotype-text" :class="{het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom Alt'}">
+            <div class="genotype-text" :class="{het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom'}">
                 {{ formatGenotype(variant.genotype) }}
             </div>
 
@@ -397,6 +397,8 @@
                 grid-row: 2
                 display: flex
                 align-items: flex-start
+                &.homalt
+                    color: red
             .size-text
                 font-size: 0.8em
                 font-weight: 200
