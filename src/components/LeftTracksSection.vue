@@ -678,88 +678,88 @@
 </script>
 
 <style lang="sass">
-  .fieldset-buttons-container
-        display: flex
-        flex-direction: row
-        align-items: center
-        justify-content: center
-        padding: 5px
-        border: 1px solid #E0E0E0
-        border-radius: 5px
-        margin-left: 10px
-        legend
-          margin: 0px
-          padding: 0px
-          font-size: 0.6em
-          text-transform: uppercase
-          font-style: italic
-          color: #474747
-        button
-            display: flex
-            flex-direction: row
-            align-items: center
-            justify-content: center
-            padding: 3px
-            margin: 0px 2px
-            border: 1px solid transparent
-            border-radius: 5px
-            text-transform: uppercase
-            color: #474747
-            height: 100%
-            transition: background-color 0.2s, border 0.2s
-            &:hover
-                cursor: pointer
-                background-color: #C1D1EA
-                border: 1px solid #2A65B7
-            svg
-                width: 18px
-                height: 18px
-                fill: #2A65B7
-                border-radius: 50%
-  .show-modal-btn
-    position: absolute
-    right: 5px
-    bottom: 10px
-    background-color: #2A65B7
-    border-radius: 50%
-    width: 30px
-    height: 30px
+.fieldset-buttons-container
     display: flex
-    justify-content: center
+    flex-direction: row
     align-items: center
-    &:hover
-      cursor: pointer
-      background-color: #3778D2
-    svg
-      fill: white
-      width: 20px
-      height: 20px
-  #radios-tools-container
-    display: flex
-    justify-content: flex-start
-    align-items: flex-end
-    height: 100%
-    .location-indicator
-      display: flex
-      flex-direction: row
-      align-items: center
-      padding: 5px
-      border: none
-      border-bottom: 1px solid #E0E0E0
-      margin-left: 10px
-      legend
+    justify-content: center
+    padding: 5px
+    border: 1px solid #E0E0E0
+    border-radius: 5px
+    margin-left: 10px
+    legend
         margin: 0px
         padding: 0px
         font-size: 0.6em
         text-transform: uppercase
         font-style: italic
         color: #474747
-      p.entry
+    button
+        display: flex
+        flex-direction: row
+        align-items: center
+        justify-content: center
+        padding: 3px
+        margin: 0px 2px
+        border: 1px solid transparent
+        border-radius: 5px
+        text-transform: uppercase
+        color: #474747
+        height: 100%
+        transition: background-color 0.2s, border 0.2s
+        &:hover
+            cursor: pointer
+            background-color: #C1D1EA
+            border: 1px solid #2A65B7
+        svg
+            width: 18px
+            height: 18px
+            fill: #2A65B7
+            border-radius: 50%
+    .show-modal-btn
+        position: absolute
+        right: 5px
+        bottom: 10px
+        background-color: #2A65B7
+        border-radius: 50%
+        width: 30px
+        height: 30px
+        display: flex
+        justify-content: center
+        align-items: center
+        &:hover
+        cursor: pointer
+        background-color: #3778D2
+        svg
+        fill: white
+        width: 20px
+        height: 20px
+#radios-tools-container
+    display: flex
+    justify-content: flex-start
+    align-items: flex-end
+    height: 100%
+    .location-indicator
+        display: flex
+        flex-direction: row
+        align-items: center
+        padding: 5px
+        border: none
+        border-bottom: 1px solid #E0E0E0
+        margin-left: 10px
+    legend
+        margin: 0px
+        padding: 0px
+        font-size: 0.6em
+        text-transform: uppercase
+        font-style: italic
+        color: #474747
+    p.entry
         margin: 0px
         padding: 0px
         font-size: 0.8em
         border-radius: 5px
-  #left-tracks-section
+#left-tracks-section
     box-sizing: border-box
     display: flex
     flex-direction: column
@@ -775,39 +775,39 @@
         top: 5px
         width: 22%
     .upper-track-selectors-bar
-      align-items: center
-      box-sizing: border-box
-      display: flex
-      width: 100%
-      padding-bottom: 5px
+        align-items: center
+        box-sizing: border-box
+        display: flex
+        width: 100%
+        padding-bottom: 5px
     .wrapper-95
-      position: relative
-      box-sizing: border-box
-      display: flex
-      flex-direction: column
-      flex-grow: 1
-      overflow: hidden
-      padding: 2px
-      width: 100%
-      #linear-section-container
+        position: relative
+        box-sizing: border-box
+        display: flex
+        flex-direction: column
+        flex-grow: 1
+        overflow: hidden
+        padding: 2px
+        width: 100%
+    #linear-section-container
         box-sizing: border-box
         flex: 1 1 auto
         overflow-y: auto
         padding-left: 10px
         position: relative
         #linear-marker-line
-          position: absolute
-          top: 0px
-          left: 0px
-          width: 1px
-          height: 100%
-          background-color: red
-          z-index: 2
+            position: absolute
+            top: 0px
+            left: 0px
+            width: 1px
+            height: 100%
+            background-color: red
+            z-index: 2
         .proband-chart
-          position: sticky
-          top: 2px
-          z-index: 1
-  #buttons-container
+            position: sticky
+            top: 2px
+            z-index: 1
+#buttons-container
     height: 100%
     #prev-zoom-btn
         border: 1px solid transparent
@@ -821,12 +821,12 @@
             border: 1px solid #2A65B7
         svg
             fill: #2A65B7
-  #chrom-select-bar-div
+#chrom-select-bar-div
     height: 32px
     padding: 8px 0px 2px 0px
     margin-bottom: 5px
     box-sizing: content-box
-  #global-chart-style-selection
+#global-chart-style-selection
     width: fit-content
     color: #2A65B7
     background-color: #EBEBEB
@@ -839,18 +839,18 @@
     align-items: center
     transition: background-color 0.2s, border 0.2s
     &:hover
-      cursor: pointer
-      background-color: #C1D1EA
-      border: 1px solid #2A65B7
-    select
-      border: none
-      font-weight: bold
-      color: #2A65B7
-      font-size: 1em
-      text-transform: uppercase
-      background-color: inherit
-      &:hover
         cursor: pointer
-      &:focus
+        background-color: #C1D1EA
+        border: 1px solid #2A65B7
+select
+    border: none
+    font-weight: bold
+    color: #2A65B7
+    font-size: 1em
+    text-transform: uppercase
+    background-color: inherit
+    &:hover
+        cursor: pointer
+    &:focus
         outline: none
 </style>
