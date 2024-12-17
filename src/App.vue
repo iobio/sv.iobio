@@ -39,23 +39,6 @@
           @updateFilters="updateDataFilters"/>
 
         <div class="button-container">
-            <div @click="showSortOptions = !showSortOptions" class="sort-btn">
-                <div class="sort-options-popup" :class="{hidden: !showSortOptions}">
-                    <span @click="sortSvList('percentOverlapped')">Max Patient Phenotypes</span>
-                    <span @click="sortSvList('goi')">Genes of Interest (GOI)</span>
-                    <span @click="sortSvList('genesOverlapped')">Number of Genes Overlapped</span>
-                </div>
-                <svg class="sort-svg" v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>Sort SVs</title>
-                    <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
-                </svg>
-
-                <svg class="loading-svg" v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>loading</title>
-                    <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
-                </svg>
-            </div>
-
             <div class="tab-select-wrapper">
                 <nav class="tab-select" :class="{collapsed: !variantListBarOpen}">
                 <div class="tab" :class="{selected: selectedTab == 'svList'}" @click="selectedTab = 'svList'">SVs <span class="tip">{{ svListVariantBar.length }}</span></div>
