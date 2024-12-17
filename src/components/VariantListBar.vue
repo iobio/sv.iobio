@@ -3,14 +3,55 @@
     <div id="variant-list-bar">
 
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header" :class="{hasGoi: geneCandidates && geneCandidates.length > 0}">
-        <div class="span-rows">Chr</div>
-        <div class="span-rows">Gene:HPO</div>
-        <div class="span-rows" v-if="geneCandidates && geneCandidates.length > 0">GoI</div>
-        <div class="span-rows">Genes <br> Total</div>
-        <div class="span-rows">Zygosity</div>
-        <div class="span-rows">Type</div>
-        <div class="span-rows">Size</div>
+        <div class="span-rows" @mouseenter="showSortTip" @mouseleave="hideSortTip">Chr
+            <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>sort</title>
+                <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+            </svg>
+        </div>
+        <div class="span-rows" @click="$emit('sort-variants', 'percentOverlapped')">Gene:HPO
+            <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>sort</title>
+                <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+            </svg>
+        </div>
+
+        <div class="span-rows" v-if="geneCandidates && geneCandidates.length > 0" @click="$emit('sort-variants', 'goi')">GoI
+            <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>sort</title>
+                <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+            </svg>
+        </div>
+
+        <div class="span-rows" @click="$emit('sort-variants', 'genesOverlapped')">Genes <br> Total
+            <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>sort</title>
+                <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+            </svg>
+        </div>
+
+        <div class="span-rows">Zygosity
+            <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>sort</title>
+                <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+            </svg>
+        </div>
+
+        <div class="span-rows">Type
+            <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>sort</title>
+                <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+            </svg>
+        </div>
+
+        <div class="span-rows">Size
+            <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>sort</title>
+                <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+            </svg>
+        </div>
       </div>
+
       <VariantListItem 
         v-for="(variant, index ) in svListSelection" 
         :key="`${variant.chromosome}-${variant.start}-${variant.end}`" 
@@ -240,6 +281,22 @@
             overflow-wrap: break-word
             max-width: 100%
             text-overflow: ellipsis
+            position: relative
+            cursor: pointer
+            .sort-tip
+                position: absolute
+                right: -9px
+                top: 10
+                opacity: 0
+                transition: opacity 0.2s
+                width: 20px
+                height: 20px
+                fill: grey
+            &:hover
+                background-color: #F5F5F5
+                border-radius: 5px
+                .sort-tip
+                    opacity: 1
         .upper
             grid-column: 2/4
             grid-row: 1
