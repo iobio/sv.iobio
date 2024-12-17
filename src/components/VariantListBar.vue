@@ -219,6 +219,7 @@
         grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
         grid-template-rows: 1fr 1fr
         font-size: .8em
+        font-weight: 200
         width: 100%
         height: 90px
         margin: 0px
