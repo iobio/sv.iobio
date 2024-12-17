@@ -24,7 +24,7 @@
             </div>
 
             <!-- col4 -->
-            <div class="total-text">{{ numberOfGenes }}</div>
+            <div class="total-text" :class="{subtle: numberOfGenes == 0}">{{ numberOfGenes }}</div>
 
             <!-- col5 Top -->
             <div class="origin-text novel" v-if="reciprocalOverlap == 'N'">DeNovo 
@@ -346,9 +346,11 @@
                 align-items: center
                 justify-content: center
                 text-align: center
+                &.subtle
+                    opacity: .4
                 .na
                     
-                    opacity: .7
+                    opacity: .4
             .num-phens-text
                 padding: 3px 3px
                 display: flex
@@ -363,7 +365,7 @@
                     font-size: 1.2em
                     margin: 0px
                 .subtle
-                    opacity: .7
+                    opacity: .4
                     font-weight: 200
                     color: #474747
                 .max-gene
@@ -425,6 +427,8 @@
                 align-items: center
                 justify-content: center
                 text-align: center
+                &.subtle
+                    opacity: .4
             div
                 display: flex
                 align-items: center
