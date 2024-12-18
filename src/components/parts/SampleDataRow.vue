@@ -8,7 +8,7 @@
         <div class="sample-row-info-form" v-if="!collapse">
             <div class="label-input-wrapper link">
                 <label for="file-format">Format:</label>
-                <select class="type" name="file-format" id="format" v-model="fileFormat">
+                <select class="vcf-type-select" name="file-format" id="format" v-model="fileFormat">
                     <option value="single">Single Sample</option>
                     <option value="joint">Joint Called</option>
                 </select>
@@ -25,7 +25,7 @@
 
                 <div class="row" v-if="(sampleOptions && fileFormat == 'joint') || sampleLocal.id">
                     <label for="sample-id">Sample Id:</label>
-                    <select name="sample-id" id="sample-id" @change="this.$emit('update-sample', this.sampleLocal)" v-model="sampleLocal.id">
+                    <select class="sample-select" name="sample-id" id="sample-id" @change="this.$emit('update-sample', this.sampleLocal)" v-model="sampleLocal.id">
                         <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
                         <option v-if="!sampleOptions" :value="sampleLocal.id">{{ sampleLocal.id }}</option>
                     </select>
@@ -250,6 +250,7 @@ export default {
                     border-radius: 5px
                     box-sizing: border-box
                     background-color: #EBEBEB
+                    font-weight: 200
                     //standard-modern
                     &::placeholder
                         font-style: italic
