@@ -770,10 +770,10 @@
       },
       sortSvList(sortCategory) {
         if (sortCategory == 'totalGenes') {
-          this.svListVariantBar.sort((a, b) => {
+            this.svListVariantBar.sort((a, b) => {
             return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
-          })
-          this.variantsSorted = true;
+            })
+            this.variantsSorted = true;
         } else if (sortCategory == 'hpoOverlapped') {
           if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
             this.toasts.push({message: 'No patient phenotypes to sort by, sorting by number of genes overlapped.', type: 'info'})
