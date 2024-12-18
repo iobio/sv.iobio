@@ -56,17 +56,6 @@
                     </button>
                 </div>
             </div>
-
-            <!-- <div class="label-input-wrapper link">
-                <label for="bam">BAM (opt.): </label>
-                <input type="text" id="bam" v-model="sample.bam" placeholder="Paste a link or select a local file..."/>
-                <button @click="openFileSelect($event)">Choose Local</button>
-            </div>
-            <div class="label-input-wrapper link">
-                <label for="bai">BAI (if BAM):</label>
-                <input type="text" id="bai" v-model="sample.bai" placeholder="Paste a link or select a local file..."/>
-                <button @click="openFileSelect($event)">Choose Local</button>
-            </div> -->
         </div>
         <div class="collapsed-alt-text" v-else>{{ sampleLocal.name }}</div>
     </div>
