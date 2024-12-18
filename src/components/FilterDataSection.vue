@@ -1,5 +1,5 @@
 <template>
-    <div class="filter-data-section" :class="{hidden: !show}">
+    <div class="filter-data-section" :class="{ hidden: !show }">
         <h3>Filter Variants</h3>
         <div id="overlap-check">
             <label for="gene-overlap">Gene Overlap Only</label>
