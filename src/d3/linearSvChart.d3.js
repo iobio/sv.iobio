@@ -6,6 +6,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
     let chromosomes = refChromosomes;
     let svs = data;
     let selectionCallback = null;
+    let focusedVariantCallback = null;
     let brush = false;
     let selection = null;
     let centromeres = null;
@@ -18,6 +19,9 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
     if (options) {
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
+        }
+        if (options.focusedVariantCallback) {
+            focusedVariantCallback = options.focusedVariantCallback;
         }
         if (options.brush) {
             brush = options.brush;

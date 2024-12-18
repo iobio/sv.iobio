@@ -80,6 +80,7 @@ export default {
       let options = {
         selection: this.selectedArea,
         selectionCallback: this.selectedAreaCallback,
+        focusedVariantCallback: this.focusedVariantCallback,
         brush: true,
         centromeres: this.centromeres, 
         bands: this.bands,
@@ -107,6 +108,9 @@ export default {
     },
     selectedAreaCallback(selectedArea){
       this.$emit('selectAreaEvent', selectedArea);
+    },
+    focusedVariantCallback(focusedVariant){
+      this.$emit('focusedVariantEvent', focusedVariant);
     },
     debounce(func, delay) {
       let timeout;
