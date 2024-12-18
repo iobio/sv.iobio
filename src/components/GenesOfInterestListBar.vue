@@ -1,7 +1,7 @@
 <template>
     <div id="genes-of-interest-list-bar">
         <div
-            :class="{focused: zoomedGeneName && zoomedGeneName == gene}"
+            :class="{ focused: zoomedGeneName && zoomedGeneName == gene }"
             v-for="gene in genesOfInterest"
             class="genes-of-interest-list-bar-gene"
             @click="emitZoomToGene(gene)">
