@@ -19,59 +19,58 @@ function bpFormattedSansHtml(valuebp) {
     return `${valuebp}bp`;
 }
 
-export function formatGenotype(genotype, full=false) {
+export function formatGenotype(genotype, full = false) {
     //Returns a formatted string for genotype values
     let numcode = genotype.slice(0, 3);
     if (full) {
-        if (numcode === '0/0') {
-            return 'Homozygous'
+        if (numcode === "0/0") {
+            return "Homozygous";
         }
-        if (numcode === '0/1') {
-            return 'Heterozygous'
+        if (numcode === "0/1") {
+            return "Heterozygous";
         }
-        if (numcode === '1/1') {
-            return 'Homozygous'
+        if (numcode === "1/1") {
+            return "Homozygous";
         }
-        if (numcode === './1') {
-            return 'Heterozygous'
+        if (numcode === "./1") {
+            return "Heterozygous";
         }
-        if (numcode === './.') {
-            return 'Unknown'
+        if (numcode === "./.") {
+            return "Unknown";
         }
-        return numcode
+        return numcode;
     } else {
-        if (numcode === '0/0') {
-            return 'Hom'
-        } else if (numcode === '0/1') {
-            return 'Het'
-        } else if (numcode === '1/1') {
-            return 'Hom'
-        } else if (numcode === './1') {
-            return 'Het'
-        } else if (numcode === './.') {
-            return 'UnKnown'
+        if (numcode === "0/0") {
+            return "Hom";
+        } else if (numcode === "0/1") {
+            return "Het";
+        } else if (numcode === "1/1") {
+            return "Hom";
+        } else if (numcode === "./1") {
+            return "Het";
+        } else if (numcode === "./.") {
+            return "UnKnown";
         } else {
-            return numcode
-        } 
+            return numcode;
+        }
     }
-
 }
 
 export function formatType(type) {
-    type = type.toUpperCase()
+    type = type.toUpperCase();
 
-    if (type === 'DEL') {
-        return 'Deletion'
-    } else if (type === 'INS') {
-        return 'Insertion'
-    } else if (type === 'DUP') {
-        return 'Duplication'
-    } else if (type === 'INV') {
-        return 'Inversion'
-    } else if (type === 'CNV') {
-        return 'Copy Number Variation'
+    if (type === "DEL") {
+        return "Deletion";
+    } else if (type === "INS") {
+        return "Insertion";
+    } else if (type === "DUP") {
+        return "Duplication";
+    } else if (type === "INV") {
+        return "Inversion";
+    } else if (type === "CNV") {
+        return "Copy Number Variation";
     }
-    return type
+    return type;
 }
 
 export function generateSvCode(sv) {
