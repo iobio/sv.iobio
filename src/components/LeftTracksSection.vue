@@ -119,10 +119,7 @@
                     :chromosomes="chromosomes"
                     @selectAreaEvent="selectAreaEventFired" />
 
-                <component
-                    :is="geneChartData.component"
-                    v-bind="geneChartData.props"
-                    @selectAreaEvent="selectAreaEventFired" />
+                <component :is="geneChartData.component" v-bind="geneChartData.props" @selectAreaEvent="selectAreaEventFired" />
 
                 <LinearSvChartViz
                     v-if="svList && svList.length > 0"
@@ -509,9 +506,7 @@ export default {
             let obj = event.target;
             obj.style.cursor = "grab";
             //Subtract one because the first element is the proband chart in this case
-            const targetIndex = Array.from(event.currentTarget.children).indexOf(
-                event.target.closest(".draggable-chart")
-            );
+            const targetIndex = Array.from(event.currentTarget.children).indexOf(event.target.closest(".draggable-chart"));
             if (targetIndex !== -1 && targetIndex !== this.draggedIndex) {
                 this.reorderCharts(this.draggedIndex, targetIndex);
                 this.draggedIndex = null;
