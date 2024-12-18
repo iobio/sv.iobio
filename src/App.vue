@@ -101,7 +101,7 @@
                     @zoom-to-gene="zoomToGene" />
             </div>
 
-            <LeftTracksSection
+            <ChartsSection
                 :samples="samples"
                 :svList="svListChart"
                 :hgBuild="hgBuild"
@@ -125,7 +125,7 @@
 <script>
 import * as dataHelper from "./dataHelpers/dataHelpers.js";
 import * as common from "./dataHelpers/commonFunctions.js";
-import LeftTracksSection from "./components/LeftTracksSection.vue";
+import ChartsSection from "./components/ChartsSection.vue";
 import VariantListBar from "./components/VariantListBar.vue";
 import GenesOfInterestListBar from "./components/GenesOfInterestListBar.vue";
 import NavBar from "./components/NavBar.vue";
@@ -138,7 +138,7 @@ import MosaicSession from "./models/MosaicSession.js";
 export default {
     name: "app",
     components: {
-        LeftTracksSection,
+        ChartsSection,
         VariantListBar,
         GenesOfInterestListBar,
         NavBar,
