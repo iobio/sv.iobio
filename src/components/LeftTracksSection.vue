@@ -716,24 +716,24 @@
             height: 18px
             fill: #2A65B7
             border-radius: 50%
-    .show-modal-btn
-        position: absolute
-        right: 5px
-        bottom: 10px
-        background-color: #2A65B7
-        border-radius: 50%
-        width: 30px
-        height: 30px
-        display: flex
-        justify-content: center
-        align-items: center
-        &:hover
-            cursor: pointer
-            background-color: #3778D2
-        svg
-            fill: white
-            width: 20px
-            height: 20px
+.show-modal-btn
+    position: absolute
+    right: 5px
+    bottom: 10px
+    background-color: #2A65B7
+    border-radius: 50%
+    width: 30px
+    height: 30px
+    display: flex
+    justify-content: center
+    align-items: center
+    &:hover
+        cursor: pointer
+        background-color: #3778D2
+    svg
+        fill: white
+        width: 20px
+        height: 20px
 #radios-tools-container
     display: flex
     justify-content: flex-start
