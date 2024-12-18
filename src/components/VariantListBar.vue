@@ -3,13 +3,13 @@
     <div id="variant-list-bar">
 
       <div v-if="svList && svList.length > 0" id="variant-list-bar-header" :class="{hasGoi: geneCandidates && geneCandidates.length > 0}">
-        <div class="span-rows" @mouseenter="showSortTip" @mouseleave="hideSortTip">Chr
+        <div class="span-rows" @mouseenter="showSortTip" @mouseleave="hideSortTip" @click="$emit('sort-variants', 'chr')">Chr
             <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>sort</title>
                 <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
             </svg>
         </div>
-        <div class="span-rows" @click="$emit('sort-variants', 'percentOverlapped')">Gene:HPO
+        <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">Gene:HPO
             <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>sort</title>
                 <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
@@ -23,28 +23,28 @@
             </svg>
         </div>
 
-        <div class="span-rows" @click="$emit('sort-variants', 'genesOverlapped')">Genes <br> Total
+        <div class="span-rows" @click="$emit('sort-variants', 'totalGenes')">Genes <br> Total
             <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>sort</title>
                 <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
             </svg>
         </div>
 
-        <div class="span-rows">Zygosity
+        <div class="span-rows" @click="$emit('sort-variants', 'zygosity')">Zygosity
             <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>sort</title>
                 <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
             </svg>
         </div>
 
-        <div class="span-rows">Type
+        <div class="span-rows" @click="$emit('sort-variants', 'type')">Type
             <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>sort</title>
                 <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
             </svg>
         </div>
 
-        <div class="span-rows">Size
+        <div class="span-rows" @click="$emit('sort-variants', 'size')">Size
             <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>sort</title>
                 <path d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />

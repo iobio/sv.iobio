@@ -190,6 +190,14 @@
         mosaidProjectId: null,
         mosaicExperimentId: null,
         validFromMosaic: true,
+        //Sorts
+        sortedBy: {
+          totalGenes: false,
+          hpoOverlapped: false,
+          goi: false,
+          chr: false,
+          type: false,
+        }
       }
     },
     async mounted() {
@@ -761,12 +769,12 @@
         this.samples.comparisons = comparisons;
       },
       sortSvList(sortCategory) {
-        if (sortCategory == 'genesOverlapped') {
+        if (sortCategory == 'totalGenes') {
           this.svListVariantBar.sort((a, b) => {
             return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
           })
           this.variantsSorted = true;
-        } else if (sortCategory == 'percentOverlapped') {
+        } else if (sortCategory == 'hpoOverlapped') {
           if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
             this.toasts.push({message: 'No patient phenotypes to sort by, sorting by number of genes overlapped.', type: 'info'})
             
@@ -793,6 +801,48 @@
               return this.numOfGOIOverlapped(this.genesOfInterest, b) - this.numOfGOIOverlapped(this.genesOfInterest, a);
             })
           } 
+        } else if (sortCategory == 'chr') {
+            //the chromosome of each sv is a number so we can sort by that
+            this.svListVariantBar.sort((a, b) => {
+              return a.chromosome - b.chromosome;
+            })
+        } else if (sortCategory == 'type') {
+            let order = ['DEL', 'DUP', 'INS', 'CNV', 'INV', 'BND', 'OTHER'];
+
+            this.svListVariantBar.sort((a, b) => {
+              let aType = a.type.toUpperCase();
+              let bType = b.type.toUpperCase();
+              let aIndex = order.indexOf(aType);
+              let bIndex = order.indexOf(bType);
+              if (aIndex == -1) {
+                aIndex = order.length;
+              }
+              if (bIndex == -1) {
+                bIndex = order.length;
+              }
+              return aIndex - bIndex;
+            })
+        } else if (sortCategory == 'zygosity') {
+            let order = ['HOM', 'HET', 'HEM', 'HEP', 'UNKNOWN'];
+
+            this.svListVariantBar.sort((a, b) => {
+              let aZyg = common.formatGenotype(a.genotype).toUpperCase();
+              let bZyg = common.formatGenotype(b.genotype).toUpperCase();
+              let aIndex = order.indexOf(aZyg);
+              let bIndex = order.indexOf(bZyg);
+              if (aIndex == -1) {
+                aIndex = order.length;
+              }
+              if (bIndex == -1) {
+                bIndex = order.length;
+              }
+              return aIndex - bIndex;
+            })
+        } else if (sortCategory == 'size') {
+            this.svListVariantBar.sort((a, b) => {
+              return b.size - a.size;
+            })
+
         }
       },
       zoomToGene(gene) {
