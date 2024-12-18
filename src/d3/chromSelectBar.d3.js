@@ -165,8 +165,8 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
 
             chromosomeGroup
                 .append("rect")
-                //class will be idiogram
-                .attr("class", "upper-idiogram-parm")
+                //class will be ideogram
+                .attr("class", "upper-ideogram-parm")
                 .attr("x", 1)
                 .attr("y", 5)
                 .attr("width", function () {
@@ -186,7 +186,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             chromosomeGroup
                 .append("rect")
                 //class will be idi
-                .attr("class", "lower-idiogram-qarm")
+                .attr("class", "lower-ideogram-qarm")
                 .attr("x", function () {
                     //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                     return x(centromereStart + centromereCenter) - x(chromosomeStart);

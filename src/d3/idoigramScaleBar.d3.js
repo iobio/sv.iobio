@@ -235,11 +235,11 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
             let idioPosOffset = 16;
 
             if (!centromere) {
-                //add another rectangle slightly smaller and under the last one to start to make the idiograms
+                //add another rectangle slightly smaller and under the last one to start to make the ideograms
                 chromosomeGroup
                     .append("rect")
-                    //class will be idiogram
-                    .attr("class", "upper-idiogram")
+                    //class will be ideogram
+                    .attr("class", "upper-ideogram")
                     .attr("x", 0)
                     .attr("y", 0)
                     .attr("width", x(chromEndUpdated) - x(chromStartUpdated))
@@ -252,8 +252,8 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
             } else {
                 chromosomeGroup
                     .append("rect")
-                    //class will be idiogram
-                    .attr("class", "upper-idiogram-parm")
+                    //class will be ideogram
+                    .attr("class", "upper-ideogram-parm")
                     .attr("x", 0)
                     .attr("y", 0)
                     .attr("width", function () {
@@ -271,7 +271,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 chromosomeGroup
                     .append("rect")
                     //class will be idi
-                    .attr("class", "lower-idiogram-qarm")
+                    .attr("class", "lower-ideogram-qarm")
                     .attr("x", function () {
                         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                         return x(centromereStart + centromereCenter) - x(chromStartUpdated);

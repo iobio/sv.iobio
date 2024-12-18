@@ -1,14 +1,14 @@
 <template>
-    <div class="idiogram-scale-bar-wrapper">
-        <div class="idiogram-scale-bar-viz" ref="idiogramScaleContainer"></div>
+    <div class="ideogram-scale-bar-wrapper">
+        <div class="ideogram-scale-bar-viz" ref="ideogramScaleContainer"></div>
     </div>
 </template>
 
 <script>
-import idiogramScaleBar from "../../d3/idoigramScaleBar.d3.js";
+import ideogramScaleBar from "../../d3/idoigramScaleBar.d3.js";
 
 export default {
-    name: "IdiogramScaleBarViz",
+    name: "IdeogramScaleBarViz",
     components: {},
     props: {
         selectedArea: Object,
@@ -28,18 +28,18 @@ export default {
             this.drawIdogramScaleBar();
         });
 
-        let contToObserve = this.$refs.idiogramScaleContainer;
+        let contToObserve = this.$refs.ideogramScaleContainer;
         this.resizeObserver.observe(contToObserve);
     },
     beforeDestroy() {
         if (this.resizeObserver) {
-            let contToObserve = this.$refs.idiogramScaleContainer;
+            let contToObserve = this.$refs.ideogramScaleContainer;
             this.resizeObserver.unobserve(contToObserve);
         }
     },
     methods: {
         drawIdogramScaleBar() {
-            let container = this.$refs.idiogramScaleContainer;
+            let container = this.$refs.ideogramScaleContainer;
             if (!container || !container.clientWidth) {
                 return;
             }
@@ -57,7 +57,7 @@ export default {
                 selection: this.selectedArea,
             };
 
-            this.idogramScaleBarChart = new idiogramScaleBar(container, this.chromosomes, options);
+            this.idogramScaleBarChart = new ideogramScaleBar(container, this.chromosomes, options);
             container.appendChild(this.idogramScaleBarChart);
         },
         selectedAreaCallback(selectedArea) {
@@ -81,10 +81,10 @@ export default {
 </script>
 
 <style lang="sass">
-.idiogram-scale-bar-wrapper
+.ideogram-scale-bar-wrapper
     width: 100%
     padding: 5px
-.idiogram-scale-bar-viz
+.ideogram-scale-bar-viz
     width: 100%
     height: 45px
     padding: 0px

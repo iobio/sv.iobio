@@ -112,7 +112,7 @@
                 @dragover.prevent="handleDragOver"
                 @drop="handleDrop">
                 <div id="linear-marker-line" v-if="tools.line"></div>
-                <IdiogramScaleBarViz
+                <IdeogramScaleBarViz
                     :selectedArea="selectedArea"
                     :bands="bands"
                     :centromeres="centromeres"
@@ -172,7 +172,7 @@ import Sv from "../models/Sv.js";
 import ChromSelectBarViz from "./viz/chromSelectBar.viz.vue";
 import LinearSvChartViz from "./viz/linearSvChart.viz.vue";
 import LinearGeneChartViz from "./viz/linearGeneChart.viz.vue";
-import IdiogramScaleBarViz from "./viz/idiogramScaleBar.viz.vue";
+import IdeogramScaleBarViz from "./viz/ideogramScaleBar.viz.vue";
 import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
 
@@ -183,7 +183,7 @@ export default {
         ChromSelectBarViz,
         LinearSvChartViz,
         LinearGeneChartViz,
-        IdiogramScaleBarViz,
+        IdeogramScaleBarViz,
         SvCirosMiniViz,
         LowerModal,
     },
