@@ -1,102 +1,99 @@
 <template>
     <div ref="cromSelectBarContainer" id="chrom-select-bar"></div>
 </template>
-  
-<script>
-  import chromSelectBar from '../../d3/chromSelectBar.d3.js';
 
-  export default {
+<script>
+import chromSelectBar from "../../d3/chromSelectBar.d3.js";
+
+export default {
     name: "ChromSelectBarViz",
-    components: {
-    },
+    components: {},
     props: {
-      selectedArea: Object,
-      bands: Array,
-      centromeres: Array,
-      chromosomes: Array,
+        selectedArea: Object,
+        bands: Array,
+        centromeres: Array,
+        chromosomes: Array,
     },
-    data () {
-      return {
-        chromSelectBarChart: null,
-        resizeObserver: null,
-      }
+    data() {
+        return {
+            chromSelectBarChart: null,
+            resizeObserver: null,
+        };
     },
-    mounted () {
-      if (this.chromosomes) {
-          let debouncedDraw = this.debounce(this.drawChromSelectBar, 100);
-            this.resizeObserver = new ResizeObserver( () => {
-              debouncedDraw();
+    mounted() {
+        if (this.chromosomes) {
+            let debouncedDraw = this.debounce(this.drawChromSelectBar, 100);
+            this.resizeObserver = new ResizeObserver(() => {
+                debouncedDraw();
             });
 
-            this.resizeObserver.observe(document.getElementById('chrom-select-bar'));
-          }
+            this.resizeObserver.observe(document.getElementById("chrom-select-bar"));
+        }
     },
-    onUpdated() {
-    },
+    onUpdated() {},
     beforeDestroy() {
-      if (this.resizeObserver){
-        this.resizeObserver.unobserve(document.getElementById('chrom-select-bar'));
-      }
+        if (this.resizeObserver) {
+            this.resizeObserver.unobserve(document.getElementById("chrom-select-bar"));
+        }
     },
     methods: {
-      drawChromSelectBar() {
-        let containerTag = '#chrom-select-bar';
-        //select the container
-        let container = this.$refs.cromSelectBarContainer;
-        //if the container doesnt exist, dont draw the chart or if it doesnt have a width
-        if (!container || !container.clientWidth) {
-          return;
-        }
-        container.innerHTML = '';
+        drawChromSelectBar() {
+            let containerTag = "#chrom-select-bar";
+            //select the container
+            let container = this.$refs.cromSelectBarContainer;
+            //if the container doesnt exist, dont draw the chart or if it doesnt have a width
+            if (!container || !container.clientWidth) {
+                return;
+            }
+            container.innerHTML = "";
 
-        //if we dont have chromosomes, centromeres, or bands, dont draw the chart
-        if (!this.hasAllOptions) {
-          return;
-        }
+            //if we dont have chromosomes, centromeres, or bands, dont draw the chart
+            if (!this.hasAllOptions) {
+                return;
+            }
 
-        let options = {
-          centromeres: this.centromeres, 
-          bands: this.bands,
-          brush: true,
-          selection: this.selectedArea,
-          selectionCallback: this.areaSelected
-        };
-        this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes, options);
-        
-        //get the container and append the chart
-        container.appendChild(this.chromSelectBarChart);
+            let options = {
+                centromeres: this.centromeres,
+                bands: this.bands,
+                brush: true,
+                selection: this.selectedArea,
+                selectionCallback: this.areaSelected,
+            };
+            this.chromSelectBarChart = new chromSelectBar(containerTag, this.chromosomes, options);
 
-      },
-      areaSelected(selection){
-        this.$emit('selectAreaEvent', selection);
-      },
-      debounce(func, delay) {
-        let timeout;
-        return function(...args) {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-      },
+            //get the container and append the chart
+            container.appendChild(this.chromSelectBarChart);
+        },
+        areaSelected(selection) {
+            this.$emit("selectAreaEvent", selection);
+        },
+        debounce(func, delay) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        },
     },
     computed: {
-      hasAllOptions() {
-        return this.chromosomes && this.centromeres && this.bands;
-      }, 
+        hasAllOptions() {
+            return this.chromosomes && this.centromeres && this.bands;
+        },
     },
     watch: {
-      //if any of the options change, redraw the chart
-      hasAllOptions: function() {
-        this.drawChromSelectBar();
-      },
-      selectedArea: function() {
-        this.drawChromSelectBar();
-      },
+        //if any of the options change, redraw the chart
+        hasAllOptions: function () {
+            this.drawChromSelectBar();
+        },
+        selectedArea: function () {
+            this.drawChromSelectBar();
+        },
     },
-  }
+};
 </script>
-  
+
 <style lang="sass">
-  #chrom-select-bar
+#chrom-select-bar
     width: 100%
     height: 100%
     margin: 0
