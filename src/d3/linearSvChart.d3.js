@@ -1,6 +1,6 @@
-import * as d3 from 'd3';
+import * as d3 from "d3";
 
-export default function linearSvChart(parentElement, refChromosomes, data=null, options=null) {
+export default function linearSvChart(parentElement, refChromosomes, data = null, options = null) {
     let width = parentElement.clientWidth;
     let height = parentElement.clientHeight;
     let chromosomes = refChromosomes;
@@ -43,7 +43,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
             //Convert the centromeres remove the chr from the chr field use that as the key
             let newCentromeres = {};
             for (let centromere of centromeres) {
-                let newKey = centromere.chr.replace('chr', '');
+                let newKey = centromere.chr.replace("chr", "");
                 newCentromeres[newKey] = centromere;
             }
             centromeres = newCentromeres;
@@ -53,20 +53,20 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
             let newBands = [];
             for (let band of bands) {
-                let newChr = band.chr.replace('chr', '');
+                let newChr = band.chr.replace("chr", "");
 
                 //if the chr has a _ cut everything after it
-                if (newChr.includes('_')) {
-                    newChr = newChr.split('_')[0];
+                if (newChr.includes("_")) {
+                    newChr = newChr.split("_")[0];
                 }
 
                 //if the new chr has a _ then skip it or if it's M or Un, or if the name doesnt have a . in it then skip it
-                if (newChr == 'M' || newChr == 'Un') {
+                if (newChr == "M" || newChr == "Un") {
                     continue;
                 }
 
                 //if they are gneg they are going to be white so skip them ie they are not gpos
-                if (!band.gieStain.includes('gpos')) {
+                if (!band.gieStain.includes("gpos")) {
                     continue;
                 }
 
@@ -81,21 +81,22 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         }
     }
 
-    const margin = {top: 5, right: 10, bottom: 5, left: 10};
+    const margin = { top: 5, right: 10, bottom: 5, left: 10 };
 
-    const svg = d3.create('svg')
-        .attr('viewBox', [0, 0, width, height])
-        .attr('class', 'linear-sv-chart-d3')
-        .attr('width', width)
-        .attr('height', height);
+    const svg = d3
+        .create("svg")
+        .attr("viewBox", [0, 0, width, height])
+        .attr("class", "linear-sv-chart-d3")
+        .attr("width", width)
+        .attr("height", height);
 
     let { chromosomeMap, genomeSize } = _genChromosomeAccumulatedMap(chromosomes);
 
     let originZoom = {
         start: 0,
         end: genomeSize,
-        size: genomeSize
-    }
+        size: genomeSize,
+    };
 
     if (selection) {
         if (selection.end - selection.start >= genomeSize) {
@@ -105,8 +106,8 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
             zoomedSelection = {
                 start: selection.start,
                 end: selection.end,
-                size: selection.end - selection.start
-            }
+                size: selection.end - selection.start,
+            };
             selection = null; //setting selection to null so that we can keep zooming if we like
         }
     } else {
@@ -119,24 +120,24 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
     }
 
     //Put a message at the top of the chart 'Click and drag to select a region'
-    svg.append('text')
-        .attr('x', '60px')
-        .attr('y', 13)
-        .attr('text-anchor', 'start')
-        .attr('font-size', '13px')
-        .attr('font-weight', '100')
-        .attr('font-style', 'italic')
-        .text('Click and drag to select a region')
-        .attr('fill', '#A3A3A3');
+    svg.append("text")
+        .attr("x", "60px")
+        .attr("y", 13)
+        .attr("text-anchor", "start")
+        .attr("font-size", "13px")
+        .attr("font-weight", "100")
+        .attr("font-style", "italic")
+        .text("Click and drag to select a region")
+        .attr("fill", "#A3A3A3");
 
-    let x = d3.scaleLinear()
+    let x = d3
+        .scaleLinear()
         .domain([zoomedSelection.start, zoomedSelection.end])
         .range([margin.left, width - margin.right]);
 
-    _renderSVs([zoomedSelection.start, zoomedSelection.end])
+    _renderSVs([zoomedSelection.start, zoomedSelection.end]);
 
-    function _genChromosomeAccumulatedMap(chromosomeList){
-
+    function _genChromosomeAccumulatedMap(chromosomeList) {
         let accumulatedBP = 0;
 
         let chromosomeAccumulatedMap = new Map();
@@ -147,13 +148,13 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
             accumulatedBP += chromosome.length;
 
             let chromEnd = accumulatedBP;
-            chromosomeAccumulatedMap.set(chromosome.chr, {start: chromStart, end: chromEnd});
+            chromosomeAccumulatedMap.set(chromosome.chr, { start: chromStart, end: chromEnd });
         }
 
         let genomeSize = accumulatedBP;
         let chromosomeMap = chromosomeAccumulatedMap;
 
-        return {chromosomeMap, genomeSize};
+        return { chromosomeMap, genomeSize };
     }
 
     function _renderSVs(range) {
@@ -213,19 +214,20 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                 svMap[`${absoluteStart}-${absoluteEnd}`] = [sv];
 
                 //create a new group for this point of interest
-                let pointGroup = svg.append('g')
-                    .attr('transform', `translate(${startX}, 30)`)
-                    .attr('class', 'point-group')
-                    .attr('id', `poi-${chr}-${start}-${end}-group`);
+                let pointGroup = svg
+                    .append("g")
+                    .attr("transform", `translate(${startX}, 30)`)
+                    .attr("class", "point-group")
+                    .attr("id", `poi-${chr}-${start}-${end}-group`);
 
                 let currentTrac = 0;
 
                 for (let x of Object.keys(tracMap)) {
-                    if (tracMap[x] != false && (startX > tracMap[x])) {
+                    if (tracMap[x] != false && startX > tracMap[x]) {
                         tracMap[x] = endX;
                         currentTrac = x;
                         break;
-                    } else if (tracMap[x] != false && (startX < tracMap[x])) {
+                    } else if (tracMap[x] != false && startX < tracMap[x]) {
                         continue;
                     }
 
@@ -238,57 +240,54 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
                 let translateY = (currentTrac - 1) * 8;
 
-                pointGroup.append('rect')
-                    .attr('x', 0)
-                    .attr('width', function() {
+                pointGroup
+                    .append("rect")
+                    .attr("x", 0)
+                    .attr("width", function () {
                         //if the block is too small to see make it 2 pixels wide
                         if (endX - startX < 1) {
                             return 1;
                         }
                         return endX - startX;
                     })
-                    .attr('transform', `translate(0, ${translateY})`)
-                    .attr('height', 5)
-                    .attr('rx', function() {
+                    .attr("transform", `translate(0, ${translateY})`)
+                    .attr("height", 5)
+                    .attr("rx", function () {
                         if (endX - startX < 3) {
-                            return 0
+                            return 0;
                         } else {
-                            return 2
+                            return 2;
                         }
                     })
-                    .attr('fill', function(){
+                    .attr("fill", function () {
                         //should be red if it's a deletion
-                        if (sv.type == 'DEL') {
-                            return '#CC0000';
+                        if (sv.type == "DEL") {
+                            return "#CC0000";
                         } else {
-                            return '#4C709B';
+                            return "#4C709B";
                         }
                     })
-                    .on('mouseover', function(event, d) {
+                    .on("mouseover", function (event, d) {
                         //if there is already a tooltip remove it
-                        d3.select('.tooltip-hover-variant').remove();
+                        d3.select(".tooltip-hover-variant").remove();
 
-                        d3.select(this)
-                            .style('fill', 'gray')
-                            .style('cursor', 'pointer');
+                        d3.select(this).style("fill", "gray").style("cursor", "pointer");
 
                         //append a tooltip that is absolutely positioned to the mouse position
-                        let tooltip = d3.select('body').append('div')
-                            .attr('class', 'tooltip-hover-variant');
+                        let tooltip = d3.select("body").append("div").attr("class", "tooltip-hover-variant");
 
                         //append the data to the tooltip
-                        let bpFormatted = function(valuebp) {
+                        let bpFormatted = function (valuebp) {
                             if (valuebp > 1000000) {
                                 return `${(valuebp / 1000000).toFixed(2)}Mb`;
                             } else if (valuebp > 1000) {
                                 return `${(valuebp / 1000).toFixed(2)}Kb`;
                             }
                             return `${valuebp}Bp`;
-                        }
+                        };
 
                         //append the data to the tooltip
-                        tooltip.append('p')
-                            .html(`
+                        tooltip.append("p").html(`
                                 ${sv.chromosome}:${bpFormatted(sv.start)}<br>
                                 size:${bpFormatted(sv.end - sv.start)}<br>
                                 quality:${sv.quality} (${sv.type})<br>
@@ -315,53 +314,51 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
                             y = y + 10;
                         }
 
-                        tooltip.style('left', `${x + 10}px`)
-                            .style('top', `${y + 10}px`);
+                        tooltip.style("left", `${x + 10}px`).style("top", `${y + 10}px`);
                     })
-                    .on('mouseout', function(event, d) {
-                        d3.select('.tooltip-hover-variant').remove();
-                        d3.select(this)
-                            .style('fill', function(){
-                                if (sv.type == 'DEL') {
-                                    return '#CC0000';
-                                } else {
-                                    return '#4C709B';
-                                }
-                            });
-                    })
+                    .on("mouseout", function (event, d) {
+                        d3.select(".tooltip-hover-variant").remove();
+                        d3.select(this).style("fill", function () {
+                            if (sv.type == "DEL") {
+                                return "#CC0000";
+                            } else {
+                                return "#4C709B";
+                            }
+                        });
+                    });
 
                 //if the point of interest is the focused variant then we want to put a border around it
                 if (isFocused) {
-                    pointGroup.append('rect')
-                        .attr('x', -2)
-                        .attr('width', function() {
+                    pointGroup
+                        .append("rect")
+                        .attr("x", -2)
+                        .attr("width", function () {
                             //if the block is too small to see make it 2 pixels wide
                             if (endX - startX < 1) {
                                 return 3;
                             }
                             return endX - startX + 4;
                         })
-                        .attr('transform', function() {
+                        .attr("transform", function () {
                             if (endX - startX < 1) {
-                                return `translate(1, ${translateY - 2})`
+                                return `translate(1, ${translateY - 2})`;
                             } else {
-                                return `translate(0, ${translateY - 2})`
+                                return `translate(0, ${translateY - 2})`;
                             }
                         })
-                        .attr('height', 9)
-                        .attr('rx', function() {
+                        .attr("height", 9)
+                        .attr("rx", function () {
                             if (endX - startX < 3) {
-                                return 0
+                                return 0;
                             } else {
-                                return 2
+                                return 2;
                             }
                         })
-                        .attr('fill', 'none')
-                        .attr('stroke', '#FFB60A')
-                        .attr('stroke-width', 2)
-                        .attr('class', 'focused-variant-border');
+                        .attr("fill", "none")
+                        .attr("stroke", "#FFB60A")
+                        .attr("stroke-width", 2)
+                        .attr("class", "focused-variant-border");
                 }
-
             } else {
                 //dont render the point of interest if it already exists
                 svMap[`${absoluteStart}-${absoluteEnd}`].push(sv);
@@ -370,39 +367,40 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
         //If svMap is empty then we want to put a message in the middle of the chart that says 'No SVs in this region'
         if (Object.keys(svMap).length == 0) {
-            svg.append('text')
-                .attr('x', width / 2)
-                .attr('y', height / 2)
-                .attr('text-anchor', 'middle')
-                .attr('font-size', '16px')
-                .attr('font-weight', '100')
-                .attr('font-style', 'italic')
-                .text('No SVs in this region')
-                .attr('fill', '#A3A3A3');
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height / 2)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "16px")
+                .attr("font-weight", "100")
+                .attr("font-style", "italic")
+                .text("No SVs in this region")
+                .attr("fill", "#A3A3A3");
         }
     }
 
     //render brush later so it's on top
     if (brush) {
-        let brush = d3.brushX()
-            .extent([[0, 0], [width, 20]])
-            .on('brush', function (event) {
+        let brush = d3
+            .brushX()
+            .extent([
+                [0, 0],
+                [width, 20],
+            ])
+            .on("brush", function (event) {
                 let brushArea = d3.select(this);
-                let selection = brushArea.select('.selection')
+                let selection = brushArea.select(".selection");
                 // Customize the brush rectangle during brushing
                 selection
-                    .attr('fill', 'rgba(0, 100, 255, 0.3)')
-                    .attr('stroke', '#4C709B')
-                    .attr('stroke-width', 1)
-                    .attr('height', height)
-                    .attr('rx', 2);
+                    .attr("fill", "rgba(0, 100, 255, 0.3)")
+                    .attr("stroke", "#4C709B")
+                    .attr("stroke-width", 1)
+                    .attr("height", height)
+                    .attr("rx", 2);
             })
-            .on('end', brushed);
+            .on("end", brushed);
 
-        svg.append('g')
-            .attr('class', `brush-area`)
-            .call(brush)
-            .raise();
+        svg.append("g").attr("class", `brush-area`).call(brush).raise();
     }
 
     function brushed(event) {
@@ -410,7 +408,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         //if the selection is null then the user has clicked off the brush so don't do anything
         if (!brushSelection || brushSelection[0] == brushSelection[1]) {
             //ensure we return back the whole genome
-            selectionCallback({start: 0, end: genomeSize});
+            selectionCallback({ start: 0, end: genomeSize });
             return;
         }
 
@@ -422,12 +420,12 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
         start = Math.round(start);
         end = Math.round(end);
 
-        if (selection && (start == selection.start && end == selection.end)) {
+        if (selection && start == selection.start && end == selection.end) {
             return;
         }
 
         if (selectionCallback) {
-            selectionCallback({start, end});
+            selectionCallback({ start, end });
         }
     }
 
@@ -437,7 +435,7 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
 
         if ((start < range[0] && end <= range[0]) || (start >= range[1] && end > range[1])) {
             return null;
-        } 
+        }
 
         if (start < range[0]) {
             st = range[0];
@@ -447,8 +445,8 @@ export default function linearSvChart(parentElement, refChromosomes, data=null, 
             en = range[1];
         }
 
-        return {start: st, end: en};
+        return { start: st, end: en };
     }
-    
+
     return svg.node();
 }
