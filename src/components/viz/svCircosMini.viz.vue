@@ -1,47 +1,44 @@
 <template>
-    <div id="sv-circos-mini-viz">
+    <div id="sv-circos-mini-viz"></div>
+</template>
 
-    </div>
-  </template>
-  
-  <script>
-    import svCircosMini from '../../d3/svCircosMini.js';
-    import * as d3 from 'd3';
+<script>
+import svCircosMini from "../../d3/svCircosMini.js";
+import * as d3 from "d3";
 
-    export default {
-    name: 'SvCirosMiniViz',
-    components: {
-    },
-    emits: ['selectAreaEvent'],
+export default {
+    name: "SvCirosMiniViz",
+    components: {},
+    emits: ["selectAreaEvent"],
     props: {
         zoomZone: Object,
         centromeres: Array,
         bands: Array,
         chromosomes: Array,
     },
-    data () {
+    data() {
         return {
             svCircosMiniChart: null,
             resizeObserver: null,
             updateZoomZone: null,
-        }
+        };
     },
-    mounted () {
+    mounted() {
         //set the height to be the same as the width
-        let root = document.getElementById('sv-circos-mini-viz');
-        root.style.height = root.clientWidth + 'px';
+        let root = document.getElementById("sv-circos-mini-viz");
+        root.style.height = root.clientWidth + "px";
 
-        this.resizeObserver = new ResizeObserver( () => {
+        this.resizeObserver = new ResizeObserver(() => {
             //resize the height to be the same as the width
-            root.style.height = root.clientWidth + 'px';
+            root.style.height = root.clientWidth + "px";
 
             this.drawMiniCircos();
         });
 
-        this.resizeObserver.observe(document.getElementById('sv-circos-mini-viz'));
+        this.resizeObserver.observe(document.getElementById("sv-circos-mini-viz"));
     },
     beforeDestroy() {
-        this.resizeObserver.unobserve(document.getElementById('sv-circos-mini-viz'));
+        this.resizeObserver.unobserve(document.getElementById("sv-circos-mini-viz"));
     },
     methods: {
         drawMiniCircos() {
@@ -49,13 +46,13 @@
                 return;
             }
 
-            let container = document.getElementById('sv-circos-mini-viz');
-            d3.select(container).selectAll('*').remove();
+            let container = document.getElementById("sv-circos-mini-viz");
+            d3.select(container).selectAll("*").remove();
 
             if (!container) {
                 return;
             }
-            
+
             let options = {
                 centromeres: this.centromeres,
                 bands: this.bands,
@@ -68,38 +65,38 @@
             this.updateZoomZone = updateZoomZone;
 
             container.appendChild(this.svCircosMiniChart);
-            
-            let miniCircos = document.getElementById('sv-circos-mini');
+
+            let miniCircos = document.getElementById("sv-circos-mini");
             miniCircos.style.zIndex = 2;
         },
         emitZoomEvent(zoomZone) {
-            this.$emit('selectAreaEvent', zoomZone);
-        }
+            this.$emit("selectAreaEvent", zoomZone);
+        },
     },
     computed: {
         hasAllOptions() {
             return this.centromeres && this.bands && this.chromosomes;
-        }
+        },
     },
     watch: {
-        hasAllOptions: function(newVal, oldVal) {
+        hasAllOptions: function (newVal, oldVal) {
             if (newVal) {
                 this.drawMiniCircos();
             }
         },
-        zoomZone: function(newVal, oldVal) {
+        zoomZone: function (newVal, oldVal) {
             if (this.svCircosMiniChart) {
                 this.updateZoomZone(newVal);
             }
-        }
+        },
     },
-    }
-  </script>
-  
-  <style lang="sass">
-    #sv-circos-mini-viz
-        width: 100%
-        display: flex
-        justify-content: center
-        align-items: center
-  </style>
+};
+</script>
+
+<style lang="sass">
+#sv-circos-mini-viz
+    width: 100%
+    display: flex
+    justify-content: center
+    align-items: center
+</style>
