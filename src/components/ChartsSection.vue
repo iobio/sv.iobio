@@ -177,7 +177,7 @@ import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
 
 export default {
-    name: "LeftTracksSection",
+    name: "ChartsSection",
     components: {
         svCircos,
         ChromSelectBarViz,
