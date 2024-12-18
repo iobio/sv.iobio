@@ -251,6 +251,7 @@ export default {
                     box-sizing: border-box
                     background-color: #EBEBEB
                     font-weight: 200
+                    font-size: 14px
                     //standard-modern
                     &::placeholder
                         font-style: italic
