@@ -1,7 +1,6 @@
-import * as d3 from 'd3';
+import * as d3 from "d3";
 
-export default function svCircosMini(parentTag, refChromosomes, options=null) {
-
+export default function svCircosMini(parentTag, refChromosomes, options = null) {
     //Reference Variables (chromosomes)
     let chromosomes = refChromosomes;
     let centromeres = null;
@@ -12,11 +11,11 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
     let zoomZone = null;
 
     let { chromosomeAccumulatedMap, bpGenomeSize } = _genChromosomeAccumulatedMap(chromosomes);
-    
+
     let originZoom = {
         start: 0,
         end: bpGenomeSize,
-        size: bpGenomeSize
+        size: bpGenomeSize,
     };
     if (options) {
         if (options.centromeres) {
@@ -24,14 +23,15 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
 
             //add the centromeres to the chromosomes
             for (let centromere of centromeres) {
-                let chrom = centromere.chr.replace('chr', '');
+                let chrom = centromere.chr.replace("chr", "");
                 let start = centromere.start;
                 let end = centromere.end;
                 let bp = end - start;
-                let chromIndex = chromosomes.findIndex(x => x.chr === chrom);
+                let chromIndex = chromosomes.findIndex((x) => x.chr === chrom);
 
-                if (chromIndex !== -1) { // Ensure the chromosome was found
-                    chromosomes[chromIndex].centromere = {start: start, end: end, bp: bp};
+                if (chromIndex !== -1) {
+                    // Ensure the chromosome was found
+                    chromosomes[chromIndex].centromere = { start: start, end: end, bp: bp };
                 }
             }
         }
@@ -59,56 +59,56 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
         height = container.node().clientHeight;
     }
 
-    const svg = d3.create('svg')
-        .attr('viewBox', [0, 0, width, height])
-        .attr('id', 'sv-circos-mini')
-        .attr('width', width)
-        .attr('height', height);
+    const svg = d3
+        .create("svg")
+        .attr("viewBox", [0, 0, width, height])
+        .attr("id", "sv-circos-mini")
+        .attr("width", width)
+        .attr("height", height);
 
-    const maxRadius = (Math.min(width, height) / 2) - (Math.min(width, height) / 16);
+    const maxRadius = Math.min(width, height) / 2 - Math.min(width, height) / 16;
 
     const center = {
         x: width / 2,
-        y: height / 2
+        y: height / 2,
     };
-    
-    let startAngleRad = 1 * Math.PI / 180;
-    let endAngleRad = 359 * Math.PI / 180;
-    
+
+    let startAngleRad = (1 * Math.PI) / 180;
+    let endAngleRad = (359 * Math.PI) / 180;
+
     // Change the range to radians (0 to 2π)
-    let angleScale = d3.scaleLinear()
-        .domain([originZoom.start, originZoom.end])
-        .range([startAngleRad, endAngleRad]);
+    let angleScale = d3.scaleLinear().domain([originZoom.start, originZoom.end]).range([startAngleRad, endAngleRad]);
 
     //process centromeres to put them into the correct chromosomes and format
-    centromeres.forEach(centromere => {
+    centromeres.forEach((centromere) => {
         let chrom = centromere.chr;
         let start = centromere.start;
         let end = centromere.end;
         let bp = end - start;
-        let chromIndex = chromosomes.findIndex(x => x.name === chrom);
+        let chromIndex = chromosomes.findIndex((x) => x.name === chrom);
 
-        if (chromIndex !== -1) { // Ensure the chromosome was found
-            chromosomes[chromIndex].centromere = {start: start, end: end, bp: bp};
+        if (chromIndex !== -1) {
+            // Ensure the chromosome was found
+            chromosomes[chromIndex].centromere = { start: start, end: end, bp: bp };
         }
     });
 
     //iterate over the chromosomes and create the arcs
-    let startColor = '#1F68C1'
-    let endColor = '#A63D40'
+    let startColor = "#1F68C1";
+    let endColor = "#A63D40";
 
     //TODO: If we were able to specify options on the track such as minRadius, maxRadius, color, background (on/off), label etc we could make this more dynamic and have one function
     _renderChromosomes([originZoom.start, originZoom.end], chromosomes);
 
-//HELPER FUNCTIONS
+    //HELPER FUNCTIONS
     function _setBaseStyles() {
         //anything with a .selected-chromosome will be green
-        let style = document.createElement('style');
-        style.innerHTML = '.selected-chromosome {fill: green;}';
-        document.getElementsByTagName('head')[0].appendChild(style);
+        let style = document.createElement("style");
+        style.innerHTML = ".selected-chromosome {fill: green;}";
+        document.getElementsByTagName("head")[0].appendChild(style);
     }
 
-    function _genChromosomeAccumulatedMap(chromosomeList){
+    function _genChromosomeAccumulatedMap(chromosomeList) {
         //iterate over the chromosomes and create the arcs
         let accumulatedBP = 0;
 
@@ -120,27 +120,27 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
             accumulatedBP += chromosome.length;
 
             let chromEnd = accumulatedBP;
-            chromosomeAccumulatedMap.set(chromosome.chr, {start: chromStart, end: chromEnd});
+            chromosomeAccumulatedMap.set(chromosome.chr, { start: chromStart, end: chromEnd });
         }
 
         let bpGenomeSize = accumulatedBP;
 
-        return {chromosomeAccumulatedMap, bpGenomeSize};
+        return { chromosomeAccumulatedMap, bpGenomeSize };
     }
 
     function _renderChromosomes(range, chromosomeList) {
         //grab chromosomes, centromeres, and chromosome-labels and remove them
-        svg.selectAll('.chromosome').remove();
-        svg.selectAll('.centromere').remove();
-        svg.selectAll('.chromosome-label').remove();
-        svg.selectAll('.chromosome-background').remove();
-        svg.selectAll('.chromosome-band').remove();
+        svg.selectAll(".chromosome").remove();
+        svg.selectAll(".centromere").remove();
+        svg.selectAll(".chromosome-label").remove();
+        svg.selectAll(".chromosome-background").remove();
+        svg.selectAll(".chromosome-band").remove();
 
         let alternate = false;
 
         for (let chromosome of chromosomeList) {
             let chromosomeName = chromosome.chr;
-            let chrom = chromosomeAccumulatedMap.get(chromosomeName)
+            let chrom = chromosomeAccumulatedMap.get(chromosomeName);
 
             let chromStart = chrom.start;
             let chromEnd = chrom.end;
@@ -148,9 +148,9 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
             //Centromere start and end
             let centromere = chromosome.centromere;
             let centAbStart = chromStart + centromere.start;
-            let centAbEnd = chromStart + centromere.end
+            let centAbEnd = chromStart + centromere.end;
 
-            let startAngle = angleScale(chromStart)
+            let startAngle = angleScale(chromStart);
             let endAngle = angleScale(chromEnd);
 
             //Calulate the color based on the start color and end color and the percentage of the genome that the chromosome represents
@@ -162,114 +162,119 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
             let centromereEndAngle = angleScale(centAbEnd);
 
             //create a group for each chromosome and the label
-            const g = svg.append('g');
+            const g = svg.append("g");
 
             //create a group for both parts of the chromosomes
-            const chromosomeGroup = g.append('g')
-                .attr('class', 'chromosome');
+            const chromosomeGroup = g.append("g").attr("class", "chromosome");
 
-            const arcP = d3.arc()
+            const arcP = d3
+                .arc()
                 .innerRadius(maxRadius * 0.9)
                 .outerRadius(maxRadius)
                 .startAngle(startAngle)
                 .endAngle(centromereCenterAngle)
                 .padAngle(0)
                 .padRadius(2)
-                .cornerRadius(function(d, i) {
+                .cornerRadius(function (d, i) {
                     return 4;
                 });
 
-            const arcQ = d3.arc()
+            const arcQ = d3
+                .arc()
                 .innerRadius(maxRadius * 0.9)
                 .outerRadius(maxRadius)
                 .startAngle(centromereCenterAngle)
                 .endAngle(endAngle)
                 .padAngle(0)
                 .padRadius(2)
-                .cornerRadius(function(d, i) {
+                .cornerRadius(function (d, i) {
                     return 4;
                 });
 
-            chromosomeGroup.append('path')
-                .datum({startAngle: startAngle, endAngle: centromereEndAngle})
-                .attr('d', arcP)
-                .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                .attr('fill', 'white')
-                .attr('stroke', color)
-                .attr('stroke-width', .5)
-                .attr('class', 'chromosome-p');
-            
-            chromosomeGroup.append('path')
-                .datum({startAngle: centromereEndAngle, endAngle: endAngle})
-                .attr('d', arcQ)
-                .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                .attr('fill', 'white')
-                .attr('stroke', color)
-                .attr('stroke-width', .5)
-                .attr('class', 'chromosome-q');
+            chromosomeGroup
+                .append("path")
+                .datum({ startAngle: startAngle, endAngle: centromereEndAngle })
+                .attr("d", arcP)
+                .attr("transform", `translate(${width / 2}, ${height / 2})`)
+                .attr("fill", "white")
+                .attr("stroke", color)
+                .attr("stroke-width", 0.5)
+                .attr("class", "chromosome-p");
+
+            chromosomeGroup
+                .append("path")
+                .datum({ startAngle: centromereEndAngle, endAngle: endAngle })
+                .attr("d", arcQ)
+                .attr("transform", `translate(${width / 2}, ${height / 2})`)
+                .attr("fill", "white")
+                .attr("stroke", color)
+                .attr("stroke-width", 0.5)
+                .attr("class", "chromosome-q");
 
             let arcInner;
             let arcOuter;
             if (alternate) {
-                arcInner = maxRadius * .76;
+                arcInner = maxRadius * 0.76;
                 arcOuter = maxRadius * 1.05;
             } else {
-                arcInner = maxRadius * .85;
+                arcInner = maxRadius * 0.85;
                 arcOuter = maxRadius * 1.11;
             }
 
             //create an arc from the start to the end of the chromosome
-            let lineArc = d3.arc()
+            let lineArc = d3
+                .arc()
                 .innerRadius(arcInner)
                 .outerRadius(arcOuter)
                 .startAngle(startAngle)
                 .endAngle(endAngle)
                 .padAngle(0)
                 .cornerRadius(2);
-            
-            chromosomeGroup.append('path')
-                .datum({startAngle: startAngle, endAngle: endAngle})
-                .attr('d', lineArc)
-                .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                .attr('fill', color)
-                .attr('fill-opacity', 0.1)
-                .attr('stroke', color)
-                .attr('stroke-width', .25)
-                .attr('class', 'chromosome-background')
+
+            chromosomeGroup
+                .append("path")
+                .datum({ startAngle: startAngle, endAngle: endAngle })
+                .attr("d", lineArc)
+                .attr("transform", `translate(${width / 2}, ${height / 2})`)
+                .attr("fill", color)
+                .attr("fill-opacity", 0.1)
+                .attr("stroke", color)
+                .attr("stroke-width", 0.25)
+                .attr("class", "chromosome-background")
                 .lower();
 
             let middle = (startAngle + endAngle) / 2;
             let textStartAngle = middle - Math.PI / 2; //text is horizontal so we need to rotate it 90 degrees
             let isSmallerSection = Math.min(width, height) <= 700;
 
-            const textAngle = textStartAngle; 
+            const textAngle = textStartAngle;
 
             let textRadius;
             if (alternate) {
-                textRadius = maxRadius * .82;
+                textRadius = maxRadius * 0.82;
                 alternate = false;
             } else {
                 textRadius = maxRadius * 1.05;
                 alternate = true;
             }
-            
-            const textX = (center.x) + ((textRadius) * Math.cos(textAngle));
-            const textY = (center.y) + ((textRadius) * Math.sin(textAngle));
+
+            const textX = center.x + textRadius * Math.cos(textAngle);
+            const textY = center.y + textRadius * Math.sin(textAngle);
 
             //take chr off the chromosome name
-            let chrName = chromosome.chr.replace('chr', '');
-            
-            g.append('text')
-                .attr('x', textX)
-                .attr('y', textY)
-                .attr('class', 'chromosome-label')
-                .attr('fill', color)
-                .attr('text-anchor', 'middle')
-                .attr('font-weight', 'bold')
-                .style('pointer-events', 'none')
-                .attr('alignment-baseline', 'middle')
+            let chrName = chromosome.chr.replace("chr", "");
+
+            g.append("text")
+                .attr("x", textX)
+                .attr("y", textY)
+                .attr("class", "chromosome-label")
+                .attr("fill", color)
+                .attr("text-anchor", "middle")
+                .attr("font-weight", "bold")
+                .style("pointer-events", "none")
+                .attr("alignment-baseline", "middle")
                 .text(chrName)
-                .attr('font-size', function(d) {
+                .attr("font-size", function (d) {
                     if (isSmallerSection) {
                         return "12px";
                     } else {
@@ -277,47 +282,47 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                     }
                 });
 
-                //put a small white circle behind the text to make it more readable
-                g.append('circle')
-                    .attr('cx', textX)
-                    .attr('cy', textY)
-                    .attr('r', 8)
-                    .attr('transform', `translate(0, -1)`)
-                    .attr('fill', 'transparent')
-                    .attr('class', 'chromosome-label')
-                    .style('cursor', 'pointer')
-                    .on('click', function (event, d) {
-                        let start = chromStart;
-                        let end = chromEnd;
-                        let chromSize = end - start;
-    
-                        zoomedSection = {
-                            start: start,
-                            end: end,
-                            size: chromSize
-                        };
-                        //Send the zoomed section outside of the chart
-                        zoomedCallback(zoomedSection);
-                    })
-                    .on('mouseover', function (event, d) {
-                        let backgroundChrom = d3.select(this.parentNode).select('.chromosome-background');
-                        backgroundChrom.attr('fill-opacity', 0.5);
-                    })
-                    .on('mouseout', function (event, d) {
-                        let backgroundChrom = d3.select(this.parentNode).select('.chromosome-background');
-                        backgroundChrom.attr('fill-opacity', 0.1);
-                    });
+            //put a small white circle behind the text to make it more readable
+            g.append("circle")
+                .attr("cx", textX)
+                .attr("cy", textY)
+                .attr("r", 8)
+                .attr("transform", `translate(0, -1)`)
+                .attr("fill", "transparent")
+                .attr("class", "chromosome-label")
+                .style("cursor", "pointer")
+                .on("click", function (event, d) {
+                    let start = chromStart;
+                    let end = chromEnd;
+                    let chromSize = end - start;
+
+                    zoomedSection = {
+                        start: start,
+                        end: end,
+                        size: chromSize,
+                    };
+                    //Send the zoomed section outside of the chart
+                    zoomedCallback(zoomedSection);
+                })
+                .on("mouseover", function (event, d) {
+                    let backgroundChrom = d3.select(this.parentNode).select(".chromosome-background");
+                    backgroundChrom.attr("fill-opacity", 0.5);
+                })
+                .on("mouseout", function (event, d) {
+                    let backgroundChrom = d3.select(this.parentNode).select(".chromosome-background");
+                    backgroundChrom.attr("fill-opacity", 0.1);
+                });
         }
         //append a new group for the brush to be added to
-        svg.append('g')
-            .attr('class', 'brush-group-mini');
+        svg.append("g").attr("class", "brush-group-mini");
 
         //if there is a zoom zone then add an arc to show the zoom zone
         if (zoomZone) {
             let startAngle = angleScale(zoomZone.start);
             let endAngle = angleScale(zoomZone.end);
 
-            let arc = d3.arc()
+            let arc = d3
+                .arc()
                 .innerRadius(maxRadius * 0.9)
                 .outerRadius(maxRadius * 1)
                 .startAngle(startAngle)
@@ -325,22 +330,24 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                 .padAngle(0)
                 .cornerRadius(2);
 
-            svg.select('.brush-group-mini').append('path')
-                .datum({startAngle: startAngle, endAngle: endAngle})
-                .attr('d', arc)
-                .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                .attr('fill', 'grey')
-                .attr('fill-opacity', 0.4)
-                .attr('stroke', 'red')
-                .attr('stroke-width', 1)
-                .attr('class', 'arc-brush-mini')
+            svg.select(".brush-group-mini")
+                .append("path")
+                .datum({ startAngle: startAngle, endAngle: endAngle })
+                .attr("d", arc)
+                .attr("transform", `translate(${width / 2}, ${height / 2})`)
+                .attr("fill", "grey")
+                .attr("fill-opacity", 0.4)
+                .attr("stroke", "red")
+                .attr("stroke-width", 1)
+                .attr("class", "arc-brush-mini")
                 .raise();
         } else {
             //put one with the origin zoom
             let startAngle = angleScale(originZoom.start);
             let endAngle = angleScale(originZoom.end);
 
-            let arc = d3.arc()
+            let arc = d3
+                .arc()
                 .innerRadius(maxRadius * 0.9)
                 .outerRadius(maxRadius * 1)
                 .startAngle(startAngle)
@@ -348,15 +355,16 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
                 .padAngle(0)
                 .cornerRadius(2);
 
-            svg.select('.brush-group-mini').append('path')
-                .datum({startAngle: startAngle, endAngle: endAngle})
-                .attr('d', arc)
-                .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                .attr('fill', 'grey')
-                .attr('fill-opacity', 0.4)
-                .attr('stroke', 'red')
-                .attr('stroke-width', 1)
-                .attr('class', 'arc-brush-mini')
+            svg.select(".brush-group-mini")
+                .append("path")
+                .datum({ startAngle: startAngle, endAngle: endAngle })
+                .attr("d", arc)
+                .attr("transform", `translate(${width / 2}, ${height / 2})`)
+                .attr("fill", "grey")
+                .attr("fill-opacity", 0.4)
+                .attr("stroke", "red")
+                .attr("stroke-width", 1)
+                .attr("class", "arc-brush-mini")
                 .raise();
         }
     }
@@ -376,39 +384,41 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
         }
 
         // Create the arc generator outside the functions
-        const arcGenerator = d3.arc()
+        const arcGenerator = d3
+            .arc()
             .innerRadius(maxRadius * 0.9)
             .outerRadius(maxRadius * 1)
             .padAngle(0)
             .cornerRadius(2);
 
         // Select the existing arc-brush-mini
-        let arcBrush = d3.select('.arc-brush-mini');
+        let arcBrush = d3.select(".arc-brush-mini");
         if (!arcBrush.empty()) {
             let d = arcBrush.datum();
             let newStartAngle = angleScale(zoomZone.start);
             let newEndAngle = angleScale(zoomZone.end);
 
-            arcBrush.datum({ ...d, newStartAngle, newEndAngle })
+            arcBrush
+                .datum({ ...d, newStartAngle, newEndAngle })
                 .transition()
                 .duration(500)
-                .attrTween('d', function(d) {
+                .attrTween("d", function (d) {
                     let interpolateStart = d3.interpolate(d.startAngle, d.newStartAngle);
                     let interpolateEnd = d3.interpolate(d.endAngle, d.newEndAngle);
-                    return function(t) {
+                    return function (t) {
                         let currentStartAngle = interpolateStart(t);
                         let currentEndAngle = interpolateEnd(t);
                         return arcGenerator({
                             startAngle: currentStartAngle,
-                            endAngle: currentEndAngle
+                            endAngle: currentEndAngle,
                         });
                     };
                 })
-                .on('end', function() {
+                .on("end", function () {
                     // Update the datum with the new angles after the transition
                     arcBrush.datum({
                         startAngle: newStartAngle,
-                        endAngle: newEndAngle
+                        endAngle: newEndAngle,
                     });
                 });
         } else {
@@ -418,19 +428,19 @@ export default function svCircosMini(parentTag, refChromosomes, options=null) {
 
             let arcData = { startAngle, endAngle };
 
-            d3.select('.brush-group-mini').append('path')
+            d3.select(".brush-group-mini")
+                .append("path")
                 .datum(arcData)
-                .attr('d', arcGenerator)
-                .attr('transform', `translate(${width / 2}, ${height / 2})`)
-                .attr('fill', 'grey')
-                .attr('fill-opacity', 0.4)
-                .attr('stroke', 'red')
-                .attr('stroke-width', 1)
-                .attr('class', 'arc-brush-mini')
+                .attr("d", arcGenerator)
+                .attr("transform", `translate(${width / 2}, ${height / 2})`)
+                .attr("fill", "grey")
+                .attr("fill-opacity", 0.4)
+                .attr("stroke", "red")
+                .attr("stroke-width", 1)
+                .attr("class", "arc-brush-mini")
                 .raise();
         }
     }
 
-    return {svg: svg.node(), updateZoomZone: updateZoomZone};
+    return { svg: svg.node(), updateZoomZone: updateZoomZone };
 }
-
