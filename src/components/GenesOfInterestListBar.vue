@@ -68,11 +68,12 @@ export default {
         &.focused
             background-color: #707070
             color: white
-        span
-            svg
-            fill: white
-        &:hover
-            color: black
+            span > svg
+                fill: white
+                &:hover
+                    fill: #f00
+            &:hover
+                color: black
         span
             cursor: pointer
         .close-btn
