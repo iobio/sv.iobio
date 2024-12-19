@@ -116,6 +116,7 @@
                 :genomeStart="genomeStart"
                 @updateComparisons="updateComparisons"
                 @zoomEvent="zoomFired"
+                @updateFocusedVariant="updateFocusedVariant"
                 @update-comparison-lists="setComparisonSamples"
                 @set-chromosome-accumulated-map="setChromosomeMap" />
         </div>

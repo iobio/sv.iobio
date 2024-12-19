@@ -325,6 +325,11 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
                                 return "#4C709B";
                             }
                         });
+                    })
+                    .on("click", function (event, d) {
+                        if (focusedVariantCallback) {
+                            focusedVariantCallback(sv);
+                        }
                     });
 
                 //if the point of interest is the focused variant then we want to put a border around it

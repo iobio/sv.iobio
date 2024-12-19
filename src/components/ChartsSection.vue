@@ -479,7 +479,7 @@ export default {
             this.$emit("zoomEvent", zoomZone);
         },
         focusedVariantEventFired(focusedVariant) {
-            this.$emit("focusedVariantEvent", focusedVariant);
+            this.$emit("updateFocusedVariant", focusedVariant);
         },
         focusOnVariant() {
             this.showButton = false;
