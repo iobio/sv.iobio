@@ -16,6 +16,8 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
     //zoom variables
     let zoomedSelection = null;
 
+    d3.select(".tooltip-hover-variant").remove();
+
     if (options) {
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
@@ -328,6 +330,7 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
                     })
                     .on("click", function (event, d) {
                         if (focusedVariantCallback) {
+                            d3.select(".tooltip-hover-variant").remove();
                             focusedVariantCallback(sv);
                         }
                     });
