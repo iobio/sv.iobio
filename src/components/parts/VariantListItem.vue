@@ -95,15 +95,9 @@ export default {
         return {
             showMore: false,
             focused: false,
-            isFocusedVariant: false,
         };
     },
-    mounted() {
-        let svKey = `${this.variant.chromosome}-${this.variant.start}-${this.variant.end}`;
-        if (svKey in this.openedSvSet) {
-            // this.showMore = true
-        }
-    },
+    mounted() {},
     methods: {
         formatGenotype: common.formatGenotype,
         bpFormatted: common.bpFormatted,
@@ -301,22 +295,24 @@ export default {
                 return { max: 0 };
             }
         },
-    },
-    watch: {
-        focusedVariant: function () {
+        isFocusedVariant() {
+            if (!this.focusedVariant) {
+                return false;
+            }
+
             if (
-                this.focusedVariant &&
                 this.focusedVariant.chromosome === this.variant.chromosome &&
                 this.focusedVariant.start === this.variant.start &&
-                this.focusedVariant.end === this.variant.end
+                this.focusedVariant.end === this.variant.end &&
+                this.focusedVariant.type === this.variant.type
             ) {
-                this.isFocusedVariant = true;
-                console.log(this.focusedVariant);
+                return true;
             } else {
-                this.isFocusedVariant = false;
+                return false;
             }
         },
     },
+    watch: {},
 };
 </script>
 

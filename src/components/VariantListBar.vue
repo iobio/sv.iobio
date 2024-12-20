@@ -72,7 +72,7 @@
 
             <VariantListItem
                 v-for="(variant, index) in svListSelection"
-                :key="`${variant.chromosome}-${variant.start}-${variant.end}`"
+                :key="`${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`"
                 :variant="variant"
                 :openedSvSet="openedSvSet"
                 :geneCandidates="geneCandidates"
@@ -179,13 +179,12 @@ export default {
     methods: {
         async variantClicked(variant, flag) {
             //add to openedSvSet
-            let key = `${variant.chromosome}-${variant.start}-${variant.end}`;
+            let key = `${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`;
             if (key in this.openedSvSet) {
                 delete this.openedSvSet[key];
             } else {
                 this.openedSvSet[key] = true;
             }
-
             this.$emit("variant-clicked", variant, flag);
         },
         handleScroll(event) {
@@ -228,6 +227,15 @@ export default {
             }
             thumb.style.top = top + "%";
         },
+        handleScrollToVariant(scrollSelection) {
+            this.scrollSelection = scrollSelection;
+            let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
+            let top = (this.scrollSelection[0] / this.svList.length) * 100;
+            if (top > 100) {
+                top = 100;
+            }
+            thumb.style.top = top + "%";
+        },
     },
     computed: {
         svListSelection() {
@@ -244,6 +252,35 @@ export default {
                 }
                 thumb.style.height = height + "%";
             }
+        },
+        focusedVariant(newVal, oldVal) {
+            if (!this.focusedVariant) {
+                return;
+            } else if (newVal == oldVal) {
+                return;
+            }
+
+            //Find the index of the focused variant in the svList
+            let index = this.svList.findIndex((variant) => {
+                return (
+                    variant.chromosome === this.focusedVariant.chromosome &&
+                    variant.start === this.focusedVariant.start &&
+                    variant.end === this.focusedVariant.end &&
+                    variant.type === this.focusedVariant.type
+                );
+            });
+
+            if (index < 0) {
+                return;
+            }
+
+            //if setting the window at SV +2 will go over the end of the list, set the window to the end of the list
+            if (index + 40 > this.svList.length) {
+                this.scrollSelection = [this.svList.length - 40, this.svList.length];
+            } else {
+                this.scrollSelection = [index, index + 40];
+            }
+            this.handleScrollToVariant(this.scrollSelection);
         },
     },
 };
