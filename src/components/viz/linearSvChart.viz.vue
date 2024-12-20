@@ -84,6 +84,7 @@ export default {
                 brush: true,
                 centromeres: this.centromeres,
                 bands: this.bands,
+                isProband: this.isProband,
             };
 
             if (this.focusedVariant) {

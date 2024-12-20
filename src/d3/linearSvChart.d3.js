@@ -12,6 +12,7 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
     let centromeres = null;
     let bands = null;
     let focusedVariant = null;
+    let isProband = false;
 
     //zoom variables
     let zoomedSelection = null;
@@ -27,6 +28,9 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
         }
         if (options.brush) {
             brush = options.brush;
+        }
+        if (options.isProband) {
+            isProband = options.isProband;
         }
         if (options.selection && options.selection !== null) {
             //we want to automatically brush to the selection
@@ -273,7 +277,15 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
                         //if there is already a tooltip remove it
                         d3.select(".tooltip-hover-variant").remove();
 
-                        d3.select(this).style("fill", "gray").style("cursor", "pointer");
+                        d3.select(this)
+                            .style("fill", "gray")
+                            .style("cursor", function () {
+                                if (isProband) {
+                                    return "pointer";
+                                } else {
+                                    return "default";
+                                }
+                            });
 
                         //append a tooltip that is absolutely positioned to the mouse position
                         let tooltip = d3.select("body").append("div").attr("class", "tooltip-hover-variant");
@@ -329,7 +341,7 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
                         });
                     })
                     .on("click", function (event, d) {
-                        if (focusedVariantCallback) {
+                        if (focusedVariantCallback && isProband) {
                             d3.select(".tooltip-hover-variant").remove();
                             focusedVariantCallback(sv);
                         }
