@@ -122,6 +122,7 @@ export default {
             open: true,
             scrollSelection: [0, 40],
             openedSvSet: {},
+            clickedFromBar: false,
         };
     },
     mounted() {
@@ -185,6 +186,7 @@ export default {
             } else {
                 this.openedSvSet[key] = true;
             }
+            this.clickedFromBar = true;
             this.$emit("variant-clicked", variant, flag);
         },
         handleScroll(event) {
@@ -259,6 +261,10 @@ export default {
             } else if (newVal == oldVal) {
                 return;
             }
+            if (this.clickedFromBar) {
+                this.clickedFromBar = false;
+                return;
+            }
 
             //Find the index of the focused variant in the svList
             let index = this.svList.findIndex((variant) => {
@@ -280,6 +286,7 @@ export default {
             } else {
                 this.scrollSelection = [index, index + 40];
             }
+            this.clickedFromBar = false;
             this.handleScrollToVariant(this.scrollSelection);
         },
     },
