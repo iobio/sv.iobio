@@ -1,5 +1,5 @@
 <template>
-    <div id="variant-list-item">
+    <div class="variant-list-item">
         <div
             class="preview"
             :class="{ opened: showMore, focusedVariant: isFocusedVariant, hasGoi: geneCandidates && geneCandidates.length > 0 }"
@@ -317,7 +317,7 @@ export default {
 </script>
 
 <style lang="sass">
-#variant-list-item
+.variant-list-item
     width: 100%
     min-width: 200px
     position: relative
