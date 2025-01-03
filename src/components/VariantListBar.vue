@@ -120,16 +120,30 @@ export default {
     data() {
         return {
             open: true,
-            scrollSelection: [0, 40],
+            scrollSelection: [0, 22],
             openedSvSet: {},
             clickedFromBar: false,
+            viewWindow: 22,
         };
     },
     mounted() {
-        //we want to listen for scroll events on the variant list bar... if we are at the bottom, we want to load more variants
+        //we want to listen for scroll events on the variant list bar
         let variantListBar = document.getElementById("variant-list-bar");
+        variantListBar.addEventListener("scroll", this.handleScroll.bind(this));
 
-        variantListBar.addEventListener("scroll", this.handleScroll);
+        //Determine the viewWindow by determining the height of the variant list items and then dividing the total by that and add one
+        let firstVariant = document.getElementsByClassName("variant-list-item")[0];
+        if (firstVariant) {
+            let variantHeight = firstVariant.offsetHeight;
+            let maxWindow = Math.floor(variantListBar.clientHeight / variantHeight) + 1;
+            if (maxWindow > this.svList.length) {
+                this.viewWindow = this.svList.length;
+            } else {
+                this.viewWindow = maxWindow;
+            }
+
+            this.scrollSelection = [0, this.viewWindow];
+        }
 
         //the initial thumb size will be the size of the scrollSelection[1] / svList.length * 100
         let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
@@ -152,16 +166,19 @@ export default {
             let mouseY = event.clientY;
             //what percent of the sudo scroll bar is the mouse at
             let percent = (mouseY - sudoScrollBar.getBoundingClientRect().top) / sudoScrollBar.clientHeight;
-            let scrollSelection = [Math.floor(percent * this.svList.length), Math.floor(percent * this.svList.length) + 40];
+            let scrollSelection = [
+                Math.floor(percent * this.svList.length),
+                Math.floor(percent * this.svList.length) + this.viewWindow,
+            ];
 
             //if the scroll selection is less than 0, set it to 0
             if (scrollSelection[0] < 0) {
                 scrollSelection[0] = 0;
-                scrollSelection[1] = 40;
+                scrollSelection[1] = this.viewWindow;
             }
             //if the scroll selection is greater than the svList length, set it to the svList length
             if (scrollSelection[1] > this.svList.length) {
-                let zero = this.svList.length - 40;
+                let zero = this.svList.length - this.viewWindow;
                 if (zero < 0) {
                     zero = 0;
                 }
@@ -171,6 +188,7 @@ export default {
             }
             this.handleScrollDrag(scrollSelection);
         };
+
         let onMouseUp = function (event) {
             event.preventDefault();
             document.removeEventListener("mousemove", onMouseMove);
@@ -178,6 +196,9 @@ export default {
         };
     },
     methods: {
+        initializeScroll() {
+            //TODO
+        },
         async variantClicked(variant, flag) {
             //add to openedSvSet
             let key = `${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`;
@@ -189,16 +210,16 @@ export default {
             this.clickedFromBar = true;
             this.$emit("variant-clicked", variant, flag);
         },
-        handleScroll(event) {
-            let variantListBar = event.target;
+        handleScroll() {
+            let variantListBar = document.getElementById("variant-list-bar");
+
             if (
                 variantListBar.scrollTop + variantListBar.clientHeight >= variantListBar.scrollHeight - 1 &&
                 this.scrollSelection[1] < this.svList.length
             ) {
-                this.scrollSelection[0] = this.scrollSelection[0] + 1;
-                this.scrollSelection[1] = this.scrollSelection[1] + 1;
-                //increment the scroll just a little so that we can keep the scroll bar at the bottom and it seems natural
-                variantListBar.scrollTop = variantListBar.scrollTop - 1;
+                this.scrollSelection[0]++;
+                this.scrollSelection[1]++;
+                variantListBar.scrollTop -= 1;
 
                 //the thumb top position will be the scrollSelection[0] / svList.length * 100
                 let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
@@ -206,10 +227,9 @@ export default {
             }
             //if we are at the top also load more variants in the opposite direction
             if (variantListBar.scrollTop === 0 && this.scrollSelection[0] > 0) {
-                this.scrollSelection[0] = this.scrollSelection[0] - 1;
-                this.scrollSelection[1] = this.scrollSelection[1] - 1;
-
-                variantListBar.scrollTop = variantListBar.scrollTop + 1;
+                this.scrollSelection[0] -= 1;
+                this.scrollSelection[1] -= 1;
+                variantListBar.scrollTop++;
 
                 //the thumb top position will be the scrollSelection[0] / svList.length * 100
                 let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
@@ -247,6 +267,24 @@ export default {
     watch: {
         svList(newVal, oldVal) {
             if (newVal !== oldVal) {
+                //we want to listen for scroll events on the variant list bar
+                let variantListBar = document.getElementById("variant-list-bar");
+                variantListBar.addEventListener("scroll", this.handleScroll.bind(this));
+
+                //Determine the viewWindow by determining the height of the variant list items and then dividing the total by that and add one
+                let firstVariant = document.getElementsByClassName("variant-list-item")[0];
+                if (firstVariant) {
+                    let variantHeight = firstVariant.offsetHeight;
+                    let maxWindow = Math.floor(variantListBar.clientHeight / variantHeight);
+                    if (maxWindow > this.svList.length) {
+                        this.viewWindow = this.svList.length;
+                    } else {
+                        this.viewWindow = maxWindow;
+                    }
+
+                    this.scrollSelection = [0, this.viewWindow];
+                }
+
                 let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
                 let height = (this.scrollSelection[1] / this.svList.length) * 100;
                 if (height > 100) {
@@ -281,10 +319,10 @@ export default {
             }
 
             //if setting the window at SV +2 will go over the end of the list, set the window to the end of the list
-            if (index + 40 > this.svList.length) {
-                this.scrollSelection = [this.svList.length - 40, this.svList.length];
+            if (index + this.viewWindow > this.svList.length) {
+                this.scrollSelection = [this.svList.length - this.viewWindow, this.svList.length];
             } else {
-                this.scrollSelection = [index, index + 40];
+                this.scrollSelection = [index, index + this.viewWindow];
             }
             this.clickedFromBar = false;
             this.handleScrollToVariant(this.scrollSelection);
@@ -298,6 +336,7 @@ export default {
     flex-grow: 1
     overflow: hidden
     padding-right: 10px
+    padding-bottom: 1px
     position: relative
     box-sizing: border-box
     .collapsed > #variant-list-bar
@@ -315,7 +354,7 @@ export default {
     min-width: 350px
     height: 100%
     box-sizing: border-box
-    overflow-y: auto
+    overflow-y: scroll
     position: relative
     transition: width 0.4s, min-width 0.4s
     #variant-list-bar-header
