@@ -89,6 +89,7 @@
                     :overlapProp="overlapProp"
                     :filters="filters"
                     :focusedVariant="focusedVariant"
+                    :open="variantListBarOpen"
                     @updateSvAtIndex="updateSvList"
                     @variant-clicked="updateFocusedVariant"
                     @sort-variants="sortSvList" />

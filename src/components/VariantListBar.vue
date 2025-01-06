@@ -1,92 +1,94 @@
 <template>
-    <div id="variant-sudo-scroll-wrapper">
-        <div id="variant-list-bar">
-            <div
-                v-if="svList && svList.length > 0"
-                id="variant-list-bar-header"
-                :class="{ hasGoi: geneCandidates && geneCandidates.length > 0 }">
-                <div class="span-rows" @mouseenter="showSortTip" @mouseleave="hideSortTip" @click="$emit('sort-variants', 'chr')">
-                    Chr
-                    <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>sort</title>
-                        <path
-                            d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                    </svg>
-                </div>
-                <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">
-                    Gene:HPO
-                    <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>sort</title>
-                        <path
-                            d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                    </svg>
-                </div>
-
-                <div class="span-rows" v-if="geneCandidates && geneCandidates.length > 0" @click="$emit('sort-variants', 'goi')">
-                    GoI
-                    <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>sort</title>
-                        <path
-                            d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                    </svg>
-                </div>
-
-                <div class="span-rows" @click="$emit('sort-variants', 'totalGenes')">
-                    Genes
-                    <br />
-                    Total
-                    <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>sort</title>
-                        <path
-                            d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                    </svg>
-                </div>
-
-                <div class="span-rows" @click="$emit('sort-variants', 'zygosity')">
-                    Zygosity
-                    <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>sort</title>
-                        <path
-                            d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                    </svg>
-                </div>
-
-                <div class="span-rows" @click="$emit('sort-variants', 'type')">
-                    Type
-                    <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>sort</title>
-                        <path
-                            d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                    </svg>
-                </div>
-
-                <div class="span-rows" @click="$emit('sort-variants', 'size')">
-                    Size
-                    <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>sort</title>
-                        <path
-                            d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                    </svg>
-                </div>
+    <div id="variant-list-bar" :class="{ collapsed: !open }">
+        <div
+            v-if="svList && svList.length > 0"
+            id="variant-list-bar-header"
+            :class="{ hasGoi: geneCandidates && geneCandidates.length > 0 }">
+            <div class="span-rows" @mouseenter="showSortTip" @mouseleave="hideSortTip" @click="$emit('sort-variants', 'chr')">
+                Chr
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+            <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">
+                Gene:HPO
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
             </div>
 
-            <VariantListItem
-                v-for="(variant, index) in svListSelection"
-                :key="`${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`"
-                :variant="variant"
-                :openedSvSet="openedSvSet"
-                :geneCandidates="geneCandidates"
-                :patientPhenotypes="patientPhenotypes"
-                :comparisonsLists="comparisonsLists"
-                :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
-                :placeInList="index"
-                :overlapProp="overlapProp"
-                :filters="filters"
-                :focusedVariant="focusedVariant"
-                @variant-clicked="variantClicked" />
+            <div class="span-rows" v-if="geneCandidates && geneCandidates.length > 0" @click="$emit('sort-variants', 'goi')">
+                GoI
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+
+            <div class="span-rows" @click="$emit('sort-variants', 'totalGenes')">
+                Genes
+                <br />
+                Total
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+
+            <div class="span-rows" @click="$emit('sort-variants', 'zygosity')">
+                Zygosity
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+
+            <div class="span-rows" @click="$emit('sort-variants', 'type')">
+                Type
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+
+            <div class="span-rows" @click="$emit('sort-variants', 'size')">
+                Size
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
         </div>
-        <div id="variant-list-bar-sudo-scroll">
-            <div id="variant-list-bar-sudo-scroll-thumb"></div>
+
+        <div id="variant-scroll-wrapper">
+            <div id="variant-items-wrapper">
+                <VariantListItem
+                    v-for="(variant, index) in svListSelection"
+                    :key="`${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`"
+                    :variant="variant"
+                    :openedSvSet="openedSvSet"
+                    :geneCandidates="geneCandidates"
+                    :patientPhenotypes="patientPhenotypes"
+                    :comparisonsLists="comparisonsLists"
+                    :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+                    :placeInList="index"
+                    :overlapProp="overlapProp"
+                    :filters="filters"
+                    :focusedVariant="focusedVariant"
+                    @variant-clicked="variantClicked" />
+            </div>
+            <div id="variant-list-bar-sudo-scroll">
+                <div id="variant-list-bar-sudo-scroll-thumb"></div>
+            </div>
         </div>
     </div>
 </template>
@@ -116,10 +118,13 @@ export default {
         },
         overlapProp: Number,
         filters: Object,
+        open: {
+            type: Boolean,
+            default: true,
+        },
     },
     data() {
         return {
-            open: true,
             scrollSelection: [0, 22],
             openedSvSet: {},
             clickedFromBar: false,
@@ -128,15 +133,15 @@ export default {
     },
     mounted() {
         //we want to listen for scroll events on the variant list bar
-        let variantListBar = document.getElementById("variant-list-bar");
+        let variantListBar = document.getElementById("variant-items-wrapper");
         variantListBar.addEventListener("scroll", this.handleScroll.bind(this));
 
-        //Determine the viewWindow by determining the height of the variant list items and then dividing the total by that and add one
+        //Determine the viewWindow by determining the height of the variant list items and then dividing the total by that and add two (top and bottom)
         let firstVariant = document.getElementsByClassName("variant-list-item")[0];
         if (firstVariant) {
             let variantHeight = firstVariant.offsetHeight;
-            let maxWindow = Math.floor(variantListBar.clientHeight / variantHeight) + 1;
-            if (maxWindow > this.svList.length) {
+            let maxWindow = Math.floor(variantListBar.clientHeight / variantHeight) + 2;
+            if (maxWindow - 2 > this.svList.length) {
                 this.viewWindow = this.svList.length;
             } else {
                 this.viewWindow = maxWindow;
@@ -149,7 +154,7 @@ export default {
         let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
         let height = (this.scrollSelection[1] / (this.svList.length - 1)) * 100;
         if (height > 100) {
-            height = 99.5;
+            height = 100;
         }
         thumb.style.height = height + "%";
 
@@ -211,7 +216,8 @@ export default {
             this.$emit("variant-clicked", variant, flag);
         },
         handleScroll() {
-            let variantListBar = document.getElementById("variant-list-bar");
+            let variantListBar = document.getElementById("variant-items-wrapper");
+            console.log("scrolling");
 
             if (
                 variantListBar.scrollTop + variantListBar.clientHeight >= variantListBar.scrollHeight - 1 &&
@@ -268,7 +274,7 @@ export default {
         svList(newVal, oldVal) {
             if (newVal !== oldVal) {
                 //we want to listen for scroll events on the variant list bar
-                let variantListBar = document.getElementById("variant-list-bar");
+                let variantListBar = document.getElementById("variant-items-wrapper");
                 variantListBar.addEventListener("scroll", this.handleScroll.bind(this));
 
                 //Determine the viewWindow by determining the height of the variant list items and then dividing the total by that and add one
@@ -288,7 +294,9 @@ export default {
                 let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
                 let height = (this.scrollSelection[1] / this.svList.length) * 100;
                 if (height > 100) {
-                    height = 99.5;
+                    height = 100;
+                } else if (height <= 0) {
+                    height = 1;
                 }
                 thumb.style.height = height + "%";
             }
@@ -318,7 +326,6 @@ export default {
                 return;
             }
 
-            //if setting the window at SV +2 will go over the end of the list, set the window to the end of the list
             if (index + this.viewWindow > this.svList.length) {
                 this.scrollSelection = [this.svList.length - this.viewWindow, this.svList.length];
             } else {
@@ -332,31 +339,32 @@ export default {
 </script>
 
 <style lang="sass">
-#variant-sudo-scroll-wrapper
+#variant-scroll-wrapper
     flex-grow: 1
+    width: 100%
     overflow: hidden
     padding-right: 10px
-    padding-bottom: 1px
     position: relative
-    box-sizing: border-box
-    .collapsed > #variant-list-bar
-        width: 0px
-        min-width: 0px
-    .collapsed > #variant-list-bar-sudo-scroll
-        display: none
+    overflow: hidden
+    #variant-items-wrapper
+        overflow-y: auto
+        height: 100%
 #variant-list-bar
     display: flex
     flex-direction: column
     align-items: flex-start
     justify-content: flex-start
-    padding-bottom: 10px
+    padding-bottom: 1px
     width: 100%
     min-width: 350px
     height: 100%
     box-sizing: border-box
-    overflow-y: scroll
+    overflow: hidden
     position: relative
     transition: width 0.4s, min-width 0.4s
+    &.collapsed
+        width: 0px
+        min-width: 0px
     #variant-list-bar-header
         display: grid
         grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
@@ -426,13 +434,13 @@ export default {
                 b
                     padding: 0px 2px
 //Webkit scrollbar
-#variant-list-bar::-webkit-scrollbar
+#variant-items-wrapper::-webkit-scrollbar
     display: none
 //Firefox scrollbar
-#variant-list-bar
+#variant-items-wrapper
     scrollbar-width: none
 //old IE
-#variant-list-bar
+#variant-items-wrapper
     -ms-overflow-style: none
 #variant-list-bar-sudo-scroll
     position: absolute
@@ -440,7 +448,6 @@ export default {
     right: 0
     width: 10px
     height: 100%
-    box-sizing: border-box
     background-color: #F5F5F5
     z-index: 2
     #variant-list-bar-sudo-scroll-thumb
@@ -449,7 +456,6 @@ export default {
         position: relative
         background-color: #CCCCCC
         border-radius: 10px
-        box-sizing: border-box
         cursor: pointer
         &:hover
             background-color: #B8B8B8
