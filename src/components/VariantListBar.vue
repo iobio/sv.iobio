@@ -417,7 +417,7 @@ export default {
         font-size: .8em
         font-weight: 200
         width: 100%
-        height: 90px
+        height: 50px
         margin: 0px
         padding: 5px
         box-sizing: border-box
