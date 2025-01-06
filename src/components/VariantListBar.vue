@@ -140,8 +140,8 @@ export default {
         let firstVariant = document.getElementsByClassName("variant-list-item")[0];
         if (firstVariant) {
             let variantHeight = firstVariant.offsetHeight;
-            let maxWindow = Math.floor(variantListBar.clientHeight / variantHeight) + 2;
-            if (maxWindow - 2 > this.svList.length) {
+            let maxWindow = Math.floor(variantListBar.clientHeight / variantHeight) + 1;
+            if (maxWindow - 1 > this.svList.length) {
                 this.viewWindow = this.svList.length;
             } else {
                 this.viewWindow = maxWindow;
@@ -152,9 +152,9 @@ export default {
 
         //the initial thumb size will be the size of the scrollSelection[1] / svList.length * 100
         let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
-        let height = (this.scrollSelection[1] / (this.svList.length - 1)) * 100;
+        let height = (this.viewWindow / this.svList.length) * 100;
         if (height > 100) {
-            height = 100;
+            height = 99.9;
         }
         thumb.style.height = height + "%";
 
@@ -217,7 +217,6 @@ export default {
         },
         handleScroll() {
             let variantListBar = document.getElementById("variant-items-wrapper");
-            console.log("scrolling");
 
             if (
                 variantListBar.scrollTop + variantListBar.clientHeight >= variantListBar.scrollHeight - 1 &&
@@ -256,7 +255,32 @@ export default {
             thumb.style.top = top + "%";
         },
         handleScrollToVariant(scrollSelection) {
+            let direction;
+            if (scrollSelection[0] > this.scrollSelection[0]) {
+                direction = "down";
+            } else {
+                direction = "up";
+            }
+
             this.scrollSelection = scrollSelection;
+
+            //if we are at the very bottom of the list, we need to scroll to the bottom so we can see the last variant
+            let variantListBar = document.getElementById("variant-items-wrapper");
+
+            if (this.scrollSelection[1] >= this.svList.length - 1 && direction == "down") {
+                variantListBar.scrollTop = variantListBar.scrollHeight;
+            } else if (direction == "up") {
+                let variantListBar = document.getElementById("variant-items-wrapper");
+                let firstVariant = document.getElementsByClassName("variant-list-item")[0];
+                let scrollInc = firstVariant.offsetHeight;
+
+                let newTop = variantListBar.scrollTop - scrollInc * 2;
+                if (newTop < 0) {
+                    newTop = 0;
+                }
+                variantListBar.scrollTop = newTop;
+            }
+
             let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
             let top = (this.scrollSelection[0] / this.svList.length) * 100;
             if (top > 100) {
@@ -292,11 +316,9 @@ export default {
                 }
 
                 let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
-                let height = (this.scrollSelection[1] / this.svList.length) * 100;
+                let height = (this.viewWindow / this.svList.length) * 100;
                 if (height > 100) {
-                    height = 100;
-                } else if (height <= 0) {
-                    height = 1;
+                    height = 99.9;
                 }
                 thumb.style.height = height + "%";
             }
@@ -326,13 +348,15 @@ export default {
                 return;
             }
 
-            if (index + this.viewWindow > this.svList.length) {
-                this.scrollSelection = [this.svList.length - this.viewWindow, this.svList.length];
+            let scrollSelection = [0, this.viewWindow];
+
+            if (index > this.svList.length - this.viewWindow - 1) {
+                scrollSelection = [this.svList.length - this.viewWindow, this.svList.length];
             } else {
-                this.scrollSelection = [index, index + this.viewWindow];
+                scrollSelection = [index, index + this.viewWindow];
             }
             this.clickedFromBar = false;
-            this.handleScrollToVariant(this.scrollSelection);
+            this.handleScrollToVariant(scrollSelection);
         },
     },
 };
@@ -349,6 +373,27 @@ export default {
     #variant-items-wrapper
         overflow-y: auto
         height: 100%
+        scrollbar-width: none
+        -ms-overflow-style: none
+    #variant-items-wrapper::-webkit-scrollbar
+        display: none
+    #variant-list-bar-sudo-scroll
+        position: absolute
+        top: 0
+        right: 0
+        width: 10px
+        height: 100%
+        background-color: #F5F5F5
+        z-index: 2
+        #variant-list-bar-sudo-scroll-thumb
+            width: 95%
+            height: 50px
+            position: relative
+            background-color: #CCCCCC
+            border-radius: 10px
+            cursor: pointer
+            &:hover
+                background-color: #B8B8B8
 #variant-list-bar
     display: flex
     flex-direction: column
@@ -433,30 +478,4 @@ export default {
                 align-items: center
                 b
                     padding: 0px 2px
-//Webkit scrollbar
-#variant-items-wrapper::-webkit-scrollbar
-    display: none
-//Firefox scrollbar
-#variant-items-wrapper
-    scrollbar-width: none
-//old IE
-#variant-items-wrapper
-    -ms-overflow-style: none
-#variant-list-bar-sudo-scroll
-    position: absolute
-    top: 0
-    right: 0
-    width: 10px
-    height: 100%
-    background-color: #F5F5F5
-    z-index: 2
-    #variant-list-bar-sudo-scroll-thumb
-        width: 95%
-        height: 50px
-        position: relative
-        background-color: #CCCCCC
-        border-radius: 10px
-        cursor: pointer
-        &:hover
-            background-color: #B8B8B8
 </style>
