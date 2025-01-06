@@ -17,9 +17,6 @@
                         Math.round(maxSingularPhenotypes.max)
                     }}</span>
                 </strong>
-                <span class="max-gene" v-if="Math.round(maxSingularPhenotypes.max) !== 0">{{
-                    maxSingularPhenotypes.geneName
-                }}</span>
             </div>
             <!-- OR -->
             <div v-else class="num-phens-text">
