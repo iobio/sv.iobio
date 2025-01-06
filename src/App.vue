@@ -513,6 +513,9 @@ export default {
             await this.updatePhenotypesOfInterest(this.phenotypesOfInterest);
         },
         updateFocusedVariant(variant, flag) {
+            //grab the variant from the svListVariantBar
+            variant = this.svListVariantBar.find((sv) => sv.svCode == variant.svCode);
+
             if (this.focusedVariant === variant) {
                 this.focusedVariant = null;
             } else if (this.focusedVariant !== variant && flag == "hide") {

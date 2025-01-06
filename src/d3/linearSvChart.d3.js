@@ -343,6 +343,7 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
                     .on("click", function (event, d) {
                         if (focusedVariantCallback && isProband) {
                             d3.select(".tooltip-hover-variant").remove();
+                            console.log("sv", sv);
                             focusedVariantCallback(sv);
                         }
                     });
