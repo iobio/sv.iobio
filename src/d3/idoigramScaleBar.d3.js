@@ -44,11 +44,6 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                     continue;
                 }
 
-                //if they are gneg they are going to be white so skip them ie they are not gpos
-                if (!band.gieStain.includes("gpos")) {
-                    continue;
-                }
-
                 band.chr = newChr;
                 newBands.push(band);
             }
@@ -316,23 +311,55 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                     let bandHeight = 10;
 
                     //get the intensity based on the gieStain number after gpos
-                    let intensity = band.gieStain.replace("gpos", "") / 100;
+                    if (band.gieStain.includes("gpos")) {
+                        let intensity = band.gieStain.replace("gpos", "") / 100;
 
-                    //create my band rectangle
-                    chromosomeGroup
-                        .append("rect")
-                        .attr("x", function () {
-                            return bandStartX;
-                        })
-                        .attr("y", 8)
-                        .attr("width", function () {
-                            return bandEndX - bandStartX;
-                        })
-                        .attr("height", bandHeight)
-                        .attr("transform", `translate(0, 9)`)
-                        .attr("fill", chromosomeColor)
-                        .attr("fill-opacity", intensity)
-                        .raise();
+                        //create my band rectangle
+                        chromosomeGroup
+                            .append("rect")
+                            .attr("x", function () {
+                                return bandStartX;
+                            })
+                            .attr("y", 8)
+                            .attr("width", function () {
+                                return bandEndX - bandStartX;
+                            })
+                            .attr("height", bandHeight)
+                            .attr("transform", `translate(0, 9)`)
+                            .attr("fill", chromosomeColor)
+                            .attr("fill-opacity", intensity)
+                            .raise();
+                    }
+
+                    //Render a text label for the band but try to pick breakpoints that make sense
+                    //Will render alternating labels based on the size of our area, if we are in a smaller area we will render more labels
+                    let rangeLen = range[1] - range[0];
+                    let chromosome16Length = chromosomeMap.get("16").end - chromosomeMap.get("16").start;
+                    let chromosome1Length = chromosomeMap.get("1").end - chromosomeMap.get("1").start;
+
+                    if (rangeLen <= chromosome16Length) {
+                        //add the band label in the middle of the band
+                        let x = bandStartX + (bandEndX - bandStartX) / 2;
+                        chromosomeGroup
+                            .append("text")
+                            .attr("x", x)
+                            .attr("y", 12)
+                            .text(band.name)
+                            .attr("font-size", "10px")
+                            .attr("fill", chromosomeColor)
+                            .attr("text-anchor", "middle");
+                    } else if (rangeLen <= chromosome1Length && band.gieStain.includes("gpos")) {
+                        //add the band label in the middle of the band
+                        let x = bandStartX + (bandEndX - bandStartX) / 2;
+                        chromosomeGroup
+                            .append("text")
+                            .attr("x", x)
+                            .attr("y", 12)
+                            .text(band.name)
+                            .attr("font-size", "10px")
+                            .attr("fill", chromosomeColor)
+                            .attr("text-anchor", "middle");
+                    }
                 }
             }
 
