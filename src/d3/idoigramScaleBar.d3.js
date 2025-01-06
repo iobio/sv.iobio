@@ -363,33 +363,41 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 }
             }
 
-            //add the labels
-            chromosomeGroup
-                .append("text")
-                .attr("x", x(centromereStart - centromereCenter) - x(chromStartUpdated) + 5)
-                //if the label is two characters long, move it over a bit so it's centered
-                .attr("transform", function () {
-                    if (chr.length == 2) {
-                        return `translate(${-4}, 0)`;
-                    }
-                })
-                .attr("y", height - margin.bottom - margin.top - 20)
-                .text(chr)
-                .attr("font-size", "14px")
-                .attr("fill", chromosomeColor);
-
             let rangeLen = range[1] - range[0];
             let chromosome1Length = chromosomeMap.get("1").end - chromosomeMap.get("1").start;
 
             if (rangeLen <= chromosome1Length) {
-                //add the chromosome label at 10 10
+                chromosomeGroup
+                    .append("circle")
+                    .attr("cx", 2)
+                    .attr("cy", 10)
+                    .attr("r", 9)
+                    .attr("fill", "white")
+                    .attr("stroke", chromosomeColor)
+                    .attr("stroke-width", 1);
+                //if we are in a smaller space this is the one we want to render
                 chromosomeGroup
                     .append("text")
-                    .attr("x", 10)
-                    .attr("y", 14)
+                    .attr("x", -3)
+                    .attr("y", 16)
                     .text(chr)
                     .attr("font-size", "18px")
                     .attr("font-weight", "bold")
+                    .attr("fill", chromosomeColor);
+            } else {
+                //The global level label
+                chromosomeGroup
+                    .append("text")
+                    .attr("x", x(centromereStart - centromereCenter) - x(chromStartUpdated) + 5)
+                    //if the label is two characters long, move it over a bit so it's centered
+                    .attr("transform", function () {
+                        if (chr.length == 2) {
+                            return `translate(${-4}, 0)`;
+                        }
+                    })
+                    .attr("y", height - margin.bottom - margin.top - 20)
+                    .text(chr)
+                    .attr("font-size", "14px")
                     .attr("fill", chromosomeColor);
             }
         }
