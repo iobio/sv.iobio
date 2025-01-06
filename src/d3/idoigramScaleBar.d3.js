@@ -370,16 +370,21 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 chromosomeGroup
                     .append("circle")
                     .attr("cx", 2)
-                    .attr("cy", 10)
-                    .attr("r", 9)
+                    .attr("cy", 11)
+                    .attr("r", 10)
                     .attr("fill", "white")
                     .attr("stroke", chromosomeColor)
                     .attr("stroke-width", 1);
                 //if we are in a smaller space this is the one we want to render
                 chromosomeGroup
                     .append("text")
-                    .attr("x", -3)
-                    .attr("y", 16)
+                    .attr("x", function () {
+                        if (chr.length == 2) {
+                            return -7;
+                        }
+                        return -3;
+                    })
+                    .attr("y", 17)
                     .text(chr)
                     .attr("font-size", "18px")
                     .attr("font-weight", "bold")
