@@ -4,7 +4,7 @@
 
 class Sv {
     constructor(input) {
-        if (typeof input === 'object' && input !== null) {
+        if (typeof input === "object" && input !== null) {
             this.chromosome = input.contigName || input.chromosome;
             this.start = input.start;
             this.end = input.end;
@@ -12,15 +12,16 @@ class Sv {
             //If for some reason we don't have an svlen then we will just take the absolute value of the difference between the start and end
             this.size = Math.abs(parseInt(input.size)) || Math.abs(parseInt(input.end) - parseInt(input.start));
             //If we couldn't find the svtype and it is falsey then we will just set it to 'unknown'
-            this.type = input.type || 'unknown';
+            this.type = input.type || "unknown";
             this.genotype = input.genotype;
-            this.ref = input.ref || '.';
-            this.alt = input.alt || '.';
+            this.ref = input.ref || ".";
+            this.alt = input.alt || ".";
             this.quality = input.quality;
-            this.svCode = input.svCode || '';
+            this.svCode = input.svCode || "";
+            this.bands = input.bands || [];
 
             //if we get vcfInfo then parse otherwise don't
-            if (input.vcfInfo != '' && input.vcfInfo != undefined) {
+            if (input.vcfInfo != "" && input.vcfInfo != undefined) {
                 this.info = this.parseInfo(input.vcfInfo);
             } else if (input.info) {
                 this.info = input.info;
@@ -35,10 +36,10 @@ class Sv {
     }
 
     parseInfo(info) {
-        const infoArray = info.split(';');
+        const infoArray = info.split(";");
         const infoObj = {};
-        infoArray.forEach(item => {
-            const [key, value] = item.split('=');
+        infoArray.forEach((item) => {
+            const [key, value] = item.split("=");
             infoObj[key] = value;
         });
         return infoObj;

@@ -1,5 +1,5 @@
-// const BACKEND_URL_BASE = 'http://localhost:7477'; //Development
-const BACKEND_URL_BASE = "https://mosaic-staging.chpc.utah.edu/sv.iobio/backend"; //Production
+const BACKEND_URL_BASE = "http://localhost:7477"; //Development
+// const BACKEND_URL_BASE = "https://mosaic-staging.chpc.utah.edu/sv.iobio/backend"; //Production
 
 //GET CROMOSOMES
 export async function getChromosomes(build = "hg38") {
@@ -46,14 +46,16 @@ export async function getGenes(build = "hg38", source = "refseq") {
 }
 
 //GET SVS FROM VCF
-export async function getSVsFromVCF(vcfFile, sampleName = null) {
+export async function getSVsFromVCF(vcfFile, build = "hg38", sampleName = null) {
     try {
         if (!sampleName) {
-            const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}`);
+            const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}?build=${build}`);
             const data = await response.json();
             return data;
         } else {
-            const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}&sampleName=${sampleName}`);
+            const response = await fetch(
+                `${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}&sampleName=${sampleName}?build=${build}`
+            );
             const data = await response.json();
             return data;
         }

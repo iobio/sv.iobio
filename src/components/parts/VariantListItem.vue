@@ -5,7 +5,10 @@
             :class="{ opened: showMore, focusedVariant: isFocusedVariant, hasGoi: geneCandidates && geneCandidates.length > 0 }"
             @click="focusOnVariant">
             <!-- col1 -->
-            <div class="chr-text">{{ variant.chromosome }}</div>
+            <div class="chr-text">
+                <div>{{ variant.chromosome }}</div>
+                <div v-if="band" class="band">{{ band }}</div>
+            </div>
 
             <!-- col2 -->
             <div v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-text">
@@ -149,6 +152,17 @@ export default {
         },
     },
     computed: {
+        band() {
+            if (this.variant.bands.length > 1) {
+                return this.variant.bands[0].name + " - " + this.variant.bands[this.variant.bands.length - 1].name;
+            } else if (this.variant.bands.length == 1) {
+                return this.variant.bands[0].name;
+            }
+
+            if (this.variant.bands.length == 0) {
+                return null;
+            }
+        },
         reciprocalOverlap() {
             //If we have no inputted patient phenotypes or gene candidates then we dont want to show the reciprocal overlap there will be too many variants
             if (
@@ -466,9 +480,21 @@ export default {
             grid-row: 1/3
             color: #474747
             display: flex
+            flex-direction: column
             align-items: center
             justify-content: center
             text-align: cente
+            overflow: visible
+            .band
+                font-size: 0.75em
+                font-weight: 200
+                color: #474747
+                margin-left: 5px
+                display: flex
+                align-self: flex-start
+                overflow: visible
+                white-space: nowrap
+                transform: translateY(3px)
         .total-text
             font-weight: 200
             grid-row: 1/3
