@@ -10,7 +10,7 @@ export function bpFormatted(valuebp) {
     return `${valuebp}<span class="bp-sc">bp</span>`;
 }
 
-function bpFormattedSansHtml(valuebp) {
+export function bpFormattedSansHtml(valuebp) {
     if (valuebp > 1000000) {
         return `${(valuebp / 1000000).toFixed(2)}Mb`;
     } else if (valuebp > 1000) {

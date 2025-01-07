@@ -151,8 +151,8 @@ export default {
 .tooltip-hover-variant
     position: absolute
     background-color: white
-    border: 1px solid #2A65B7
-    padding: 5px
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3)
+    padding: 5px 10px
     border-radius: 5px
     pointer-events: none
     display: flex
@@ -162,6 +162,33 @@ export default {
     align-items: center
     overflow: hidden
     z-index: 10
+    .tooltip-cols
+        display: flex
+        flex-direction: row
+        gap: 10px
+        .tooltip-row
+            display: flex
+            flex-direction: row
+            gap: 5px
+            .tooltip-title
+                text-transform: uppercase
+                font-weight: 200
+            .tooltip-info
+                white-space: nowrap
+                overflow: hidden
+                text-align: right
+                display: flex
+                flex-direction: column
+                justify-content: center
+                align-items: flex-end
+                flex-grow: 1
+                font-weight: 200
+                text-overflow: ellipsis
+                max-width: 100px
+                font-size: 0.8em
+                color: #474747
+                &.zy
+                    text-transform: uppercase
 .linear-sv-chart-wrapper
     background-color: white
     border-bottom: 1px solid whitesmoke

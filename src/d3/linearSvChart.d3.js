@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import * as common from "../dataHelpers/commonFunctions.js";
 
 export default function linearSvChart(parentElement, refChromosomes, data = null, options = null) {
     let width = parentElement.clientWidth;
@@ -291,21 +292,40 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
                         let tooltip = d3.select("body").append("div").attr("class", "tooltip-hover-variant");
 
                         //append the data to the tooltip
-                        let bpFormatted = function (valuebp) {
-                            if (valuebp > 1000000) {
-                                return `${(valuebp / 1000000).toFixed(2)}Mb`;
-                            } else if (valuebp > 1000) {
-                                return `${(valuebp / 1000).toFixed(2)}Kb`;
-                            }
-                            return `${valuebp}Bp`;
-                        };
-
-                        //append the data to the tooltip
                         tooltip.append("p").html(`
-                                ${sv.chromosome}:${bpFormatted(sv.start)}<br>
-                                size:${bpFormatted(sv.end - sv.start)}<br>
-                                quality:${sv.quality} (${sv.type})<br>
-                                GT:${sv.genotype.slice(0, 3)}`);
+                                <div class="tooltip-cols">
+                                    <div>
+                                        <div class="tooltip-row">
+                                            <div class="tooltip-title">Chr: </div><div class="tooltip-info">${sv.chromosome}</div>
+                                        </div>
+                                        <div class="tooltip-row">
+                                            <div class="tooltip-title">Start: </div><div class="tooltip-info">${common.bpFormattedSansHtml(
+                                                sv.start
+                                            )}</div>
+                                        </div>
+                                        <div class="tooltip-row">
+                                            <div class="tooltip-title">End: </div><div class="tooltip-info">${common.bpFormattedSansHtml(
+                                                sv.end
+                                            )}</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="tooltip-row">
+                                            <div class="tooltip-title">Size: </div><div class="tooltip-info">${common.bpFormattedSansHtml(
+                                                sv.size
+                                            )}</div>
+                                        </div>
+                                        <div class="tooltip-row">
+                                            <div class="tooltip-title">Type: </div><div class="tooltip-info">${sv.type}</div>
+                                        </div>
+                                        <div class="tooltip-row">
+                                            <div class="tooltip-title"">Zygosity: </div><div class="tooltip-info zy">${common.formatGenotype(
+                                                sv.genotype.slice(0, 4)
+                                            )} </div> 
+                                        </div>
+                                    </div>
+                                </div>
+                                `);
 
                         //put it in the right position
                         let x = event.clientX;
