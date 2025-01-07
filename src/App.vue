@@ -420,9 +420,9 @@ export default {
 
             try {
                 if (!this.samples.proband.id || this.samples.proband.id == "") {
-                    svList = await dataHelper.getSVsFromVCF(url);
+                    svList = await dataHelper.getSVsFromVCF(url, this.hgBuild);
                 } else {
-                    svList = await dataHelper.getSVsFromVCF(url, this.samples.proband.id);
+                    svList = await dataHelper.getSVsFromVCF(url, this.hgBuild, this.samples.proband.id);
                 }
 
                 if (svList.length == 0) {
