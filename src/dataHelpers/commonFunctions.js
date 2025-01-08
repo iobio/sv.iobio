@@ -56,6 +56,32 @@ export function formatGenotype(genotype, full = false) {
     }
 }
 
+export function svgForZygosity(genotype) {
+    let gt = genotype.slice(0, 3);
+    if (gt === "1/1") {
+        return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>HOM</title>
+                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+            </svg>
+        `;
+    } else if (gt === "0/1" || gt === "./1" || gt === "1/0" || gt === "1/.") {
+        return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>HET</title>
+                <path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20V4Z" />
+            </svg>
+        `;
+    } else if (gt === "0/0" || gt === "./.") {
+        return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>REF</title>
+                <path d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+            </svg>
+        `;
+    }
+}
+
 export function formatType(type) {
     type = type.toUpperCase();
 
