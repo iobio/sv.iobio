@@ -80,6 +80,7 @@ export default {
                 bam: "",
                 bai: "",
                 svList: [],
+                relation: "other",
             });
         },
         addMultipleSamples(samples) {
@@ -92,6 +93,7 @@ export default {
                     bam: "",
                     bai: "",
                     svList: [],
+                    relation: "other",
                 });
             }
         },
@@ -225,7 +227,7 @@ export default {
             });
 
             this.samplesLocal.comparisons = currentComparisons.concat(
-                this.samplesLocal.comparisons.filter((sample) => !this.jointVcfHeaders.includes(sample.id))
+                this.samplesLocal.comparisons.filter((sample) => !this.jointVcfHeaders.includes(sample.id)),
             );
         },
         samplesFormat(newVal, oldVal) {
@@ -241,7 +243,7 @@ export default {
                 //Update selected comparison samples as needed
                 if (this.samplesFormat === "joint") {
                     this.selectedComparisonSamples = this.selectedComparisonSamples.filter((sample) =>
-                        this.samplesLocal.comparisons.map((sample) => sample.id).includes(sample)
+                        this.samplesLocal.comparisons.map((sample) => sample.id).includes(sample),
                     );
                 }
             },
