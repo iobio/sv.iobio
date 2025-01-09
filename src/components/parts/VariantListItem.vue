@@ -37,31 +37,14 @@
             <div class="total-text" :class="{ subtle: numberOfGenes == 0 }">{{ numberOfGenes }}</div>
 
             <!-- col5 Top -->
-            <div class="origin-text novel" v-if="reciprocalOverlap == 'N'">
-                DeNovo
-                <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>Noteworthy</title>
-                        <path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" />
-                    </svg>
-                </span>
-            </div>
-            <div class="origin-text inherited" v-else-if="reciprocalOverlap === 'I'">Inherited</div>
-            <div class="origin-text novel ar" v-else-if="reciprocalOverlap === 'AR'">
-                Rec.Inherit
-                <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>Noteworthy</title>
-                        <path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" />
-                    </svg>
-                </span>
-            </div>
+            <div class="zygosity-symbols">
+                <div
+                    class="genotype-text"
+                    :class="{ het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom' }"
+                    v-html="svgForZygosity(variant.genotype)"></div>
 
-            <!-- col5 Bottom-->
-            <div
-                class="genotype-text"
-                :class="{ het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom' }">
-                {{ formatGenotype(variant.genotype) }}
+                <div v-if="hasMom" v-html="parentZygosity.mom[0]"></div>
+                <div v-if="hasDad" v-html="parentZygosity.dad[0]"></div>
             </div>
 
             <!-- col6 -->
@@ -84,7 +67,7 @@ export default {
         patientPhenotypes: Array,
         geneCandidates: Array,
         openedSvSet: Object,
-        comparisonsLists: Array,
+        comparisons: Array,
         chromosomeAccumulatedMap: Object,
         placeInList: Number,
         overlapProp: Number,
@@ -102,6 +85,7 @@ export default {
         formatGenotype: common.formatGenotype,
         bpFormatted: common.bpFormatted,
         formatType: common.formatType,
+        svgForZygosity: common.svgForZygosity,
         variantOpened(event) {
             event.stopPropagation();
             this.showMore = !this.showMore;
@@ -160,17 +144,99 @@ export default {
                 return null;
             }
         },
+        parentZygosity() {
+            if (
+                this.comparisons &&
+                this.comparisons.length > 0 &&
+                this.chromosomeAccumulatedMap &&
+                this.chromosomeAccumulatedMap.size > 0
+            ) {
+                let mom = this.comparisons.find((comp) => comp.relation == "mom");
+                let dad = this.comparisons.find((comp) => comp.relation == "dad");
+
+                let svChrStart = this.chromosomeAccumulatedMap.get(this.variant.chromosome).start;
+                let svStart = this.variant.start + svChrStart;
+                let svEnd = this.variant.end + svChrStart;
+                let svSize = svEnd - svStart;
+
+                let overlapSize = 0;
+                let olprop = 0;
+                let parentSvgs = {
+                    mom: [],
+                    dad: [],
+                };
+
+                if (mom && mom.svList.length > 0) {
+                    let momHasOverlap = false;
+                    for (let variant of mom.svList) {
+                        let compGenotype = variant.genotype.slice(0, 3);
+                        let chr2Start = this.chromosomeAccumulatedMap.get(variant.chromosome).start;
+                        let sv2Start = variant.start + chr2Start;
+                        let sv2End = variant.end + chr2Start;
+
+                        if (
+                            (sv2Start >= svStart && sv2Start <= svEnd) ||
+                            (sv2End >= svStart && sv2End <= svEnd) ||
+                            (svStart >= sv2Start && svStart <= sv2End) ||
+                            (svEnd >= sv2Start && svEnd <= sv2End)
+                        ) {
+                            overlapSize = Math.min(svEnd, sv2End) - Math.max(svStart, sv2Start);
+                            olprop = (overlapSize / svSize).toFixed(2);
+                            //essentially if there is something that overlaps more than or equal to the overlapProp then we return that
+                            if (olprop >= this.overlapProp) {
+                                parentSvgs.mom.push(this.svgForZygosity(variant.genotype));
+                                momHasOverlap = true;
+                            }
+                        }
+                    }
+
+                    if (!momHasOverlap) {
+                        parentSvgs.mom.push(this.svgForZygosity("0/0"));
+                    }
+                }
+
+                if (dad && dad.svList.length > 0) {
+                    let dadHasOverlap = false;
+                    for (let variant of dad.svList) {
+                        let compGenotype = variant.genotype.slice(0, 3);
+                        let chr2Start = this.chromosomeAccumulatedMap.get(variant.chromosome).start;
+                        let sv2Start = variant.start + chr2Start;
+                        let sv2End = variant.end + chr2Start;
+
+                        if (
+                            (sv2Start >= svStart && sv2Start <= svEnd) ||
+                            (sv2End >= svStart && sv2End <= svEnd) ||
+                            (svStart >= sv2Start && svStart <= sv2End) ||
+                            (svEnd >= sv2Start && svEnd <= sv2End)
+                        ) {
+                            overlapSize = Math.min(svEnd, sv2End) - Math.max(svStart, sv2Start);
+                            olprop = (overlapSize / svSize).toFixed(2);
+                            //essentially if there is something that overlaps more than or equal to the overlapProp then we return that
+                            if (olprop >= this.overlapProp) {
+                                parentSvgs.dad.push(this.svgForZygosity(variant.genotype));
+                                dadHasOverlap = true;
+                            }
+                        }
+                    }
+                    if (!dadHasOverlap) {
+                        parentSvgs.dad.push(this.svgForZygosity("0/0"));
+                    }
+                }
+
+                return parentSvgs;
+            }
+        },
         reciprocalOverlap() {
             //If we have no inputted patient phenotypes or gene candidates then we dont want to show the reciprocal overlap there will be too many variants
             if (
-                this.comparisonsLists &&
-                this.comparisonsLists.length > 0 &&
+                this.comparisons &&
+                this.comparisons.length > 0 &&
                 this.chromosomeAccumulatedMap &&
                 this.chromosomeAccumulatedMap.size > 0
             ) {
                 let joinedCompList = [];
-                for (let list of this.comparisonsLists) {
-                    joinedCompList.push(...list);
+                for (let comparison of this.comparisons) {
+                    joinedCompList.push(...comparison.svList);
                 }
 
                 let overlapSize = 0;
@@ -188,7 +254,12 @@ export default {
                     let v2Start = variant.start + chr2Start;
                     let v2End = variant.end + chr2Start;
 
-                    if (svStart < v2End && svEnd > v2Start) {
+                    if (
+                        (sv2Start >= svStart && sv2Start <= svEnd) ||
+                        (sv2End >= svStart && sv2End <= svEnd) ||
+                        (svStart >= sv2Start && svStart <= sv2End) ||
+                        (svEnd >= sv2Start && svEnd <= sv2End)
+                    ) {
                         overlapSize = Math.min(svEnd, v2End) - Math.max(svStart, v2Start);
                         olprop = (overlapSize / svSize).toFixed(2);
                         //essentially if there is something that overlaps more than or equal to the overlapProp then we return that
@@ -221,6 +292,16 @@ export default {
             } else {
                 return "";
             }
+        },
+        hasMom() {
+            return this.comparisons.some((comparison) => {
+                return comparison.relation == "mom";
+            });
+        },
+        hasDad() {
+            return this.comparisons.some((comparison) => {
+                return comparison.relation == "dad";
+            });
         },
         numberOfGenes() {
             if (this.variant.overlappedGenes && Object.keys(this.variant.overlappedGenes).length > 0) {
@@ -271,7 +352,7 @@ export default {
                 let inCommonOverlappedPhens = [];
                 for (let gene of Object.values(this.variant.overlappedGenes)) {
                     inCommonOverlappedPhens.push(
-                        ...Object.keys(gene.phenotypes).filter((phenotype) => this.patientPhenotypes.includes(phenotype))
+                        ...Object.keys(gene.phenotypes).filter((phenotype) => this.patientPhenotypes.includes(phenotype)),
                     );
                 }
                 inCommonOverlappedPhens = new Set(inCommonOverlappedPhens);
@@ -292,7 +373,7 @@ export default {
                 let geneName = "";
                 for (let gene of Object.values(this.variant.overlappedGenes)) {
                     let inCommonPhens = Object.keys(gene.phenotypes).filter((phenotype) =>
-                        this.patientPhenotypes.includes(phenotype)
+                        this.patientPhenotypes.includes(phenotype),
                     );
                     let percent = (inCommonPhens.length / this.patientPhenotypes.length) * 100;
                     if (percent > maxPercent) {
@@ -430,34 +511,34 @@ export default {
             .max-gene
                 font-weight: 400
                 padding-top: 3px
-        .origin-text
-            font-size: .8em
+        .zygosity-symbols
+            align-items: center
             color: #474747
-            position: relative
-            font-weight: 200
-            grid-row: 1
             display: flex
-            align-items: flex-end
+            font-size: .8em
+            font-weight: 200
+            grid-row: 1/3
+            justify-content: space-evenly
+            position: relative
+            width: 100%
             svg
                 height: 15px
                 width: 15px
-                position: absolute
-                bottom: 5px
-                right: 5px
-                fill: red
-                margin-left: 5px
-                pointer-events: none
+                fill: #474747
         .genotype-text
             font-size: 0.75em
             border-radius: 5px
             text-transform: uppercase
             color: #474747
             font-weight: 200
-            grid-row: 2
             display: flex
             align-items: flex-start
             &.homalt
                 color: red
+            svg
+                height: 15px
+                width: 15px
+                fill: #474747
         .size-text
             font-size: 0.8em
             font-weight: 200
