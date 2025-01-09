@@ -406,7 +406,6 @@ export default {
             for (let i = 0; i < comparisons.length; i++) {
                 this.samples.comparisons[i].svList = comparisons[i];
             }
-            console.log(this.samples.comparisons);
         },
         removeGeneFromGeneList(gene) {
             let newGenes = this.genesOfInterest.filter((g) => g !== gene);
