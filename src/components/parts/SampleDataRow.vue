@@ -55,6 +55,20 @@
                         </svg>
                     </button>
                 </div>
+
+                <label for="sample-id">Relation:</label>
+                <select
+                    class="relation"
+                    name="sample-relation"
+                    id="sample-relation"
+                    v-model="sampleLocal.relation"
+                    @change="this.$emit('update-sample', this.sampleLocal)">
+                    <option value="proband">Proband</option>
+                    <option value="mom">Mom</option>
+                    <option value="dad">Dad</option>
+                    <option value="sibling">Sibling</option>
+                    <option value="other">Other</option>
+                </select>
             </div>
         </div>
         <div class="collapsed-alt-text" v-else>{{ sampleLocal.name }}</div>
