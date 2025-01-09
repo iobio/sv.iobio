@@ -330,7 +330,7 @@ export default {
 
             this.chartsData = locChartsData;
             this.samplesLists = locSamplesLists;
-            this.$emit("update-comparison-lists", locSamplesLists);
+            this.$emit("update-comparison-lists", locSamplesLists); //We can use just the list for the update because the order is the same and they are both lists
             this.samplesTitles = locSamplesTitles;
         },
         createCromosomeAccumulatedMap(chromosomeList) {
@@ -665,11 +665,36 @@ export default {
             },
             deep: true,
         },
-        samples: {
+        "samples.comparisons": {
             async handler(newVal, oldVal) {
-                await this.fetchSamples();
+                if (newVal.length !== oldVal.length) {
+                    await this.fetchSamples();
+                } else if (oldVal.length === 0) {
+                    await this.fetchSamples();
+                } else {
+                    for (let i = 0; i < newVal.length; i++) {
+                        if (newVal[i].name !== oldVal[i].name) {
+                            await this.fetchSamples();
+                            break;
+                        }
+
+                        if (newVal[i].vcf !== oldVal[i].vcf) {
+                            await this.fetchSamples();
+                            break;
+                        }
+
+                        if (newVal[i].id !== oldVal[i].id) {
+                            await this.fetchSamples();
+                            break;
+                        }
+
+                        if (newVal[i].svList.length !== oldVal[i].svList.length) {
+                            await this.fetchSamples();
+                            break;
+                        }
+                    }
+                }
             },
-            deep: true,
         },
         tools: {
             handler() {
