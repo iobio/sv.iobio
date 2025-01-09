@@ -48,6 +48,25 @@
                     <path
                         d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
                 </svg>
+                <span class="svgs">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Proband</title>
+                        <path
+                            d="M9,7H13A2,2 0 0,1 15,9V11A2,2 0 0,1 13,13H11V17H9V7M11,9V11H13V9H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+
+                    <svg v-if="hasMom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Mom</title>
+                        <path
+                            d="M9,7H15A2,2 0 0,1 17,9V17H15V9H13V16H11V9H9V17H7V9A2,2 0 0,1 9,7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+
+                    <svg v-if="hasDad" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Dad</title>
+                        <path
+                            d="M9,7H13A2,2 0 0,1 15,9V15A2,2 0 0,1 13,17H9V7M11,9V15H13V9H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+                </span>
             </div>
 
             <div class="span-rows" @click="$emit('sort-variants', 'type')">
@@ -78,7 +97,7 @@
                     :openedSvSet="openedSvSet"
                     :geneCandidates="geneCandidates"
                     :patientPhenotypes="patientPhenotypes"
-                    :comparisonsLists="comparisonsLists"
+                    :comparisons="comparisons"
                     :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
                     :placeInList="index"
                     :overlapProp="overlapProp"
@@ -105,7 +124,7 @@ export default {
         svList: Array,
         patientPhenotypes: Array,
         geneCandidates: Array,
-        comparisonsLists: Array,
+        comparisons: Array,
         chromosomeAccumulatedMap: Object,
         focusedVariant: Object,
         loading: {
@@ -293,6 +312,16 @@ export default {
         svListSelection() {
             return this.svList.slice(this.scrollSelection[0], this.scrollSelection[1]);
         },
+        hasMom() {
+            return this.comparisons.some((comparison) => {
+                return comparison.relation == "mom";
+            });
+        },
+        hasDad() {
+            return this.comparisons.some((comparison) => {
+                return comparison.relation == "dad";
+            });
+        },
     },
     watch: {
         svList(newVal, oldVal) {
@@ -420,6 +449,9 @@ export default {
         height: 50px
         margin: 0px
         padding: 5px
+        padding-right: 15px
+        border-left: 2px solid transparent
+        border-right: 2px solid transparent
         box-sizing: border-box
         position: sticky
         text-transform: uppercase
@@ -456,6 +488,15 @@ export default {
                 border-radius: 5px
                 .sort-tip
                     opacity: 1
+            .svgs
+                align-items: center
+                display: flex
+                justify-content: space-evenly
+                width: 100%
+                svg
+                    width: 20px
+                    height: 20px
+                    fill: grey
         .upper
             grid-column: 2/4
             grid-row: 1
