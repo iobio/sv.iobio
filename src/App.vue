@@ -85,6 +85,7 @@
                     :loading="!loadedInitiallyComplete"
                     :sorted="variantsSorted"
                     :comparisonsLists="comparisonsLists"
+                    :comparisons="samples.comparisons"
                     :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
                     :overlapProp="overlapProp"
                     :filters="filters"
@@ -332,6 +333,7 @@ export default {
                         bam: "",
                         bai: "",
                         svList: [],
+                        relation: "proband",
                     };
                     this.samples.comparisons = [];
                 }
@@ -349,6 +351,7 @@ export default {
                     bam: "",
                     bai: "",
                     svList: [],
+                    relation: "proband",
                 };
                 this.samples.comparisons = [];
             }
@@ -400,6 +403,10 @@ export default {
         },
         setComparisonSamples(comparisons) {
             this.comparisonsLists = comparisons;
+            for (let i = 0; i < comparisons.length; i++) {
+                this.samples.comparisons[i].svList = comparisons[i];
+            }
+            console.log(this.samples.comparisons);
         },
         removeGeneFromGeneList(gene) {
             let newGenes = this.genesOfInterest.filter((g) => g !== gene);
@@ -562,7 +569,7 @@ export default {
                     let { denovoList, nonDenovo } = this.returnDenovo(
                         newSVs,
                         this.comparisonsLists,
-                        this.chromosomeAccumulatedMap
+                        this.chromosomeAccumulatedMap,
                     );
                     newSVs = denovoList;
                     newFilteredOut.push(...nonDenovo);
@@ -584,7 +591,7 @@ export default {
              * Returns true if any of the overlappedGenes have phenotypes
              */
             return Object.values(overlappedGenes).some(
-                (gene) => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0
+                (gene) => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0,
             );
         },
         async updateSamples(samples) {
@@ -751,7 +758,7 @@ export default {
                 let inCommonOverlappedPhens = [];
                 for (let gene of Object.values(overlappedGenes)) {
                     inCommonOverlappedPhens.push(
-                        ...Object.keys(gene.phenotypes).filter((phenotype) => patientPhenotypes.includes(phenotype))
+                        ...Object.keys(gene.phenotypes).filter((phenotype) => patientPhenotypes.includes(phenotype)),
                     );
                 }
                 inCommonOverlappedPhens = new Set(inCommonOverlappedPhens);
@@ -765,7 +772,7 @@ export default {
                 let maxPercent = 0;
                 for (let gene of Object.values(variant.overlappedGenes)) {
                     let inCommonPhens = Object.keys(gene.phenotypes).filter((phenotype) =>
-                        phenotypesOfInterest.includes(phenotype)
+                        phenotypesOfInterest.includes(phenotype),
                     );
                     let percent = (inCommonPhens.length / phenotypesOfInterest.length) * 100;
                     if (percent > maxPercent) {
