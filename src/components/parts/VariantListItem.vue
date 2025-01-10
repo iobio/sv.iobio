@@ -43,8 +43,8 @@
                     :class="{ het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom' }"
                     v-html="svgForZygosity(variant.genotype)"></div>
 
-                <div v-if="hasMom" v-html="parentZygosity.mom[0]"></div>
-                <div v-if="hasDad" v-html="parentZygosity.dad[0]"></div>
+                <div v-if="hasMom" v-html="parentZygosity.mother[0]"></div>
+                <div v-if="hasDad" v-html="parentZygosity.father[0]"></div>
             </div>
 
             <!-- col6 -->
@@ -151,8 +151,8 @@ export default {
                 this.chromosomeAccumulatedMap &&
                 this.chromosomeAccumulatedMap.size > 0
             ) {
-                let mom = this.comparisons.find((comp) => comp.relation == "mom");
-                let dad = this.comparisons.find((comp) => comp.relation == "dad");
+                let mother = this.comparisons.find((comp) => comp.relation.toLowerCase() == "mother");
+                let father = this.comparisons.find((comp) => comp.relation.toLowerCase() == "father");
 
                 let svChrStart = this.chromosomeAccumulatedMap.get(this.variant.chromosome).start;
                 let svStart = this.variant.start + svChrStart;
@@ -162,13 +162,13 @@ export default {
                 let overlapSize = 0;
                 let olprop = 0;
                 let parentSvgs = {
-                    mom: [],
-                    dad: [],
+                    mother: [],
+                    father: [],
                 };
 
-                if (mom && mom.svList.length > 0) {
+                if (mother && mother.svList.length > 0) {
                     let momHasOverlap = false;
-                    for (let variant of mom.svList) {
+                    for (let variant of mother.svList) {
                         let compGenotype = variant.genotype.slice(0, 3);
                         let chr2Start = this.chromosomeAccumulatedMap.get(variant.chromosome).start;
                         let sv2Start = variant.start + chr2Start;
@@ -184,20 +184,20 @@ export default {
                             olprop = (overlapSize / svSize).toFixed(2);
                             //essentially if there is something that overlaps more than or equal to the overlapProp then we return that
                             if (olprop >= this.overlapProp) {
-                                parentSvgs.mom.push(this.svgForZygosity(variant.genotype));
+                                parentSvgs.mother.push(this.svgForZygosity(variant.genotype));
                                 momHasOverlap = true;
                             }
                         }
                     }
 
                     if (!momHasOverlap) {
-                        parentSvgs.mom.push(this.svgForZygosity("0/0"));
+                        parentSvgs.mother.push(this.svgForZygosity("0/0"));
                     }
                 }
 
-                if (dad && dad.svList.length > 0) {
+                if (father && father.svList.length > 0) {
                     let dadHasOverlap = false;
-                    for (let variant of dad.svList) {
+                    for (let variant of father.svList) {
                         let compGenotype = variant.genotype.slice(0, 3);
                         let chr2Start = this.chromosomeAccumulatedMap.get(variant.chromosome).start;
                         let sv2Start = variant.start + chr2Start;
@@ -213,13 +213,13 @@ export default {
                             olprop = (overlapSize / svSize).toFixed(2);
                             //essentially if there is something that overlaps more than or equal to the overlapProp then we return that
                             if (olprop >= this.overlapProp) {
-                                parentSvgs.dad.push(this.svgForZygosity(variant.genotype));
+                                parentSvgs.father.push(this.svgForZygosity(variant.genotype));
                                 dadHasOverlap = true;
                             }
                         }
                     }
                     if (!dadHasOverlap) {
-                        parentSvgs.dad.push(this.svgForZygosity("0/0"));
+                        parentSvgs.father.push(this.svgForZygosity("0/0"));
                     }
                 }
 
@@ -295,12 +295,12 @@ export default {
         },
         hasMom() {
             return this.comparisons.some((comparison) => {
-                return comparison.relation == "mom";
+                return comparison.relation.toLowerCase() == "mother";
             });
         },
         hasDad() {
             return this.comparisons.some((comparison) => {
-                return comparison.relation == "dad";
+                return comparison.relation.toLowerCase() == "father";
             });
         },
         numberOfGenes() {

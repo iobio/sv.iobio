@@ -61,11 +61,11 @@
                     class="relation"
                     name="sample-relation"
                     id="sample-relation"
-                    v-model="sampleLocal.relation"
+                    v-model="relationLowerCase"
                     @change="this.$emit('update-sample', this.sampleLocal)">
                     <option value="proband">Proband</option>
-                    <option value="mom">Mom</option>
-                    <option value="dad">Dad</option>
+                    <option value="mother">Mother</option>
+                    <option value="father">Father</option>
                     <option value="sibling">Sibling</option>
                     <option value="other">Other</option>
                 </select>
@@ -180,7 +180,16 @@ export default {
             },
         },
     },
-    computed: {},
+    computed: {
+        relationLowerCase: {
+            get() {
+                return this.sampleLocal.relation ? this.sampleLocal.relation.toLowerCase() : "";
+            },
+            set(value) {
+                this.sampleLocal.relation = value;
+            },
+        },
+    },
 };
 </script>
 

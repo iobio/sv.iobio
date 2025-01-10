@@ -314,12 +314,12 @@ export default {
         },
         hasMom() {
             return this.comparisons.some((comparison) => {
-                return comparison.relation == "mom";
+                return comparison.relation.toLowerCase() == "mother";
             });
         },
         hasDad() {
             return this.comparisons.some((comparison) => {
-                return comparison.relation == "dad";
+                return comparison.relation.toLowerCase() == "father";
             });
         },
     },
