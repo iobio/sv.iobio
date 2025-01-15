@@ -110,6 +110,24 @@ export async function getSVBatchInfo(svBatch, build = "hg38", source = "refseq")
     }
 }
 
+//GET THE OVERLAPPING SVS FROM POPULATION
+export async function getPopulationSvs(sv, build = "hg38") {
+    const chr = sv.chromosome;
+    const start = sv.start;
+    const end = sv.end;
+    const svlen = sv.size;
+
+    try {
+        const response = await fetch(
+            `${BACKEND_URL_BASE}/sv/pop_overlaps?svlen=${svlen}&chr=chr${chr}&start=${start}&end=${end}&build=${build}`,
+        );
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error Getting Population SVs:", error);
+    }
+}
+
 //GET GENES FOR PHENOTYPES
 export async function getGenesForPhenotypes(phenotypes) {
     try {
