@@ -27,9 +27,7 @@
                             <div class="item">
                                 <span v-html="bpFormatted(variant.size)"></span>
                             </div>
-                            <div class="item">
-                                {{ formatGenotype(variant.genotype, true) }} ({{ variant.genotype.slice(0, 3) }})
-                            </div>
+                            <div class="item" v-html="svgForZygosity(variant.genotype)"></div>
                             <div class="item">{{ formatType(variant.type) }}</div>
                         </div>
 
@@ -108,6 +106,7 @@ export default {
     },
     methods: {
         formatGenotype: common.formatGenotype,
+        svgForZygosity: common.svgForZygosity,
         bpFormatted: common.bpFormatted,
         formatType: common.formatType,
         close() {
@@ -321,6 +320,10 @@ export default {
                 .item
                     color: #2A65B7
                     font-weight: 200
+                    svg
+                        width: 20px
+                        height: 20px
+                        fill: #2A65B7
         .actions
             align-items: center
             display: flex
