@@ -23,7 +23,7 @@
                     </fieldset> -->
 
                     <div class="variant-information">
-                        <div class="variant-summary-row">
+                        <div class="variant-summary-column">
                             <div class="item">
                                 <span v-html="bpFormatted(variant.size)"></span>
                             </div>
@@ -31,6 +31,25 @@
                                 {{ formatGenotype(variant.genotype, true) }} ({{ variant.genotype.slice(0, 3) }})
                             </div>
                             <div class="item">{{ formatType(variant.type) }}</div>
+                        </div>
+
+                        <div class="pop-svs">
+                            <div class="fetching-message" v-if="!popSvs">
+                                Fetching Overlapping SVs in Population <span class="blinking-elipse"></span>
+                            </div>
+                            <div class="none-found-message" v-else-if="popSvs && popSvs.length == 0">
+                                No Overlapping SVs Found In Population (@80% Overlap)
+                            </div>
+                            <div v-else class="pop-sv" v-for="sv in popSvs">
+                                <div>Overlap: {{ sv.overlapFractionProd.toFixed(3) }}</div>
+                                <div>AF: {{ parseFloat(sv.af).toFixed(7) }}</div>
+                                <div>Max AF: {{ sv.pop_max_af }}</div>
+                                <div v-html="`S: ${bpFormatted(sv.start)}`"></div>
+                                <div v-html="`E: ${bpFormatted(sv.end)}`"></div>
+                                <div v-html="`Size: ${bpFormatted(sv.svlen)}`"></div>
+                                <div>Type: {{ sv.svtype }}</div>
+                                <div>Source: {{ sv.source }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -58,8 +77,8 @@
 </template>
 
 <script>
-import { variance } from "d3";
 import * as common from "../dataHelpers/commonFunctions.js";
+import { getPopulationSvs } from "../dataHelpers/dataHelpers.js";
 import GeneAssociationsCard from "./parts/GeneAssociationsCard.vue";
 
 export default {
@@ -76,9 +95,17 @@ export default {
         chromosomeAccumulatedMap: Object,
     },
     data() {
-        return {};
+        return {
+            popSvs: null,
+        };
     },
-    mounted() {},
+    async mounted() {
+        try {
+            this.popSvs = await getPopulationSvs(this.variant);
+        } catch (error) {
+            this.popSvs = [];
+        }
+    },
     methods: {
         formatGenotype: common.formatGenotype,
         bpFormatted: common.bpFormatted,
@@ -108,7 +135,19 @@ export default {
             }
         },
     },
-    watch: {},
+    watch: {
+        variant: {
+            handler: async function (newVal, oldVal) {
+                this.popSvs = null;
+                try {
+                    this.popSvs = await getPopulationSvs(this.variant);
+                } catch (error) {
+                    this.popSvs = [];
+                }
+            },
+            deep: true,
+        },
+    },
 };
 </script>
 
@@ -131,6 +170,60 @@ export default {
     z-index: 1
     overflow: hidden
     transition: height 0.4s, border 0.4s
+    .pop-svs
+        display: flex
+        overflow-y: auto
+        overflow-x: hidden
+        flex-wrap: wrap
+        justify-content: flex-start
+        gap: 5px
+        height: 100%
+        flex-grow: 1
+        padding: 10px 5px
+        .pop-sv
+            display: flex
+            flex-direction: column
+            flex-wrap: wrap
+            height: 100%
+            gap: 5px
+            border: 1px solid #C1D1EA
+            border-radius: 5px
+            padding: 5px
+            margin: 5px
+            font-size: 0.8em
+        .fetching-message
+            font-weight: 200
+            font-style: italic
+            color: #666666
+            margin: 5px
+            width: 50%
+            display: flex
+            align-items: center
+        .none-found-message
+            font-weight: 200
+            font-style: italic
+            color: #666666
+            margin: 5px
+            width: 50%
+            display: flex
+            align-items: center
+        .blinking-elipse
+            display: inline-block
+            font-size: 16px
+            font-weight: bold
+            position: relative
+    .blinking-elipse::after
+        content: ""
+        animation: fadeInElipsis 1s infinite steps(3)
+    @keyframes fadeInElipsis
+        0%
+            content: ""
+        33%
+            content: "."
+        66%
+            content: ". ."
+        100%
+            content: ". . ."
     .bp-sc
         font-size: 0.8em
         margin-right: 5px
@@ -211,26 +304,23 @@ export default {
         .variant-information
             border-radius: 5px
             padding-left: 10px
+            display: flex
+            flex-direction: row
             height: 100%
             flex: 1 0
             overflow: hidden
-            .variant-summary-row
+            .variant-summary-column
                 display: flex
-                flex-direction: row
-                width: 25%
-                min-width: 310px
-                justify-content: space-between
+                flex-direction: column
+                gap: 5px
+                width: 15%
+                min-width: 210px
+                border: 1px solid #C1D1EA
+                border-radius: 5px
+                padding: 5px
                 .item
-                    border: 1px solid #C1D1EA
                     color: #2A65B7
-                    border-radius: 5px
-                    padding: 5px
                     font-weight: 200
-                    text-align: center
-                    display: flex
-                    flex-direction: column
-                    justify-content: center
-                    margin-top: 5px
         .actions
             align-items: center
             display: flex
