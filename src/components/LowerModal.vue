@@ -22,42 +22,59 @@
                         <button>Pull SNPs</button>
                     </fieldset> -->
 
-                    <div class="variant-information">
-                        <div class="variant-summary-column">
-                            <div class="item">
-                                <span v-html="bpFormatted(variant.size)"></span>
-                            </div>
-                            <div class="item" v-html="svgForZygosity(variant.genotype)"></div>
-                            <div class="item">{{ formatType(variant.type) }}</div>
+                    <fieldset class="variant-summary-column">
+                        <legend>Summary</legend>
+                        <div class="item">
+                            <span>Size: </span>
+                            <span v-html="bpFormatted(variant.size)"></span>
                         </div>
+                        <div class="item">
+                            <span>Zygosity: </span>
+                            <span v-html="svgForZygosity(variant.genotype)"></span>
+                            <span>{{ formatGenotype(variant.genotype).toUpperCase() }}</span>
+                        </div>
+                        <div class="item">
+                            <span>Type: </span>
+                            <span>{{ formatType(variant.type) }}</span>
+                        </div>
+                        <div class="item">
+                            <span>Start: </span>
+                            <span v-html="bpFormatted(variant.start)"></span>
+                        </div>
+                        <div class="item">
+                            <span>End: </span>
+                            <span v-html="bpFormatted(variant.end)"></span>
+                        </div>
+                    </fieldset>
 
-                        <div class="pop-svs">
-                            <div class="fetching-message" v-if="!popSvs">
-                                Fetching Overlapping SVs in Population <span class="blinking-elipse"></span>
-                            </div>
-                            <div class="none-found-message" v-else-if="popSvs && popSvs.length == 0">
-                                No Overlapping SVs Found In Population <br />
-                                (80% overlap threshold)
-                            </div>
-                            <div v-else class="pop-sv" v-for="sv in popSvs">
-                                <div>Overlap: {{ sv.overlapFractionProd.toFixed(3) }}</div>
-                                <div>AF: {{ parseFloat(sv.af).toFixed(7) }}</div>
-                                <div>Max AF: {{ sv.pop_max_af }}</div>
-                                <div v-html="`S: ${bpFormatted(sv.start)}`"></div>
-                                <div v-html="`E: ${bpFormatted(sv.end)}`"></div>
-                                <div v-html="`Size: ${bpFormatted(sv.svlen)}`"></div>
-                                <div>Type: {{ sv.svtype }}</div>
-                                <div>Source: {{ sv.source }}</div>
-                            </div>
+                    <fieldset class="pop-svs">
+                        <legend>Population SVs ({{ popSvLen }})</legend>
+                        <div class="fetching-message" v-if="!popSvs">
+                            Fetching Overlapping SVs in Population <span class="blinking-elipse"></span>
                         </div>
-                    </div>
+                        <div class="none-found-message" v-else-if="popSvs && popSvs.length == 0">
+                            No Overlapping SVs Found In Population <br />
+                            (80% overlap threshold)
+                        </div>
+                        <div v-else class="pop-sv" v-for="sv in popSvs">
+                            <div>Overlap: {{ sv.overlapFractionProd.toFixed(3) }}</div>
+                            <div>AF: {{ parseFloat(sv.af).toFixed(7) }}</div>
+                            <div>Max AF: {{ sv.pop_max_af }}</div>
+                            <div v-html="`S: ${bpFormatted(sv.start)}`"></div>
+                            <div v-html="`E: ${bpFormatted(sv.end)}`"></div>
+                            <div v-html="`Size: ${bpFormatted(sv.svlen)}`"></div>
+                            <div>Type: {{ sv.svtype }}</div>
+                            <div>Source: {{ sv.source }}</div>
+                        </div>
+                    </fieldset>
                 </div>
             </div>
         </div>
 
         <div id="lower-section">
-            <div class="column gene-cards">
-                <div class="column-header">Overlapped Genes</div>
+            <fieldset class="column gene-cards">
+                <legend>Overlapped Genes</legend>
+
                 <div class="gene-card-row">
                     <div class="row" v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length > 0">
                         <GeneAssociationsCard
@@ -99,7 +116,7 @@
                         No Genes Overlapped
                     </div>
                 </div>
-            </div>
+            </fieldset>
         </div>
     </div>
 </template>
@@ -221,6 +238,13 @@ export default {
                 return overlappedGenes;
             }
         },
+        popSvLen() {
+            if (this.popSvs) {
+                return this.popSvs.length;
+            } else {
+                return "?";
+            }
+        },
     },
     watch: {
         variant: {
@@ -250,6 +274,7 @@ export default {
     justify-content: flex-start
     align-items: space-between
     bottom: 5px
+    padding: 5px 10px
     right: 0
     background-color: #FCFCFC
     border-radius: 5px
@@ -266,8 +291,15 @@ export default {
         justify-content: flex-start
         gap: 5px
         height: 100%
-        flex-grow: 1
         padding: 10px 5px
+        flex: 1 0
+        border: none
+        border-top: 1px solid #E0E0E0
+        legend
+            font-weight: 200
+            font-style: italic
+            font-size: 0.8em
+            color: #666666
         .pop-sv
             display: flex
             flex-direction: column
@@ -284,7 +316,7 @@ export default {
             font-style: italic
             color: #666666
             margin: 5px
-            width: 50%
+            width: 100%
             display: flex
             align-items: center
         .none-found-message
@@ -292,7 +324,7 @@ export default {
             font-style: italic
             color: #666666
             margin: 5px
-            width: 50%
+            width: 100%
             display: flex
             align-items: center
         .blinking-elipse
@@ -325,6 +357,7 @@ export default {
         box-sizing: border-box
         display: flex
         flex-direction: column
+        overflow: hidden
     h3
         margin: 0px
         padding: 5px
@@ -368,51 +401,51 @@ export default {
         flex-direction: column
         align-items: center
         width: 100%
-        height: 100%
         padding: 5px
         overflow: hidden
-        .column-header
-            width: 100%
-            text-align: center
-            padding: 2px
-            font-weight: 200
-            font-size: 0.9em
-            text-transform: uppercase
         &.gene-cards
+            min-width: 0
             height: 100%
+            border: none
+            border-top: 1px solid #E0E0E0
+            legend
+                font-weight: 200
+                font-style: italic
+                font-size: 0.8em
+                color: #666666
     .top-row
         display: flex
         flex-direction: row
-        align-items: center
-        justify-content: space-between
+        gap: 10px
         width: 100%
-        padding: 5px
         max-height: 100%
         overflow: hidden
-        .variant-information
-            border-radius: 5px
-            padding-left: 10px
+        .variant-summary-column
             display: flex
-            flex-direction: row
-            height: 100%
-            flex: 1 0
+            flex-direction: column
+            flex-wrap: wrap
+            gap: 5px
+            border: none
+            border-top: 1px solid #E0E0E0
+            padding: 10px
             overflow: hidden
-            .variant-summary-column
+            flex: .3 0
+            legend
+                font-weight: 200
+                font-style: italic
+                font-size: 0.8em
+                color: #666666
+            .item
+                color: #2A65B7
+                font-weight: 200
+                font-size: 0.9em
                 display: flex
-                flex-direction: column
+                align-items: center
                 gap: 5px
-                width: 15%
-                min-width: 210px
-                border: 1px solid #C1D1EA
-                border-radius: 5px
-                padding: 5px
-                .item
-                    color: #2A65B7
-                    font-weight: 200
-                    svg
-                        width: 20px
-                        height: 20px
-                        fill: #2A65B7
+                svg
+                    width: 20px
+                    height: 20px
+                    fill: #2A65B7
         .actions
             align-items: center
             display: flex

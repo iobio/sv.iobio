@@ -205,7 +205,7 @@ export default {
     height: 100%
     display: flex
     flex-direction: column
-    border: 1px solid #C1D1EA
+    border: 1px solid #e0e0e0
     border-radius: 5px
     margin-right: 3px
     padding: 0px
