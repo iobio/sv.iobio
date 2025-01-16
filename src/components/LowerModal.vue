@@ -57,17 +57,41 @@
         <div id="lower-section">
             <div class="column gene-cards">
                 <div class="column-header">Overlapped Genes</div>
-                <div v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length > 0" class="card-row">
-                    <GeneAssociationsCard
-                        v-for="gene in sortVariantInformation"
-                        :key="gene.gene_symbol"
-                        :gene="gene"
-                        :patientPhenotypes="patientPhenotypes" />
-                </div>
-                <div
-                    class="card-row no-genes"
-                    v-else-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length == 0">
-                    No Genes Overlapped
+                <div class="gene-card-row">
+                    <div class="row" v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length > 0">
+                        <GeneAssociationsCard
+                            v-for="gene in sortedRelevantGenes"
+                            :key="gene.gene_symbol"
+                            :gene="gene"
+                            :patientPhenotypes="patientPhenotypes" />
+                    </div>
+                    <div
+                        class="row"
+                        v-if="
+                            type == 'variant' &&
+                            variant &&
+                            Object.values(variant.overlappedGenes).length > 0 &&
+                            !hideExtraGeneInfo
+                        ">
+                        <GeneAssociationsCard
+                            v-for="gene in sortedIrrelevantGenes"
+                            :key="gene.gene_symbol"
+                            :gene="gene"
+                            :patientPhenotypes="patientPhenotypes" />
+                    </div>
+                    <div
+                        class="row show-more-genes"
+                        v-if="
+                            type == 'variant' && variant && Object.values(variant.overlappedGenes).length > 0 && hideExtraGeneInfo
+                        ">
+                        <div class="show-btn" @click="hideExtraGeneInfo = !hideExtraGeneInfo">Show Additional Genes</div>
+                    </div>
+
+                    <div
+                        class="no-genes row"
+                        v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length == 0">
+                        No Genes Overlapped
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,6 +119,7 @@ export default {
     data() {
         return {
             popSvs: null,
+            hideExtraGeneInfo: true,
         };
     },
     async mounted() {
@@ -114,29 +139,87 @@ export default {
         },
     },
     computed: {
-        sortVariantInformation() {
-            // TODO: We want to sort by genes with num of phens and also if there are genes of interest by that as well
-            if (
-                this.patientPhenotypes &&
-                this.patientPhenotypes.length > 0 &&
-                this.variant.overlappedGenes &&
-                Object.values(this.variant.overlappedGenes).length > 0
-            ) {
+        sortedRelevantGenes() {
+            /**
+             * If we have phenotypes, sort the overlapped genes by the number of phenotypes they have in common with the patient.
+             * If we don't have phenotypes, sort by number of phenotypes and diseases associated with the gene.
+             * If we don't have genes or phenotypes we will never return those here that will be for the next computed property.
+             */
+
+            if (!this.variant.overlappedGenes || Object.values(this.variant.overlappedGenes).length == 0) {
+                return [];
+            } else if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
                 let overlappedGenes = Object.values(this.variant.overlappedGenes);
+
+                //Filter first so that our sort is more efficient
+                overlappedGenes = overlappedGenes.filter((gene) => {
+                    let phens = Object.keys(gene.phenotypes).filter((phenotype) => this.patientPhenotypes.includes(phenotype));
+                    return phens.length > 0;
+                });
+
+                //Order by the number of phenotypes in common with the patient
                 overlappedGenes.sort((a, b) => {
                     let aPhens = Object.keys(a.phenotypes).filter((phenotype) => this.patientPhenotypes.includes(phenotype));
                     let bPhens = Object.keys(b.phenotypes).filter((phenotype) => this.patientPhenotypes.includes(phenotype));
                     return bPhens.length - aPhens.length;
                 });
+
                 return overlappedGenes;
             } else {
-                return this.variant.overlappedGenes;
+                let overlappedGenes = Object.values(this.variant.overlappedGenes);
+
+                //Filter by genes that have diseases or phenotypes
+                overlappedGenes = overlappedGenes.filter((gene) => {
+                    return Object.keys(gene.phenotypes).length > 0 || Object.keys(gene.diseases).length > 0;
+                });
+
+                //Order by the number of phenotypes and diseases associated with the gene
+                overlappedGenes.sort((a, b) => {
+                    let aPhens = Object.keys(a.phenotypes).length + Object.keys(a.diseases).length;
+                    let bPhens = Object.keys(b.phenotypes).length + Object.keys(b.diseases).length;
+                    return bPhens - aPhens;
+                });
+
+                return overlappedGenes;
+            }
+        },
+        sortedIrrelevantGenes() {
+            if (!this.variant.overlappedGenes || Object.values(this.variant.overlappedGenes).length == 0) {
+                return [];
+            } else if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
+                let overlappedGenes = Object.values(this.variant.overlappedGenes);
+
+                //Find genes that don't have phenotypes in common with the patient as those were skipped in the previous computed property
+                overlappedGenes = overlappedGenes.filter((gene) => {
+                    let phens = Object.keys(gene.phenotypes).filter((phenotype) => this.patientPhenotypes.includes(phenotype));
+                    return phens.length == 0;
+                });
+
+                //Order by the total phenotypes and associations with the gene
+                overlappedGenes.sort((a, b) => {
+                    let aPhens = Object.keys(a.phenotypes).length + Object.keys(a.diseases).length;
+                    let bPhens = Object.keys(b.phenotypes).length + Object.keys(b.diseases).length;
+                    return bPhens - aPhens;
+                });
+
+                return overlappedGenes;
+            } else {
+                let overlappedGenes = Object.values(this.variant.overlappedGenes);
+
+                //Find genes that don't have phenotypes or diseases in this case those were skipped in the previous computed property
+                overlappedGenes = overlappedGenes.filter((gene) => {
+                    return Object.keys(gene.phenotypes).length == 0 && Object.keys(gene.diseases).length == 0;
+                });
+
+                //If this is the situation there is nothing to order these by so we just return them
+                return overlappedGenes;
             }
         },
     },
     watch: {
         variant: {
             handler: async function (newVal, oldVal) {
+                this.hideExtraGeneInfo = true;
                 this.popSvs = null;
                 try {
                     this.popSvs = await getPopulationSvs(this.variant);
@@ -338,7 +421,7 @@ export default {
                 padding: 5px
                 width: 100%
                 cursor: not-allowed
-    .card-row
+    .gene-card-row
         display: flex
         flex-direction: row
         align-items: flex-start
@@ -357,4 +440,24 @@ export default {
             width: 100%
             overflow: hidden
             background-color: #F5F5F5
+        .row
+            display: flex
+            flex-direction: row
+            align-items: center
+            justify-content: center
+            height: 100%
+    .show-more-genes
+        height: 100%
+        display: flex
+        align-items: center
+        justify-content: center
+        .show-btn
+            font-size: .8em
+            cursor: pointer
+            padding: 5px
+            font-weight: 200
+            font-style: italic
+            color: #666666
+            &:hover
+                color: #2A65B7
 </style>
