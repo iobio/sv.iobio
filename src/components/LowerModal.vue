@@ -45,6 +45,26 @@
                             <span>End: </span>
                             <span v-html="bpFormatted(variant.end)"></span>
                         </div>
+                        <div v-if="variant.svafotateMaxAf" class="item">
+                            <span>Max Af: </span>
+                            <span>{{ parseFloat(variant.svafotateMaxAf).toFixed(3) }}</span>
+                        </div>
+                        <div v-if="variant.dupHChr" class="item">
+                            <span>FC Chr: </span>
+                            <span>{{ parseFloat(variant.dupHChr).toFixed(3) }}</span>
+                        </div>
+                        <div v-if="variant.dupHFlank" class="item">
+                            <span>FC Flank: </span>
+                            <span>{{ parseFloat(variant.dupHFlank).toFixed(3) }}</span>
+                        </div>
+                        <div v-if="variant.dupHBinGC" class="item">
+                            <span>FC Sim GC: </span>
+                            <span>{{ parseFloat(variant.dupHBinGC).toFixed(3) }}</span>
+                        </div>
+                        <div v-if="variant.gcFraction" class="item">
+                            <span>GC Fraction: </span>
+                            <span>{{ parseFloat(variant.gcFraction).toFixed(3) }}</span>
+                        </div>
                     </fieldset>
 
                     <fieldset class="pop-svs">
@@ -245,6 +265,15 @@ export default {
                 return "?";
             }
         },
+        hasAnyOptionalAnnotations() {
+            return (
+                this.variant.dupHChr ||
+                this.variant.dupHFlank ||
+                this.variant.dupHBinGC ||
+                this.variant.gcFraction ||
+                this.variant.svafotateMaxAf
+            );
+        },
     },
     watch: {
         variant: {
@@ -429,7 +458,7 @@ export default {
             border-top: 1px solid #E0E0E0
             padding: 10px
             overflow: hidden
-            flex: .3 0
+            flex: .5 0
             legend
                 font-weight: 200
                 font-style: italic

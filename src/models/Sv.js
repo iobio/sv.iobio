@@ -14,6 +14,11 @@ class Sv {
             //If we couldn't find the svtype and it is falsey then we will just set it to 'unknown'
             this.type = input.type || "unknown";
             this.genotype = input.genotype;
+            this.dupHChr = input.dupHChr || null;
+            this.dupHFlank = input.dupHFlank || null;
+            this.dupHBinGC = input.dupHBinGC || null;
+            this.gcFraction = input.gcFraction || null;
+            this.svafotateMaxAf = input.svafotateMaxAf || null;
             this.ref = input.ref || ".";
             this.alt = input.alt || ".";
             this.quality = input.quality;
