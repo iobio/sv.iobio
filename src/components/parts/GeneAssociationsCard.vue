@@ -60,11 +60,16 @@
                     </a>
                 </span>
                 <span
-                    @click="showMorePhenotypes = true"
+                    @click="showMorePhenotypes = !showMorePhenotypes"
                     class="additional-information phenotypes"
-                    v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0 && !showMorePhenotypes"
-                    >Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span
-                >
+                    v-if="inPatientPhens(gene.phenotypes).nonAssociatedPhens.length > 0">
+                    <span v-if="!showMorePhenotypes"
+                        >Show {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} Additional Phenotypes</span
+                    >
+                    <span v-else
+                        >Hide {{ inPatientPhens(gene.phenotypes).nonAssociatedPhens.length }} non-patient Phenotypes</span
+                    >
+                </span>
             </p>
 
             <p class="inner-column" v-if="gene.diseases && Object.keys(gene.diseases).length > 0">
@@ -132,7 +137,7 @@ export default {
         numOverlappedByGene(gene) {
             if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
                 let inCommonPhens = Object.keys(gene.phenotypes).filter((phenotype) =>
-                    this.patientPhenotypes.includes(phenotype)
+                    this.patientPhenotypes.includes(phenotype),
                 );
                 return inCommonPhens.length;
             } else {
