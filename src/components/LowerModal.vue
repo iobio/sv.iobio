@@ -36,7 +36,7 @@
                                 Fetching Overlapping SVs in Population <span class="blinking-elipse"></span>
                             </div>
                             <div class="none-found-message" v-else-if="popSvs && popSvs.length == 0">
-                                No Overlapping SVs Found In Population (@80% Overlap)
+                                No Overlapping SVs Found In Population (80% overlap threshold)
                             </div>
                             <div v-else class="pop-sv" v-for="sv in popSvs">
                                 <div>Overlap: {{ sv.overlapFractionProd.toFixed(3) }}</div>
