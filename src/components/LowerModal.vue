@@ -82,9 +82,14 @@
                     <div
                         class="row show-more-genes"
                         v-if="
-                            type == 'variant' && variant && Object.values(variant.overlappedGenes).length > 0 && hideExtraGeneInfo
+                            type == 'variant' &&
+                            variant &&
+                            Object.values(variant.overlappedGenes).length > 0 &&
+                            sortedIrrelevantGenes.length > 0
                         ">
-                        <div class="show-btn" @click="hideExtraGeneInfo = !hideExtraGeneInfo">Show Additional Genes</div>
+                        <div class="show-btn" @click="hideExtraGeneInfo = !hideExtraGeneInfo">
+                            <span v-if="hideExtraGeneInfo">Show Additional Genes</span><span v-else>Hide Additional Genes</span>
+                        </div>
                     </div>
 
                     <div
