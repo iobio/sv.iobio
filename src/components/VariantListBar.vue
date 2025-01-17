@@ -14,6 +14,7 @@
             </div>
             <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">
                 Gene:HPO
+                <span>Top (Total)</span>
                 <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>sort</title>
                     <path
@@ -468,6 +469,7 @@ export default {
             flex-direction: column
             justify-content: center
             align-items: center
+            text-align: center
             grid-row: 1/3
             overflow-wrap: break-word
             max-width: 100%

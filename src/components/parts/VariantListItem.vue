@@ -16,6 +16,7 @@
                     <span :class="{ subtle: Math.round(maxSingularPhenotypes.max) == 0 }">{{
                         Math.round(maxSingularPhenotypes.max)
                     }}</span>
+                    <span :class="{ subtle: numPhensAccountedFor == 0 }"> ({{ numPhensAccountedFor }}) </span>
                 </strong>
             </div>
             <!-- OR -->
@@ -227,7 +228,6 @@ export default {
             }
         },
         reciprocalOverlap() {
-            //If we have no inputted patient phenotypes or gene candidates then we dont want to show the reciprocal overlap there will be too many variants
             if (
                 this.comparisons &&
                 this.comparisons.length > 0 &&
@@ -342,7 +342,9 @@ export default {
             }
         },
         numPhensAccountedFor() {
-            //if there are patient phenotypes we can see how many of the overlapped phenotypes are accounted for
+            /**
+             * The total number of phenotypes that are accounted for in the overlapped genes
+             */
             if (
                 this.patientPhenotypes &&
                 this.patientPhenotypes.length > 0 &&
@@ -362,6 +364,9 @@ export default {
             }
         },
         maxSingularPhenotypes() {
+            /**
+             * The max number of phenotypes that are accounted for in a single gene overlapped by the variant
+             */
             if (
                 this.patientPhenotypes &&
                 this.patientPhenotypes.length > 0 &&
