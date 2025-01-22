@@ -44,16 +44,24 @@
                     </button>
                 </fieldset>
 
-                <fieldset class="fieldset-buttons-container" v-if="!isGlobalView">
+                <fieldset class="fieldset-buttons-container">
                     <legend>Zoom</legend>
-                    <button class="zoom-tool-btn" @click="zoom('in')">
+                    <button
+                        class="zoom-tool-btn"
+                        @click="zoom('in')"
+                        :disabled="isGlobalView"
+                        :class="{ disabled: isGlobalView }">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>zoom in</title>
                             <path
                                 d="M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14M12,10H10V12H9V10H7V9H9V7H10V9H12V10Z" />
                         </svg>
                     </button>
-                    <button class="zoom-tool-btn" @click="zoom('out')">
+                    <button
+                        class="zoom-tool-btn"
+                        @click="zoom('out')"
+                        :disabled="isGlobalView"
+                        :class="{ disabled: isGlobalView }">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>zoom out</title>
                             <path
@@ -63,10 +71,14 @@
                 </fieldset>
             </div>
 
-            <div v-if="(showButton && focusedVariant) || zoomHistory.length > 1" id="buttons-container">
-                <fieldset v-if="showButton && focusedVariant" class="fieldset-buttons-container">
+            <div id="buttons-container">
+                <fieldset class="fieldset-buttons-container">
                     <legend>Focused SV</legend>
-                    <button id="focus-chart-btn" @click="focusOnVariant">
+                    <button
+                        id="focus-chart-btn"
+                        @click="focusOnVariant"
+                        :disabled="!showButton || !focusedVariant"
+                        :class="{ disabled: !showButton || !focusedVariant }">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>zoom to focused sv</title>
                             <path d="M12,20L7,22L12,11L17,22L12,20M8,2H16V5H22V7H16V10H8V7H2V5H8V2M10,4V8H14V4H10Z" />
@@ -74,9 +86,13 @@
                     </button>
                 </fieldset>
 
-                <fieldset class="fieldset-buttons-container" v-if="zoomHistory.length > 1" @click="focusOnPrevious">
+                <fieldset class="fieldset-buttons-container">
                     <legend>Previous Z</legend>
-                    <button id="prev-zoom-btn">
+                    <button
+                        id="prev-zoom-btn"
+                        :class="{ disabled: zoomHistory.length <= 1 }"
+                        @click="focusOnPrevious"
+                        :disabled="zoomHistory.length <= 1">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>previous-zoom</title>
                             <path
@@ -354,6 +370,7 @@ export default {
             return chromosomeAccumulatedMap;
         },
         zoom(direction) {
+            console.log("zooming", direction);
             //Zoom can be in or out
             let zoomedSection = this.selectedArea;
             let zoomSize = zoomedSection.end - zoomedSection.start;
@@ -725,6 +742,7 @@ export default {
         padding: 0px
         font-size: 0.6em
         text-transform: uppercase
+        text-align: center
         font-style: italic
         color: #474747
     button
@@ -740,6 +758,16 @@ export default {
         color: #474747
         height: 100%
         transition: background-color 0.2s, border 0.2s
+        &.disabled
+            cursor: not-allowed
+            color: #B0B0B0
+            background-color: inherit
+            svg
+                fill: #B0B0B0
+            &:hover
+                background-color: inherit
+                border: 1px solid transparent
+                cursor: not-allowed
         &:hover
             cursor: pointer
             background-color: #C1D1EA
@@ -842,18 +870,7 @@ export default {
             z-index: 1
 #buttons-container
     height: 100%
-    #prev-zoom-btn
-        border: 1px solid transparent
-        border-radius: 5px
-        text-transform: uppercase
-        color: #2A65B7
-        height: 100%
-        &:hover
-            cursor: pointer
-            background-color: #C1D1EA
-            border: 1px solid #2A65B7
-        svg
-            fill: #2A65B7
+    display: flex
 #chrom-select-bar-div
     height: 32px
     padding: 8px 0px 2px 0px
