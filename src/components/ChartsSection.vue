@@ -45,12 +45,12 @@
                 </fieldset>
 
                 <fieldset class="fieldset-buttons-container">
-                    <legend>Zoom</legend>
+                    <legend>Zoom +/- <span class="zoom-level-label" v-html="bpFormatted(zoomFactor)"></span></legend>
                     <button
                         class="zoom-tool-btn"
                         @click="zoom('in')"
-                        :disabled="isGlobalView"
-                        :class="{ disabled: isGlobalView }">
+                        :disabled="isGlobalView || selectedArea.size <= 50"
+                        :class="{ disabled: isGlobalView || selectedArea.size <= 50 }">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>zoom in</title>
                             <path
@@ -68,6 +68,8 @@
                                 d="M15.5,14H14.71L14.43,13.73C15.41,12.59 16,11.11 16,9.5A6.5,6.5 0 0,0 9.5,3A6.5,6.5 0 0,0 3,9.5A6.5,6.5 0 0,0 9.5,16C11.11,16 12.59,15.41 13.73,14.43L14,14.71V15.5L19,20.5L20.5,19L15.5,14M9.5,14C7,14 5,12 5,9.5C5,7 7,5 9.5,5C12,5 14,7 14,9.5C14,12 12,14 9.5,14M7,9H12V10H7V9Z" />
                         </svg>
                     </button>
+
+                    <input type="range" min="1" step="1000" max="20000000" v-model="zoomFactor" class="slider" id="zoom-slider" />
                 </fieldset>
             </div>
 
@@ -191,6 +193,7 @@ import LinearGeneChartViz from "./viz/linearGeneChart.viz.vue";
 import IdeogramScaleBarViz from "./viz/ideogramScaleBar.viz.vue";
 import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
+import { bpFormatted } from "../dataHelpers/commonFunctions.js";
 
 export default {
     name: "ChartsSection",
@@ -236,6 +239,7 @@ export default {
             },
             hideLowerModal: true,
             lowerModalType: "",
+            zoomFactor: 3000000,
         };
     },
     async mounted() {
@@ -243,6 +247,7 @@ export default {
         await this.fetchSamples();
     },
     methods: {
+        bpFormatted: bpFormatted,
         closeLowerModal() {
             this.hideLowerModal = true;
         },
@@ -370,36 +375,42 @@ export default {
             return chromosomeAccumulatedMap;
         },
         zoom(direction) {
-            console.log("zooming", direction);
             //Zoom can be in or out
             let zoomedSection = this.selectedArea;
-            let zoomSize = zoomedSection.end - zoomedSection.start;
-            let zoomCenter = zoomedSection.start + zoomSize / 2;
+            let currentSize = zoomedSection.end - zoomedSection.start;
+            let center = zoomedSection.start + currentSize / 2;
 
-            let zoomFactor = 0.2;
-            let zoomedSize = zoomSize * zoomFactor;
+            let zoomFactor = this.zoomFactor;
+            let newSize = currentSize;
 
             if (direction === "in") {
-                zoomedSize = zoomSize - zoomedSize;
+                newSize = currentSize - zoomFactor * 2;
             } else if (direction === "out") {
-                zoomedSize = zoomSize + zoomedSize;
+                newSize = currentSize + zoomFactor * 2;
             }
 
-            let zoomedStart = zoomCenter - zoomedSize / 2;
-            let zoomedEnd = zoomCenter + zoomedSize / 2;
+            let newStart = center - newSize / 2;
+            let newEnd = center + newSize / 2;
 
-            if (zoomedStart < 0) {
-                zoomedStart = 0;
+            if (newStart < 0) {
+                newStart = 0;
             }
 
-            if (zoomedEnd >= this.genomeEnd) {
-                zoomedEnd = this.genomeEnd;
+            if (newEnd >= this.genomeEnd) {
+                newEnd = this.genomeEnd;
+            }
+
+            //if the new size would be smaller than 50bp we set it to 50bp
+            if (newSize < 50) {
+                newSize = 50;
+                newStart = center - newSize / 2;
+                newEnd = center + newSize / 2;
             }
 
             zoomedSection = {
-                start: zoomedStart,
-                end: zoomedEnd,
-                size: zoomedSize,
+                start: newStart,
+                end: newEnd,
+                size: newSize,
             };
 
             this.$emit("zoomEvent", zoomedSection);
@@ -728,6 +739,34 @@ export default {
 </script>
 
 <style lang="sass">
+.slider
+    -webkit-appearance: none
+    width: 100%
+    height: 5px
+    border-radius: 5px
+    background: #d3d3d3
+    outline: none
+    opacity: 0.7
+    -webkit-transition: .2s
+    transition: opacity .2s
+    &:hover
+        opacity: 1
+    &::-webkit-slider-thumb
+        -webkit-appearance: none
+        appearance: none
+        width: 10px
+        height: 10px
+        border-radius: 50%
+        background: #2A65B7
+        cursor: pointer
+    &::-moz-range-thumb
+        width: 10px
+        height: 10px
+        border-radius: 50%
+        background: #2A65B7
+        cursor: pointer
+.zoom-level-label
+    color: #2A65B7
 .fieldset-buttons-container
     display: flex
     flex-direction: row
