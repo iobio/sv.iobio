@@ -44,29 +44,43 @@
                     </button>
                 </fieldset>
 
-                <fieldset class="fieldset-buttons-container" v-if="!isGlobalView">
-                    <legend>Zoom</legend>
-                    <button class="zoom-tool-btn" @click="zoom('in')">
+                <fieldset class="fieldset-buttons-container">
+                    <legend>Zoom +/- <span class="zoom-level-label" v-html="bpFormatted(zoomFactor)"></span></legend>
+                    <button
+                        class="zoom-tool-btn"
+                        @click="zoom('in')"
+                        :disabled="isGlobalView || selectedArea.size <= 50"
+                        :class="{ disabled: isGlobalView || selectedArea.size <= 50 }">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>zoom in</title>
                             <path
                                 d="M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14M12,10H10V12H9V10H7V9H9V7H10V9H12V10Z" />
                         </svg>
                     </button>
-                    <button class="zoom-tool-btn" @click="zoom('out')">
+                    <button
+                        class="zoom-tool-btn"
+                        @click="zoom('out')"
+                        :disabled="isGlobalView"
+                        :class="{ disabled: isGlobalView }">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>zoom out</title>
                             <path
                                 d="M15.5,14H14.71L14.43,13.73C15.41,12.59 16,11.11 16,9.5A6.5,6.5 0 0,0 9.5,3A6.5,6.5 0 0,0 3,9.5A6.5,6.5 0 0,0 9.5,16C11.11,16 12.59,15.41 13.73,14.43L14,14.71V15.5L19,20.5L20.5,19L15.5,14M9.5,14C7,14 5,12 5,9.5C5,7 7,5 9.5,5C12,5 14,7 14,9.5C14,12 12,14 9.5,14M7,9H12V10H7V9Z" />
                         </svg>
                     </button>
+
+                    <input type="range" min="1" step="1000" max="20000000" v-model="zoomFactor" class="slider" id="zoom-slider" />
                 </fieldset>
             </div>
 
-            <div v-if="(showButton && focusedVariant) || zoomHistory.length > 1" id="buttons-container">
-                <fieldset v-if="showButton && focusedVariant" class="fieldset-buttons-container">
+            <div id="buttons-container">
+                <fieldset class="fieldset-buttons-container">
                     <legend>Focused SV</legend>
-                    <button id="focus-chart-btn" @click="focusOnVariant">
+                    <button
+                        id="focus-chart-btn"
+                        @click="focusOnVariant"
+                        :disabled="!showButton || !focusedVariant"
+                        :class="{ disabled: !showButton || !focusedVariant }">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>zoom to focused sv</title>
                             <path d="M12,20L7,22L12,11L17,22L12,20M8,2H16V5H22V7H16V10H8V7H2V5H8V2M10,4V8H14V4H10Z" />
@@ -74,9 +88,13 @@
                     </button>
                 </fieldset>
 
-                <fieldset class="fieldset-buttons-container" v-if="zoomHistory.length > 1" @click="focusOnPrevious">
+                <fieldset class="fieldset-buttons-container">
                     <legend>Previous Z</legend>
-                    <button id="prev-zoom-btn">
+                    <button
+                        id="prev-zoom-btn"
+                        :class="{ disabled: zoomHistory.length <= 1 }"
+                        @click="focusOnPrevious"
+                        :disabled="zoomHistory.length <= 1">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>previous-zoom</title>
                             <path
@@ -175,6 +193,7 @@ import LinearGeneChartViz from "./viz/linearGeneChart.viz.vue";
 import IdeogramScaleBarViz from "./viz/ideogramScaleBar.viz.vue";
 import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
+import { bpFormatted } from "../dataHelpers/commonFunctions.js";
 
 export default {
     name: "ChartsSection",
@@ -220,6 +239,7 @@ export default {
             },
             hideLowerModal: true,
             lowerModalType: "",
+            zoomFactor: 3000000,
         };
     },
     async mounted() {
@@ -227,6 +247,7 @@ export default {
         await this.fetchSamples();
     },
     methods: {
+        bpFormatted: bpFormatted,
         closeLowerModal() {
             this.hideLowerModal = true;
         },
@@ -356,33 +377,40 @@ export default {
         zoom(direction) {
             //Zoom can be in or out
             let zoomedSection = this.selectedArea;
-            let zoomSize = zoomedSection.end - zoomedSection.start;
-            let zoomCenter = zoomedSection.start + zoomSize / 2;
+            let currentSize = zoomedSection.end - zoomedSection.start;
+            let center = zoomedSection.start + currentSize / 2;
 
-            let zoomFactor = 0.2;
-            let zoomedSize = zoomSize * zoomFactor;
+            let zoomFactor = this.zoomFactor;
+            let newSize = currentSize;
 
             if (direction === "in") {
-                zoomedSize = zoomSize - zoomedSize;
+                newSize = currentSize - zoomFactor * 2;
             } else if (direction === "out") {
-                zoomedSize = zoomSize + zoomedSize;
+                newSize = currentSize + zoomFactor * 2;
             }
 
-            let zoomedStart = zoomCenter - zoomedSize / 2;
-            let zoomedEnd = zoomCenter + zoomedSize / 2;
+            let newStart = center - newSize / 2;
+            let newEnd = center + newSize / 2;
 
-            if (zoomedStart < 0) {
-                zoomedStart = 0;
+            if (newStart < 0) {
+                newStart = 0;
             }
 
-            if (zoomedEnd >= this.genomeEnd) {
-                zoomedEnd = this.genomeEnd;
+            if (newEnd >= this.genomeEnd) {
+                newEnd = this.genomeEnd;
+            }
+
+            //if the new size would be smaller than 50bp we set it to 50bp
+            if (newSize < 50) {
+                newSize = 50;
+                newStart = center - newSize / 2;
+                newEnd = center + newSize / 2;
             }
 
             zoomedSection = {
-                start: zoomedStart,
-                end: zoomedEnd,
-                size: zoomedSize,
+                start: newStart,
+                end: newEnd,
+                size: newSize,
             };
 
             this.$emit("zoomEvent", zoomedSection);
@@ -711,6 +739,34 @@ export default {
 </script>
 
 <style lang="sass">
+.slider
+    -webkit-appearance: none
+    width: 100%
+    height: 5px
+    border-radius: 5px
+    background: #d3d3d3
+    outline: none
+    opacity: 0.7
+    -webkit-transition: .2s
+    transition: opacity .2s
+    &:hover
+        opacity: 1
+    &::-webkit-slider-thumb
+        -webkit-appearance: none
+        appearance: none
+        width: 10px
+        height: 10px
+        border-radius: 50%
+        background: #2A65B7
+        cursor: pointer
+    &::-moz-range-thumb
+        width: 10px
+        height: 10px
+        border-radius: 50%
+        background: #2A65B7
+        cursor: pointer
+.zoom-level-label
+    color: #2A65B7
 .fieldset-buttons-container
     display: flex
     flex-direction: row
@@ -725,6 +781,7 @@ export default {
         padding: 0px
         font-size: 0.6em
         text-transform: uppercase
+        text-align: center
         font-style: italic
         color: #474747
     button
@@ -740,6 +797,16 @@ export default {
         color: #474747
         height: 100%
         transition: background-color 0.2s, border 0.2s
+        &.disabled
+            cursor: not-allowed
+            color: #B0B0B0
+            background-color: inherit
+            svg
+                fill: #B0B0B0
+            &:hover
+                background-color: inherit
+                border: 1px solid transparent
+                cursor: not-allowed
         &:hover
             cursor: pointer
             background-color: #C1D1EA
@@ -842,18 +909,7 @@ export default {
             z-index: 1
 #buttons-container
     height: 100%
-    #prev-zoom-btn
-        border: 1px solid transparent
-        border-radius: 5px
-        text-transform: uppercase
-        color: #2A65B7
-        height: 100%
-        &:hover
-            cursor: pointer
-            background-color: #C1D1EA
-            border: 1px solid #2A65B7
-        svg
-            fill: #2A65B7
+    display: flex
 #chrom-select-bar-div
     height: 32px
     padding: 8px 0px 2px 0px

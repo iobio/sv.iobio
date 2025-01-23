@@ -29,15 +29,6 @@
                             <span v-html="bpFormatted(variant.size)"></span>
                         </div>
                         <div class="item">
-                            <span>Zygosity: </span>
-                            <span v-html="svgForZygosity(variant.genotype)"></span>
-                            <span>{{ formatGenotype(variant.genotype).toUpperCase() }}</span>
-                        </div>
-                        <div class="item">
-                            <span>Type: </span>
-                            <span>{{ formatType(variant.type) }}</span>
-                        </div>
-                        <div class="item">
                             <span>Start: </span>
                             <span v-html="bpFormatted(variant.start)"></span>
                         </div>
@@ -45,25 +36,34 @@
                             <span>End: </span>
                             <span v-html="bpFormatted(variant.end)"></span>
                         </div>
+                        <div class="item">
+                            <span>Type: </span>
+                            <span>{{ formatType(variant.type) }}</span>
+                        </div>
+                        <div class="item">
+                            <span>Zygosity: </span>
+                            <span v-html="svgForZygosity(variant.genotype)"></span>
+                            <span>{{ formatGenotype(variant.genotype).toUpperCase() }}</span>
+                        </div>
                         <div v-if="variant.svafotateMaxAf" class="item">
                             <span>Max Af: </span>
-                            <span>{{ parseFloat(variant.svafotateMaxAf).toFixed(3) }}</span>
+                            <span>{{ parseFloat(variant.svafotateMaxAf).toExponential(3) }}</span>
                         </div>
                         <div v-if="variant.dupHChr" class="item">
                             <span>FC Chr: </span>
-                            <span>{{ parseFloat(variant.dupHChr).toFixed(3) }}</span>
+                            <span>{{ parseFloat(variant.dupHChr).toExponential(2) }}</span>
                         </div>
                         <div v-if="variant.dupHFlank" class="item">
                             <span>FC Flank: </span>
-                            <span>{{ parseFloat(variant.dupHFlank).toFixed(3) }}</span>
+                            <span>{{ parseFloat(variant.dupHFlank).toExponential(2) }}</span>
                         </div>
                         <div v-if="variant.dupHBinGC" class="item">
                             <span>FC Sim GC: </span>
-                            <span>{{ parseFloat(variant.dupHBinGC).toFixed(3) }}</span>
+                            <span>{{ parseFloat(variant.dupHBinGC).toExponential(2) }}</span>
                         </div>
                         <div v-if="variant.gcFraction" class="item">
                             <span>GC Fraction: </span>
-                            <span>{{ parseFloat(variant.gcFraction).toFixed(3) }}</span>
+                            <span>{{ parseFloat(variant.gcFraction).toExponential(2) }}</span>
                         </div>
                     </fieldset>
 
@@ -77,13 +77,13 @@
                             (80% overlap threshold)
                         </div>
                         <div v-else class="pop-sv" v-for="sv in popSvs">
-                            <div>Overlap: {{ sv.overlapFractionProd.toFixed(3) }}</div>
-                            <div>AF: {{ parseFloat(sv.af).toFixed(7) }}</div>
-                            <div>Max AF: {{ sv.pop_max_af }}</div>
-                            <div v-html="`S: ${bpFormatted(sv.start)}`"></div>
-                            <div v-html="`E: ${bpFormatted(sv.end)}`"></div>
                             <div v-html="`Size: ${bpFormatted(sv.svlen)}`"></div>
-                            <div>Type: {{ sv.svtype }}</div>
+                            <div v-html="`Start: ${bpFormatted(sv.start)}`"></div>
+                            <div v-html="`End: ${bpFormatted(sv.end)}`"></div>
+                            <div>Type: {{ formatType(sv.svtype) }}</div>
+                            <div>Overlap: {{ sv.overlapFractionProd.toFixed(2) }}</div>
+                            <div>AF: {{ parseFloat(sv.af).toExponential(2) }}</div>
+                            <div>Max AF: {{ parseFloat(sv.pop_max_af).toExponential(2) }}</div>
                             <div>Source: {{ sv.source }}</div>
                         </div>
                     </fieldset>
