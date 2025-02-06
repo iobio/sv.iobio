@@ -2,6 +2,8 @@
 
 SV.iobio is an interactive tool designed to assist with visualizing and analyzing structural variants (SVs) from variant call files (VCFs). Users can upload files from their local system or an HTTP-accessible link, select samples, and explore genomic variants in an intuitive interface.
 
+SV.iobio is under active development but is available to use here: [SV.iobio Stage](https://mosaic-staging.chpc.utah.edu/sv.iobio/frontend/)
+
 <img width="1409" alt="Screenshot 2025-02-06 at 2 16 25 PM" src="https://github.com/user-attachments/assets/08afa9d3-0088-4300-a5ac-9fb46a9fe3e5" />
 
 # Key Features:
