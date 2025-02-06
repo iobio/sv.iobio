@@ -2,11 +2,9 @@
 
 SV.iobio is an interactive tool designed to assist with visualizing and analyzing structural variants (SVs) from variant call files (VCFs). Users can upload files from their local system or an HTTP-accessible link, select samples, and explore genomic variants in an intuitive interface.
 
-SV.iobio is under active development but is available to use here: [SV.iobio Stage](https://mosaic-staging.chpc.utah.edu/sv.iobio/frontend/)
-
 <img width="1409" alt="Screenshot 2025-02-06 at 2 16 25 PM" src="https://github.com/user-attachments/assets/08afa9d3-0088-4300-a5ac-9fb46a9fe3e5" />
 
-# Key Features:
+# Key Features
 
 🔍 Dynamic Chromosome Map – SVs are mapped to chromosomal locations, allowing users to zoom in and visually inspect regions of interest.
 
@@ -19,6 +17,11 @@ SV.iobio is under active development but is available to use here: [SV.iobio Sta
 ⚡ Efficient Case Analysis – Designed to streamline structural variant interpretation, helping researchers and clinicians quickly identify clinically relevant alterations.
 
 This tool is designed to enhance case analysis workflows by providing a clear, interactive, and informative view of structural variant data, helping researchers and clinicians investigate genomic alterations more effectively.
+
+# Availability
+
+SV.iobio is under active development but is available publicly on the web.
+[SV.iobio Website Link](https://mosaic-staging.chpc.utah.edu/sv.iobio/frontend/)
 
 # Multi-Scale
 
