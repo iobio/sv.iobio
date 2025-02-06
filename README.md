@@ -18,7 +18,8 @@ SV.iobio is an interactive tool designed to assist with visualizing and analyzin
 
 This tool is designed to enhance case analysis workflows by providing a clear, interactive, and informative view of structural variant data, helping researchers and clinicians investigate genomic alterations more effectively.
 
-# MultiScale
+# Multi-Scale
+
 <img width="1000" alt="Screenshot 2025-02-06 at 2 19 54 PM" src="https://github.com/user-attachments/assets/27e83ee9-01d2-4258-93fb-0579ee27037f" />
 
 ---
@@ -26,7 +27,9 @@ This tool is designed to enhance case analysis workflows by providing a clear, i
 <img width="1000" alt="Screenshot 2025-02-06 at 2 20 31 PM" src="https://github.com/user-attachments/assets/00c6b7f3-becf-4c14-aaa2-68fd60a7f46c" />
 
 # Sort & Filter
+
 <img width="477" alt="Screenshot 2025-02-06 at 2 19 07 PM" src="https://github.com/user-attachments/assets/45a23bff-7873-4a0b-803a-371b5de85b66" />
 
 # Review Associations
+
 <img width="1071" alt="Screenshot 2025-02-06 at 2 20 54 PM" src="https://github.com/user-attachments/assets/0da88dec-572f-4bef-abe0-20bec0d1eef3" />

@@ -33,9 +33,9 @@
                     </select>
                 </div>
 
-                <fieldset class="fieldset-buttons-container">
+                <fieldset class="fieldset-buttons-container" v-if="globalView == 'linear'">
                     <legend>ruler line</legend>
-                    <button @click="toggleLineTool" v-if="globalView == 'linear'" class="line-tool-btn">
+                    <button @click="toggleLineTool" class="line-tool-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>activate/deactivate ruler line</title>
                             <path
