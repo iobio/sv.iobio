@@ -45,6 +45,28 @@ export async function getGenes(build = "hg38", source = "refseq") {
     }
 }
 
+//GET SENSITIVE GENES
+export async function getSensitiveGenes(build = "hg38") {
+    try {
+        const response = await fetch(`${BACKEND_URL_BASE}/doseSensitiveGenes?build=${build}`);
+        const data = await response.json();
+        return data;
+    } catch (e) {
+        console.error("Error getting dose sensitive genes");
+    }
+}
+
+//GET SENSITIVE REGIONS
+export async function getSensitiveRegions(build = "hg38") {
+    try {
+        const response = await fetch(`${BACKEND_URL_BASE}/doseSensitiveRegions?build=${build}`);
+        const data = await response.json();
+        return data;
+    } catch (e) {
+        console.error("Error getting dose sensitive regions");
+    }
+}
+
 //GET SVS FROM VCF
 export async function getSVsFromVCF(vcfFile, build = "hg38", sampleName = null) {
     try {

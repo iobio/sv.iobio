@@ -202,6 +202,8 @@ export default {
             mosaidProjectId: null,
             mosaicExperimentId: null,
             validFromMosaic: true,
+            doseGenes: {},
+            doseRegions: {},
             //Sorts
             sortedBy: {
                 totalGenes: false,
@@ -214,6 +216,12 @@ export default {
     },
     async mounted() {
         await this.initMosaicSession();
+
+        //There are a little over 1000 genes and 518 regions
+        let [doseGenes, doseRegions] = await Promise.all([dataHelper.getSensitiveGenes(), dataHelper.getSensitiveRegions()]);
+
+        this.doseGenes = doseGenes.sensitiveGenes || {};
+        this.doseRegions = doseRegions.sensitiveRegions || {};
     },
     created() {
         this.mosaicUrlParams = new URLSearchParams(window.location.search);
