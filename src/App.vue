@@ -116,6 +116,8 @@
                 :focusedGeneName="focusedGeneName"
                 :genomeEnd="genomeEnd"
                 :genomeStart="genomeStart"
+                :doseGenes="doseGenes"
+                :doseRegions="doseRegions"
                 @updateComparisons="updateComparisons"
                 @zoomEvent="zoomFired"
                 @updateFocusedVariant="updateFocusedVariant"

@@ -219,6 +219,8 @@ export default {
         samples: Object,
         genomeStart: Number,
         genomeEnd: Number,
+        doseGenes: Object,
+        doseRegions: Object,
     },
     data() {
         return {
