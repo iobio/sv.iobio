@@ -71,12 +71,12 @@ export async function getSensitiveRegions(build = "hg38") {
 export async function getSVsFromVCF(vcfFile, build = "hg38", sampleName = null) {
     try {
         if (!sampleName) {
-            const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}?build=${build}`);
+            const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}&build=${build}`);
             const data = await response.json();
             return data;
         } else {
             const response = await fetch(
-                `${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}?sampleName=${sampleName}?build=${build}`,
+                `${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}&sampleName=${sampleName}&build=${build}`,
             );
             const data = await response.json();
             return data;

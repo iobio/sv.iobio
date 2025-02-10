@@ -337,10 +337,10 @@ export default {
                     let svData;
 
                     if (!sample.id || sample.id === "") {
-                        data = await dataHelper.getSVsFromVCF(sample.vcf);
+                        data = await dataHelper.getSVsFromVCF(sample.vcf, this.hgBuild);
                         svData = data.map((item) => new Sv(item));
                     } else {
-                        data = await dataHelper.getSVsFromVCF(sample.vcf, sample.id);
+                        data = await dataHelper.getSVsFromVCF(sample.vcf, this.hgBuild, sample.id);
                         svData = data.map((item) => new Sv(item));
                     }
 
