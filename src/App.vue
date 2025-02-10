@@ -24,6 +24,7 @@
         <SelectDataSection
             :show="selectDataSectionOpen"
             :samples="samples"
+            @send-demo-info="updateGenesAndPhensWithDemo"
             @update-samples="updateSamples"
             @toggle-show="selectDataSectionOpen = false"
             @emit-toast="addToast" />
@@ -234,6 +235,10 @@ export default {
         }
     },
     methods: {
+        updateGenesAndPhensWithDemo(demoInfo) {
+            this.updateGenesOfInterest(demoInfo.genes);
+            this.updatePhenotypesOfInterest(demoInfo.phenotypes);
+        },
         onToggleFilterDataSection() {
             this.filterDataSectionOpen = !this.filterDataSectionOpen;
             this.selectDataSectionOpen = false;

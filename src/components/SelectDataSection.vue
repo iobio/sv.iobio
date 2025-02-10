@@ -72,10 +72,32 @@ export default {
             const mom = "https://s3.us-east-1.amazonaws.com/sv.iobio.files/GIAB_Trio/HG003_PBSV_output.filteredaf.vcf.gz";
             const dad = "https://s3.us-east-1.amazonaws.com/sv.iobio.files/GIAB_Trio/HG004_PBSV_output.filteredaf.vcf.gz";
 
-            const demoHpo =
-                "HP:0004322, HP:0001250, HP:0001344, HP:0001631, HP:0002020, HP:0003074, HP:0004325, HP:0000510, HP:0001763, HP:0001627, HP:0000729, HP:0001382, HP:0001337, HP:0004329, HP:0001875, HP:0004328, HP:0000365, HP:0002063, HP:0002419, HP:0000256, HP:0001290, HP:0001263";
+            const demoHpo = [
+                "HP:0004322",
+                "HP:0001250",
+                "HP:0001344",
+                "HP:0001631",
+                "HP:0002020",
+                "HP:0003074",
+                "HP:0004325",
+                "HP:0000510",
+                "HP:0001763",
+                "HP:0001627",
+                "HP:0000729",
+                "HP:0001382",
+                "HP:0001337",
+                "HP:0004329",
+                "HP:0001875",
+                "HP:0004328",
+                "HP:0000365",
+                "HP:0002063",
+                "HP:0002419",
+                "HP:0000256",
+                "HP:0001290",
+                "HP:0001263",
+            ];
 
-            const demoGenes = "ACTA2, COL3A1, FBN1, SMAD3, TGFBR2, NOTCH3, PTPN11, GLA, ATP7B, GJB2, CHD7";
+            const demoGenes = ["ACTA2", "COL3A1", "FBN1", "SMAD3", "TGFBR2", "NOTCH3", "PTPN11", "GLA", "ATP7B", "GJB2", "CHD7"];
 
             this.samplesLocal.proband = {
                 name: "Proband",
@@ -110,6 +132,8 @@ export default {
                     relation: "Father",
                 },
             ];
+
+            this.$emit("send-demo-info", { phenotypes: demoHpo, genes: demoGenes });
         },
         updateSample(loc, sample) {
             if (loc === "proband") {
