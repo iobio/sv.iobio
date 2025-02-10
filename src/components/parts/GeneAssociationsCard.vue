@@ -1,7 +1,85 @@
 <template>
     <div class="gene-associations-card gene-row">
         <div class="gene-card-header">
-            <div class="symbol-row">{{ gene.gene_symbol }}</div>
+            <div class="symbol-row">
+                {{ gene.gene_symbol }}
+                <div
+                    v-if="
+                        doseGenes[gene.gene_symbol] &&
+                        (parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) !== 0 ||
+                            parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) !== 0)
+                    ">
+                    <a
+                        :href="`https://search.clinicalgenome.org/kb/gene-dosage/${gene.gene_symbol}`"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        <span class="dose-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <title>Review Dose Sensitivity In ClinGen</title>
+                                <path
+                                    d="M4.22,11.29L11.29,4.22C13.64,1.88 17.43,1.88 19.78,4.22C22.12,6.56 22.12,10.36 19.78,12.71L12.71,19.78C10.36,22.12 6.56,22.12 4.22,19.78C1.88,17.43 1.88,13.64 4.22,11.29M5.64,12.71C4.59,13.75 4.24,15.24 4.6,16.57L10.59,10.59L14.83,14.83L18.36,11.29C19.93,9.73 19.93,7.2 18.36,5.64C16.8,4.07 14.27,4.07 12.71,5.64L5.64,12.71Z" />
+                            </svg>
+                        </span>
+                    </a>
+                </div>
+
+                <div
+                    v-if="
+                        doseGenes[gene.gene_symbol] &&
+                        parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) == 0 &&
+                        parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) == 0
+                    ">
+                    <a
+                        :href="`https://search.clinicalgenome.org/kb/gene-dosage/${gene.gene_symbol}`"
+                        target="_blank"
+                        rel="noopener noreferrer">
+                        <span class="dose-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <title>Review Dose Sensitivity In ClinGen</title>
+                                <path
+                                    d="M4.22,11.29L11.29,4.22C13.64,1.88 17.43,1.88 19.78,4.22C22.12,6.56 22.12,10.36 19.78,12.71L12.71,19.78C10.36,22.12 6.56,22.12 4.22,19.78C1.88,17.43 1.88,13.64 4.22,11.29M5.64,12.71C4.59,13.75 4.24,15.24 4.6,16.57L10.59,10.59L14.83,14.83L18.36,11.29C19.93,9.73 19.93,7.2 18.36,5.64C16.8,4.07 14.27,4.07 12.71,5.64L5.64,12.71Z" />
+                            </svg>
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+            <div
+                class="dose-sensitive-tag"
+                v-if="doseGenes[gene.gene_symbol] && parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) != 0">
+                Triplosensitivity: {{ convertClinGenScores(doseGenes[gene.gene_symbol].triplosensitivity.score) }} (<a
+                    :href="`https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${doseGenes[
+                        gene.gene_symbol
+                    ].triplosensitivity.diseaseAssociation.slice(6)}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >{{ doseGenes[gene.gene_symbol].triplosensitivity.diseaseAssociation }}</a
+                >)
+            </div>
+
+            <div
+                class="dose-sensitive-tag"
+                v-if="doseGenes[gene.gene_symbol] && parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) != 0">
+                Haploinsufficiency: {{ convertClinGenScores(doseGenes[gene.gene_symbol].haploinsufficiency.score) }} (<a
+                    :href="`https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${doseGenes[
+                        gene.gene_symbol
+                    ].haploinsufficiency.diseaseAssociation.slice(6)}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >{{ doseGenes[gene.gene_symbol].haploinsufficiency.diseaseAssociation }}</a
+                >)
+            </div>
+
+            <div
+                class="dose-sensitive-tag"
+                v-if="
+                    doseGenes[gene.gene_symbol] &&
+                    parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) == 0 &&
+                    parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) == 0
+                ">
+                On ClinGen List with No Evidence
+            </div>
+
             <div class="header-row">
                 <div class="centered">
                     Patient HPO <span class="blue">{{ numOverlappedByGene(gene) }}</span>
@@ -114,6 +192,8 @@
 </template>
 
 <script>
+import { convertClinGenScores } from "../../dataHelpers/commonFunctions.js";
+
 export default {
     name: "GeneAssociationsCard",
     components: {},
@@ -126,6 +206,7 @@ export default {
             type: Array,
             required: true,
         },
+        doseGenes: Object,
     },
     data() {
         return {
@@ -134,6 +215,7 @@ export default {
     },
     mounted() {},
     methods: {
+        convertClinGenScores: convertClinGenScores,
         numOverlappedByGene(gene) {
             if (this.patientPhenotypes && this.patientPhenotypes.length > 0) {
                 let inCommonPhens = Object.keys(gene.phenotypes).filter((phenotype) =>
@@ -225,12 +307,31 @@ export default {
         font-size: .8em
         background-color: #EBEBEB
         border-radius: 5px 5px 0px 0px
+        .dose-sensitive-tag
+            color: #666666
+            margin-bottom: 5px
+            text-align: center
+            font-weight: 200
+            padding: 2px
+            border-radius: 5px
         .symbol-row
             font-weight: 400
             width: 100%
             display: flex
             justify-content: center
             align-items: center
+            .dose-icon
+                display: flex
+                align-items: center
+                margin-left: 5px
+                border-radius: 5px
+                border: 1px solid transparent
+                &:hover
+                    background-color: #C1D1EA
+                    border: 1px solid #2A65B7
+                svg
+                    height: 15px
+                    fill: #2A65B7
         .header-row
             display: flex
             flex-direction: row

@@ -56,6 +56,20 @@ export function formatGenotype(genotype, full = false) {
     }
 }
 
+export function convertClinGenScores(score) {
+    if (score == 0) {
+        return "No Evidence";
+    } else if (score == 1) {
+        return "Little Evidence";
+    } else if (score == 3) {
+        return "Sufficient Evidence";
+    } else if (score == 30) {
+        return "Autoosomal Recessive";
+    } else if (score == 40) {
+        return "Dose Sens. Unlikely";
+    }
+}
+
 export function svgForZygosity(genotype) {
     let gt = genotype.slice(0, 3);
     if (gt === "1/1") {

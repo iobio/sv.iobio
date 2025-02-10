@@ -101,6 +101,7 @@
                             v-for="gene in sortedRelevantGenes"
                             :key="gene.gene_symbol"
                             :gene="gene"
+                            :doseGenes="doseGenes"
                             :patientPhenotypes="patientPhenotypes" />
                     </div>
                     <div
@@ -115,6 +116,7 @@
                             v-for="gene in sortedIrrelevantGenes"
                             :key="gene.gene_symbol"
                             :gene="gene"
+                            :doseGenes="doseGenes"
                             :patientPhenotypes="patientPhenotypes" />
                     </div>
                     <div
@@ -158,6 +160,7 @@ export default {
         patientPhenotypes: Array,
         geneCandidates: Array,
         chromosomeAccumulatedMap: Object,
+        doseGenes: Object,
     },
     data() {
         return {

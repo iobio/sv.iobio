@@ -171,6 +171,7 @@
                 :patientPhenotypes="patientPhenotypes"
                 :geneCandidates="genesOfInterest"
                 :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+                :doseGenes="doseGenes"
                 @close="closeLowerModal" />
             <div class="show-modal-btn" @click="showLowerModal" v-if="focusedVariant && hideLowerModal">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
