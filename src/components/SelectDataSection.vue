@@ -1,6 +1,9 @@
 <template>
     <div class="select-data-section" :class="{ hidden: !show }">
-        <h1>FILES</h1>
+        <div class="header-col">
+            <h1>FILES</h1>
+            <button @click="applyDemoData">Load Demo Data</button>
+        </div>
 
         <div id="individual-samples-container" v-if="samplesFormat == 'individual'">
             <SampleDataRow
@@ -64,6 +67,50 @@ export default {
         this.samplesLocal = JSON.parse(JSON.stringify(this.samples));
     },
     methods: {
+        applyDemoData() {
+            const pro = "https://s3.us-east-1.amazonaws.com/sv.iobio.files/GIAB_Trio/HG002_PBSV_output.filteredaf.vcf.gz";
+            const mom = "https://s3.us-east-1.amazonaws.com/sv.iobio.files/GIAB_Trio/HG003_PBSV_output.filteredaf.vcf.gz";
+            const dad = "https://s3.us-east-1.amazonaws.com/sv.iobio.files/GIAB_Trio/HG004_PBSV_output.filteredaf.vcf.gz";
+
+            const demoHpo =
+                "HP:0004322, HP:0001250, HP:0001344, HP:0001631, HP:0002020, HP:0003074, HP:0004325, HP:0000510, HP:0001763, HP:0001627, HP:0000729, HP:0001382, HP:0001337, HP:0004329, HP:0001875, HP:0004328, HP:0000365, HP:0002063, HP:0002419, HP:0000256, HP:0001290, HP:0001263";
+
+            const demoGenes = "ACTA2, COL3A1, FBN1, SMAD3, TGFBR2, NOTCH3, PTPN11, GLA, ATP7B, GJB2, CHD7";
+
+            this.samplesLocal.proband = {
+                name: "Proband",
+                id: null,
+                vcf: pro,
+                tbi: "",
+                bam: "",
+                bai: "",
+                svList: [],
+                relation: "proband",
+            };
+
+            this.samplesLocal.comparisons = [
+                {
+                    name: "Mother",
+                    id: null,
+                    vcf: mom,
+                    tbi: "",
+                    bam: "",
+                    bai: "",
+                    svList: [],
+                    relation: "mother",
+                },
+                {
+                    name: "Father",
+                    id: null,
+                    vcf: dad,
+                    tbi: "",
+                    bam: "",
+                    bai: "",
+                    svList: [],
+                    relation: "Father",
+                },
+            ];
+        },
         updateSample(loc, sample) {
             if (loc === "proband") {
                 this.samplesLocal.proband = sample;
@@ -273,6 +320,23 @@ export default {
     box-sizing: border-box
     z-index: 4
     overflow-y: auto
+    .header-col
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: space-evenly
+        width: 100%
+        max-width: 1000px
+        button
+            height: 25px
+            border: none
+            border-radius: 5px
+            text-transform: uppercase
+            color: #2A65B7
+            cursor: pointer
+            align-self: flex-end
+            &:hover
+                background-color: #D9D9D9
     h1
         color: #2A65B7
         font-weight: normal
