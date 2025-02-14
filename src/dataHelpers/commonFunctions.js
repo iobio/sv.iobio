@@ -64,7 +64,7 @@ export function convertClinGenScores(score) {
     } else if (score == 3) {
         return "Sufficient Evidence";
     } else if (score == 30) {
-        return "Autoosomal Recessive";
+        return "Autosomal Recessive";
     } else if (score == 40) {
         return "Dose Sens. Unlikely";
     }
