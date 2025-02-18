@@ -1,6 +1,7 @@
 <template>
     <div class="linear-regions-chart-wrapper">
-        <div ref="linearRegionsChartContainer" class="linear-regions-chart"></div>
+        <div ref="clinGenRegionsChart" class="linear-regions-chart"></div>
+        <div id="regions-chart-title">Dose Sensitive Regions</div>
     </div>
 </template>
 
@@ -18,7 +19,6 @@ export default {
     data() {
         return {
             resizeObserver: null,
-            linearRegionsChart: null,
         };
     },
     mounted() {
@@ -29,15 +29,15 @@ export default {
             debouncedDraw();
         });
 
-        this.resizeObserver.observe(this.$refs.linearRegionsChartContainer);
+        this.resizeObserver.observe(this.$refs.clinGenRegionsChart);
     },
     beforeDestroy() {
-        this.resizeObserver.unobserve(this.$refs.linearRegionsChartContainer);
+        this.resizeObserver.unobserve(this.$refs.clinGenRegionsChart);
     },
     methods: {
         drawLinearRegionsChart() {
             //Grab the container by ref
-            let container = this.$refs.linearRegionsChartContainer;
+            let container = this.$refs.clinGenRegionsChart;
             //if we dont have a parent element, dont draw the chart
             if (!container || !container.clientWidth) {
                 return;
@@ -45,7 +45,7 @@ export default {
             //remove anything in the container
             container.innerHTML = "";
 
-            if (!this.genesList || !this.chromosomes) {
+            if (!this.regionsList || !this.chromosomes) {
                 return;
             }
 
@@ -80,4 +80,21 @@ export default {
 };
 </script>
 
-<style lang="sass"></style>
+<style lang="sass">
+.linear-regions-chart-wrapper
+    margin-top: 10px
+    position: relative
+.linear-regions-chart
+    height: 20px
+    width: 100%
+    border: .5px solid #ccc
+    border-radius: 5px
+#regions-chart-title
+    position: absolute
+    top: -12px
+    left: -10px
+    background-color: white
+    font-weight: lighter
+    font-size: 14px
+    color: #2A65B7
+</style>
