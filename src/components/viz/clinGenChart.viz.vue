@@ -97,4 +97,35 @@ export default {
     font-weight: lighter
     font-size: 14px
     color: #2A65B7
+.region-tooltip
+    position: absolute
+    background-color: white
+    border: 1px solid #ccc
+    border-radius: 5px
+    padding: 5px
+    font-size: 12px
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2)
+    display: flex
+    flex-direction: column
+    z-index: 3
+    .region-tooltip-item
+        display: flex
+        margin-bottom: 5px
+        width: 100%
+        .label
+            background-color: #ccc
+            padding: 2px 5px
+            border-radius: 5px 0px 0px 5px
+            display: flex
+            align-items: center
+        .value
+            max-width: 130px
+            text-wrap: wrap
+            word-wrap: break-word
+            overflow: hidden
+            border-top: 1px solid #ccc
+            border-bottom: 1px solid #ccc
+            border-right: 1px solid #ccc
+            border-radius: 0px 5px 5px 0px
+            padding: 2px 5px
 </style>

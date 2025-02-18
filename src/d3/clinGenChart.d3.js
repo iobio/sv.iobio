@@ -91,6 +91,7 @@ export default function clinGenChart(parentElement, refChromosomes, clinGenRegio
         //grab all the region-group groups and remove them before rendering the new ones
         svg.selectAll(".region-group").remove();
         d3.select(".show-hide-toggle").remove();
+        d3.select(".region-tooltip").remove();
         svg.attr("viewBox", [0, 0, width, height]).attr("height", height + 3);
 
         let regionsLocal = JSON.parse(JSON.stringify(regions));
@@ -231,7 +232,7 @@ export default function clinGenChart(parentElement, refChromosomes, clinGenRegio
         return { start: st, end: en };
     }
 
-    function _createRegion(xMap, idMap, gene, range) {
+    function _createRegion(xMap, idMap, region, range) {
         let chr = idMap.chr;
         let start = idMap.start;
         let end = idMap.end;
@@ -240,12 +241,7 @@ export default function clinGenChart(parentElement, refChromosomes, clinGenRegio
         let endX = xMap.endX;
         let regionGroup;
 
-        regionGroup = svg
-            .append("g")
-            .attr("class", "region-group")
-            .data([gene])
-            .attr("id", `poi-${chr}-${start}-${end}-group`)
-            .style("cursor", "pointer");
+        regionGroup = svg.append("g").attr("class", "region-group").data([region]).attr("id", `poi-${chr}-${start}-${end}-group`);
 
         regionGroup
             .append("rect")
@@ -268,6 +264,40 @@ export default function clinGenChart(parentElement, refChromosomes, clinGenRegio
                     return 0;
                 }
                 return 1;
+            })
+            .on("mouseover", function (event, d) {
+                let regionTooltip = d3.select("body").append("div").attr("class", "region-tooltip").style("opacity", 0);
+
+                regionTooltip.transition().duration(200).style("opacity", 0.9);
+
+                let tooltipHtml = `<div class="region-tooltip-header">
+                    <div class="region-tooltip-item"><span class="label">ID</span><span class="value">${
+                        region.iscaId
+                    }</span></div>
+                    <div class="region-tooltip-item"><span class="label">Name</span><span class="value">${
+                        region.iscaName
+                    }</span></div>
+                    <div class="region-tooltip-item"><span class="label">Haploinsufficiency</span><span class="value">${
+                        region.haploinsufficiency.description
+                    }</span></div>
+                    <div class="region-tooltip-item"><span class="label">Haplo Disease</span><span class="value">${
+                        region.haploinsufficiency.diseaseAssociation || "n/a"
+                    }</span></div>
+                    <div class="region-tooltip-item"><span class="label">Triplosensitivity</span><span class="value">${
+                        region.triplosensitivity.description
+                    }</span></div>
+                    <div class="region-tooltip-item"><span class="label">Triplo Disease</span><span class="value">${
+                        region.triplosensitivity.diseaseAssociation || "n/a"
+                    }</span></div>
+                </div>`;
+
+                regionTooltip
+                    .html(tooltipHtml)
+                    .style("left", event.pageX + 5 + "px")
+                    .style("top", event.pageY - 10 + "px");
+            })
+            .on("mouseout", function (d) {
+                d3.select(".region-tooltip").remove();
             });
 
         return regionGroup;
