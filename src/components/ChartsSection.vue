@@ -137,6 +137,12 @@
                     :chromosomes="chromosomes"
                     @selectAreaEvent="selectAreaEventFired" />
 
+                <LinearRegionsChartViz
+                    v-if="doseRegions"
+                    :regionsList="doseRegions"
+                    :selectedArea="selectedArea"
+                    :chromosomes="chromosomes" />
+
                 <component :is="geneChartData.component" v-bind="geneChartData.props" @selectAreaEvent="selectAreaEventFired" />
 
                 <LinearSvChartViz
@@ -191,6 +197,7 @@ import Sv from "../models/Sv.js";
 import ChromSelectBarViz from "./viz/chromSelectBar.viz.vue";
 import LinearSvChartViz from "./viz/linearSvChart.viz.vue";
 import LinearGeneChartViz from "./viz/linearGeneChart.viz.vue";
+import LinearRegionsChartViz from "./viz/clinGenChart.viz.vue";
 import IdeogramScaleBarViz from "./viz/ideogramScaleBar.viz.vue";
 import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
@@ -203,6 +210,7 @@ export default {
         ChromSelectBarViz,
         LinearSvChartViz,
         LinearGeneChartViz,
+        LinearRegionsChartViz,
         IdeogramScaleBarViz,
         SvCirosMiniViz,
         LowerModal,
