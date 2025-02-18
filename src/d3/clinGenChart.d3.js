@@ -291,10 +291,20 @@ export default function clinGenChart(parentElement, refChromosomes, clinGenRegio
                     }</span></div>
                 </div>`;
 
+                let x = event.clientX;
+                let y = event.clientY;
+
+                if (window.innerWidth - x < 300) {
+                    x = x - 300;
+                } else {
+                    x = x + 10;
+                }
+
+                //There shouldn't be a case to handle for the bottom of the screen because the tooltip will always be near the top of the app
                 regionTooltip
                     .html(tooltipHtml)
-                    .style("left", event.pageX + 5 + "px")
-                    .style("top", event.pageY - 10 + "px");
+                    .style("left", x + 5 + "px")
+                    .style("top", y - 10 + "px");
             })
             .on("mouseout", function (d) {
                 d3.select(".region-tooltip").remove();
