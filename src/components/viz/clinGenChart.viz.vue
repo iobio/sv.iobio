@@ -103,7 +103,7 @@ export default {
     border: 1px solid #ccc
     border-radius: 5px
     padding: 5px
-    font-size: 12px
+    font-size: 13px
     box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2)
     display: flex
     flex-direction: column
@@ -111,7 +111,6 @@ export default {
     .region-tooltip-item
         display: flex
         margin-bottom: 5px
-        width: 100%
         .label
             background-color: #ccc
             padding: 2px 5px

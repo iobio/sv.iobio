@@ -159,6 +159,7 @@ export default {
     min-width: 200px
     flex-direction: column
     justify-content: center
+    font-size: 13px
     align-items: center
     overflow: hidden
     z-index: 10
@@ -168,25 +169,23 @@ export default {
         gap: 10px
         .tooltip-row
             display: flex
-            flex-direction: row
-            gap: 5px
+            margin-bottom: 5px
             .tooltip-title
-                text-transform: uppercase
-                font-weight: 200
-            .tooltip-info
-                white-space: nowrap
-                overflow: hidden
-                text-align: right
+                background-color: #ccc
+                padding: 2px 5px
+                border-radius: 5px 0px 0px 5px
                 display: flex
-                flex-direction: column
-                justify-content: center
-                align-items: flex-end
-                flex-grow: 1
-                font-weight: 200
-                text-overflow: ellipsis
-                max-width: 100px
-                font-size: 0.8em
-                color: #474747
+                align-items: center
+            .tooltip-info
+                max-width: 130px
+                text-wrap: wrap
+                word-wrap: break-word
+                overflow: hidden
+                border-top: 1px solid #ccc
+                border-bottom: 1px solid #ccc
+                border-right: 1px solid #ccc
+                border-radius: 0px 5px 5px 0px
+                padding: 2px 5px
                 &.zy
                     text-transform: uppercase
 .linear-sv-chart-wrapper
