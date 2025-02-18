@@ -330,10 +330,10 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                 }
 
-                let translateY = (currentTrac - 1) * 18;
+                let translateY = (currentTrac - 1) * 12;
 
                 if (translateY >= height) {
-                    height += 18;
+                    height += 12;
                     svg.attr("viewBox", [0, 0, width, height + 50]).attr("height", height + 50);
                 }
 
@@ -482,8 +482,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
         let startX = xMap.startX;
         let endX = xMap.endX;
-        let startUpdated = xMap.startUpdated;
-        let endUpdated = xMap.endUpdated;
         let geneGroup;
 
         let isWholeGenome = range[0] == 0 && range[1] == genomeSize;
@@ -511,7 +509,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                     return endX - startX;
                 })
-                .attr("height", 14)
+                .attr("height", 10)
                 .attr("fill", "red")
                 .attr("rx", function () {
                     if (endX - startX < 3) {
@@ -526,7 +524,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             let measureText = measureSvg
                 .append("text")
                 .attr("x", 0)
-                .attr("y", 5)
+                .attr("y", 2)
                 .text(gene.gene_symbol)
                 .attr("font-size", `${10}` + "px");
 
@@ -538,7 +536,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .append("text")
                 .attr("class", "gene-label")
                 .attr("x", 0)
-                .attr("y", 5)
+                .attr("y", 2)
                 .text(gene.gene_symbol)
                 .attr("font-size", "10px")
                 .attr("fill", "red");
@@ -546,7 +544,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             //if the text is going to go off the screen then don't move it to the left
             //Shift down by 1/2 the track height
             if (startX - mTextWidth < 0) {
-                text.attr("transform", `translate( 0, 7)`);
+                text.attr("transform", `translate( 0, 9)`);
             } else {
                 text.attr("transform", `translate(-${mTextWidth + 1}, 0)`);
             }
@@ -586,7 +584,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                     return endX - startX;
                 })
-                .attr("height", 14)
+                .attr("height", 10)
                 .attr("fill", "blue")
                 .attr("rx", function () {
                     if (endX - startX < 3) {
@@ -603,7 +601,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 let measureText = measureSvg
                     .append("text")
                     .attr("x", 0)
-                    .attr("y", 5)
+                    .attr("y", 2)
                     .text(gene.gene_symbol)
                     .attr("font-size", `${10}` + "px");
 
@@ -615,7 +613,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     .append("text")
                     .attr("class", "gene-label")
                     .attr("x", 0)
-                    .attr("y", 5)
+                    .attr("y", 2)
                     .text(gene.gene_symbol)
                     .attr("font-size", "10px")
                     .attr("fill", "blue")
@@ -624,7 +622,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 //if the text is going to go off the screen then don't move it to the left
                 //Shift down by 1/2 the track height
                 if (startX - mTextWidth < 0) {
-                    text.attr("transform", `translate( 0, 7)`);
+                    text.attr("transform", `translate( 0, 9)`);
                 } else {
                     text.attr("transform", `translate(-${mTextWidth + 1}, 0)`);
                 }
@@ -666,7 +664,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                     return endX - startX;
                 })
-                .attr("height", 14)
+                .attr("height", 10)
                 .attr("fill", "black")
                 .attr("rx", function () {
                     if (endX - startX < 3) {
@@ -715,7 +713,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 //if the text is going to go off the screen then don't move it to the left
                 //Shift down by 1/2 the track height
                 if (startX - mTextWidth < 0) {
-                    text.attr("transform", `translate( 0, 7)`);
+                    text.attr("transform", `translate( 0, 9)`);
                 } else {
                     text.attr("transform", `translate(-${mTextWidth + 1}, 0)`);
                 }
@@ -843,7 +841,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                             },
                             function (d) {
                                 return d.feature_type + "-" + d.seq_id + "-" + d.start + "-" + d.end;
-                            }
+                            },
                         );
                     })
                     .enter()
@@ -892,9 +890,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                         else if (d.feature_type.toLowerCase() == "cds") return geneHeight / 1.5;
                         else return geneHeight;
                     })
-
-                    .attr("pointer-events", "all")
-                    .style("cursor", "pointer");
+                    .attr("pointer-events", "all");
 
                 // Add any feature glyphs
                 transcript.selectAll(".feature_glyph").remove();
@@ -907,7 +903,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                             },
                             function (d) {
                                 return d.feature_type + "-" + d.seq_id + "-" + d.start + "-" + d.end;
-                            }
+                            },
                         );
                     })
                     .each(function (d, i) {
@@ -926,7 +922,7 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                             },
                             function (d) {
                                 return d.feature_type + "-" + d.seq_id + "-" + d.start + "-" + d.end;
-                            }
+                            },
                         );
                     })
                     .attr("class", function (d, i) {
@@ -935,6 +931,9 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
 
                 // Remove the gene rectangle
                 geneGroup.select(".gene-rect").remove();
+
+                //Translate just the transcript up by a little
+                transcript.attr("transform", `translate(0, ${3})`);
             })
             .catch((error) => {
                 //if we cant get the transcript that is okay we will have a gene rectangle
