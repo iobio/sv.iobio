@@ -1,7 +1,6 @@
 import * as d3 from "d3";
 
-export default function clinGenChart(parentElementTag, refChromosomes, clinGenRegions, options) {
-    let parentElement = d3.select(parentElementTag);
+export default function clinGenChart(parentElement, refChromosomes, clinGenRegions, options) {
     let width = parentElement.clientWidth;
     let height = parentElement.clientHeight;
     let chromosomes = refChromosomes;
@@ -58,7 +57,7 @@ export default function clinGenChart(parentElementTag, refChromosomes, clinGenRe
         selection = null;
     }
 
-    const margin = { top: 5, right: 10, bottom: 5, left: 10 };
+    const margin = { top: 3, right: 10, bottom: 3, left: 10 };
 
     let x = d3
         .scaleLinear()
@@ -104,9 +103,16 @@ export default function clinGenChart(parentElementTag, refChromosomes, clinGenRe
         for (let region of Object.values(regionsLocal)) {
             //TODO: Maybe we can know the "type" of a region and color it differently or something
 
-            let chr = region.chr.replace("chr", "");
-            let start = region.start;
-            let end = region.end;
+            let chr;
+            let start;
+            let end;
+            try {
+                chr = region.location.split(":")[0].replace("chr", "");
+                start = parseInt(region.location.split(":")[1].split("-")[0]);
+                end = parseInt(region.location.split(":")[1].split("-")[1]);
+            } catch (e) {
+                continue;
+            }
 
             let chromosome = chromosomeMap.get(chr);
             if (!chromosome) {
@@ -156,7 +162,7 @@ export default function clinGenChart(parentElementTag, refChromosomes, clinGenRe
                     endUpdated: endUpdated,
                 };
 
-                let regionGroup = _createRegion(xMap, idMap, region, range, geneType);
+                let regionGroup = _createRegion(xMap, idMap, region, range);
 
                 let label = regionGroup.select(".region-label");
                 let mTextWidth = 0;
@@ -190,14 +196,13 @@ export default function clinGenChart(parentElementTag, refChromosomes, clinGenRe
                     }
                 }
 
-                let translateY = (currentTrac - 1) * 18;
+                let translateY = (currentTrac - 1) * 0;
 
                 if (translateY >= height) {
-                    height += 18;
-                    svg.attr("viewBox", [0, 0, width, height + 50]).attr("height", height + 50);
+                    svg.attr("viewBox", [0, 0, width, height + 5]).attr("height", height + 5);
                 }
 
-                regionGroup.attr("transform", `translate(${startX}, ${translateY + 25})`);
+                regionGroup.attr("transform", `translate(${startX}, ${translateY + 14})`);
 
                 svg.append(() => regionGroup.node()); //append the gene group to the svg
             } else {
@@ -226,7 +231,7 @@ export default function clinGenChart(parentElementTag, refChromosomes, clinGenRe
         return { start: st, end: en };
     }
 
-    function _createRegion(xMap, idMap, gene, range, geneType, isLessThanOneChr) {
+    function _createRegion(xMap, idMap, gene, range) {
         let chr = idMap.chr;
         let start = idMap.start;
         let end = idMap.end;
@@ -253,60 +258,17 @@ export default function clinGenChart(parentElementTag, refChromosomes, clinGenRe
                 }
                 return endX - startX;
             })
-            .attr("height", 14)
+            .attr("height", 5)
             .attr("fill", "black")
+            .attr("fill-opacity", 0.3)
+            .attr("stroke", "black")
+            .attr("stroke-width", 0.5)
             .attr("rx", function () {
                 if (endX - startX < 3) {
                     return 0;
                 }
                 return 1;
             });
-
-        if (isLessThanOneChr) {
-            //the font needs to be scaled based on the size of the zoomed section inversely proportional to the size of the zoomed section
-            let zoomedSize = range[1] - range[0];
-            // Ensure zoomedSize is at least 1 to avoid taking the logarithm of 0 or a negative number.
-            if (zoomedSize < 1) zoomedSize = 1;
-
-            let bpGenomeSize = originZoom.size;
-            let normalized_window = Math.log(zoomedSize) / Math.log(bpGenomeSize);
-
-            let baseFontSize = 20;
-            let scaledFontSize = baseFontSize * (1 - normalized_window);
-            let minFontSize = 9;
-            scaledFontSize = Math.max(scaledFontSize, minFontSize);
-
-            let measureSvg = d3.create("svg");
-            parentElement.appendChild(measureSvg.node());
-
-            let measureText = measureSvg
-                .append("text")
-                .attr("x", 0)
-                .attr("y", scaledFontSize / 2)
-                .text(gene.gene_symbol)
-                .attr("font-size", `${scaledFontSize}` + "px");
-
-            let mTextWidth = measureText.node().getBBox().width;
-            measureSvg.remove();
-
-            //add the labels
-            let text = regionGroup
-                .append("text")
-                .attr("class", "region-label")
-                .attr("x", 0)
-                .attr("y", scaledFontSize / 2)
-                .text(gene.gene_symbol)
-                .attr("font-size", `${scaledFontSize}` + "px")
-                .attr("fill", "black");
-
-            //if the text is going to go off the screen then don't move it to the left
-            //Shift down by 1/2 the track height
-            if (startX - mTextWidth < 0) {
-                text.attr("transform", `translate( 0, 7)`);
-            } else {
-                text.attr("transform", `translate(-${mTextWidth + 1}, 0)`);
-            }
-        }
 
         return regionGroup;
     }
