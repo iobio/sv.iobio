@@ -7,9 +7,6 @@ export default function clinGenChart(parentElementTag, refChromosomes, clinGenRe
     let chromosomes = refChromosomes;
     let regions = clinGenRegions;
     let selection = null;
-    let build = "hg38";
-
-    //zoom variables
     let zoomedSelection = null;
 
     if (options) {
@@ -22,9 +19,6 @@ export default function clinGenChart(parentElementTag, refChromosomes, clinGenRe
                 selection.start = selection.end;
                 selection.end = temp;
             }
-        }
-        if (options.build) {
-            build = options.build;
         }
     }
 
