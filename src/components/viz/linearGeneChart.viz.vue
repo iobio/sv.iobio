@@ -163,16 +163,16 @@ export default {
         cursor: default
     p
         color: #2A65B7
-        font-weight: bold
+        font-weight: lighter
         width: fit-content
         border-radius: 5px
         box-sizing: border-box
-        text-transform: uppercase
         margin: 0px
         margin-bottom: 5px
         padding: 0px 2px
         background-color: #F8F8F8
         pointer-events: none
+        font-size: 14px
         position: absolute
         left: -10px
         top: 0px

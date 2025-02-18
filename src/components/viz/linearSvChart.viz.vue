@@ -203,6 +203,8 @@ export default {
         position: absolute
         pointer-events: none
         left: -10px
+        font-weight: lighter
+        font-size: 14px
     p
         color: #2A65B7
         box-sizing: border-box
