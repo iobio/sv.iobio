@@ -330,10 +330,10 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                     }
                 }
 
-                let translateY = (currentTrac - 1) * 12;
+                let translateY = (currentTrac - 1) * 14;
 
                 if (translateY >= height) {
-                    height += 12;
+                    height += 14;
                     svg.attr("viewBox", [0, 0, width, height + 50]).attr("height", height + 50);
                 }
 
