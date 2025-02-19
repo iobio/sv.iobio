@@ -9,12 +9,6 @@
         </button>
         <div class="sample-row-info-form" v-if="!collapse">
             <div class="label-input-wrapper link">
-                <label for="file-format">Format:</label>
-                <select class="vcf-type-select" name="file-format" id="format" v-model="fileFormat">
-                    <option value="single">Single Sample</option>
-                    <option value="joint">Joint Called</option>
-                </select>
-
                 <label for="vcf">VCF:</label>
                 <input
                     type="text"
@@ -23,7 +17,6 @@
                     v-model="sampleLocal.vcf"
                     placeholder="Paste a link or select a local file..." />
                 <button @click="openFileSelect($event)">Select Local</button>
-                <button v-if="fileFormat == 'joint'" @click="getSampleNames">Get Samples</button>
             </div>
 
             <div class="label-input-wrapper">
@@ -45,15 +38,6 @@
                         <option v-for="option in sampleOptions" :value="option">{{ option }}</option>
                         <option v-if="!sampleOptions" :value="sampleLocal.id">{{ sampleLocal.id }}</option>
                     </select>
-
-                    <button v-if="sampleOptions && sampleOptions.length > 1" @click="sendAdditionalSamples" class="special-btn">
-                        Add Other Samples
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <title>add remaining samples</title>
-                            <path
-                                d="M19 17V19H7V17S7 13 13 13 19 17 19 17M16 8A3 3 0 1 0 13 11A3 3 0 0 0 16 8M19.2 13.06A5.6 5.6 0 0 1 21 17V19H24V17S24 13.55 19.2 13.06M18 5A2.91 2.91 0 0 0 17.11 5.14A5 5 0 0 1 17.11 10.86A2.91 2.91 0 0 0 18 11A3 3 0 0 0 18 5M8 10H5V7H3V10H0V12H3V15H5V12H8Z" />
-                        </svg>
-                    </button>
                 </div>
 
                 <label for="sample-id">Relation:</label>
@@ -128,6 +112,12 @@ export default {
             let fileType = event.target.previousElementSibling.classList[0];
             //give the files to the parent
             this.$emit("update-sample-files", files, this.sampleLocal.name, fileType);
+
+            this.$nextTick(() => {
+                this.getSampleNames().then(() => {
+                    this.sendAdditionalSamples();
+                });
+            });
         },
         async getSampleNames() {
             let headers = [];
@@ -153,6 +143,8 @@ export default {
                 let url = this.sampleLocal.vcf;
                 let s = {
                     id: sample,
+                    name: sample,
+                    relation: "other",
                     vcf: url,
                 };
                 samples.push(s);

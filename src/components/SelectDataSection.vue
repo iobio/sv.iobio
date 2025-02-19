@@ -157,7 +157,7 @@ export default {
         addMultipleSamples(samples) {
             for (let sample of samples) {
                 this.samplesLocal.comparisons.push({
-                    name: "New Sample",
+                    name: sample.name,
                     id: sample.id,
                     vcf: sample.vcf,
                     tbi: "",
