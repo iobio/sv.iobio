@@ -493,7 +493,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr("class", "gene-group-geneofinterest")
                 .data([gene])
                 .attr("id", `poi-${chr}-${start}-${end}-group`)
-                .style("cursor", "pointer")
                 .on("click", function (event, d) {
                     console.log("clicked on gene", d);
                 });
@@ -568,7 +567,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr("class", "gene-group-phenrelated")
                 .data([gene])
                 .attr("id", `poi-${chr}-${start}-${end}-group`)
-                .style("cursor", "pointer")
                 .on("click", function (event, d) {
                     console.log("clicked on gene", d);
                 });
@@ -647,7 +645,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 .attr("class", "gene-group")
                 .data([gene])
                 .attr("id", `poi-${chr}-${start}-${end}-group`)
-                .style("cursor", "pointer")
                 .on("click", function (event, d) {
                     console.log("clicked on gene", d);
                     _createGeneDiagram(gene, geneGroup);
