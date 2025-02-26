@@ -35,7 +35,6 @@
                     :show="filterDataSectionOpen"
                     :filters="filters"
                     :loaded="loadedInitiallyComplete"
-                    :probQualityStats="qualityStats.proband"
                     @toggleFilterDataSection="filterDataSectionOpen = false"
                     @updateFilters="updateDataFilters" />
 
@@ -197,7 +196,6 @@ export default {
             },
             toasts: [],
             variantsSorted: false,
-            qualityStats: {},
             variantsFilteredOut: [],
             //Mosaic Session Items
             mosaicSession: null,
@@ -615,12 +613,6 @@ export default {
             this.loadData();
 
             this.samples.comparisons = samples.comparisons;
-
-            if (!samples.proband.id || samples.proband.id == "") {
-                this.qualityStats.proband = await dataHelper.getQualityFromVCF(samples.proband.vcf);
-            } else {
-                this.qualityStats.proband = await dataHelper.getQualityFromVCF(samples.proband.vcf, samples.proband.id);
-            }
         },
         async getSVAssociations(variantBatch, build = "hg38", source = "refseq") {
             let svs;

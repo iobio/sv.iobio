@@ -97,23 +97,6 @@ export async function getVCFSamplesFromURL(url) {
     }
 }
 
-//GET QUALITY FROM VCF
-export async function getQualityFromVCF(vcfFile, sampleName = null) {
-    try {
-        if (!sampleName) {
-            const response = await fetch(`${BACKEND_URL_BASE}/vcfQuality?vcfPath=${vcfFile}`);
-            const data = await response.json();
-            return data;
-        } else {
-            const response = await fetch(`${BACKEND_URL_BASE}/vcfQuality?vcfPath=${vcfFile}&sampleName=${sampleName}`);
-            const data = await response.json();
-            return data;
-        }
-    } catch (error) {
-        console.error("Error Getting VCF Quality:", error);
-    }
-}
-
 //GET SV BATCH INFO
 export async function getSVBatchInfo(svBatch, build = "hg38", source = "refseq") {
     const svBatchJson = JSON.stringify({ variants: svBatch });

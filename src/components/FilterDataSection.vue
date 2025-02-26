@@ -24,7 +24,6 @@ export default {
         show: Boolean,
         filters: Object,
         loaded: Boolean,
-        probQualityStats: Object,
     },
     data() {
         return {
@@ -38,33 +37,8 @@ export default {
             this.$emit("toggleFilterDataSection");
             this.$emit("updateFilters", {
                 geneOverlap: this.geneOverlap,
-                qualityCutOff: this.cutoff,
                 denovoOnly: this.denovoOnly,
             });
-        },
-        roundedMin() {
-            return Math.round(this.probQualityStats.min) || 0;
-        },
-        roundedMax() {
-            return Math.round(this.probQualityStats.max) || "None";
-        },
-        roundedAvg() {
-            return Math.round(this.probQualityStats.avg) || "None";
-        },
-        roundedMedian() {
-            return Math.round(this.probQualityStats.median) || "None";
-        },
-        roundedSD() {
-            return Math.round(this.probQualityStats.stdDev) || "None";
-        },
-        oneSDBelow() {
-            return Math.round(this.probQualityStats.avg - this.probQualityStats.stdDev) || "None";
-        },
-        roundedMinMedianAvg() {
-            return Math.round(Math.min(this.probQualityStats.median, this.probQualityStats.avg)) || "None";
-        },
-        roundedMaxMedianAvg() {
-            return Math.round(Math.max(this.probQualityStats.median, this.probQualityStats.avg)) || "None";
         },
     },
     watch: {},
