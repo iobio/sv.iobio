@@ -309,7 +309,7 @@ export default {
                         this.phenotypesOfInterest = terms.map((term) => term.hpo_id);
 
                         this.samples.proband.vcf = mosaicVcfUrl.url;
-                        this.samples.proband.id = sampleVcfName.toLowerCase();
+                        this.samples.proband.id = sampleVcfName;
                         this.samples.proband.relation = sample.relation.toLowerCase();
 
                         probandFound = true;
