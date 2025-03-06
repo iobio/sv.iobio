@@ -51,7 +51,8 @@
                     <option value="mother">Mother</option>
                     <option value="father">Father</option>
                     <option value="sibling">Sibling</option>
-                    <option value="other">Other</option>
+                    <option value="alt-caller">Alternate Caller</option>
+                    <option value="other-comp">Other Comparison</option>
                 </select>
             </div>
         </div>
@@ -144,7 +145,7 @@ export default {
                 let s = {
                     id: sample,
                     name: sample,
-                    relation: "other",
+                    relation: "other-comp",
                     vcf: url,
                 };
                 samples.push(s);

@@ -580,11 +580,10 @@ export default {
                         newSVs = allSVs;
                     }
 
-                    let { denovoList, nonDenovo } = this.returnDenovo(
-                        newSVs,
-                        this.comparisonsLists,
-                        this.chromosomeAccumulatedMap,
-                    );
+                    let denovoComps = this.samples.comparisons.filter((comp) => comp.relation !== "alt-caller");
+                    let denovoCompsLists = denovoComps.map((comp) => comp.svList);
+
+                    let { denovoList, nonDenovo } = this.returnDenovo(newSVs, denovoCompsLists, this.chromosomeAccumulatedMap);
                     newSVs = denovoList;
                     newFilteredOut.push(...nonDenovo);
                     filterApplied = true;
@@ -911,12 +910,38 @@ export default {
         zoomToGene(gene) {
             this.focusedGeneName = gene;
         },
+        resetFilters() {
+            let filters = {
+                geneOverlap: false,
+                denovoOnly: false,
+            };
+            this.updateDataFilters(filters);
+        },
     },
     watch: {
         samples: {
             handler(newVal, oldVal) {
                 if (newVal.proband.vcf !== oldVal.proband.vcf) {
                     this.loadData();
+                    this.resetFilters();
+                }
+            },
+            deep: true,
+        },
+        "samples.comparisons": {
+            handler(newVal, oldVal) {
+                if (!newVal || newVal.length == 0 || !oldVal || oldVal.length == 0) {
+                    return;
+                }
+                //If any of the comparisons change we want to reset the filters
+                for (let i = 0; i < newVal.length; i++) {
+                    if (newVal[i].vcf !== oldVal[i].vcf) {
+                        this.resetFilters();
+                        break;
+                    } else if (newVal[i].relation !== oldVal[i].relation) {
+                        this.resetFilters();
+                        break;
+                    }
                 }
             },
             deep: true,

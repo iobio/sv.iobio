@@ -151,7 +151,7 @@ export default {
                 bam: "",
                 bai: "",
                 svList: [],
-                relation: "other",
+                relation: "other-comp",
             });
         },
         addMultipleSamples(samples) {
@@ -164,7 +164,7 @@ export default {
                     bam: "",
                     bai: "",
                     svList: [],
-                    relation: "other",
+                    relation: "other-comp",
                 });
             }
         },

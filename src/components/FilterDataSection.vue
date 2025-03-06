@@ -41,7 +41,19 @@ export default {
             });
         },
     },
-    watch: {},
+    watch: {
+        filters: {
+            handler: function (newFilters, oldFilters) {
+                if (newFilters.geneOverlap !== oldFilters.geneOverlap) {
+                    this.geneOverlap = JSON.parse(newFilters.geneOverlap);
+                }
+                if (newFilters.denovoOnly !== oldFilters.denovoOnly) {
+                    this.denovoOnly = JSON.parse(newFilters.denovoOnly);
+                }
+            },
+            deep: true,
+        },
+    },
     computed: {},
 };
 </script>
