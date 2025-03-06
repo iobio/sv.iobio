@@ -168,23 +168,17 @@
                     @selectAreaEvent="selectAreaEventFired"
                     @removeTrack="removeTrack(index)"
                     class="draggable-chart" />
-            </div>
-            <LowerModal
-                v-if="focusedVariant"
-                :hidden="hideLowerModal"
-                :type="lowerModalType"
-                :variant="focusedVariant"
-                :patientPhenotypes="patientPhenotypes"
-                :geneCandidates="genesOfInterest"
-                :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
-                :doseGenes="doseGenes"
-                @close="closeLowerModal" />
-            <div class="show-modal-btn" @click="showLowerModal" v-if="focusedVariant && hideLowerModal">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>re-open details</title>
-                    <path
-                        d="M16,12A2,2 0 0,1 18,10A2,2 0 0,1 20,12A2,2 0 0,1 18,14A2,2 0 0,1 16,12M10,12A2,2 0 0,1 12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z" />
-                </svg>
+                <LowerModal
+                    v-if="focusedVariant"
+                    :hidden="hideLowerModal"
+                    :type="lowerModalType"
+                    :variant="focusedVariant"
+                    :patientPhenotypes="patientPhenotypes"
+                    :geneCandidates="genesOfInterest"
+                    :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+                    :doseGenes="doseGenes"
+                    @close="closeLowerModal"
+                    @open="showLowerModal" />
             </div>
         </div>
     </div>
@@ -827,24 +821,6 @@ export default {
             height: 18px
             fill: #2A65B7
             border-radius: 50%
-.show-modal-btn
-    position: absolute
-    right: 5px
-    bottom: 10px
-    background-color: #2A65B7
-    border-radius: 50%
-    width: 30px
-    height: 30px
-    display: flex
-    justify-content: center
-    align-items: center
-    &:hover
-        cursor: pointer
-        background-color: #3778D2
-    svg
-        fill: white
-        width: 20px
-        height: 20px
 #radios-tools-container
     display: flex
     justify-content: flex-start
@@ -905,6 +881,7 @@ export default {
         flex: 1 1 auto
         overflow-y: auto
         padding-left: 10px
+        padding-right: 10px
         position: relative
         #linear-marker-line
             position: absolute

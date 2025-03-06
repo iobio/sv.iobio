@@ -1,10 +1,17 @@
 <template>
     <div id="lower-modal" :class="{ hidden: this.hidden }">
-        <div class="close-button" @click="close">
+        <div v-if="!this.hidden" class="close-button" @click="close">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>close</title>
                 <path
                     d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,22 22,17.53 22,12C22,6.47 17.53,2 12,2M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41L14.59,8Z" />
+            </svg>
+        </div>
+        <div v-if="this.hidden" class="show-modal-btn" @click="open">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <title>re-open details</title>
+                <path
+                    d="M16,12A2,2 0 0,1 18,10A2,2 0 0,1 20,12A2,2 0 0,1 18,14A2,2 0 0,1 16,12M10,12A2,2 0 0,1 12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z" />
             </svg>
         </div>
 
@@ -13,7 +20,7 @@
                 SV Details (<span class="variant-code">{{ variant.svCode }}</span
                 >)
             </h3>
-            <div class="column">
+            <div v-if="!this.hidden" class="column">
                 <div class="top-row">
                     <!-- <fieldset class="actions fieldset-buttons-container">
                         <legend>Actions</legend>
@@ -91,7 +98,7 @@
             </div>
         </div>
 
-        <div id="lower-section">
+        <div v-if="!this.hidden" id="lower-section">
             <fieldset class="column gene-cards">
                 <legend>Overlapped Genes</legend>
 
@@ -182,6 +189,9 @@ export default {
         formatType: common.formatType,
         close() {
             this.$emit("close");
+        },
+        open() {
+            this.$emit("open");
         },
     },
     computed: {
@@ -297,22 +307,19 @@ export default {
 
 <style lang="sass">
 #lower-modal
-    height: 45vh
     width: 100%
+    height: 45vh
+    max-height: 500px
     box-sizing: border-box
-    position: absolute
+    position: relative
     display: flex
     flex-direction: column
     justify-content: flex-start
     align-items: space-between
-    bottom: 5px
-    padding: 5px 10px
-    right: 0
-    background-color: #FCFCFC
-    border-radius: 5px
-    border: 1px solid #E0E0E0
-    box-shadow: -2px 0px 5px 0px rgba(0,0,0,0.1), 0px 2px 5px 0px rgba(0,0,0,0.1)
-    z-index: 1
+    border: .5px solid #2A65B7
+    border-radius: 3px
+    background-color: white
+    padding: 5px 10px 5px 1px
     overflow: hidden
     transition: height 0.4s, border 0.4s
     .pop-svs
@@ -404,9 +411,7 @@ export default {
             text-transform: none
             color: #666666
     &.hidden
-        height: 0vh
-        border: 1px solid transparent
-        box-shadow: none
+        height: 50px
     .close-button
         position: absolute
         height: 30px
@@ -414,8 +419,8 @@ export default {
         display: flex
         justify-content: center
         align-items: center
-        right: 10px
-        top: 10px
+        left: 5px
+        top: 5px
         cursor: pointer
         background-color: rgba(255, 255, 255, 0.8)
         border-radius: 50%
@@ -531,4 +536,22 @@ export default {
             color: #666666
             &:hover
                 color: #2A65B7
+.show-modal-btn
+    position: absolute
+    left: 5px
+    top: 5px
+    // background-color: #2A65B7
+    border-radius: 50%
+    width: 40px
+    height: 40px
+    display: flex
+    justify-content: center
+    align-items: center
+    &:hover
+        cursor: pointer
+        background-color: #F5F5F5
+    svg
+        fill: #2A65B7
+        width: 40px
+        height: 40px
 </style>
