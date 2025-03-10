@@ -132,10 +132,6 @@ export default {
             type: Boolean,
             default: false,
         },
-        sorted: {
-            type: Boolean,
-            default: false,
-        },
         overlapProp: Number,
         filters: Object,
         open: {
@@ -150,48 +146,55 @@ export default {
             clickedFromBar: false,
             viewWindow: 22,
             lastScrollTop: 0,
+            handleScrollBound: null,
         };
     },
     mounted() {
         this.lastScrollTop = 0;
         let variantListBar = document.getElementById("variant-items-wrapper");
-        variantListBar.addEventListener("scroll", this.handleScroll.bind(this));
-        this.initializeScroll(variantListBar);
+        this.handleScrollBound = this.handleScroll.bind(this);
+        variantListBar.addEventListener("scroll", this.handleScrollBound);
+
+        variantListBar.scrollTop = 0;
+        this.initializeScroll();
     },
     beforeDestroy() {
-        this.lastScrollTop = 0;
         let variantListBar = document.getElementById("variant-items-wrapper");
-        variantListBar.removeEventListener("scroll", this.handleScroll);
+        variantListBar.removeEventListener("scroll", this.handleScrollBound);
     },
     methods: {
+        resetData() {
+            this.openedSvSet = {};
+            this.clickedFromBar = false;
+            this.lastScrollTop = 0;
+        },
         handleScroll(event) {
             let variantListBar = document.getElementById("variant-items-wrapper");
             let currentScrollTop = variantListBar.scrollTop;
+            if (
+                currentScrollTop == this.lastScrollTop ||
+                currentScrollTop == this.lastScrollTop + 1 ||
+                currentScrollTop == this.lastScrollTop - 1
+            ) {
+                return;
+            }
+
             if (currentScrollTop > this.lastScrollTop) {
                 //We are scrolling up ^
-                this.scrollUp(currentScrollTop);
-            } else {
+                let newLastScrollTop = this.scrollUp(currentScrollTop);
+                this.lastScrollTop = newLastScrollTop;
+            } else if (currentScrollTop < this.lastScrollTop) {
                 //We are scrolling down .
-                this.scrollDown(currentScrollTop);
+                let newLastScrollTop = this.scrollDown(currentScrollTop);
+                this.lastScrollTop = newLastScrollTop;
             }
         },
-        initializeScroll(variantListBar) {
+        initializeScroll() {
+            //Anytime we are going to initialize or reinitialize the scroll we need to reset
+            this.resetData();
+
             this.scrollSelection = [0, 22];
             this.viewWindow = 22;
-            this.lastScrollTop = 0;
-
-            //Determine the viewWindow by determining the height of the variant list items and then dividing the total by that and add two (top and bottom)
-            let firstVariant = document.getElementsByClassName("variant-list-item")[0];
-            if (firstVariant) {
-                let variantHeight = firstVariant.offsetHeight;
-                let maxWindow = Math.floor(variantListBar.clientHeight / variantHeight) + 1;
-                if (maxWindow - 1 > this.svList.length) {
-                    this.viewWindow = this.svList.length;
-                } else {
-                    this.viewWindow = maxWindow;
-                }
-                this.scrollSelection = [0, this.viewWindow];
-            }
 
             //the initial thumb size will be the size of the scrollSelection[1] / svList.length * 100
             let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
@@ -255,6 +258,7 @@ export default {
             let scrollHeight = variantListBar.scrollHeight;
             let scrollTop = currentScrollTop;
             let svListLen = this.svList.length;
+            let newLastScrollTop = currentScrollTop;
 
             //If we are currently at the max scroll we have available then increment the scroll selection
             if (currentScrollTop + clientHeight == scrollHeight && this.scrollSelection[1] < svListLen) {
@@ -264,22 +268,21 @@ export default {
                 scrollTop -= 1;
                 variantListBar.scrollTop = scrollTop;
                 //Set last scroll top so we know if we scroll up or down
-                this.lastScrollTop = scrollTop;
+                newLastScrollTop = scrollTop;
                 //Move the thumb
                 let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
                 let top = (this.scrollSelection[0] / this.svList.length) * 100;
                 thumb.style.top = top > 100 ? "100%" : top + "%";
                 //return early
-                return;
+                return newLastScrollTop;
             }
             //If we haven't gotten through the buffer space then just update the last scroll top value
-            this.lastScrollTop = currentScrollTop;
+            return newLastScrollTop;
         },
         scrollDown(currentScrollTop) {
             let variantListBar = document.getElementById("variant-items-wrapper");
-            let clientHeight = variantListBar.clientHeight;
-            let scrollHeight = variantListBar.scrollHeight;
             let scrollTop = currentScrollTop;
+            let newLastScrollTop = currentScrollTop;
 
             //If we are currently at 0 or even with the top of the container
             if (currentScrollTop == 0 && this.scrollSelection[0] > 0) {
@@ -289,15 +292,15 @@ export default {
                 scrollTop += 1;
                 variantListBar.scrollTop = scrollTop;
                 //Set last scroll top so we know if we scroll up or down
-                this.lastScrollTop = scrollTop;
+                newLastScrollTop = scrollTop;
                 //move the thumb
                 let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
                 let top = (this.scrollSelection[0] / this.svList.length) * 100;
                 thumb.style.top = top > 100 ? "100%" : top + "%";
                 //return early
-                return;
+                return newLastScrollTop;
             }
-            this.lastScrollTop = currentScrollTop;
+            return newLastScrollTop;
         },
         handleScrollDrag(scrollSelection) {
             this.scrollSelection = scrollSelection;
@@ -365,9 +368,15 @@ export default {
     },
     watch: {
         svList(newVal, oldVal) {
-            if (newVal !== oldVal) {
+            if (!oldVal.length || oldVal.length == 0) {
                 let variantListBar = document.getElementById("variant-items-wrapper");
-                this.initializeScroll(variantListBar);
+                variantListBar.scrollTop = 0;
+                this.initializeScroll();
+            }
+            if (newVal.length && newVal.length !== oldVal.length) {
+                let variantListBar = document.getElementById("variant-items-wrapper");
+                variantListBar.scrollTop = 0;
+                this.initializeScroll();
             }
         },
         focusedVariant(newVal, oldVal) {
@@ -376,6 +385,7 @@ export default {
             } else if (newVal == oldVal) {
                 return;
             }
+
             if (this.clickedFromBar) {
                 this.clickedFromBar = false;
                 return;

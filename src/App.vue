@@ -83,8 +83,6 @@
                     :patientPhenotypes="phenotypesOfInterest"
                     :geneCandidates="genesOfInterest"
                     :loading="!loadedInitiallyComplete"
-                    :sorted="variantsSorted"
-                    :comparisonsLists="comparisonsLists"
                     :comparisons="samples.comparisons"
                     :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
                     :overlapProp="overlapProp"
