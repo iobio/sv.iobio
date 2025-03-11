@@ -95,6 +95,8 @@
                     @variant-clicked="updateFocusedVariant"
                     @sort-variants="sortSvList" />
 
+                <PhenotypesListBar v-if="selectedTab == 'phenotypes'" />
+
                 <GenesOfInterestListBar
                     v-if="selectedTab == 'goi'"
                     :genesOfInterest="genesOfInterest"
@@ -133,6 +135,7 @@ import * as common from "./dataHelpers/commonFunctions.js";
 import ChartsSection from "./components/ChartsSection.vue";
 import VariantListBar from "./components/VariantListBar.vue";
 import GenesOfInterestListBar from "./components/GenesOfInterestListBar.vue";
+import PhenotypesListBar from "./components/PhenotypesListBar.vue";
 import NavBar from "./components/NavBar.vue";
 import Sv from "./models/Sv.js";
 import SelectDataSection from "./components/SelectDataSection.vue";
@@ -150,6 +153,7 @@ export default {
         SelectDataSection,
         FilterDataSection,
         ToastsSection,
+        PhenotypesListBar,
     },
     data() {
         return {
