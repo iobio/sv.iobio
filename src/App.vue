@@ -46,9 +46,11 @@
                             </div>
                             <div
                                 class="tab"
-                                :class="{ selected: selectedTab == 'goi' }"
-                                @click="selectedTab = 'goi'"
-                                v-if="genesOfInterest.length > 0">
+                                :class="{ selected: selectedTab == 'phenotypes' }"
+                                @click="selectedTab = 'phenotypes'">
+                                Phenotypes <span class="tip">{{ genesOfInterest.length }}</span>
+                            </div>
+                            <div class="tab" :class="{ selected: selectedTab == 'goi' }" @click="selectedTab = 'goi'">
                                 Genes <span class="tip">{{ genesOfInterest.length }}</span>
                             </div>
                         </nav>
@@ -1124,9 +1126,12 @@ img
     .tab
         padding: 5px 10px
         margin: 0px
+        border-right: .5px solid #EBEBEB
         text-transform: uppercase
         font-weight: 200
         position: relative
+        &:last-of-type
+            border-right: .5px solid transparent
         .tip
             font-size: 12px
             font-weight: 200
@@ -1139,7 +1144,6 @@ img
             padding: 0px 2px
         &.selected
             background-color: #EBEBEB
-            font-weight: 400
         &:hover
             cursor: pointer
             background-color: #E0E0E0
