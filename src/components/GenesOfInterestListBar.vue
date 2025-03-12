@@ -3,8 +3,16 @@
         <!-- Search Bar to Add Phenotypes -->
         <div id="goi-search-bar">
             <div id="goi-search-box">
-                <input type="text" placeholder="Add/Search Genes" />
+                <input type="text" placeholder="Add/Search Genes" v-model="searchQuery" @input="searchGenes" />
+                <div v-if="searchResults.length" class="search-results">
+                    <ul>
+                        <li v-for="result in searchResults" :key="result.gene_name" @click="selectGene(result.gene_name)">
+                            {{ result.gene_name }}
+                        </li>
+                    </ul>
+                </div>
             </div>
+
             <!-- Actions to Add Phenotypes -->
             <div id="add-gene-btn">
                 <button>+</button>
@@ -29,6 +37,8 @@
 </template>
 
 <script>
+import { searchForGene } from "../dataHelpers/dataHelpers.js";
+
 export default {
     name: "GenesOfInterestListBar",
     components: {},
@@ -43,7 +53,10 @@ export default {
         },
     },
     data() {
-        return {};
+        return {
+            searchQuery: "",
+            searchResults: [],
+        };
     },
     mounted() {},
     methods: {
@@ -53,6 +66,21 @@ export default {
         },
         emitZoomToGene(gene) {
             this.$emit("zoom-to-gene", gene);
+        },
+        async searchGenes() {
+            if (this.searchQuery.trim() !== "") {
+                let results = await searchForGene(this.searchQuery);
+                this.searchResults = results.genes;
+                console.log(this.searchResults);
+            } else {
+                this.searchResults = [];
+            }
+        },
+        selectGene(gene) {
+            if (gene == "") return;
+
+            this.searchQuery = gene;
+            this.searchResults = [];
         },
     },
     computed: {},
@@ -75,7 +103,25 @@ export default {
         gap: 5px
         padding: 1rem
         #goi-search-box
+            position: relative
             flex: 1
+            .search-results
+                position: absolute
+                top: 40px
+                left: 0
+                background: white
+                border: 1px solid #e0e0e0
+                border-radius: 5px
+                max-height: 200px
+                overflow-y: auto
+                ul
+                    list-style: none
+                    margin: 0
+                    padding: 0
+                    li
+                        padding: 5px 10px
+                        &:hover
+                            background-color: #f0f0f0
             input
                 padding: 5px 10px
                 border: 1px solid #e0e0e0
