@@ -344,6 +344,7 @@ export default {
             flex-direction: column
             flex-wrap: wrap
             height: 100%
+            min-width: 205px
             gap: 5px
             border: 1px solid #C1D1EA
             border-radius: 5px
