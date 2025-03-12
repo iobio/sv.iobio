@@ -56,7 +56,7 @@
                         </nav>
                     </div>
 
-                    <div class="filter-button" @click="onToggleFilterDataSection()">
+                    <div v-if="selectedTab == 'svList'" class="filter-button" @click="onToggleFilterDataSection()">
                         <svg v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>Filter SVs</title>
                             <path

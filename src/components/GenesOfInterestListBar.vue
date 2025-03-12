@@ -1,5 +1,16 @@
 <template>
     <div id="genes-of-interest-list-bar">
+        <!-- Search Bar to Add Phenotypes -->
+        <div id="goi-search-bar">
+            <div id="goi-search-box">
+                <input type="text" placeholder="Add/Search Genes" />
+            </div>
+            <!-- Actions to Add Phenotypes -->
+            <div id="add-gene-btn">
+                <button>+</button>
+            </div>
+        </div>
+        <!-- A list section to list all the added ones -->
         <div
             :class="{ focused: zoomedGeneName && zoomedGeneName == gene }"
             v-for="gene in genesOfInterest"
@@ -57,6 +68,31 @@ export default {
     height: 100%
     overflow-y: auto
     border-right: 1px solid #f0f0f0
+    #goi-search-bar
+        display: flex
+        justify-content: space-between
+        align-items: center
+        gap: 5px
+        padding: 1rem
+        #goi-search-box
+            flex: 1
+            input
+                padding: 5px 10px
+                border: 1px solid #e0e0e0
+                border-radius: 5px
+                width: 100%
+        #add-gene-btn
+            button
+                padding: 5px 10px
+                border: 1px solid #e0e0e0
+                border-radius: 5px
+                background-color: #f0f0f0
+                color: #333
+                cursor: pointer
+                transition: all 0.3s
+                &:hover
+                    background-color: #e0e0e0
+                    color: #000
     .genes-of-interest-list-bar-gene
         background-color: #f0f0f0
         border-radius: 5px

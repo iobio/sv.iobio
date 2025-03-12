@@ -30,9 +30,10 @@ export default {
 #phenotypes-list-bar
     display: flex
     justify-content: space-between
-    align-items: center
+    height: 100%
     gap: 5px
     padding: 1rem
+    border-right: 1px solid #f0f0f0
     #phenotypes-search-box
         flex: 1
         input
