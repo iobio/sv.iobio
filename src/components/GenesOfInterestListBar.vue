@@ -14,9 +14,10 @@
             </div>
 
             <!-- Actions to Add Phenotypes -->
-            <div id="add-gene-btn">
-                <button>+</button>
-            </div>
+            <TippedButton buttonText="+" tipText="Add Gene(s) To List" position="bottom" />
+            <TippedButton buttonText="Add Multiple" tipText="Add Multiple Genes" position="bottom" />
+
+            <MultiGeneInput />
         </div>
         <!-- A list section to list all the added ones -->
         <div
@@ -38,10 +39,15 @@
 
 <script>
 import { searchForGene } from "../dataHelpers/dataHelpers.js";
+import TippedButton from "./parts/TippedButton.vue";
+import MultiGeneInput from "./parts/MultiGeneInput.vue";
 
 export default {
     name: "GenesOfInterestListBar",
-    components: {},
+    components: {
+        TippedButton,
+        MultiGeneInput,
+    },
     props: {
         genesOfInterest: {
             type: Array,
@@ -127,18 +133,6 @@ export default {
                 border: 1px solid #e0e0e0
                 border-radius: 5px
                 width: 100%
-        #add-gene-btn
-            button
-                padding: 5px 10px
-                border: 1px solid #e0e0e0
-                border-radius: 5px
-                background-color: #f0f0f0
-                color: #333
-                cursor: pointer
-                transition: all 0.3s
-                &:hover
-                    background-color: #e0e0e0
-                    color: #000
     .genes-of-interest-list-bar-gene
         background-color: #f0f0f0
         border-radius: 5px

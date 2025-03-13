@@ -1,5 +1,5 @@
-// const BACKEND_URL_BASE = "http://localhost:7477"; //Development
-const BACKEND_URL_BASE = "https://mosaic-staging.chpc.utah.edu/sv.iobio/backend"; //Production
+const BACKEND_URL_BASE = "http://localhost:7477"; //Development
+// const BACKEND_URL_BASE = "https://mosaic-staging.chpc.utah.edu/sv.iobio/backend"; //Production
 
 //GET CROMOSOMES
 export async function getChromosomes(build = "hg38") {
@@ -170,7 +170,7 @@ export async function searchForGene(geneQuery) {
 //LOOK FOR THE PHENOTYPE
 export async function searchForPhenotype(phenotypeQuery) {
     try {
-        const response = await fetch(`https://backend.iobio.io/hpo/hot/lookup/?term=${phenotypeQuery}`);
+        const response = await fetch(`${BACKEND_URL_BASE}/phenotype/lookup?phenotype=${phenotypeQuery}`);
         const data = await response.json();
         return data;
     } catch (error) {
