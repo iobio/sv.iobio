@@ -13,8 +13,12 @@
             </div>
 
             <TippedButton buttonText="+" tipText="Add Phenotype(s) To List" position="bottom" />
-            <TippedButton buttonText="Add Multiple" tipText="Add Multiple Phenotypes" position="bottom" />
-            <MultiPhenInput />
+            <TippedButton
+                buttonText="Add Multiple"
+                tipText="Add Multiple Phenotypes"
+                position="bottom"
+                @click="showMultiPhenInput = !showMultiPhenInput" />
+            <MultiPhenInput v-if="showMultiPhenInput" />
         </div>
     </div>
 </template>
@@ -34,6 +38,7 @@ export default {
         return {
             searchQuery: "",
             searchResults: [],
+            showMultiPhenInput: false,
         };
     },
     methods: {

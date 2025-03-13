@@ -15,9 +15,13 @@
 
             <!-- Actions to Add Phenotypes -->
             <TippedButton buttonText="+" tipText="Add Gene(s) To List" position="bottom" />
-            <TippedButton buttonText="Add Multiple" tipText="Add Multiple Genes" position="bottom" />
+            <TippedButton
+                buttonText="Add Multiple"
+                tipText="Add Multiple Genes"
+                position="bottom"
+                @click="showMultiGeneInput = !showMultiGeneInput" />
 
-            <MultiGeneInput />
+            <MultiGeneInput v-if="showMultiGeneInput" />
         </div>
         <!-- A list section to list all the added ones -->
         <div
@@ -62,6 +66,7 @@ export default {
         return {
             searchQuery: "",
             searchResults: [],
+            showMultiGeneInput: false,
         };
     },
     mounted() {},
