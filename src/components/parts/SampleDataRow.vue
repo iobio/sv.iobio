@@ -51,6 +51,7 @@
                     <option value="mother">Mother</option>
                     <option value="father">Father</option>
                     <option value="sibling">Sibling</option>
+                    <option value="child">Child</option>
                     <option value="alt-caller">Alternate Caller</option>
                     <option value="other-comp">Other Comparison</option>
                 </select>
