@@ -312,6 +312,18 @@ export default {
 
                         probandFound = true;
                     } else {
+                        let relation = sample.relation.toLowerCase();
+
+                        if (relation == "brother" || relation == "sister") {
+                            relation = "sibling";
+                        } else if (relation == "mother" || relation == "father") {
+                            //relation stays the same
+                        } else if (relation == "son" || relation == "daughter") {
+                            relation = "child";
+                        } else {
+                            relation = "other-comp";
+                        }
+
                         let newComparison = {
                             name: sample.relation,
                             id: sampleVcfName,
@@ -320,7 +332,7 @@ export default {
                             bam: "",
                             bai: "",
                             svList: [],
-                            relation: sample.relation.toLowerCase(),
+                            relation: relation,
                         };
 
                         this.samples.comparisons.push(newComparison);
