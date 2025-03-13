@@ -44,12 +44,14 @@
                             <div class="tab" :class="{ selected: selectedTab == 'svList' }" @click="selectedTab = 'svList'">
                                 SVs <span class="tip">{{ svListVariantBar.length }}</span>
                             </div>
+
                             <div
                                 class="tab"
                                 :class="{ selected: selectedTab == 'phenotypes' }"
                                 @click="selectedTab = 'phenotypes'">
-                                Phenotypes <span class="tip">{{ genesOfInterest.length }}</span>
+                                Phenotypes <span class="tip">{{ phenotypesOfInterest.length }}</span>
                             </div>
+
                             <div class="tab" :class="{ selected: selectedTab == 'goi' }" @click="selectedTab = 'goi'">
                                 Genes <span class="tip">{{ genesOfInterest.length }}</span>
                             </div>
@@ -102,6 +104,7 @@
                     :genesOfInterest="genesOfInterest"
                     :zoomedGeneName="focusedGeneName"
                     @remove-gene-from-goi="removeGeneFromGeneList"
+                    @add-gene-to-goi="addGeneToGOI"
                     @zoom-to-gene="zoomToGene" />
             </div>
 
@@ -428,6 +431,10 @@ export default {
         },
         removeGeneFromGeneList(gene) {
             let newGenes = this.genesOfInterest.filter((g) => g !== gene);
+            this.updateGenesOfInterest(newGenes);
+        },
+        addGeneToGOI(gene) {
+            let newGenes = [...this.genesOfInterest, gene];
             this.updateGenesOfInterest(newGenes);
         },
         async loadData() {

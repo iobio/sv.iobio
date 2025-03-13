@@ -72,7 +72,7 @@ export default {
         justify-content: space-between
         align-items: center
         gap: 5px
-        padding: 1rem
+        padding: 5px 10px
         #phenotypes-search-box
             position: relative
             flex: 1

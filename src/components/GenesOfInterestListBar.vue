@@ -14,7 +14,7 @@
             </div>
 
             <!-- Actions to Add Phenotypes -->
-            <TippedButton buttonText="+" tipText="Add Gene(s) To List" position="bottom" />
+            <TippedButton buttonText="+" tipText="Add Gene(s) To List" position="bottom" @click="addGeneToList" />
             <TippedButton
                 buttonText="Add Multiple"
                 tipText="Add Multiple Genes"
@@ -75,6 +75,12 @@ export default {
             event.stopPropagation();
             this.$emit("remove-gene-from-goi", gene);
         },
+        addGeneToList() {
+            let gene = this.searchQuery.trim();
+            if (gene == "") return;
+            this.$emit("add-gene-to-goi", gene);
+            this.searchQuery = "";
+        },
         emitZoomToGene(gene) {
             this.$emit("zoom-to-gene", gene);
         },
@@ -82,7 +88,6 @@ export default {
             if (this.searchQuery.trim() !== "") {
                 let results = await searchForGene(this.searchQuery);
                 this.searchResults = results.genes;
-                console.log(this.searchResults);
             } else {
                 this.searchResults = [];
             }
@@ -112,7 +117,7 @@ export default {
         justify-content: space-between
         align-items: center
         gap: 5px
-        padding: 1rem
+        padding: 5px 10px
         #goi-search-box
             position: relative
             flex: 1
