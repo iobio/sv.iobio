@@ -24,16 +24,6 @@
             </div>
         </div>
 
-        <div class="nav-bar-item-wrapper">
-            <label class="nav-bar-item-sub" for="genesOfInterest">
-                Genes of Interest
-                <br />
-                <span>(GOI)</span>
-            </label>
-            <textarea class="nav-bar-item-sub" name="genesOfInterest" v-model="genesOfInterestText"></textarea>
-            <button class="nav-bar-item-sub" @click="sendGOI">save</button>
-        </div>
-
         <button @click="this.$emit('toggleSelectDataSection')" :class="{ highlight: selectDataOpen }">Select Data</button>
         <span id="build-span">
             <b>Build</b>
@@ -73,12 +63,10 @@ export default {
         loaded: Boolean,
         hgBuild: String,
         progressPercent: Number,
-        goiFromParent: Array,
         poiFromParent: Array,
     },
     data() {
         return {
-            genesOfInterestText: "",
             phenotypesOfInterestText: "",
             showDisclaimer: false,
         };
@@ -87,21 +75,6 @@ export default {
     methods: {
         toggleDisclaimer() {
             this.showDisclaimer = !this.showDisclaimer;
-        },
-        sendGOI() {
-            //send out genes of interest to the app (allow split on ';', ',', or ' ')
-            //trim any whitespace
-            this.genesOfInterestText = this.genesOfInterestText.trim();
-            this.genesOfInterestText = this.genesOfInterestText.toUpperCase();
-            let genesOfInterest = this.genesOfInterestText.split(/[;, ]+/);
-            //ensure there are no empty strings
-            genesOfInterest = genesOfInterest.filter((gene) => gene !== "");
-
-            //if genesOfInterest is empty, send an empty array
-            if (genesOfInterest.length === 1 && genesOfInterest[0] === "") {
-                genesOfInterest = [];
-            }
-            this.$emit("updateGenesOfInterest", genesOfInterest);
         },
         sendPOI() {
             //send out phenotypes of interest to the app (allow split on ';', ',', or ' ')
@@ -141,14 +114,6 @@ export default {
             let progressBar = document.querySelector(".progress-bar");
             if (progressBar) {
                 progressBar.style.width = this.progressPercent + "%";
-            }
-        },
-        goiFromParent() {
-            let goiText = this.goiFromParent.join("; ");
-            let localText = this.genesOfInterestText;
-
-            if (goiText !== localText) {
-                this.genesOfInterestText = goiText;
             }
         },
         poiFromParent() {

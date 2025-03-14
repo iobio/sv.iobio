@@ -7,11 +7,9 @@
                 :hgBuild="hgBuild"
                 :loaded="loadedInitiallyComplete"
                 :progressPercent="progressPercent"
-                :goiFromParent="genesOfInterest"
                 :poiFromParent="phenotypesOfInterest"
                 @toggleSelectDataSection="onToggleSelectDataSection()"
                 @toggleFilterDataSection="onToggleFilterDataSection()"
-                @updateGenesOfInterest="updateGenesOfInterest"
                 @updatePhenotypesOfInterest="updatePhenotypesOfInterest" />
         </div>
 
@@ -105,6 +103,7 @@
                     :zoomedGeneName="focusedGeneName"
                     @remove-gene-from-goi="removeGeneFromGeneList"
                     @add-gene-to-goi="addGeneToGOI"
+                    @add-genes-to-goi="addGenesToGOI"
                     @zoom-to-gene="zoomToGene" />
             </div>
 
@@ -447,6 +446,10 @@ export default {
         },
         addGeneToGOI(gene) {
             let newGenes = [...this.genesOfInterest, gene];
+            this.updateGenesOfInterest(newGenes);
+        },
+        addGenesToGOI(genes) {
+            let newGenes = [...this.genesOfInterest, ...genes];
             this.updateGenesOfInterest(newGenes);
         },
         async loadData() {
