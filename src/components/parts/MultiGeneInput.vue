@@ -1,49 +1,86 @@
 <template>
     <div class="multi-gene-input">
-        <textarea id="input-genes" name="genes" rows="5"></textarea>
+        <textarea id="input-genes" name="genes" rows="5" @input="checkGenes" v-model="genesText"></textarea>
         <div class="btns-container">
-            <button>Cancel</button>
-            <button>Add</button>
+            <button @click="this.$emit('close')">Cancel</button>
+            <button :disabled="!allValidGenes" @click="addGenes">Add</button>
         </div>
         <div class="error-msg">
-            <span v-show="!allValidGenes">
+            <span v-show="!allValidGenes && genesNotFound.length > 0">
                 Invalid gene(s) - remove or edit:
-                <span class="unfound" v-for="gene in genesNotFound">
-                    {{ gene }}
-                </span>
+                <span class="unfound" v-for="gene in genesNotFound"> {{ gene + ", " }} </span>
             </span>
         </div>
     </div>
 </template>
 
 <script>
+import { searchForGene } from "../../dataHelpers/dataHelpers.js";
+
 export default {
     name: "MultiGeneInput",
     data() {
         return {
             genesText: "",
+            genesNotFound: [],
         };
     },
     methods: {
-        // Add your component methods here
+        async searchGenes(gene = this.searchQuery) {
+            if (gene.trim() !== "") {
+                let results = await searchForGene(gene);
+                this.searchResults = results.genes;
+            } else {
+                this.searchResults = [];
+            }
+        },
+        async checkGenes() {
+            let unfound = [];
+            for (let gene of this.genesList) {
+                let result = await searchForGene(gene);
+                if (result.genes.length == 0) {
+                    unfound.push(gene);
+                    continue;
+                } else {
+                    //We have results.gene check for an exact (case insensitive) match
+                    let found = result.genes.find((g) => g.gene_name.toLowerCase() == gene.toLowerCase());
+                    if (!found) {
+                        unfound.push(gene);
+                    }
+                }
+            }
+            this.genesNotFound = unfound;
+        },
+        addGenes() {
+            //The add button triggers this function, before you can press the add button
+            //allValidGenes must be true, so we can safely assume that all genes are valid
+            //genes are always uppercase so we can safely convert them to uppercase
+            let uppercaseGenes = this.genesList.map((gene) => gene.toUpperCase());
+            this.$emit("add-genes", uppercaseGenes);
+            this.genesText = "";
+        },
     },
     computed: {
         genesList() {
-            return this.genesText
-                .split(/[,;]/)
+            let result = this.genesText
+                .split(/,|;/)
                 .map((gene) => gene.trim())
-                .filter((gene) => gene);
+                .filter((gene) => gene !== "");
+            return result;
         },
         allValidGenes() {
+            //if there is nothing in the genesText, return false
+            if (this.genesText.trim() == "") return false;
+
+            if (this.genesNotFound.length == 0) return true;
+
             return false;
-        },
-        genesNotFound() {
-            return [];
         },
     },
     mounted() {
         // Add your mounted lifecycle hook here
     },
+    watch: {},
 };
 </script>
 
@@ -79,6 +116,10 @@ export default {
             cursor: pointer
             &:hover
                 background-color: #e0e0e0
+        button:disabled
+            background-color: #e0e0e0
+            color: #999
+            cursor: not-allowed
     .error-msg
         height: 20px
         display: flex

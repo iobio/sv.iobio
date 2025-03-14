@@ -21,7 +21,7 @@
                 position="bottom"
                 @click="showMultiGeneInput = !showMultiGeneInput" />
 
-            <MultiGeneInput v-if="showMultiGeneInput" />
+            <MultiGeneInput v-if="showMultiGeneInput" @add-genes="addGenesToList" @close="closeMultiGeneInput" />
         </div>
         <!-- A list section to list all the added ones -->
         <div
@@ -80,6 +80,14 @@ export default {
             if (gene == "") return;
             this.$emit("add-gene-to-goi", gene);
             this.searchQuery = "";
+        },
+        addGenesToList(genes) {
+            //this adds multiple genes to the list using the multi so we also want to close that
+            this.showMultiGeneInput = false;
+            this.$emit("add-genes-to-goi", genes);
+        },
+        closeMultiGeneInput() {
+            this.showMultiGeneInput = false;
         },
         emitZoomToGene(gene) {
             this.$emit("zoom-to-gene", gene);
