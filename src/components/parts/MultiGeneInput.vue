@@ -98,6 +98,7 @@ export default {
     flex-direction: column
     padding: 10px 10px 5px 10px
     box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3)
+    z-index: 2
     textarea
         padding: 5px 10px
         border: 1px solid #e0e0e0
