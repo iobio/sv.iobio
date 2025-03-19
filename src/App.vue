@@ -95,7 +95,7 @@
                     @variant-clicked="updateFocusedVariant"
                     @sort-variants="sortSvList" />
 
-                <PhenotypesListBar v-if="selectedTab == 'phenotypes'" />
+                <PhenotypesListBar v-if="selectedTab == 'phenotypes'" :phenotypes="phenotypesOfInterest" />
 
                 <GenesOfInterestListBar
                     v-if="selectedTab == 'goi'"
