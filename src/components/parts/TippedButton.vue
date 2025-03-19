@@ -1,5 +1,5 @@
 <template>
-    <button class="tipped-button">
+    <button class="tipped-button" :class="shape">
         {{ buttonText }}
         <span
             class="btn-tip"
@@ -29,6 +29,10 @@ export default {
         position: {
             type: String,
             default: "bottom",
+        },
+        shape: {
+            type: String,
+            default: "rectangle",
         },
     },
     data() {
@@ -60,6 +64,11 @@ export default {
     text-align: center
     text-decoration: none
     transition: all 0.3s
+    &.circle
+        border-radius: 50%
+        padding: 2px 5px
+    &.rectangle
+        border-radius: 5px
     &:hover
         background-color: #e0e0e0
         color: #000
@@ -95,5 +104,5 @@ export default {
             transform: translateY(-50%)
     &:hover .btn-tip
         visibility: visible
-        opacity: .7
+        opacity: .9
 </style>
