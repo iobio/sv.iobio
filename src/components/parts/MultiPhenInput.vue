@@ -88,9 +88,25 @@ export default {
             }
             this.phenotypesNotFound = unfound;
         },
-        addPhenotypes() {
-            this.$emit("add-phenotypes", this.phenotypesList);
-            this.phenotypesText = "";
+        async addPhenotypes() {
+            if (!this.allValidPhenotypes) return;
+
+            if (this.inputType == "hpoIds") {
+                this.phenotypesList = this.phenotypesList.map((phenotype) => phenotype.toUpperCase());
+                this.$emit("add-phenotypes", this.phenotypesList);
+                this.phenotypesText = "";
+            } else {
+                let ids = [];
+                for (let phenotype of this.phenotypesList) {
+                    let result = await searchForPhenotype(phenotype);
+                    let found = result.find((p) => p.name.toLowerCase() == phenotype.toLowerCase());
+                    if (found) {
+                        ids.push(found.term_id);
+                    }
+                }
+                this.$emit("add-phenotypes", ids);
+                this.phenotypesText = "";
+            }
         },
     },
     computed: {

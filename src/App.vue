@@ -7,10 +7,8 @@
                 :hgBuild="hgBuild"
                 :loaded="loadedInitiallyComplete"
                 :progressPercent="progressPercent"
-                :poiFromParent="phenotypesOfInterest"
                 @toggleSelectDataSection="onToggleSelectDataSection()"
-                @toggleFilterDataSection="onToggleFilterDataSection()"
-                @updatePhenotypesOfInterest="updatePhenotypesOfInterest" />
+                @toggleFilterDataSection="onToggleFilterDataSection()" />
         </div>
 
         <ToastsSection
