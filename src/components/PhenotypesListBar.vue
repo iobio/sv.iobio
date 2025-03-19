@@ -26,7 +26,10 @@
                 tipText="Add Multiple Phenotypes"
                 position="bottom"
                 @click="showMultiPhenInput = !showMultiPhenInput" />
-            <MultiPhenInput v-if="showMultiPhenInput" />
+            <MultiPhenInput
+                v-if="showMultiPhenInput"
+                @close="showMultiPhenInput = false"
+                @add-phenotypes="addMultiplePhenotypes" />
         </div>
         <div class="phenotype-row" v-for="phenotype in phenotypesLocal">
             <TippedButton
@@ -91,6 +94,7 @@ export default {
             this.$emit("remove-phenotype", term_id);
         },
         addMultiplePhenotypes(term_ids) {
+            this.showMultiPhenInput = false;
             this.$emit("add-phenotypes", term_ids);
         },
         async setLocalPhenotypes() {

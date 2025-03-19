@@ -23,10 +23,11 @@ export default {
         return {
             genesText: "",
             genesNotFound: [],
+            searchResults: [],
         };
     },
     methods: {
-        async searchGenes(gene = this.searchQuery) {
+        async searchGenes(gene) {
             if (gene.trim() !== "") {
                 let results = await searchForGene(gene);
                 this.searchResults = results.genes;

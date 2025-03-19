@@ -10,16 +10,16 @@
                 HPO IDs
             </label>
         </div>
-        <textarea id="input-phenotypes" name="phenotypes" rows="5"></textarea>
+        <textarea id="input-phenotypes" name="phenotypes" rows="5" @input="checkPhenotypes" v-model="phenotypesText"></textarea>
         <div class="btns-container">
-            <button>Cancel</button>
-            <button>Add</button>
+            <button @click="this.$emit('close')">Cancel</button>
+            <button :disabled="!allValidPhenotypes" @click="addPhenotypes">Add</button>
         </div>
         <div class="error-msg">
-            <span v-show="!allValidPhenotypes">
+            <span v-show="!allValidPhenotypes && phenotypesNotFound.length > 0">
                 Invalid phenotype(s) - remove or edit:
                 <span class="unfound" v-for="phenotype in phenotypesNotFound">
-                    {{ phenotype }}
+                    {{ phenotype + ", " }}
                 </span>
             </span>
         </div>
@@ -27,34 +27,94 @@
 </template>
 
 <script>
+import { searchForPhenotype, searchForHPO } from "../../dataHelpers/dataHelpers.js";
+
 export default {
     name: "MultiPhenInput",
     data() {
         return {
             phenotypesText: "",
-            inputType: "names",
+            inputType: "hpoIds",
+            phenotypesNotFound: [],
+            searchResults: [],
         };
     },
     methods: {
-        // Add your component methods here
+        async searchPhenotypes(phenotype) {
+            if (phenotype.trim() !== "") {
+                if (this.inputType == "hpoIds") {
+                    let term_id = phenotype.toUpperCase();
+                    let results = await searchForHPO(term_id);
+                    this.searchResults = results;
+                } else {
+                    let results = await searchForPhenotype(phenotype);
+                    this.searchResults = results;
+                }
+            } else {
+                this.searchResults = [];
+            }
+        },
+        async checkPhenotypes() {
+            let unfound = [];
+            for (let phenotype of this.phenotypesList) {
+                let result;
+                if (this.inputType == "hpoIds") {
+                    let term_id = phenotype.toUpperCase();
+                    result = await searchForHPO(term_id);
+
+                    if (!result || result.length == 0) {
+                        unfound.push(phenotype);
+                        continue;
+                    } else {
+                        //We have results.phenotype check for an exact (case insensitive) match
+                        let found = result.find((p) => p.term_id.toLowerCase() == phenotype.toLowerCase());
+                        if (!found) {
+                            unfound.push(phenotype);
+                        }
+                    }
+                } else {
+                    result = await searchForPhenotype(phenotype);
+                    if (!result || result.length == 0) {
+                        unfound.push(phenotype);
+                        continue;
+                    } else {
+                        //We have results.phenotype check for an exact (case insensitive) match
+                        let found = result.find((p) => p.name.toLowerCase() == phenotype.toLowerCase());
+                        if (!found) {
+                            unfound.push(phenotype);
+                        }
+                    }
+                }
+            }
+            this.phenotypesNotFound = unfound;
+        },
+        addPhenotypes() {
+            this.$emit("add-phenotypes", this.phenotypesList);
+            this.phenotypesText = "";
+        },
     },
     computed: {
         phenotypesList() {
-            return this.phenotypesText
-                .split(/[,;]/)
+            console.log(this.phenotypesText);
+            let text = this.phenotypesText
+                .split(/,|;/)
                 .map((phenotype) => phenotype.trim())
                 .filter((phenotype) => phenotype);
+            console.log(text);
+            return text;
         },
         allValidPhenotypes() {
+            if (this.phenotypesText.trim() == "") return false;
+
+            if (this.phenotypesNotFound.length == 0) return true;
+
             return false;
-        },
-        phenotypesNotFound() {
-            return [];
         },
     },
     mounted() {
         // Add your mounted lifecycle hook here
     },
+    watch: {},
 };
 </script>
 
@@ -90,6 +150,10 @@ export default {
             cursor: pointer
             &:hover
                 background-color: #e0e0e0
+    button:disabled
+        background-color: #e0e0e0
+        color: #999
+        cursor: not-allowed
     .error-msg
         height: 20px
         display: flex
