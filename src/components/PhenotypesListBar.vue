@@ -16,7 +16,11 @@
                 </div>
             </div>
 
-            <TippedButton buttonText="+" tipText="Add Phenotype(s) To List" position="bottom" />
+            <TippedButton
+                buttonText="+"
+                tipText="Add Phenotype(s) To List"
+                position="bottom"
+                @click="addPhenotype(searchedPhenotype.term_id)" />
             <TippedButton
                 buttonText="Add Multiple"
                 tipText="Add Multiple Phenotypes"
@@ -78,13 +82,16 @@ export default {
             this.searchResults = [];
         },
         addPhenotype(term_id) {
-            // TODO
+            if (term_id == "") return;
+
+            this.$emit("add-phenotype", term_id);
+            this.searchedPhenotype = { term_id: "", query: "" };
         },
         removePhenotype(term_id) {
-            // TODO
+            this.$emit("remove-phenotype", term_id);
         },
         addMultiplePhenotypes(term_ids) {
-            // TODO
+            this.$emit("add-phenotypes", term_ids);
         },
         async setLocalPhenotypes() {
             let oldKeys = Object.keys(this.phenotypesLocal);

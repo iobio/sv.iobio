@@ -95,7 +95,12 @@
                     @variant-clicked="updateFocusedVariant"
                     @sort-variants="sortSvList" />
 
-                <PhenotypesListBar v-if="selectedTab == 'phenotypes'" :phenotypes="phenotypesOfInterest" />
+                <PhenotypesListBar
+                    v-if="selectedTab == 'phenotypes'"
+                    :phenotypes="phenotypesOfInterest"
+                    @remove-phenotype="removePhenotype"
+                    @add-phenotype="addPhenotype"
+                    @add-phenotypes="addPhenotypes" />
 
                 <GenesOfInterestListBar
                     v-if="selectedTab == 'goi'"
@@ -720,6 +725,18 @@ export default {
                     sv.genesInCommon = [];
                 }
             });
+        },
+        removePhenotype(phenotype) {
+            let newPhenotypes = this.phenotypesOfInterest.filter((phen) => phen !== phenotype);
+            this.updatePhenotypesOfInterest(newPhenotypes);
+        },
+        addPhenotype(phenotype) {
+            let newPhenotypes = [...this.phenotypesOfInterest, phenotype];
+            this.updatePhenotypesOfInterest(newPhenotypes);
+        },
+        addPhenotypes(phenotypes) {
+            let newPhenotypes = [...this.phenotypesOfInterest, ...phenotypes];
+            this.updatePhenotypesOfInterest(newPhenotypes);
         },
         async updatePhenotypesOfInterest(newPOI) {
             this.variantsSorted = false;
