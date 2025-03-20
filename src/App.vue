@@ -7,12 +7,8 @@
                 :hgBuild="hgBuild"
                 :loaded="loadedInitiallyComplete"
                 :progressPercent="progressPercent"
-                :goiFromParent="genesOfInterest"
-                :poiFromParent="phenotypesOfInterest"
                 @toggleSelectDataSection="onToggleSelectDataSection()"
-                @toggleFilterDataSection="onToggleFilterDataSection()"
-                @updateGenesOfInterest="updateGenesOfInterest"
-                @updatePhenotypesOfInterest="updatePhenotypesOfInterest" />
+                @toggleFilterDataSection="onToggleFilterDataSection()" />
         </div>
 
         <ToastsSection
@@ -44,17 +40,21 @@
                             <div class="tab" :class="{ selected: selectedTab == 'svList' }" @click="selectedTab = 'svList'">
                                 SVs <span class="tip">{{ svListVariantBar.length }}</span>
                             </div>
+
                             <div
                                 class="tab"
-                                :class="{ selected: selectedTab == 'goi' }"
-                                @click="selectedTab = 'goi'"
-                                v-if="genesOfInterest.length > 0">
+                                :class="{ selected: selectedTab == 'phenotypes' }"
+                                @click="selectedTab = 'phenotypes'">
+                                Phenotypes <span class="tip">{{ phenotypesOfInterest.length }}</span>
+                            </div>
+
+                            <div class="tab" :class="{ selected: selectedTab == 'goi' }" @click="selectedTab = 'goi'">
                                 Genes <span class="tip">{{ genesOfInterest.length }}</span>
                             </div>
                         </nav>
                     </div>
 
-                    <div class="filter-button" @click="onToggleFilterDataSection()">
+                    <div v-if="selectedTab == 'svList'" class="filter-button" @click="onToggleFilterDataSection()">
                         <svg v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>Filter SVs</title>
                             <path
@@ -93,11 +93,20 @@
                     @variant-clicked="updateFocusedVariant"
                     @sort-variants="sortSvList" />
 
+                <PhenotypesListBar
+                    v-if="selectedTab == 'phenotypes'"
+                    :phenotypes="phenotypesOfInterest"
+                    @remove-phenotype="removePhenotype"
+                    @add-phenotype="addPhenotype"
+                    @add-phenotypes="addPhenotypes" />
+
                 <GenesOfInterestListBar
                     v-if="selectedTab == 'goi'"
                     :genesOfInterest="genesOfInterest"
                     :zoomedGeneName="focusedGeneName"
                     @remove-gene-from-goi="removeGeneFromGeneList"
+                    @add-gene-to-goi="addGeneToGOI"
+                    @add-genes-to-goi="addGenesToGOI"
                     @zoom-to-gene="zoomToGene" />
             </div>
 
@@ -131,6 +140,7 @@ import * as common from "./dataHelpers/commonFunctions.js";
 import ChartsSection from "./components/ChartsSection.vue";
 import VariantListBar from "./components/VariantListBar.vue";
 import GenesOfInterestListBar from "./components/GenesOfInterestListBar.vue";
+import PhenotypesListBar from "./components/PhenotypesListBar.vue";
 import NavBar from "./components/NavBar.vue";
 import Sv from "./models/Sv.js";
 import SelectDataSection from "./components/SelectDataSection.vue";
@@ -148,6 +158,7 @@ export default {
         SelectDataSection,
         FilterDataSection,
         ToastsSection,
+        PhenotypesListBar,
     },
     data() {
         return {
@@ -436,6 +447,14 @@ export default {
             let newGenes = this.genesOfInterest.filter((g) => g !== gene);
             this.updateGenesOfInterest(newGenes);
         },
+        addGeneToGOI(gene) {
+            let newGenes = [...this.genesOfInterest, gene];
+            this.updateGenesOfInterest(newGenes);
+        },
+        addGenesToGOI(genes) {
+            let newGenes = [...this.genesOfInterest, ...genes];
+            this.updateGenesOfInterest(newGenes);
+        },
         async loadData() {
             if (this.samples.proband.vcf == "") {
                 //open the select data section too
@@ -704,6 +723,18 @@ export default {
                     sv.genesInCommon = [];
                 }
             });
+        },
+        removePhenotype(phenotype) {
+            let newPhenotypes = this.phenotypesOfInterest.filter((phen) => phen !== phenotype);
+            this.updatePhenotypesOfInterest(newPhenotypes);
+        },
+        addPhenotype(phenotype) {
+            let newPhenotypes = [...this.phenotypesOfInterest, phenotype];
+            this.updatePhenotypesOfInterest(newPhenotypes);
+        },
+        addPhenotypes(phenotypes) {
+            let newPhenotypes = [...this.phenotypesOfInterest, ...phenotypes];
+            this.updatePhenotypesOfInterest(newPhenotypes);
         },
         async updatePhenotypesOfInterest(newPOI) {
             this.variantsSorted = false;
@@ -1005,7 +1036,6 @@ img
 #var-list-bar-button-container
     position: relative
     height: 100%
-    box-sizing: border-box
     display: flex
     flex-direction: column
     padding: 5px 0px 0px 0px
@@ -1136,9 +1166,12 @@ img
     .tab
         padding: 5px 10px
         margin: 0px
+        border-right: .5px solid #EBEBEB
         text-transform: uppercase
         font-weight: 200
         position: relative
+        &:last-of-type
+            border-right: .5px solid transparent
         .tip
             font-size: 12px
             font-weight: 200
@@ -1151,7 +1184,6 @@ img
             padding: 0px 2px
         &.selected
             background-color: #EBEBEB
-            font-weight: 400
         &:hover
             cursor: pointer
             background-color: #E0E0E0

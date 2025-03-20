@@ -155,3 +155,36 @@ export async function getTranscriptsForGenes(geneList, build = "hg38", source = 
         console.error("Error Getting Transcripts for Gene List:", error);
     }
 }
+
+//LOOK FOR THE GENE
+export async function searchForGene(geneQuery) {
+    try {
+        const response = await fetch(`https://backend.iobio.io/geneinfo/lookup/${geneQuery}?searchAlias=last`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error Searching for Gene:", error);
+    }
+}
+
+//LOOK FOR THE PHENOTYPE by NAME
+export async function searchForPhenotype(phenotypeQuery) {
+    try {
+        const response = await fetch(`${BACKEND_URL_BASE}/phenotype/lookup?phenotype=${phenotypeQuery}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error Searching for Phenotype:", error);
+    }
+}
+
+//LOOK FOR THE PHENOTYPE by hpo_id
+export async function searchForHPO(hpo_id) {
+    try {
+        const response = await fetch(`${BACKEND_URL_BASE}/phenotype/lookup?hpo_id=${hpo_id}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error Searching for HPO Id:", error);
+    }
+}

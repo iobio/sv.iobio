@@ -1,46 +1,21 @@
 <template>
     <div id="nav-bar">
-        <div id="loading-container" disabled v-if="!loaded">
+        <div class="right-container">
+            <button id="disclaimer-btn" @click="toggleDisclaimer"><img src="/dots-vertical.svg" alt="" /></button>
+            <button @click="this.$emit('toggleSelectDataSection')" :class="{ highlight: selectDataOpen }">Select Data</button>
+            <span id="build-span">
+                <b>Build</b>
+                <br />
+                {{ formattedHgBuild }}
+            </span>
+        </div>
+
+        <div id="loading-container" disabled v-if="!loaded && !selectDataOpen">
             <p>Associations Loaded {{ progressPercent }}%</p>
             <div class="progress-bar"></div>
         </div>
-        <!-- file input -->
-        <div class="nav-bar-item-wrapper">
-            <label class="nav-bar-item-sub" for="phenotypes">
-                Phenotypes
-                <br />
-                <span>(HPO)</span>
-            </label>
-            <textarea class="nav-bar-item-sub" name="phenotypes" v-model="phenotypesOfInterestText"></textarea>
-            <div class="column-container">
-                <button class="nav-bar-item-sub save" @click="sendPOI">save</button>
-                <button class="nav-bar-item-sub clear" v-if="phenotypesOfInterestText.length > 0" @click="clearPOI">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>backspace-outline</title>
-                        <path
-                            d="M19,15.59L17.59,17L14,13.41L10.41,17L9,15.59L12.59,12L9,8.41L10.41,7L14,10.59L17.59,7L19,8.41L15.41,12L19,15.59M22,3A2,2 0 0,1 24,5V19A2,2 0 0,1 22,21H7C6.31,21 5.77,20.64 5.41,20.11L0,12L5.41,3.88C5.77,3.35 6.31,3 7,3H22M22,5H7L2.28,12L7,19H22V5Z" />
-                    </svg>
-                </button>
-            </div>
-        </div>
 
-        <div class="nav-bar-item-wrapper">
-            <label class="nav-bar-item-sub" for="genesOfInterest">
-                Genes of Interest
-                <br />
-                <span>(GOI)</span>
-            </label>
-            <textarea class="nav-bar-item-sub" name="genesOfInterest" v-model="genesOfInterestText"></textarea>
-            <button class="nav-bar-item-sub" @click="sendGOI">save</button>
-        </div>
-
-        <button @click="this.$emit('toggleSelectDataSection')" :class="{ highlight: selectDataOpen }">Select Data</button>
-        <span id="build-span">
-            <b>Build</b>
-            <br />
-            {{ formattedHgBuild }}
-        </span>
-        <button id="disclaimer-btn" @click="toggleDisclaimer"><img src="/dots-vertical.svg" alt="" /></button>
+        <div class="ghost"></div>
 
         <div id="disclaimer-overlay" v-if="showDisclaimer">
             <div id="disclaimer-text">
@@ -73,13 +48,9 @@ export default {
         loaded: Boolean,
         hgBuild: String,
         progressPercent: Number,
-        goiFromParent: Array,
-        poiFromParent: Array,
     },
     data() {
         return {
-            genesOfInterestText: "",
-            phenotypesOfInterestText: "",
             showDisclaimer: false,
         };
     },
@@ -87,38 +58,6 @@ export default {
     methods: {
         toggleDisclaimer() {
             this.showDisclaimer = !this.showDisclaimer;
-        },
-        sendGOI() {
-            //send out genes of interest to the app (allow split on ';', ',', or ' ')
-            //trim any whitespace
-            this.genesOfInterestText = this.genesOfInterestText.trim();
-            this.genesOfInterestText = this.genesOfInterestText.toUpperCase();
-            let genesOfInterest = this.genesOfInterestText.split(/[;, ]+/);
-            //ensure there are no empty strings
-            genesOfInterest = genesOfInterest.filter((gene) => gene !== "");
-
-            //if genesOfInterest is empty, send an empty array
-            if (genesOfInterest.length === 1 && genesOfInterest[0] === "") {
-                genesOfInterest = [];
-            }
-            this.$emit("updateGenesOfInterest", genesOfInterest);
-        },
-        sendPOI() {
-            //send out phenotypes of interest to the app (allow split on ';', ',', or ' ')
-            //trim any whitespace
-            this.phenotypesOfInterestText = this.phenotypesOfInterestText.trim();
-            let phenotypesOfInterest = this.phenotypesOfInterestText.split(/[;, ]+/);
-            //ensure there are no empty strings
-            phenotypesOfInterest = phenotypesOfInterest.filter((phenotype) => phenotype !== "");
-            //if phenotypesOfInterest is empty, send an empty array
-            if (phenotypesOfInterest.length === 1 && phenotypesOfInterest[0] === "") {
-                phenotypesOfInterest = [];
-            }
-            this.$emit("updatePhenotypesOfInterest", phenotypesOfInterest);
-        },
-        clearPOI() {
-            this.phenotypesOfInterestText = "";
-            this.sendPOI();
         },
     },
     computed: {
@@ -143,22 +82,6 @@ export default {
                 progressBar.style.width = this.progressPercent + "%";
             }
         },
-        goiFromParent() {
-            let goiText = this.goiFromParent.join("; ");
-            let localText = this.genesOfInterestText;
-
-            if (goiText !== localText) {
-                this.genesOfInterestText = goiText;
-            }
-        },
-        poiFromParent() {
-            let poiText = this.poiFromParent.join("; ");
-            let localText = this.phenotypesOfInterestText;
-
-            if (poiText !== localText) {
-                this.phenotypesOfInterestText = poiText;
-            }
-        },
     },
 };
 </script>
@@ -168,7 +91,7 @@ export default {
     display: flex
     flex-direction: row
     align-items: center
-    justify-content: space-around
+    justify-content: space-between
     padding: 10px 10px
     width: 100%
     background-color: #0D60C3
@@ -205,6 +128,10 @@ export default {
         justify-content: space-between
         height: 100%
         padding: 5px 10px
+        border: .5px solid white
+        border-radius: 5px
+        box-shadow: 0px 0px 5px 0px white
+        background-color: rgba(255, 255, 255, 0.2)
         p
             margin: 0px
             font-size: .9em
@@ -251,40 +178,47 @@ export default {
             transition: all 0.15s ease
             &:hover
                 filter: brightness(120%)
-    button
-        border: 1px solid #0B4B99
-        border-radius: 3px
-        background-color: #0B4B99
-        color: white
-        cursor: pointer
-        transition: all 0.15s ease
+    .right-container
+        display: flex
+        flex-direction: row
+        align-items: center
+        justify-content: flex-end
+        gap: 10px
         height: 100%
-        &#disclaimer-btn
-            display: flex
-            justify-content: center
-            align-items: center
-            padding: 0px
+        button
+            border: 1px solid #0B4B99
+            border-radius: 3px
+            background-color: #0B4B99
+            color: white
+            cursor: pointer
+            transition: all 0.15s ease
             height: 100%
-            background-color: transparent
-            border: none
-            width: auto
-            margin-left: 5px
-            border-radius: 50%
-            transition: background-color 0.25s ease-in
+            &#disclaimer-btn
+                display: flex
+                justify-content: center
+                align-items: center
+                padding: 0px
+                height: 100%
+                background-color: transparent
+                border: none
+                width: auto
+                margin-left: 5px
+                border-radius: 50%
+                transition: background-color 0.25s ease-in
+                &:hover
+                    background-color: #0B4B99
+            img
+                height: 100%
+                width: auto
+                display: block
+                transform: translate(0px, 0px)
             &:hover
-                background-color: #0B4B99
-        img
-            height: 100%
-            width: auto
-            display: block
-            transform: translate(0px, 0px)
-        &:hover
-            filter: brightness(120%)
-            border: 1px solid white
-        &.highlight
-            background-color: #0D60C3
-            border: 2px solid white
-            box-shadow: 0px 0px 5px 0px white
+                filter: brightness(120%)
+                border: 1px solid white
+            &.highlight
+                background-color: #0D60C3
+                border: 2px solid white
+                box-shadow: 0px 0px 5px 0px white
 .alt-section-text.nav
     color: white
     position: relative
