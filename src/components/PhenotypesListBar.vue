@@ -126,6 +126,7 @@ export default {
     flex-direction: column
     justify-content: flex-start
     height: 100%
+    width: 100%
     overflow-y: auto
     border-right: 1px solid #f0f0f0
     .phenotype-row

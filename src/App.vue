@@ -1036,7 +1036,6 @@ img
 #var-list-bar-button-container
     position: relative
     height: 100%
-    box-sizing: border-box
     display: flex
     flex-direction: column
     padding: 5px 0px 0px 0px

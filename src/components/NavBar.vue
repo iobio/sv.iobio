@@ -1,17 +1,21 @@
 <template>
     <div id="nav-bar">
-        <div id="loading-container" disabled v-if="!loaded">
+        <div class="right-container">
+            <button id="disclaimer-btn" @click="toggleDisclaimer"><img src="/dots-vertical.svg" alt="" /></button>
+            <button @click="this.$emit('toggleSelectDataSection')" :class="{ highlight: selectDataOpen }">Select Data</button>
+            <span id="build-span">
+                <b>Build</b>
+                <br />
+                {{ formattedHgBuild }}
+            </span>
+        </div>
+
+        <div id="loading-container" disabled v-if="!loaded && !selectDataOpen">
             <p>Associations Loaded {{ progressPercent }}%</p>
             <div class="progress-bar"></div>
         </div>
 
-        <button @click="this.$emit('toggleSelectDataSection')" :class="{ highlight: selectDataOpen }">Select Data</button>
-        <span id="build-span">
-            <b>Build</b>
-            <br />
-            {{ formattedHgBuild }}
-        </span>
-        <button id="disclaimer-btn" @click="toggleDisclaimer"><img src="/dots-vertical.svg" alt="" /></button>
+        <div class="ghost"></div>
 
         <div id="disclaimer-overlay" v-if="showDisclaimer">
             <div id="disclaimer-text">
@@ -87,7 +91,7 @@ export default {
     display: flex
     flex-direction: row
     align-items: center
-    justify-content: space-around
+    justify-content: space-between
     padding: 10px 10px
     width: 100%
     background-color: #0D60C3
@@ -124,6 +128,10 @@ export default {
         justify-content: space-between
         height: 100%
         padding: 5px 10px
+        border: .5px solid white
+        border-radius: 5px
+        box-shadow: 0px 0px 5px 0px white
+        background-color: rgba(255, 255, 255, 0.2)
         p
             margin: 0px
             font-size: .9em
@@ -170,40 +178,47 @@ export default {
             transition: all 0.15s ease
             &:hover
                 filter: brightness(120%)
-    button
-        border: 1px solid #0B4B99
-        border-radius: 3px
-        background-color: #0B4B99
-        color: white
-        cursor: pointer
-        transition: all 0.15s ease
+    .right-container
+        display: flex
+        flex-direction: row
+        align-items: center
+        justify-content: flex-end
+        gap: 10px
         height: 100%
-        &#disclaimer-btn
-            display: flex
-            justify-content: center
-            align-items: center
-            padding: 0px
+        button
+            border: 1px solid #0B4B99
+            border-radius: 3px
+            background-color: #0B4B99
+            color: white
+            cursor: pointer
+            transition: all 0.15s ease
             height: 100%
-            background-color: transparent
-            border: none
-            width: auto
-            margin-left: 5px
-            border-radius: 50%
-            transition: background-color 0.25s ease-in
+            &#disclaimer-btn
+                display: flex
+                justify-content: center
+                align-items: center
+                padding: 0px
+                height: 100%
+                background-color: transparent
+                border: none
+                width: auto
+                margin-left: 5px
+                border-radius: 50%
+                transition: background-color 0.25s ease-in
+                &:hover
+                    background-color: #0B4B99
+            img
+                height: 100%
+                width: auto
+                display: block
+                transform: translate(0px, 0px)
             &:hover
-                background-color: #0B4B99
-        img
-            height: 100%
-            width: auto
-            display: block
-            transform: translate(0px, 0px)
-        &:hover
-            filter: brightness(120%)
-            border: 1px solid white
-        &.highlight
-            background-color: #0D60C3
-            border: 2px solid white
-            box-shadow: 0px 0px 5px 0px white
+                filter: brightness(120%)
+                border: 1px solid white
+            &.highlight
+                background-color: #0D60C3
+                border: 2px solid white
+                box-shadow: 0px 0px 5px 0px white
 .alt-section-text.nav
     color: white
     position: relative
