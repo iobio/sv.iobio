@@ -1,6 +1,7 @@
 <template>
     <button class="tipped-button" :class="shape">
-        {{ buttonText }}
+        <template v-if="buttonText">{{ buttonText }}</template>
+        <div class="symbol" v-if="buttonSymbol" v-html="buttonSymbol"></div>
     </button>
 </template>
 
@@ -10,7 +11,13 @@ export default {
     props: {
         buttonText: {
             type: String,
-            required: true,
+            required: false,
+            default: "",
+        },
+        buttonSymbol: {
+            type: String,
+            required: false,
+            default: "",
         },
         tipText: {
             type: String,
@@ -89,24 +96,38 @@ export default {
     border: 1px solid #e0e0e0
     color: #333
     cursor: pointer
-    display: inline-block
     margin: 4px 2px
     padding: 5px 10px
     text-align: center
     text-decoration: none
+    display: flex
+    align-items: center
+    justify-content: center
     overflow: visible
     transition: all 0.3s
     &.circle
         border-radius: 50%
-        padding: 2px 5px
-        height: 20px
-        width: 20px
+        height: 25px
+        width: 25px
+        padding: 0
         text-align: center
+        display: flex
+        align-content: center
+        justify-content: center
     &.rectangle
         border-radius: 5px
     &:hover
         background-color: #e0e0e0
         color: #000
+    .symbol
+        display: flex
+        align-items: center
+        justify-content: center
+        height: 25px
+        width: 25px
+        svg
+            height: 25px
+            width: 25px
 .btn-tip
     visibility: hidden
     white-space: nowrap
