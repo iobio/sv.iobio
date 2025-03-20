@@ -92,8 +92,8 @@ export default {
             if (!this.allValidPhenotypes) return;
 
             if (this.inputType == "hpoIds") {
-                this.phenotypesList = this.phenotypesList.map((phenotype) => phenotype.toUpperCase());
-                this.$emit("add-phenotypes", this.phenotypesList);
+                let phenotypesList = this.phenotypesList.map((phenotype) => phenotype.toUpperCase());
+                this.$emit("add-phenotypes", phenotypesList);
                 this.phenotypesText = "";
             } else {
                 let ids = [];
@@ -111,12 +111,10 @@ export default {
     },
     computed: {
         phenotypesList() {
-            console.log(this.phenotypesText);
             let text = this.phenotypesText
                 .split(/,|;/)
                 .map((phenotype) => phenotype.trim())
                 .filter((phenotype) => phenotype);
-            console.log(text);
             return text;
         },
         allValidPhenotypes() {

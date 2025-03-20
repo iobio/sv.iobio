@@ -158,6 +158,7 @@ export default {
                 max-height: 200px
                 overflow-y: auto
                 ul
+                    cursor: pointer
                     list-style: none
                     margin: 0
                     padding: 0
