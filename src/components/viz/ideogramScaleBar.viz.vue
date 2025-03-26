@@ -88,4 +88,5 @@ export default {
     width: 100%
     height: 45px
     padding: 0px
+    border: .5px solid transparent
 </style>

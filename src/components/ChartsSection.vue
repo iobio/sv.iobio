@@ -168,6 +168,9 @@
                     @selectAreaEvent="selectAreaEventFired"
                     @removeTrack="removeTrack(index)"
                     class="draggable-chart" />
+
+                <CoverageHistoWrapper />
+
                 <LowerModal
                     v-if="focusedVariant"
                     :hidden="hideLowerModal"
@@ -195,6 +198,8 @@ import LinearRegionsChartViz from "./viz/clinGenChart.viz.vue";
 import IdeogramScaleBarViz from "./viz/ideogramScaleBar.viz.vue";
 import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
+import TippedButton from "./parts/TippedButton.vue";
+import CoverageHistoWrapper from "./viz/CoverageHistoWrapper.vue";
 import { bpFormatted } from "../dataHelpers/commonFunctions.js";
 
 export default {
@@ -208,6 +213,8 @@ export default {
         IdeogramScaleBarViz,
         SvCirosMiniViz,
         LowerModal,
+        TippedButton,
+        CoverageHistoWrapper,
     },
     props: {
         svList: Array,
