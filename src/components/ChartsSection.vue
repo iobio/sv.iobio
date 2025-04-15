@@ -169,7 +169,7 @@
                     @removeTrack="removeTrack(index)"
                     class="draggable-chart" />
 
-                <CoverageHistoWrapper />
+                <CoverageHistoWrapper :bamUrl="'https://s3.amazonaws.com/iobio/NA12878/NA12878.autsome.bam'" :region="selectedArea" :genomeSize="genomeEnd"/>
 
                 <LowerModal
                     v-if="focusedVariant"
