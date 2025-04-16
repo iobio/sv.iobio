@@ -41,14 +41,15 @@ export default {
             showZoomableChart: false,
             showChromosomes: false,
             showYAxis: true,
+            showYAxisLine: false,
             showYAxisLabel: false,
             yAxisPosition: 'internal', // 'external' or 'internal'
             averageCovLabelPosition: 'right-internal', // 'left-external', 'right-external', 'left-internal', 'right-internal'
             margin: {
                 top: 10,
-                right: 0,
-                bottom: 20,
-                left: 0,
+                right: 10,
+                bottom: 10,
+                left: 10,
             }
         }
 
@@ -118,6 +119,11 @@ export default {
 
 <style lang="sass">
 .coverage-histo-wrapper
-    height: 150px
+    height: 180px
     --iobio-data-color: rgba(42,101,183, 0.8)
+    padding: 5px
+    border: 1px solid rgb(239, 239, 239)
+    background-color: #F7F7F7
+    border-top: none
+    border-radius: 0px 0px 5px 5px
 </style>

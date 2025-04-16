@@ -158,6 +158,11 @@
                     :isProband="true"
                     @selectAreaEvent="selectAreaEventFired"
                     @focusedVariantEvent="focusedVariantEventFired" />
+                
+                <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, 'collapsed': !showProbandCoverage }">
+                    <button @click="showProbandCoverage = !showProbandCoverage"><span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage</button>
+                    <CoverageHistoWrapper v-if="showProbandCoverage" :bamUrl="samples.proband.bam" :region="selectedArea" :genomeSize="genomeEnd"/>
+                </div>
 
                 <component
                     v-for="(chartData, index) in chartsData"
@@ -168,8 +173,6 @@
                     @selectAreaEvent="selectAreaEventFired"
                     @removeTrack="removeTrack(index)"
                     class="draggable-chart" />
-
-                <CoverageHistoWrapper :bamUrl="'https://s3.amazonaws.com/iobio/NA12878/NA12878.autsome.bam'" :region="selectedArea" :genomeSize="genomeEnd"/>
 
                 <LowerModal
                     v-if="focusedVariant"
@@ -252,6 +255,7 @@ export default {
             hideLowerModal: true,
             lowerModalType: "",
             zoomFactor: 3000000,
+            showProbandCoverage: false,
         };
     },
     async mounted() {
@@ -937,4 +941,26 @@ select
         cursor: pointer
     &:focus
         outline: none
+.collapseable-chart
+    padding: 0px
+    margin: 0px
+    border: 0px
+    overflow: visible
+    position: relative
+    &.collapsed
+        height: 0px
+    button
+        position: absolute
+        top: -10px
+        right: 0px
+        cursor: pointer
+        z-index: 3
+        border-radius: 10px
+        border: none
+        color: #2A65B7
+        border: 1px solid transparent
+        transition: background-color 0.2s, border 0.2s
+        &:hover
+            background-color: #C1D1EA
+            border: 1px solid #2A65B7
 </style>

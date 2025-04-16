@@ -56,6 +56,17 @@
                     <option value="other-comp">Other Comparison</option>
                 </select>
             </div>
+
+            <div v-if="isProband" class="label-input-wrapper link">
+                <label for="bam">BAM:</label>
+                <input
+                    type="text"
+                    class="vcf"
+                    @input="this.$emit('update-sample', this.sampleLocal)"
+                    v-model="sampleLocal.bam"
+                    placeholder="Paste a link or select a local file..." />
+                <button @click="openFileSelect($event)">Select Local</button>
+            </div>
         </div>
         <div class="collapsed-alt-text" v-else>{{ sampleLocal.name }}</div>
     </div>
