@@ -199,6 +199,7 @@ export default {
                     tbi: "",
                     bam: "",
                     bai: "",
+                    bed: "",
                     svList: [],
                 },
                 comparisons: [],
@@ -314,6 +315,24 @@ export default {
                     let isProband = relationships.find((rel) => rel.value == "Proband");
 
                     if (isProband) {
+                        let res = await this.mosaicSession.promiseGetFiles(this.mosaicProjectId, sample.id);
+                        let alignmentFile = res.data.filter((file) => file.type == "bam" || file.type == "cram")[0];
+                        let indexFile = res.data.filter((file) => file.type == "bai" || file.type == "crai")[0];
+                        let bedFile = res.data.filter((file) => file.type == "bam-bed")[0];
+                        let alignmentUrl = "";
+                        let indexUrl = "";
+                        let bedUrl = "";
+                        
+                        alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, alignmentFile.id);
+                        this.samples.proband.bam = alignmentUrl.url;
+                        indexUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, indexFile.id);
+                        this.samples.proband.bai = indexUrl.url;
+                        
+                        if (bedFile) {
+                            bedUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, bedFile.id);
+                            this.samples.proband.bed = bedUrl.url;
+                        }
+
                         let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, sample.id);
                         this.phenotypesOfInterest = terms.map((term) => term.hpo_id);
 
@@ -368,6 +387,7 @@ export default {
                         tbi: "",
                         bam: "",
                         bai: "",
+                        bed: "",
                         svList: [],
                         relation: "proband",
                     };
@@ -386,6 +406,7 @@ export default {
                     tbi: "",
                     bam: "",
                     bai: "",
+                    bed: "",
                     svList: [],
                     relation: "proband",
                 };
