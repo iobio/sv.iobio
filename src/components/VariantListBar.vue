@@ -261,7 +261,7 @@ export default {
             let newLastScrollTop = currentScrollTop;
 
             //If we are currently at the max scroll we have available then increment the scroll selection
-            if (currentScrollTop + clientHeight == scrollHeight && this.scrollSelection[1] < svListLen) {
+            if (currentScrollTop + clientHeight >= scrollHeight && this.scrollSelection[1] < svListLen) {
                 this.scrollSelection[0] += 1;
                 this.scrollSelection[1] += 1;
                 //Move us down one pixle so we can trigger scroll again if needed
@@ -285,7 +285,7 @@ export default {
             let newLastScrollTop = currentScrollTop;
 
             //If we are currently at 0 or even with the top of the container
-            if (currentScrollTop == 0 && this.scrollSelection[0] > 0) {
+            if (currentScrollTop <= 0 && this.scrollSelection[0] > 0) {
                 this.scrollSelection[0] -= 1;
                 this.scrollSelection[1] -= 1;
                 //Move us down one pixle so we can trigger scroll again if needed
