@@ -161,7 +161,7 @@
                 
                 <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, 'collapsed': !showProbandCoverage }">
                     <button @click="showProbandCoverage = !showProbandCoverage"><span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage</button>
-                    <CoverageHistoWrapper v-if="showProbandCoverage" :bamUrl="samples.proband.bam" :region="selectedArea" :genomeSize="genomeEnd"/>
+                    <CoverageHistoWrapper v-if="showProbandCoverage" :bamUrl="samples.proband.bam" :baiUrl="samples.proband.bai" :bedUrl="samples.proband.bed" :region="selectedArea" :genomeSize="genomeEnd"/>
                 </div>
 
                 <component
