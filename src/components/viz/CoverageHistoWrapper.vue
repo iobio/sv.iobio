@@ -14,6 +14,14 @@ export default {
             type: String,
             required: true,
         },
+        baiUrl: {
+            type: String,
+            required: false,
+        },
+        bedUrl: {
+            type: String,
+            required: false,
+        },
         genomeSize: {
             type: Number,
             required: false,
@@ -54,16 +62,25 @@ export default {
         }
 
         let container = document.querySelector(".coverage-histo-wrapper");
-        
-        this.bamview = document.createElement("iobio-coverage-depth");
-        this.bamview.setAttribute("options", JSON.stringify(options));
 
         this.dataBrokerEl = document.createElement("iobio-data-broker");
-        this.dataBrokerEl.setAttribute("alignment-url", this.bamUrl);
-
+        this.bamview = document.createElement("iobio-coverage-depth");
+        
         // Append the elements to the container
         container.appendChild(this.dataBrokerEl);
         container.appendChild(this.bamview);
+
+        this.bamview.options = JSON.stringify(options);
+
+        this.dataBrokerEl.alignmentUrl = this.bamUrl;
+
+        if (this.baiUrl) {
+            this.dataBrokerEl.indexUrl = this.baiUrl;
+        }
+
+        if (this.bedUrl) {
+            this.dataBrokerEl.bedUrl = this.bedUrl;
+        }
 
         this.shadow = document.querySelector("iobio-coverage-depth").shadowRoot;
         if (this.shadow) {
