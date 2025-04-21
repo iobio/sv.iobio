@@ -273,6 +273,41 @@ export default class MosaicSession {
       return response.json();
     }
 
+    promiseGetFiles(projectId, sampleId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getFiles(projectId, sampleId)
+            .then(response => {
+                resolve(response);
+            })
+            .catch(error => {
+                const errorMsg = self.getErrorMessage(error);
+                console.error(`Error getting file for sv iobio from Mosaic with project_id ${projectId}`);
+                console.error(errorMsg);
+                reject(`Error getting file for sv iobio ${projectId}: ${errorMsg}`);
+            });
+        });
+
+    }
+
+    async getFiles(projectId, sampleId) {
+      let self = this;
+      //TODO: not sure if this will actually work I dont see this in the api docs
+      const response = await fetch(`${self.api}/projects/${projectId}/samples/${sampleId}/files`, {
+        method: 'GET',
+        headers: {
+          Authorization: self.authorizationString,
+          accept: 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+  
+      return response.json();
+    }
+
     promiseGetSignedUrlForFile(projectId, fileId) {
         let self = this;
         return new Promise((resolve, reject) => {
