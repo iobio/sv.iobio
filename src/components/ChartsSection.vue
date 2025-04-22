@@ -106,6 +106,7 @@
         </div>
 
         <div class="wrapper-95">
+            <IgvModal v-if="showIgvModal && samples.proband && focusedVariant" @close="showIgvModal = false" :region="zoomedStamp" :proband="samples.proband" :selectedVariant="focusedVariant"></IgvModal>
             <svCircos
                 v-if="globalView === 'circos' && circosDataReady"
                 :svList="svList"
@@ -160,7 +161,8 @@
                     @focusedVariantEvent="focusedVariantEventFired" />
                 
                 <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, 'collapsed': !showProbandCoverage }">
-                    <button @click="showProbandCoverage = !showProbandCoverage"><span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage</button>
+                    <button :disabled="zoomedSize < 32000" @click="showProbandCoverage = !showProbandCoverage"><span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage</button>
+                    <button :disabled="!focusedVariant" @click="showIgvModal = true"><span>Show IGV</span></button>
                     <CoverageHistoWrapper v-if="showProbandCoverage" :bamUrl="samples.proband.bam" :baiUrl="samples.proband.bai" :bedUrl="samples.proband.bed" :region="selectedArea" :genomeSize="genomeEnd"/>
                 </div>
 
@@ -203,6 +205,7 @@ import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
 import TippedButton from "./parts/TippedButton.vue";
 import CoverageHistoWrapper from "./viz/CoverageHistoWrapper.vue";
+import IgvModal from "./viz/IgvModal.vue";
 import { bpFormatted } from "../dataHelpers/commonFunctions.js";
 
 export default {
@@ -218,6 +221,7 @@ export default {
         LowerModal,
         TippedButton,
         CoverageHistoWrapper,
+        IgvModal,
     },
     props: {
         svList: Array,
@@ -256,6 +260,7 @@ export default {
             lowerModalType: "",
             zoomFactor: 3000000,
             showProbandCoverage: false,
+            showIgvModal: false,
         };
     },
     async mounted() {
@@ -650,6 +655,13 @@ export default {
                 }
             }
         },
+        zoomedSize() {
+            if (!this.selectedArea) {
+                return this.genomeEnd - this.genomeStart;
+            } 
+            let size = this.selectedArea.end - this.selectedArea.start;
+            return size
+        }
     },
     watch: {
         focusedGeneName(newVal, oldVal) {
@@ -949,7 +961,30 @@ select
     position: relative
     &.collapsed
         height: 0px
-    button
+    button:nth-of-type(1)
+        position: absolute
+        top: -10px
+        right: 75px
+        cursor: pointer
+        z-index: 3
+        border-radius: 10px
+        border: none
+        color: #2A65B7
+        border: 1px solid transparent
+        transition: background-color 0.2s, border 0.2s
+        &:hover
+            background-color: #C1D1EA
+            border: 1px solid #2A65B7
+        &:disabled
+            cursor: not-allowed
+            color: #B0B0B0
+            background-color: #EBEBEB
+            border: 1px solid #B0B0B0
+            &:hover
+                border: 1px solid #B0B0B0
+                background-color: #EBEBEB
+                cursor: not-allowed
+    button:nth-of-type(2)
         position: absolute
         top: -10px
         right: 0px
@@ -963,4 +998,13 @@ select
         &:hover
             background-color: #C1D1EA
             border: 1px solid #2A65B7
+        &:disabled
+            cursor: not-allowed
+            color: #B0B0B0
+            background-color: #EBEBEB
+            border: 1px solid #B0B0B0
+            &:hover
+                border: 1px solid #B0B0B0
+                background-color: #EBEBEB
+                cursor: not-allowed
 </style>
