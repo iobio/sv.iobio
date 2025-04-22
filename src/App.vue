@@ -316,8 +316,22 @@ export default {
 
                     if (isProband) {
                         let res = await this.mosaicSession.promiseGetFiles(this.mosaicProjectId, sample.id);
-                        let alignmentFile = res.data.filter((file) => file.type == "bam" || file.type == "cram")[0];
-                        let indexFile = res.data.filter((file) => file.type == "bai" || file.type == "crai")[0];
+                        let alignmentFile = res.data.filter((file) => file.type == "bam" || file.type == "cram");
+
+                        //if there are multiple alignment files, we want the cram (I believe that is the most downstream)
+                        if (alignmentFile.length > 1) {
+                            alignmentFile = alignmentFile.filter((file) => file.type == "cram")[0];
+                        } else {
+                            alignmentFile = alignmentFile[0];
+                        }
+
+                        let indexFile;
+                        if (alignmentFile.type == "bam") {
+                            indexFile = res.data.filter((file) => file.type == "bai")[0]; 
+                        } else {
+                            indexFile = res.data.filter((file) => file.type == "crai")[0];
+                        }
+
                         let bedFile = res.data.filter((file) => file.type == "bam-bed")[0];
                         let alignmentUrl = "";
                         let indexUrl = "";
@@ -338,7 +352,7 @@ export default {
 
                         this.samples.proband.vcf = mosaicVcfUrl.url;
                         this.samples.proband.id = sampleVcfName;
-                        this.samples.proband.relation = sample.relation.toLowerCase();
+                        this.samples.proband.relation = sample.relation.toLowerCase();                    
 
                         probandFound = true;
                     } else {
