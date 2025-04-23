@@ -417,6 +417,7 @@ export default {
 .variant-list-item
     width: 100%
     min-width: 200px
+    min-height: 45px
     position: relative
     .novel-tag
         display: flex
