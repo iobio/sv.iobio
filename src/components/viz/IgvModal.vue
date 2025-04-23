@@ -149,7 +149,6 @@ export default {
     opacity: 0.95
     border-radius: 10px
     border: 1px solid #ccc
-    overflowY: auto
     *
         box-sizing: border-box
 </style>
