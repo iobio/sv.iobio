@@ -104,7 +104,6 @@ export default {
     },
     watch: {
         region(newVal) {
-            console.log("region changed to: ", newVal);
             if (this.igvBrowser) {
                 this.igvBrowser.search(this.locus);
             }

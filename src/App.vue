@@ -276,6 +276,19 @@ export default {
 
                 //Create a new MosaicSession object
                 this.mosaicSession = new MosaicSession(clientAppNumber);
+                let sessionSamples = {
+                    proband: {
+                        name: "Proband",
+                        id: null,
+                        vcf: "",
+                        tbi: "",
+                        bam: "",
+                        bai: "",
+                        bed: "",
+                        svList: [],
+                    },
+                    comparisons: [],
+                }
 
                 try {
                     await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType);
@@ -283,6 +296,7 @@ export default {
                     this.validFromMosaic = false;
                     this.selectDataSectionOpen = true;
                     this.toasts.push({ message: `Error initializing Mosaic Session: ${error}`, type: "error" });
+                    return
                 }
 
                 let projectAttributes = await this.mosaicSession.promiseGetProjectSettings(this.mosaicProjectId);
@@ -339,22 +353,22 @@ export default {
                             let bedUrl = "";
                             
                             alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, alignmentFile.id);
-                            this.samples.proband.bam = alignmentUrl.url;
+                            sessionSamples.proband.bam = alignmentUrl.url;
                             indexUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, indexFile.id);
-                            this.samples.proband.bai = indexUrl.url;
+                            sessionSamples.proband.bai = indexUrl.url;
                             
                             if (bedFile) {
                                 bedUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, bedFile.id);
-                                this.samples.proband.bed = bedUrl.url;
+                                sessionSamples.proband.bed = bedUrl.url;
                             }
                         }
-                        
+
                         let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, sample.id);
                         this.phenotypesOfInterest = terms.map((term) => term.hpo_id);
 
-                        this.samples.proband.vcf = mosaicVcfUrl.url;
-                        this.samples.proband.id = sampleVcfName;
-                        this.samples.proband.relation = sample.relation.toLowerCase();                    
+                        sessionSamples.proband.vcf = mosaicVcfUrl.url;
+                        sessionSamples.proband.id = sampleVcfName;
+                        sessionSamples.proband.relation = sample.relation.toLowerCase();                    
 
                         probandFound = true;
                     } else {
@@ -381,7 +395,7 @@ export default {
                             relation: relation,
                         };
 
-                        this.samples.comparisons.push(newComparison);
+                        sessionSamples.comparisons.push(newComparison);
                     }
                 }
 
@@ -389,7 +403,7 @@ export default {
                     this.validFromMosaic = true;
                     this.selectDataSectionOpen = false;
                     //Call update samples to load the data and close the select data section
-                    this.updateSamples(this.samples);
+                    this.updateSamples(sessionSamples);
                 } else {
                     //set not launched from mosaic not valid something went wrong
                     this.validFromMosaic = false;
