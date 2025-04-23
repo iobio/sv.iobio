@@ -319,34 +319,36 @@ export default {
                         let alignmentFile = res.data.filter((file) => file.type == "bam" || file.type == "cram");
 
                         //if there are multiple alignment files, we want the cram (I believe that is the most downstream)
-                        if (alignmentFile.length > 1) {
-                            alignmentFile = alignmentFile.filter((file) => file.type == "cram")[0];
-                        } else {
-                            alignmentFile = alignmentFile[0];
-                        }
+                        if (alignmentFile && alignmentFile.length >= 1) {
+                            if (alignmentFile.length > 1) {
+                                alignmentFile = alignmentFile.filter((file) => file.type == "cram")[0];
+                            } else {
+                                alignmentFile = alignmentFile[0];
+                            }
 
-                        let indexFile;
-                        if (alignmentFile.type == "bam") {
-                            indexFile = res.data.filter((file) => file.type == "bai")[0]; 
-                        } else {
-                            indexFile = res.data.filter((file) => file.type == "crai")[0];
-                        }
+                            let indexFile;
+                            if (alignmentFile.type == "bam") {
+                                indexFile = res.data.filter((file) => file.type == "bai")[0]; 
+                            } else {
+                                indexFile = res.data.filter((file) => file.type == "crai")[0];
+                            }
 
-                        let bedFile = res.data.filter((file) => file.type == "bam-bed")[0];
-                        let alignmentUrl = "";
-                        let indexUrl = "";
-                        let bedUrl = "";
+                            let bedFile = res.data.filter((file) => file.type == "bam-bed")[0];
+                            let alignmentUrl = "";
+                            let indexUrl = "";
+                            let bedUrl = "";
+                            
+                            alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, alignmentFile.id);
+                            this.samples.proband.bam = alignmentUrl.url;
+                            indexUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, indexFile.id);
+                            this.samples.proband.bai = indexUrl.url;
+                            
+                            if (bedFile) {
+                                bedUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, bedFile.id);
+                                this.samples.proband.bed = bedUrl.url;
+                            }
+                        }
                         
-                        alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, alignmentFile.id);
-                        this.samples.proband.bam = alignmentUrl.url;
-                        indexUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, indexFile.id);
-                        this.samples.proband.bai = indexUrl.url;
-                        
-                        if (bedFile) {
-                            bedUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, bedFile.id);
-                            this.samples.proband.bed = bedUrl.url;
-                        }
-
                         let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, sample.id);
                         this.phenotypesOfInterest = terms.map((term) => term.hpo_id);
 
