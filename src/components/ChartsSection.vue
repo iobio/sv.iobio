@@ -106,6 +106,7 @@
         </div>
 
         <div class="wrapper-95">
+            <IgvModal v-if="showIgvModal && samples.proband && focusedVariant" @close="showIgvModal = false" :region="zoomedStamp" :proband="samples.proband" :selectedVariant="focusedVariant"></IgvModal>
             <svCircos
                 v-if="globalView === 'circos' && circosDataReady"
                 :svList="svList"
@@ -158,6 +159,12 @@
                     :isProband="true"
                     @selectAreaEvent="selectAreaEventFired"
                     @focusedVariantEvent="focusedVariantEventFired" />
+                
+                <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, 'collapsed': !showProbandCoverage }">
+                    <button :disabled="zoomedSize < 32000" @click="showProbandCoverage = !showProbandCoverage"><span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage</button>
+                    <button :disabled="!focusedVariant || !focusedVariantInView" @click="showIgvModal = true"><span>Show IGV</span></button>
+                    <CoverageHistoWrapper v-if="showProbandCoverage" :bamUrl="samples.proband.bam" :baiUrl="samples.proband.bai" :bedUrl="samples.proband.bed" :region="selectedArea" :genomeSize="genomeEnd"/>
+                </div>
 
                 <component
                     v-for="(chartData, index) in chartsData"
@@ -168,6 +175,7 @@
                     @selectAreaEvent="selectAreaEventFired"
                     @removeTrack="removeTrack(index)"
                     class="draggable-chart" />
+
                 <LowerModal
                     v-if="focusedVariant"
                     :hidden="hideLowerModal"
@@ -195,6 +203,9 @@ import LinearRegionsChartViz from "./viz/clinGenChart.viz.vue";
 import IdeogramScaleBarViz from "./viz/ideogramScaleBar.viz.vue";
 import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
+import TippedButton from "./parts/TippedButton.vue";
+import CoverageHistoWrapper from "./viz/CoverageHistoWrapper.vue";
+import IgvModal from "./viz/IgvModal.vue";
 import { bpFormatted } from "../dataHelpers/commonFunctions.js";
 
 export default {
@@ -208,6 +219,9 @@ export default {
         IdeogramScaleBarViz,
         SvCirosMiniViz,
         LowerModal,
+        TippedButton,
+        CoverageHistoWrapper,
+        IgvModal,
     },
     props: {
         svList: Array,
@@ -245,6 +259,8 @@ export default {
             hideLowerModal: true,
             lowerModalType: "",
             zoomFactor: 3000000,
+            showProbandCoverage: false,
+            showIgvModal: false,
         };
     },
     async mounted() {
@@ -639,6 +655,55 @@ export default {
                 }
             }
         },
+        zoomedSize() {
+            if (!this.selectedArea) {
+                return this.genomeEnd - this.genomeStart;
+            } 
+            let size = this.selectedArea.end - this.selectedArea.start;
+            return size
+        },
+        focusedVariantInView() {
+            /**
+             * To show IGV we want to 1) have a focused variant and 2) we need that variant to be in the view window 
+             * This computed property is a boolean for that second criteria. 
+             * 
+             * There arent SVs called typically from one chromosome into another it isn't biologically plausible so 
+             * we can save some checks in the case that we have multiple chromosomes
+             * 
+             * Using other computed property so that we dont have to re parse which chromosome we are in
+             */
+
+            if (!this.focusedVariant) {
+                return false
+            }
+
+            let stamps = this.zoomedStamp.split(":");
+            if (!stamps) { //We are probably at the whole genome
+                return false
+            }
+
+            if (stamps.length == 2) {
+                let chr = stamps[0].replace("chr", "");
+                let startEnd = stamps[1].split("-");
+                
+                return (chr == this.focusedVariant.chromosome && this.focusedVariant.start > startEnd[0] && this.focusedVariant.end < startEnd[1])
+            } else if (stamps.length > 2) {
+                let chr1 = stamps[0].replace("chr", "");
+                let chr2 = stamps[1].split("-")[1].replace("chr", "");
+                let start = stamps[1].split("-")[0];
+                let end = stamps[2];
+
+                if (chr1 == this.focusedVariant.chromosome) { //Head chromosome
+                    return this.focusedVariant.start > start;
+                } else if (chr2 == this.focusedVariant.chromosome) { //Tail chromosome
+                    return this.focusedVariant.end < end;
+                } else if (chr1 < this.focusedVariant.chromosome && this.focusedVariant.chromosome < chr2){
+                    //In this case our range is multiple chromosomes but our variant is somewhere in there
+                    return true
+                }
+            }
+            return false
+        },
     },
     watch: {
         focusedGeneName(newVal, oldVal) {
@@ -930,4 +995,58 @@ select
         cursor: pointer
     &:focus
         outline: none
+.collapseable-chart
+    padding: 0px
+    margin: 0px
+    border: 0px
+    overflow: visible
+    position: relative
+    &.collapsed
+        height: 0px
+    button:nth-of-type(1)
+        position: absolute
+        top: -10px
+        right: 75px
+        cursor: pointer
+        z-index: 3
+        border-radius: 10px
+        border: none
+        color: #2A65B7
+        border: 1px solid transparent
+        transition: background-color 0.2s, border 0.2s
+        &:hover
+            background-color: #C1D1EA
+            border: 1px solid #2A65B7
+        &:disabled
+            cursor: not-allowed
+            color: #B0B0B0
+            background-color: #EBEBEB
+            border: 1px solid #B0B0B0
+            &:hover
+                border: 1px solid #B0B0B0
+                background-color: #EBEBEB
+                cursor: not-allowed
+    button:nth-of-type(2)
+        position: absolute
+        top: -10px
+        right: 0px
+        cursor: pointer
+        z-index: 3
+        border-radius: 10px
+        border: none
+        color: #2A65B7
+        border: 1px solid transparent
+        transition: background-color 0.2s, border 0.2s
+        &:hover
+            background-color: #C1D1EA
+            border: 1px solid #2A65B7
+        &:disabled
+            cursor: not-allowed
+            color: #B0B0B0
+            background-color: #EBEBEB
+            border: 1px solid #B0B0B0
+            &:hover
+                border: 1px solid #B0B0B0
+                background-color: #EBEBEB
+                cursor: not-allowed
 </style>

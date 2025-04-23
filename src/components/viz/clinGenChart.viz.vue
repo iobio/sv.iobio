@@ -82,6 +82,7 @@ export default {
 
 <style lang="sass">
 .linear-regions-chart-wrapper
+    padding: 5px
     margin-top: 10px
     position: relative
 .linear-regions-chart

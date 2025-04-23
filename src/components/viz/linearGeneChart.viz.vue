@@ -129,6 +129,7 @@ export default {
 <style lang="sass">
 .linear-gene-chart-wrapper
     background-color: #F8F8F8
+    border: .5px solid transparent
     border-bottom: 1px solid transparent
     border-radius: 5px
     margin-top: 5px

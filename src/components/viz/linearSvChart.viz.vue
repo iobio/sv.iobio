@@ -190,8 +190,9 @@ export default {
                     text-transform: uppercase
 .linear-sv-chart-wrapper
     background-color: white
+    border: .5px solid transparent
     border-bottom: 1px solid whitesmoke
-    border-radius: 5px
+    border-radius: 0px
     padding: 5px
     position: relative
     .title
