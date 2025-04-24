@@ -199,6 +199,7 @@ export default {
                     tbi: "",
                     bam: "",
                     bai: "",
+                    alignmentType: "bam",
                     bed: "",
                     svList: [],
                 },
@@ -284,6 +285,7 @@ export default {
                         tbi: "",
                         bam: "",
                         bai: "",
+                        alignmentType: "bam",
                         bed: "",
                         svList: [],
                     },
@@ -345,6 +347,7 @@ export default {
                                 indexFile = res.data.filter((file) => file.type == "bai")[0]; 
                             } else {
                                 indexFile = res.data.filter((file) => file.type == "crai")[0];
+                                sessionSamples.proband.alignmentType = "cram"
                             }
 
                             let bedFile = res.data.filter((file) => file.type == "bam-bed")[0];
@@ -391,6 +394,8 @@ export default {
                             tbi: "",
                             bam: "",
                             bai: "",
+                            alignmentType: "bam",
+                            bed: "",
                             svList: [],
                             relation: relation,
                         };
@@ -417,6 +422,7 @@ export default {
                         tbi: "",
                         bam: "",
                         bai: "",
+                        alignmentType: "bam",
                         bed: "",
                         svList: [],
                         relation: "proband",
@@ -436,6 +442,7 @@ export default {
                     tbi: "",
                     bam: "",
                     bai: "",
+                    alignmentType: "bam",
                     bed: "",
                     svList: [],
                     relation: "proband",

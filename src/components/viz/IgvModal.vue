@@ -45,7 +45,7 @@ export default {
                     "url": this.proband.bam,
                     "bed": this.proband.bed,
                     "indexURL": this.proband.bai,
-                    "format": this.fileType,
+                    "format": this.proband.alignmentType,
                 },
                 {
                     "name": "Proband VCF",
@@ -95,12 +95,6 @@ export default {
             }
             return "all";
         },
-        fileType() {
-            if (this.proband.bam) {
-                return this.proband.bam.split('.').pop();
-            }
-            return "bam";
-        }
     },
     watch: {
         region(newVal) {
