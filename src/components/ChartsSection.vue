@@ -106,7 +106,7 @@
         </div>
 
         <div class="wrapper-95">
-            <IgvModal v-if="showIgvModal && samples.proband && focusedVariant" @close="showIgvModal = false" :region="zoomedStamp" :proband="samples.proband" :selectedVariant="focusedVariant"></IgvModal>
+            <IgvModal v-if="showIgvModal && samples.proband && focusedVariant" @close="showIgvModal = false" :region="zoomedStamp" :proband="samples.proband" :comparisons="samples.comparisons" :selectedVariant="focusedVariant"></IgvModal>
             <svCircos
                 v-if="globalView === 'circos' && circosDataReady"
                 :svList="svList"

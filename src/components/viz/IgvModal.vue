@@ -27,6 +27,10 @@ export default {
             type: Object,
             required: false,
         },
+        comparisons: {
+            type: Array,
+            required: false
+        }
     },
     data() {
         return {
@@ -41,20 +45,42 @@ export default {
             locus: this.locus,
             tracks: [
                 {
+                    "name": "Proband VCF",
+                    "url": this.proband.vcf,
+                    "format": "vcf",
+                    "indexURL": this.proband.tbi,
+                    "squishedCallHeight": 5,
+                    "expandedCallHeight": 5,
+                    "displayMode": 'COLLAPSED'
+                },
+                {
                     "name": "Proband Bam",
                     "url": this.proband.bam,
                     "bed": this.proband.bed,
                     "indexURL": this.proband.bai,
                     "format": this.proband.alignmentType,
-                },
-                {
-                    "name": "Proband VCF",
-                    "url": this.proband.vcf,
-                    "format": "vcf",
-                    "indexURL": this.proband.tbi,
+                    "maxHeight": 150,
+                    "height": 150,
+                    "alignmentRowHeight": 6
                 },
             ]
         };
+
+        if (this.comparisons) {
+            for (let comp of this.comparisons) {
+                let track = {
+                    "name": comp.name,
+                    "url": comp.bam,
+                    "bed": comp.bed,
+                    "indexURL": comp.bai,
+                    "format": comp.alignmentType,
+                    "maxHeight": 150,
+                    "height": 150,
+                    "alignmentRowHeight": 6
+                }
+                options.tracks.push(track)
+            }
+        }
 
         this.igvEl = document.getElementById('igv-container');
         this.igvBrowser = await igv.createBrowser(this.igvEl, options);
@@ -142,6 +168,7 @@ export default {
     opacity: 0.95
     border-radius: 10px
     border: 1px solid #ccc
+    overflow-y: auto
     *
         box-sizing: border-box
 </style>
