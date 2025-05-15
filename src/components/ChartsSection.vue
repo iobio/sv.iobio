@@ -106,7 +106,13 @@
         </div>
 
         <div class="wrapper-95">
-            <IgvModal v-if="showIgvModal && samples.proband && focusedVariant" @close="showIgvModal = false" :region="zoomedStamp" :proband="samples.proband" :comparisons="samples.comparisons" :selectedVariant="focusedVariant"></IgvModal>
+            <IgvModal
+                v-if="showIgvModal && samples.proband && focusedVariant"
+                @close="showIgvModal = false"
+                :region="zoomedStamp"
+                :proband="samples.proband"
+                :comparisons="samples.comparisons"
+                :selectedVariant="focusedVariant"></IgvModal>
             <svCircos
                 v-if="globalView === 'circos' && circosDataReady"
                 :svList="svList"
@@ -670,51 +676,58 @@ export default {
         zoomedSize() {
             if (!this.selectedArea) {
                 return this.genomeEnd - this.genomeStart;
-            } 
+            }
             let size = this.selectedArea.end - this.selectedArea.start;
-            return size
+            return size;
         },
         focusedVariantInView() {
             /**
-             * To show IGV we want to 1) have a focused variant and 2) we need that variant to be in the view window 
-             * This computed property is a boolean for that second criteria. 
-             * 
-             * There arent SVs called typically from one chromosome into another it isn't biologically plausible so 
+             * To show IGV we want to 1) have a focused variant and 2) we need that variant to be in the view window
+             * This computed property is a boolean for that second criteria.
+             *
+             * There arent SVs called typically from one chromosome into another it isn't biologically plausible so
              * we can save some checks in the case that we have multiple chromosomes
-             * 
+             *
              * Using other computed property so that we dont have to re parse which chromosome we are in
              */
 
             if (!this.focusedVariant) {
-                return false
+                return false;
             }
 
             let stamps = this.zoomedStamp.split(":");
-            if (!stamps) { //We are probably at the whole genome
-                return false
+            if (!stamps) {
+                //We are probably at the whole genome
+                return false;
             }
 
             if (stamps.length == 2) {
                 let chr = stamps[0].replace("chr", "");
                 let startEnd = stamps[1].split("-");
-                
-                return (chr == this.focusedVariant.chromosome && this.focusedVariant.start > startEnd[0] && this.focusedVariant.end < startEnd[1])
+
+                return (
+                    chr == this.focusedVariant.chromosome &&
+                    this.focusedVariant.start > startEnd[0] &&
+                    this.focusedVariant.end < startEnd[1]
+                );
             } else if (stamps.length > 2) {
                 let chr1 = stamps[0].replace("chr", "");
                 let chr2 = stamps[1].split("-")[1].replace("chr", "");
                 let start = stamps[1].split("-")[0];
                 let end = stamps[2];
 
-                if (chr1 == this.focusedVariant.chromosome) { //Head chromosome
+                if (chr1 == this.focusedVariant.chromosome) {
+                    //Head chromosome
                     return this.focusedVariant.start > start;
-                } else if (chr2 == this.focusedVariant.chromosome) { //Tail chromosome
+                } else if (chr2 == this.focusedVariant.chromosome) {
+                    //Tail chromosome
                     return this.focusedVariant.end < end;
-                } else if (chr1 < this.focusedVariant.chromosome && this.focusedVariant.chromosome < chr2){
+                } else if (chr1 < this.focusedVariant.chromosome && this.focusedVariant.chromosome < chr2) {
                     //In this case our range is multiple chromosomes but our variant is somewhere in there
-                    return true
+                    return true;
                 }
             }
-            return false
+            return false;
         },
     },
     watch: {
