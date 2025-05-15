@@ -36,13 +36,7 @@ export default {
         };
     },
     async mounted() {
-        // await import("https://cdn.jsdelivr.net/npm/iobio-charts@0.23.0/index.js");
-        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@main-coverage-chart-isolation/coverage/src/BamView-WebComponent.js");
-        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@main-coverage-chart-isolation/coverage/src/BamData.js");
-        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@main-coverage-chart-isolation/bam_controls.js");
-        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@main-coverage-chart-isolation/common.js");
-        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@main-coverage-chart-isolation/data_broker_component.js");
-        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@main-coverage-chart-isolation/data_broker.js");
+        await import("https://cdn.jsdelivr.net/npm/iobio-charts@0.24.0/index.js");
 
         const options = {
             showChartLabel: false,
