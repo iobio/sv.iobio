@@ -159,11 +159,21 @@
                     :isProband="true"
                     @selectAreaEvent="selectAreaEventFired"
                     @focusedVariantEvent="focusedVariantEventFired" />
-                
-                <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, 'collapsed': !showProbandCoverage }">
-                    <button :disabled="zoomedSize < 32000" @click="showProbandCoverage = !showProbandCoverage"><span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage</button>
-                    <button :disabled="!focusedVariant || !focusedVariantInView" @click="showIgvModal = true"><span>Show IGV</span></button>
-                    <CoverageHistoWrapper v-if="showProbandCoverage" :bamUrl="samples.proband.bam" :baiUrl="samples.proband.bai" :bedUrl="samples.proband.bed" :region="selectedArea" :genomeSize="genomeEnd"/>
+
+                <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, collapsed: !showProbandCoverage }">
+                    <button :disabled="zoomedSize < 32000" @click="showProbandCoverage = !showProbandCoverage">
+                        <span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage
+                    </button>
+                    <button :disabled="!focusedVariant || !focusedVariantInView" @click="showIgvModal = true">
+                        <span>Show IGV</span>
+                    </button>
+                    <MultiBamWrapper
+                        v-if="showProbandCoverage"
+                        :bamUrl="samples.proband.bam"
+                        :baiUrl="samples.proband.bai"
+                        :bedUrl="samples.proband.bed"
+                        :region="selectedArea"
+                        :genomeSize="genomeEnd"></MultiBamWrapper>
                 </div>
 
                 <component
@@ -205,6 +215,7 @@ import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
 import TippedButton from "./parts/TippedButton.vue";
 import CoverageHistoWrapper from "./viz/CoverageHistoWrapper.vue";
+import MultiBamWrapper from "./viz/MultiBamWrapper.viz.vue";
 import IgvModal from "./viz/IgvModal.vue";
 import { bpFormatted } from "../dataHelpers/commonFunctions.js";
 
@@ -221,6 +232,7 @@ export default {
         LowerModal,
         TippedButton,
         CoverageHistoWrapper,
+        MultiBamWrapper,
         IgvModal,
     },
     props: {
