@@ -175,9 +175,8 @@
                     </button>
                     <MultiBamWrapper
                         v-if="showProbandCoverage"
-                        :bamUrl="samples.proband.bam"
-                        :baiUrl="samples.proband.bai"
-                        :bedUrl="samples.proband.bed"
+                        :bamUrls="[samples.proband.bam, ...samples.comparisons.map((sample) => sample.bam)]"
+                        :baiUrls="[samples.proband.bai, ...samples.comparisons.map((sample) => sample.bai)]"
                         :region="selectedArea"
                         :genomeSize="genomeEnd"></MultiBamWrapper>
                 </div>
