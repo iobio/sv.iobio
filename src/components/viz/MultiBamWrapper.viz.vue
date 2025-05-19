@@ -12,11 +12,11 @@ export default {
             required: false,
         },
         bamUrls: {
-            type: String,
+            type: Array,
             required: true,
         },
-        baiUrl: {
-            type: String,
+        baiUrls: {
+            type: Array,
             required: false,
         },
         genomeSize: {
@@ -48,14 +48,12 @@ export default {
         container.appendChild(this.dataBrokerEl);
         container.appendChild(this.multiBamView);
 
-        this.dataBrokerEl.alignmentUrl = this.bamUrl;
+        this.dataBrokerEl.setAttribute("id", "multi-bam-broker");
+        this.multiBamView.brokerId = "multi-bam-broker";
+        this.dataBrokerEl.alignmentUrls = this.bamUrls;
 
-        if (this.baiUrl) {
-            this.dataBrokerEl.indexUrl = this.baiUrl;
-        }
-
-        if (this.bedUrl) {
-            this.dataBrokerEl.bedUrl = this.bedUrl;
+        if (this.baiUrls) {
+            this.dataBrokerEl.indexUrls = this.baiUrls;
         }
     },
     methods: {},
