@@ -15,7 +15,7 @@ export default {
             type: Object,
             required: true,
         },
-        region: { 
+        region: {
             type: String,
             required: true,
         },
@@ -29,8 +29,8 @@ export default {
         },
         comparisons: {
             type: Array,
-            required: false
-        }
+            required: false,
+        },
     },
     data() {
         return {
@@ -39,50 +39,49 @@ export default {
         };
     },
     async mounted() {
-        const options =
-        {
+        const options = {
             genome: "hg38",
             locus: this.locus,
             tracks: [
                 {
-                    "name": "Proband VCF",
-                    "url": this.proband.vcf,
-                    "format": "vcf",
-                    "indexURL": this.proband.tbi,
-                    "squishedCallHeight": 5,
-                    "expandedCallHeight": 5,
-                    "displayMode": 'COLLAPSED'
+                    name: "Proband VCF",
+                    url: this.proband.vcf,
+                    format: "vcf",
+                    indexURL: this.proband.tbi,
+                    squishedCallHeight: 5,
+                    expandedCallHeight: 5,
+                    displayMode: "COLLAPSED",
                 },
                 {
-                    "name": "Proband Bam",
-                    "url": this.proband.bam,
-                    "bed": this.proband.bed,
-                    "indexURL": this.proband.bai,
-                    "format": this.proband.alignmentType,
-                    "maxHeight": 150,
-                    "height": 150,
-                    "alignmentRowHeight": 6
+                    name: "Proband Bam",
+                    url: this.proband.bam,
+                    bed: this.proband.bed,
+                    indexURL: this.proband.bai,
+                    format: this.proband.alignmentType,
+                    maxHeight: 150,
+                    height: 150,
+                    alignmentRowHeight: 6,
                 },
-            ]
+            ],
         };
 
         if (this.comparisons) {
             for (let comp of this.comparisons) {
                 let track = {
-                    "name": comp.name,
-                    "url": comp.bam,
-                    "bed": comp.bed,
-                    "indexURL": comp.bai,
-                    "format": comp.alignmentType,
-                    "maxHeight": 150,
-                    "height": 150,
-                    "alignmentRowHeight": 6
-                }
-                options.tracks.push(track)
+                    name: comp.name,
+                    url: comp.bam,
+                    bed: comp.bed,
+                    indexURL: comp.bai,
+                    format: comp.alignmentType,
+                    maxHeight: 150,
+                    height: 150,
+                    alignmentRowHeight: 6,
+                };
+                options.tracks.push(track);
             }
         }
 
-        this.igvEl = document.getElementById('igv-container');
+        this.igvEl = document.getElementById("igv-container");
         this.igvBrowser = await igv.createBrowser(this.igvEl, options);
     },
     computed: {
@@ -96,7 +95,7 @@ export default {
             if (this.region) {
                 if (this.region == "Whole Genome") {
                     return "all";
-                } else if (this.selectedVariant && this.selectedVariant.size > 8000){
+                } else if (this.selectedVariant && this.selectedVariant.size > 8000) {
                     let regions = ["", ""];
                     let hStart = this.selectedVariant.start - 1000;
                     if (hStart < rStart) {
@@ -114,8 +113,7 @@ export default {
                     let tail = chr + ":" + tStart + "-" + tEnd;
                     regions[1] = tail;
                     return regions;
-                }
-                else {
+                } else {
                     return this.region;
                 }
             }
