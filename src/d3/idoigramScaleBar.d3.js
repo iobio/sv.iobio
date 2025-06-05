@@ -16,17 +16,6 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
     let zoomedSelection = null;
 
     if (options) {
-        if (options.centromeres) {
-            centromeres = options.centromeres;
-
-            //Convert the centromeres remove the chr from the chr field use that as the key
-            let newCentromeres = {};
-            for (let centromere of centromeres) {
-                let newKey = centromere.chr.replace("chr", "");
-                newCentromeres[newKey] = centromere;
-            }
-            centromeres = newCentromeres;
-        }
         if (options.bands) {
             bands = options.bands;
 
@@ -48,6 +37,21 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 newBands.push(band);
             }
             bands = newBands;
+
+            // The centromeres will be the acen bands
+            centromeres = {};
+            for (let band of bands) {
+                if (band.gieStain.includes("acen")) {
+                    // If the chr is not in the centromeres object, create it
+                    if (!centromeres[band.chr]) {
+                        centromeres[band.chr] = { start: band.start, end: band.end, gap: 0 };
+                    } else {
+                        // If it is in there we have found our first part so we can update the end and find the gap which is the old end
+                        centromeres[band.chr].gap = centromeres[band.chr].end;
+                        centromeres[band.chr].end = band.end;
+                    }
+                }
+            }
         }
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
@@ -66,8 +70,6 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
             }
         }
     }
-
-    const margin = { top: 5, right: 10, bottom: 5, left: 10 };
 
     const svg = d3
         .create("svg")
@@ -105,6 +107,8 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
         selection = null;
     }
 
+    const margin = { top: 5, right: 10, bottom: 5, left: 10 };
+
     let x = d3
         .scaleLinear()
         .domain([zoomedSelection.start, zoomedSelection.end])
@@ -112,7 +116,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
 
     let xAxis = (g) =>
         g
-            .attr("transform", `translate(0, ${height - margin.bottom - 15})`)
+            .attr("transform", `translate(0, ${height - margin.bottom - 11})`)
             .call(
                 d3
                     .axisBottom(x)
@@ -136,7 +140,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                                 }
                             }
                         }
-                    })
+                    }),
             )
             //tics need to be rotated slightly so they don't overlap
             .selectAll("text")
@@ -194,25 +198,24 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
             let centromere = false;
             let centromereStart = null;
             let centromereEnd = null;
-            let centromereCenter = null;
+            let centromereGap = null;
 
             //set absolute centromere start, end, and center based on the chromosome start and end (original)
             if (centromeres) {
                 centromere = true;
                 centromereStart = chromosomeStart + centromeres[chr].start;
                 centromereEnd = chromosomeStart + centromeres[chr].end;
-                centromereCenter = (centromereEnd - centromereStart) / 2;
+                centromereGap = chromosomeStart + centromeres[chr].gap;
 
                 if (chromosomeStart != chromStartUpdated || chromosomeEnd != chromEndUpdated) {
                     let newCentStartEnd = _getStartEndForRange(centromereStart, centromereEnd, range);
 
                     if (!newCentStartEnd) {
-                        //this centrome is not in the range so we will not render it
+                        //this centromere is not in the range so we will not render it
                         centromere = false;
                     } else {
                         centromereStart = newCentStartEnd.start;
                         centromereEnd = newCentStartEnd.end;
-                        centromereCenter = (centromereEnd - centromereStart) / 2;
                     }
                 }
             }
@@ -225,64 +228,6 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                 .attr("id", `chr-${chr}-group`);
 
             let chromosomeColor = d3.interpolate("#1F68C1", "#A63D40")(chromosomeEnd / genomeSize);
-
-            let idioHeight = 12;
-            let idioPosOffset = 16;
-
-            if (!centromere) {
-                //add another rectangle slightly smaller and under the last one to start to make the ideograms
-                chromosomeGroup
-                    .append("rect")
-                    //class will be ideogram
-                    .attr("class", "upper-ideogram")
-                    .attr("x", 0)
-                    .attr("y", 0)
-                    .attr("width", x(chromEndUpdated) - x(chromStartUpdated))
-                    .attr("height", idioHeight)
-                    .attr("transform", `translate(0, ${idioPosOffset})`)
-                    .attr("fill", "white")
-                    .attr("stroke", chromosomeColor)
-                    //make the corners rounded
-                    .attr("rx", 3);
-            } else {
-                chromosomeGroup
-                    .append("rect")
-                    //class will be ideogram
-                    .attr("class", "upper-ideogram-parm")
-                    .attr("x", 0)
-                    .attr("y", 0)
-                    .attr("width", function () {
-                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(centromereStart + centromereCenter) - x(chromStartUpdated) - 1;
-                    })
-                    .attr("height", idioHeight)
-                    .attr("transform", `translate(0, ${idioPosOffset})`)
-                    .attr("fill", "white")
-                    .attr("stroke", chromosomeColor)
-                    //make the corners rounded
-                    .attr("rx", 3);
-
-                //now to make the q arm
-                chromosomeGroup
-                    .append("rect")
-                    //class will be idi
-                    .attr("class", "lower-ideogram-qarm")
-                    .attr("x", function () {
-                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(centromereStart + centromereCenter) - x(chromStartUpdated);
-                    })
-                    .attr("y", 0)
-                    .attr("width", function () {
-                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                        return x(chromEndUpdated) - x(centromereEnd - centromereCenter);
-                    })
-                    .attr("height", idioHeight)
-                    .attr("transform", `translate(0, ${idioPosOffset})`)
-                    .attr("fill", "white")
-                    .attr("stroke", chromosomeColor)
-                    //make the corners rounded
-                    .attr("rx", 3);
-            }
 
             //if there are bands filter for the bands that are in this chromosome
             if (bands) {
@@ -320,7 +265,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                             .attr("x", function () {
                                 return bandStartX;
                             })
-                            .attr("y", 8)
+                            .attr("y", 20)
                             .attr("width", function () {
                                 return bandEndX - bandStartX;
                             })
@@ -329,38 +274,168 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                             .attr("fill", chromosomeColor)
                             .attr("fill-opacity", intensity)
                             .raise();
+                    } else if (band.gieStain.includes("acen")) {
+                        //create my band rectangle
+                        chromosomeGroup
+                            .append("rect")
+                            .attr("x", function () {
+                                return bandStartX;
+                            })
+                            .attr("y", 20)
+                            .attr("width", function () {
+                                if (bandEndX - bandStartX < 1) {
+                                    //If the band is going to be less than 2px then dont render a band
+                                    return 1;
+                                }
+                                return bandEndX - bandStartX;
+                            })
+                            .attr("height", bandHeight)
+                            .attr("transform", `translate(0, 9)`)
+                            .attr("fill", "red")
+                            .attr("stroke", function () {
+                                //If the band is going to be less than 2px then dont render a stroke
+                                if (bandEndX - bandStartX < 3) {
+                                    return "none";
+                                }
+                                return "white";
+                            })
+                            .attr("stroke-width", ".25px")
+                            .raise();
+                    } else if (band.gieStain.includes("gvar")) {
+                        //create my band rectangle
+                        chromosomeGroup
+                            .append("rect")
+                            .attr("x", function () {
+                                return bandStartX;
+                            })
+                            .attr("y", 20)
+                            .attr("width", function () {
+                                if (bandEndX - bandStartX < 1) {
+                                    //If the band is going to be less than 2px then dont render a band
+                                    return 1;
+                                }
+                                return bandEndX - bandStartX;
+                            })
+                            .attr("height", bandHeight)
+                            .attr("transform", `translate(0, 9)`)
+                            .attr("fill", "orange")
+                            .attr("opacity", 0.4)
+                            .raise();
+                    } else if (band.gieStain.includes("stalk")) {
+                        //create my band rectangle
+                        chromosomeGroup
+                            .append("rect")
+                            .attr("x", function () {
+                                return bandStartX;
+                            })
+                            .attr("y", 20)
+                            .attr("width", function () {
+                                if (bandEndX - bandStartX < 1) {
+                                    //If the band is going to be less than 2px then dont render a band
+                                    return 1;
+                                }
+                                return bandEndX - bandStartX;
+                            })
+                            .attr("height", bandHeight)
+                            .attr("transform", `translate(0, 9)`)
+                            .attr("fill", "purple")
+                            .attr("opacity", 0.4)
+                            .raise();
                     }
 
                     //Render a text label for the band but try to pick breakpoints that make sense
                     //Will render alternating labels based on the size of our area, if we are in a smaller area we will render more labels
                     let rangeLen = range[1] - range[0];
-                    let chromosome16Length = chromosomeMap.get("16").end - chromosomeMap.get("16").start;
                     let chromosome1Length = chromosomeMap.get("1").end - chromosomeMap.get("1").start;
 
-                    if (rangeLen <= chromosome16Length) {
+                    if (rangeLen <= chromosome1Length) {
                         //add the band label in the middle of the band
                         let x = bandStartX + (bandEndX - bandStartX) / 2;
                         chromosomeGroup
                             .append("text")
                             .attr("x", x)
-                            .attr("y", 12)
+                            .attr("y", 18)
                             .text(band.name)
                             .attr("font-size", "10px")
                             .attr("fill", chromosomeColor)
+                            // rotate the text slightly so it doesn't overlap
+                            .attr("transform", `rotate(-40, ${x}, 12)`)
                             .attr("text-anchor", "middle");
-                    } else if (rangeLen <= chromosome1Length && band.gieStain.includes("gpos")) {
-                        //add the band label in the middle of the band
-                        let x = bandStartX + (bandEndX - bandStartX) / 2;
-                        chromosomeGroup
-                            .append("text")
-                            .attr("x", x)
-                            .attr("y", 12)
-                            .text(band.name)
-                            .attr("font-size", "10px")
-                            .attr("fill", chromosomeColor)
-                            .attr("text-anchor", "middle");
+
+                        //A small line from the middle of the text to the band
+                        if (band.name && band.name.length > 0) {
+                            chromosomeGroup
+                                .append("line")
+                                .attr("x1", x)
+                                .attr("y1", 22)
+                                .attr("x2", x)
+                                .attr("y2", 28)
+                                .attr("stroke", chromosomeColor)
+                                .attr("stroke-width", 0.5);
+                        }
                     }
                 }
+            }
+
+            let idioHeight = 12;
+            let idioPosOffset = 28;
+
+            if (!centromere) {
+                //add another rectangle slightly smaller and under the last one to start to make the ideograms
+                chromosomeGroup
+                    .append("rect")
+                    //class will be ideogram
+                    .attr("class", "upper-ideogram")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", x(chromEndUpdated) - x(chromStartUpdated))
+                    .attr("height", idioHeight)
+                    .attr("transform", `translate(0, ${idioPosOffset})`)
+                    .attr("fill", "none")
+                    .attr("stroke", chromosomeColor)
+                    //make the corners rounded
+                    .attr("rx", 3);
+            } else {
+                chromosomeGroup
+                    .append("rect")
+                    //class will be ideogram
+                    .attr("class", "upper-ideogram-parm")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", function () {
+                        // If the centromere gap is in the range we can use it
+                        if (centromereGap > chromStartUpdated) {
+                            return x(centromereGap) - x(chromStartUpdated);
+                        }
+                        return x(chromEndUpdated) - x(chromStartUpdated);
+                    })
+                    .attr("height", idioHeight)
+                    .attr("transform", `translate(0, ${idioPosOffset})`)
+                    .attr("fill", "none")
+                    .attr("stroke", chromosomeColor)
+                    //make the corners rounded
+                    .attr("rx", 3);
+
+                //now to make the q arm
+                chromosomeGroup
+                    .append("rect")
+                    //class will be idi
+                    .attr("class", "lower-ideogram-qarm")
+                    .attr("x", function () {
+                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                        return x(centromereGap) - x(chromStartUpdated);
+                    })
+                    .attr("y", 0)
+                    .attr("width", function () {
+                        //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+                        return x(chromEndUpdated) - x(centromereGap);
+                    })
+                    .attr("height", idioHeight)
+                    .attr("transform", `translate(0, ${idioPosOffset})`)
+                    .attr("fill", "none")
+                    .attr("stroke", chromosomeColor)
+                    //make the corners rounded
+                    .attr("rx", 3);
             }
 
             let rangeLen = range[1] - range[0];
@@ -368,32 +443,24 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
 
             if (rangeLen <= chromosome1Length) {
                 chromosomeGroup
-                    .append("circle")
-                    .attr("cx", 2)
-                    .attr("cy", 11)
-                    .attr("r", 10)
-                    .attr("fill", "white")
-                    .attr("stroke", chromosomeColor)
-                    .attr("stroke-width", 1);
-                //if we are in a smaller space this is the one we want to render
-                chromosomeGroup
                     .append("text")
                     .attr("x", function () {
                         if (chr.length == 2) {
-                            return -7;
+                            return -10;
                         }
-                        return -3;
+                        return -10;
                     })
                     .attr("y", 17)
                     .text(chr)
-                    .attr("font-size", "18px")
+                    .attr("font-size", "17px")
                     .attr("font-weight", "bold")
+                    .attr("text-anchor", "start")
                     .attr("fill", chromosomeColor);
             } else {
                 //The global level label
                 chromosomeGroup
                     .append("text")
-                    .attr("x", x(centromereStart - centromereCenter) - x(chromStartUpdated) + 5)
+                    .attr("x", x(centromereGap) - x(chromStartUpdated)) //center the label in the middle of the chromosome
                     //if the label is two characters long, move it over a bit so it's centered
                     .attr("transform", function () {
                         if (chr.length == 2) {
@@ -403,7 +470,8 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                     .attr("y", height - margin.bottom - margin.top - 20)
                     .text(chr)
                     .attr("font-size", "14px")
-                    .attr("fill", chromosomeColor);
+                    .attr("fill", chromosomeColor)
+                    .attr("text-anchor", "middle");
             }
         }
     }
