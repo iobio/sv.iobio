@@ -9,16 +9,6 @@
                 @selectAreaEvent="selectAreaEventFired" />
         </div>
 
-        <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
-            <ChromSelectBarViz
-                v-if="chromSelectBarDataReady"
-                :selectedArea="selectedArea"
-                :centromeres="centromeres"
-                :bands="bands"
-                :chromosomes="chromosomes"
-                @selectAreaEvent="selectAreaEventFired" />
-        </div>
-
         <div class="upper-track-selectors-bar">
             <div id="radios-tools-container">
                 <fieldset class="location-indicator">
@@ -26,12 +16,12 @@
                     <p class="entry">{{ zoomedStamp }}</p>
                 </fieldset>
 
-                <div id="global-chart-style-selection">
+                <!-- <div id="global-chart-style-selection">
                     <select name="chart-view-selection" id="chart-view-select" v-model="globalView">
                         <option value="circos">Circos</option>
                         <option value="linear">Linear</option>
                     </select>
-                </div>
+                </div> -->
 
                 <fieldset class="fieldset-buttons-container" v-if="globalView == 'linear'">
                     <legend>ruler line</legend>
@@ -74,7 +64,7 @@
             </div>
 
             <div id="buttons-container">
-                <fieldset class="fieldset-buttons-container">
+                <!-- <fieldset class="fieldset-buttons-container">
                     <legend>Focused SV</legend>
                     <button
                         id="focus-chart-btn"
@@ -86,9 +76,9 @@
                             <path d="M12,20L7,22L12,11L17,22L12,20M8,2H16V5H22V7H16V10H8V7H2V5H8V2M10,4V8H14V4H10Z" />
                         </svg>
                     </button>
-                </fieldset>
+                </fieldset> -->
 
-                <fieldset class="fieldset-buttons-container">
+                <!-- <fieldset class="fieldset-buttons-container">
                     <legend>Previous Z</legend>
                     <button
                         id="prev-zoom-btn"
@@ -101,8 +91,18 @@
                                 d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z" />
                         </svg>
                     </button>
-                </fieldset>
+                </fieldset> -->
             </div>
+        </div>
+
+        <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
+            <ChromSelectBarViz
+                v-if="chromSelectBarDataReady"
+                :selectedArea="selectedArea"
+                :centromeres="centromeres"
+                :bands="bands"
+                :chromosomes="chromosomes"
+                @selectAreaEvent="selectAreaEventFired" />
         </div>
 
         <div class="wrapper-95">
@@ -866,7 +866,7 @@ export default {
     flex-direction: row
     align-items: center
     justify-content: center
-    padding: 5px
+    padding: 2px 5px
     border: 1px solid #E0E0E0
     border-radius: 5px
     margin-left: 10px
