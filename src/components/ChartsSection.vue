@@ -63,8 +63,8 @@
                 </fieldset>
             </div>
 
-            <div id="buttons-container">
-                <!-- <fieldset class="fieldset-buttons-container">
+            <!-- <div id="buttons-container"> -->
+            <!-- <fieldset class="fieldset-buttons-container">
                     <legend>Focused SV</legend>
                     <button
                         id="focus-chart-btn"
@@ -78,7 +78,7 @@
                     </button>
                 </fieldset> -->
 
-                <!-- <fieldset class="fieldset-buttons-container">
+            <!-- <fieldset class="fieldset-buttons-container">
                     <legend>Previous Z</legend>
                     <button
                         id="prev-zoom-btn"
@@ -92,17 +92,16 @@
                         </svg>
                     </button>
                 </fieldset> -->
+            <!-- </div> -->
+            <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
+                <ChromSelectBarViz
+                    v-if="chromSelectBarDataReady"
+                    :selectedArea="selectedArea"
+                    :centromeres="centromeres"
+                    :bands="bands"
+                    :chromosomes="chromosomes"
+                    @selectAreaEvent="selectAreaEventFired" />
             </div>
-        </div>
-
-        <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
-            <ChromSelectBarViz
-                v-if="chromSelectBarDataReady"
-                :selectedArea="selectedArea"
-                :centromeres="centromeres"
-                :bands="bands"
-                :chromosomes="chromosomes"
-                @selectAreaEvent="selectAreaEventFired" />
         </div>
 
         <div class="wrapper-95">
@@ -955,7 +954,6 @@ export default {
         box-sizing: border-box
         display: flex
         width: 100%
-        padding-bottom: 5px
     .wrapper-95
         position: relative
         box-sizing: border-box
@@ -988,8 +986,11 @@ export default {
     height: 100%
     display: flex
 #chrom-select-bar-div
-    height: 25px
-    padding: 3px
+    height: 30px
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-grow: 1
     box-sizing: content-box
 #global-chart-style-selection
     width: fit-content

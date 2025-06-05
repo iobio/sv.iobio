@@ -130,21 +130,22 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     }
 
     function _renderChromosomes(range) {
+        let chromosomeGroups = [];
         for (let [chr, chromosome] of chromosomeMap) {
             //Chromosome start and end
             let chromosomeStart = chromosome.start;
             let chromosomeEnd = chromosome.end;
 
-            let centromereStart = chromosomeStart + centromeres[chr].start;
-            let centromereEnd = chromosomeStart + centromeres[chr].end;
-            let centromereCenter = (centromereEnd - centromereStart) / 2;
+            // let centromereStart = chromosomeStart + centromeres[chr].start;
+            // let centromereEnd = chromosomeStart + centromeres[chr].end;
+            // let centromereCenter = (centromereEnd - centromereStart) / 2;
 
             //create a new group for this chromosome
             let chromosomeGroup = svg
                 .append("g")
                 .attr("transform", `translate(${x(chromosomeStart)}, 0)`)
                 .attr("class", "chromosome-group")
-                .attr("id", `chr-${chr}-group`);
+                .attr("id", `select-chr-${chr}-group`);
 
             let chromosomeColor = d3.interpolate("#1F68C1", "#A63D40")(chromosomeEnd / genomeSize);
 
@@ -157,63 +158,54 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 .attr("height", height - margin.bottom - margin.top)
                 .attr("fill", chromosomeColor)
                 .attr("stroke", "white")
+                .attr("stroke-width", 1)
                 .attr("fill-opacity", 0.3)
                 .attr("rx", 3);
 
-            let idioHeight = height - margin.bottom - margin.top - 6;
-            let idioPosOffset = 3;
+            // let idioHeight = height - margin.bottom - margin.top - 6;
+            // let idioPosOffset = 3;
 
-            chromosomeGroup
-                .append("rect")
-                //class will be ideogram
-                .attr("class", "upper-ideogram-parm")
-                .attr("x", 1)
-                .attr("y", 0)
-                .attr("width", function () {
-                    //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                    return x(centromereStart + centromereCenter) - x(chromosomeStart) - 1;
-                })
-                .attr("height", idioHeight)
-                .attr("transform", `translate(0, ${idioPosOffset})`)
-                .attr("fill", "white")
-                .attr("fill-opacity", 0.8)
-                .attr("stroke", chromosomeColor)
-                .attr("stroke-opacity", ".3")
-                //make the corners rounded
-                .attr("rx", 4);
+            // chromosomeGroup
+            //     .append("rect")
+            //     //class will be ideogram
+            //     .attr("class", "upper-ideogram-parm")
+            //     .attr("x", 1)
+            //     .attr("y", 0)
+            //     .attr("width", function () {
+            //         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+            //         return x(centromereStart + centromereCenter) - x(chromosomeStart) - 1;
+            //     })
+            //     .attr("height", idioHeight)
+            //     .attr("transform", `translate(0, ${idioPosOffset})`)
+            //     .attr("fill", "white")
+            //     .attr("fill-opacity", 0.8)
+            //     .attr("stroke", chromosomeColor)
+            //     .attr("stroke-opacity", ".3")
+            //     //make the corners rounded
+            //     .attr("rx", 4);
 
-            //now to make the q arm
-            chromosomeGroup
-                .append("rect")
-                //class will be idi
-                .attr("class", "lower-ideogram-qarm")
-                .attr("x", function () {
-                    //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                    return x(centromereStart + centromereCenter) - x(chromosomeStart);
-                })
-                .attr("y", 0)
-                .attr("width", function () {
-                    //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
-                    return x(chromosomeEnd) - x(centromereEnd - centromereCenter);
-                })
-                .attr("height", idioHeight)
-                .attr("transform", `translate(0, ${idioPosOffset})`)
-                .attr("fill", "white")
-                .attr("fill-opacity", 0.8)
-                .attr("stroke", chromosomeColor)
-                .attr("stroke-opacity", 0.3)
-                //make the corners rounded
-                .attr("rx", 4);
-
-            //add the labels
-            chromosomeGroup
-                .append("text")
-                .attr("x", (x(centromereStart - centromereCenter) - x(chromosomeStart)) / 2) //center the label in the middle of the chromosome
-                .attr("y", height - margin.bottom - margin.top - 6)
-                .text(chr)
-                .attr("font-size", "14px")
-                .attr("font-weight", "bold")
-                .attr("fill", chromosomeColor);
+            // //now to make the q arm
+            // chromosomeGroup
+            //     .append("rect")
+            //     //class will be idi
+            //     .attr("class", "lower-ideogram-qarm")
+            //     .attr("x", function () {
+            //         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+            //         return x(centromereStart + centromereCenter) - x(chromosomeStart);
+            //     })
+            //     .attr("y", 0)
+            //     .attr("width", function () {
+            //         //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
+            //         return x(chromosomeEnd) - x(centromereEnd - centromereCenter);
+            //     })
+            //     .attr("height", idioHeight)
+            //     .attr("transform", `translate(0, ${idioPosOffset})`)
+            //     .attr("fill", "white")
+            //     .attr("fill-opacity", 0.8)
+            //     .attr("stroke", chromosomeColor)
+            //     .attr("stroke-opacity", 0.3)
+            //     //make the corners rounded
+            //     .attr("rx", 4);
 
             chromosomeGroup
                 .attr("cursor", "pointer")
@@ -233,6 +225,44 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                         });
                     }
                 });
+
+            chromosomeGroups.push(chromosomeGroup);
+        }
+        for (let [chr, chromosome] of chromosomeMap) {
+            let chromosomeStart = chromosome.start;
+            let chromosomeEnd = chromosome.end;
+            let chromosomeColor = d3.interpolate("#1F68C1", "#A63D40")(chromosomeEnd / genomeSize);
+
+            //add the labels
+            let labels = svg
+                .append("g")
+                .attr("transform", `translate(${x(chromosomeStart)}, 0)`)
+                .attr("class", "chromosome-group")
+                .attr("id", `select-chr-${chr}-group`);
+
+            labels
+                .append("text")
+                .attr("x", x(chromosomeEnd + chromosomeStart) / 2 - x(chromosomeStart)) //center the label in the middle of the chromosome
+                .attr("y", () => {
+                    if (chr % 2 == 0) {
+                        return height - margin.bottom - margin.top - 3; // For two-letter chromosomes, position it lower
+                    }
+                    return height - margin.bottom - margin.top - 15; // For single-letter chromosomes, position it higher
+                })
+                .text(chr)
+                .attr("transform", function () {
+                    if (chr.length == 2) {
+                        return `translate(-2, 0)`; // This works better than anchoring to the center for two-letter chromosomes for whatever reason
+                    }
+                    return `translate(0, 0)`;
+                })
+                .attr("font-size", "14px")
+                .attr("font-weight", "bold")
+                .attr("text-anchor", "start")
+                .attr("pointer-events", "none")
+                .attr("class", "select-chromosome-label")
+                .attr("fill", chromosomeColor)
+                .raise();
         }
     }
 
