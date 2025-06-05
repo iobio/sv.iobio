@@ -39,6 +39,10 @@ export default {
         };
     },
     async mounted() {
+        //If an igv browser already exists, destroy it
+        if (this.igvBrowser) {
+            this.igvBrowser.destroy();
+        }
         const options = {
             genome: "hg38",
             locus: this.locus,
