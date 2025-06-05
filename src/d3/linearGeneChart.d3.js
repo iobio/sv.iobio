@@ -23,9 +23,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
         }
+
         if (options.brush) {
             brush = options.brush;
         }
+
         if (options.selection && options.selection !== null) {
             //we want to automatically brush to the selection
             selection = options.selection;
@@ -36,16 +38,19 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 selection.end = temp;
             }
         }
+
         if (options.genesOfInterest && options.genesOfInterest.length > 0) {
             genesOfInterest = options.genesOfInterest;
             genesOfInterest = genesOfInterest.map((gene) => genes[gene]);
             genesOfInterest.filter((gene) => gene !== undefined);
         }
+
         if (options.phenRelatedGenes && options.phenRelatedGenes.length > 0) {
             phenRelatedGenes = options.phenRelatedGenes;
             phenRelatedGenes = phenRelatedGenes.map((gene) => genes[gene]);
             phenRelatedGenes.filter((gene) => gene !== undefined);
         }
+
         if (options.build) {
             build = options.build;
         }
