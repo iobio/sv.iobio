@@ -834,7 +834,7 @@ export default {
 <style lang="sass">
 .slider
     -webkit-appearance: none
-    width: 100%
+    width: 70px
     height: 5px
     border-radius: 5px
     background: #d3d3d3
