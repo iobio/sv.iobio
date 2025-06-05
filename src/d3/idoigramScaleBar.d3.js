@@ -302,26 +302,7 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                             .attr("stroke-width", ".25px")
                             .raise();
                     } else if (band.gieStain.includes("gvar")) {
-                        //create my band rectangle
-                        chromosomeGroup
-                            .append("rect")
-                            .attr("x", function () {
-                                return bandStartX;
-                            })
-                            .attr("y", 20)
-                            .attr("width", function () {
-                                if (bandEndX - bandStartX < 1) {
-                                    //If the band is going to be less than 2px then dont render a band
-                                    return 1;
-                                }
-                                return bandEndX - bandStartX;
-                            })
-                            .attr("height", bandHeight)
-                            .attr("transform", `translate(0, 9)`)
-                            .attr("fill", "orange")
-                            .attr("opacity", 0.4)
-                            .raise();
-                    } else if (band.gieStain.includes("stalk")) {
+                        // These are the highly variable regions
                         //create my band rectangle
                         chromosomeGroup
                             .append("rect")
@@ -339,6 +320,27 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                             .attr("height", bandHeight)
                             .attr("transform", `translate(0, 9)`)
                             .attr("fill", "purple")
+                            .attr("opacity", 0.4)
+                            .raise();
+                    } else if (band.gieStain.includes("stalk")) {
+                        // These are the stalk regions which are usually the short arms of acrocentric chromosomes
+                        //create my band rectangle
+                        chromosomeGroup
+                            .append("rect")
+                            .attr("x", function () {
+                                return bandStartX;
+                            })
+                            .attr("y", 20)
+                            .attr("width", function () {
+                                if (bandEndX - bandStartX < 1) {
+                                    //If the band is going to be less than 2px then dont render a band
+                                    return 1;
+                                }
+                                return bandEndX - bandStartX;
+                            })
+                            .attr("height", bandHeight)
+                            .attr("transform", `translate(0, 9)`)
+                            .attr("fill", "orange")
                             .attr("opacity", 0.4)
                             .raise();
                     }
