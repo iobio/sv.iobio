@@ -4,7 +4,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
     let parentElement = d3.select(parentElementTag);
 
     let width = parentElement.node().clientWidth - 5;
-    let height = parentElement.node().clientHeight - 5;
+    let height = parentElement.node().clientHeight;
     let chromosomes = refChromosomes;
     let bands = null;
     let centromeres = null;
@@ -78,14 +78,14 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
         }
     }
 
-    const margin = { top: 5, right: 10, bottom: 5, left: 10 };
+    const margin = { top: 1, right: 10, bottom: 1, left: 10 };
 
     const svg = d3
         .create("svg")
-        .attr("viewBox", [0, 0, width, height + 5])
+        .attr("viewBox", [0, 0, width, height])
         .attr("class", "chrom-select-bar-d3")
         .attr("width", width)
-        .attr("height", height + 5);
+        .attr("height", height);
 
     let { chromosomeMap, genomeSize } = _genChromosomeAccumulatedMap(chromosomes);
 
@@ -142,7 +142,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             //create a new group for this chromosome
             let chromosomeGroup = svg
                 .append("g")
-                .attr("transform", `translate(${x(chromosomeStart)}, 5)`)
+                .attr("transform", `translate(${x(chromosomeStart)}, 0)`)
                 .attr("class", "chromosome-group")
                 .attr("id", `chr-${chr}-group`);
 
@@ -152,15 +152,15 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             chromosomeGroup
                 .append("rect")
                 .attr("x", 1)
-                .attr("y", 5)
+                .attr("y", 0)
                 .attr("width", x(chromosomeEnd) - x(chromosomeStart))
-                .attr("height", height - margin.bottom - margin.top + 5)
+                .attr("height", height - margin.bottom - margin.top)
                 .attr("fill", chromosomeColor)
                 .attr("stroke", "white")
                 .attr("fill-opacity", 0.3)
                 .attr("rx", 3);
 
-            let idioHeight = height - margin.bottom - margin.top - 2;
+            let idioHeight = height - margin.bottom - margin.top - 6;
             let idioPosOffset = 3;
 
             chromosomeGroup
@@ -168,7 +168,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                 //class will be ideogram
                 .attr("class", "upper-ideogram-parm")
                 .attr("x", 1)
-                .attr("y", 5)
+                .attr("y", 0)
                 .attr("width", function () {
                     //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                     return x(centromereStart + centromereCenter) - x(chromosomeStart) - 1;
@@ -191,7 +191,7 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
                     //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                     return x(centromereStart + centromereCenter) - x(chromosomeStart);
                 })
-                .attr("y", 5)
+                .attr("y", 0)
                 .attr("width", function () {
                     //then return here the width which will be the scaled value from the start of the centromere to the end of the centromere
                     return x(chromosomeEnd) - x(centromereEnd - centromereCenter);
@@ -208,122 +208,55 @@ export default function chromSelectBar(parentElementTag, refChromosomes, options
             //add the labels
             chromosomeGroup
                 .append("text")
-                .attr("x", x(centromereStart - centromereCenter) - x(chromosomeStart) + 5)
-                //if the label is two characters long, move it over a bit so it's centered
-                .attr("transform", function () {
-                    if (chr.length == 2) {
-                        return `translate(${-4}, 0)`;
-                    }
-                })
-                .attr("y", height - margin.bottom - margin.top + 3)
+                .attr("x", (x(centromereStart - centromereCenter) - x(chromosomeStart)) / 2) //center the label in the middle of the chromosome
+                .attr("y", height - margin.bottom - margin.top - 6)
                 .text(chr)
                 .attr("font-size", "14px")
                 .attr("font-weight", "bold")
                 .attr("fill", chromosomeColor);
-        }
-    }
 
-    //render brush later so it's on top
-    if (brush) {
-        //if there is a selection then we want to brush to that selection
-        if (selection) {
-            let start = selection.start;
-            let end = selection.end;
-
-            //selection will be in the base pair space so need to convert it to the pixel space
-            let startPixel = x(start);
-            let endPixel = x(end);
-
-            let brush = d3
-                .brushX()
-                .extent([
-                    [0, 7],
-                    [width, height - 1],
-                ])
-                .on("brush", function (event) {
-                    let brushArea = d3.select(this);
-                    let selection = brushArea.select(".selection");
-                    // Customize the brush rectangle during brushing
-                    selection.attr("fill", "rgba(0, 100, 255, 0.3)").attr("stroke", "blue").attr("stroke-width", 1);
+            chromosomeGroup
+                .attr("cursor", "pointer")
+                .on("mouseover", function () {
+                    d3.select(this).select("rect").attr("fill-opacity", 0.5);
                 })
-                .on("end", brushed);
-
-            //this is the acutal brushable area
-            svg.append("g").attr("class", "brush-area").call(brush).attr("transform", `translate(0, 5)`).raise();
-
-            //set the brush to the selection but dont fire the callback
-            svg.select(".brush-area").call(brush.move, [startPixel, endPixel]);
-
-            //get the selection and set its styles
-            let brushRec = svg.select(".brush-area").select(".selection");
-            brushRec.attr("fill", "gray").attr("fill-opacity", 0.4).attr("stroke", "red").attr("stroke-width", 1.5).attr("rx", 3);
-        } else {
-            let brush = d3
-                .brushX()
-                .extent([
-                    [0, 7],
-                    [width, height - 1],
-                ])
-                .on("brush", function (event) {
-                    let brushArea = d3.select(this);
-                    let selection = brushArea.select(".selection");
-                    // Customize the brush rectangle during brushing
-                    selection
-                        .attr("fill", "gray")
-                        .attr("fill-opacity", 0.4)
-                        .attr("stroke", "#4C709B")
-                        .attr("stroke-width", 1.5)
-                        .attr("rx", 3);
+                .on("mouseout", function () {
+                    d3.select(this).select("rect").attr("fill-opacity", 0.3);
                 })
-                .on("end", brushed);
-
-            svg.append("g").attr("class", "brush-area").call(brush).attr("transform", `translate(0, 5)`).raise();
+                .on("click", function () {
+                    //if the selectionCallback is set then call it with the chromosome start and end
+                    if (selectionCallback) {
+                        selectionCallback({
+                            start: chromosomeStart,
+                            end: chromosomeEnd,
+                            chr: chr,
+                        });
+                    }
+                });
         }
     }
 
-    function brushed(event) {
-        let brushSelection = event.selection;
-        //if the selection is null then the user has clicked off the brush so don't do anything
-        if (!brushSelection || brushSelection[0] == brushSelection[1]) {
-            //ensure we return back the whole genome
-            selectionCallback({ start: 0, end: genomeSize });
-            return;
-        }
+    if (selection) {
+        let start = selection.start;
+        let end = selection.end;
 
-        //selection will be in the pixel space so need to convert it to the base pair space
-        let start = x.invert(brushSelection[0]);
-        let end = x.invert(brushSelection[1]);
+        //selection will be in the base pair space so need to convert it to the pixel space
+        let startPixel = x(start);
+        let endPixel = x(end);
 
-        //send the rounded start and end to the callback to the nearest whole number
-        start = Math.round(start);
-        end = Math.round(end);
-
-        if (selection && start == selection.start && end == selection.end) {
-            return;
-        }
-
-        if (selectionCallback) {
-            selectionCallback({ start, end });
-        }
-    }
-
-    function _getStartEndForRange(start, end, range) {
-        let st = start;
-        let en = end;
-
-        if ((start < range[0] && end <= range[0]) || (start >= range[1] && end > range[1])) {
-            return null;
-        }
-
-        if (start < range[0]) {
-            st = range[0];
-        }
-
-        if (end > range[1]) {
-            en = range[1];
-        }
-
-        return { start: st, end: en };
+        // Just create a box with no fill over the selection area
+        svg.append("rect")
+            .attr("class", "selection-rectangle")
+            .attr("x", startPixel)
+            .attr("y", 1)
+            .attr("width", endPixel - startPixel)
+            .attr("height", height - margin.bottom - margin.top - 1)
+            .attr("fill", "gray")
+            .attr("fill-opacity", 0.4)
+            .attr("stroke", "red")
+            .attr("stroke-width", 1.5)
+            .attr("pointer-events", "none")
+            .attr("rx", 3);
     }
 
     return svg.node();

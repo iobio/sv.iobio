@@ -988,9 +988,8 @@ export default {
     height: 100%
     display: flex
 #chrom-select-bar-div
-    height: 32px
-    padding: 8px 0px 2px 0px
-    margin-bottom: 5px
+    height: 25px
+    padding: 3px
     box-sizing: content-box
 #global-chart-style-selection
     width: fit-content
