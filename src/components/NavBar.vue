@@ -35,6 +35,8 @@
                 <button @click="toggleDisclaimer">Close</button>
             </div>
         </div>
+
+        <h1 id="title">SV.iobio</h1>
     </div>
 </template>
 
@@ -87,12 +89,22 @@ export default {
 </script>
 
 <style lang="sass">
+#title
+    font-size: 1.2em
+    font-weight: 600
+    margin: 0px
+    padding: 0px
+    color: white
+    text-align: center
+    text-transform: uppercase
+    letter-spacing: 2px
+    align-self: center
 #nav-bar
     display: flex
     flex-direction: row
     align-items: center
     justify-content: space-between
-    padding: 10px 10px
+    padding: 3px 10px
     width: 100%
     background-color: #0D60C3
     color: white

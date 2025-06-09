@@ -165,7 +165,7 @@ export default {
             genomeStart: 0,
             genomeEnd: 0,
             overlapProp: 0.8,
-            hgBuild: "hg38",
+            hgBuild: "hg38", //default to hg38
             selectedTab: "svList",
             svListData: [],
             svListChart: [],
@@ -290,7 +290,7 @@ export default {
                         svList: [],
                     },
                     comparisons: [],
-                }
+                };
 
                 try {
                     await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType);
@@ -298,7 +298,7 @@ export default {
                     this.validFromMosaic = false;
                     this.selectDataSectionOpen = true;
                     this.toasts.push({ message: `Error initializing Mosaic Session: ${error}`, type: "error" });
-                    return
+                    return;
                 }
 
                 let projectAttributes = await this.mosaicSession.promiseGetProjectSettings(this.mosaicProjectId);
@@ -316,6 +316,7 @@ export default {
 
                 let experiment = await this.mosaicSession.promiseGetExperiment(this.mosaicProjectId, this.mosaicExperimentId);
                 let vcfFiles = experiment.files.filter((file) => file.type == "vcf");
+                let tbiFiles = experiment.files.filter((file) => file.type == "tbi");
 
                 let probandFound = false;
                 for (let sample of samples) {
@@ -324,16 +325,17 @@ export default {
                     sample.relation = relationships[0].value;
 
                     let vcfFile = vcfFiles.find((file) => file.sample_id == sample.id);
+                    let tbiFile = tbiFiles.find((file) => file.sample_id == sample.id);
                     let sampleVcfName = vcfFile.vcf_sample_name;
 
                     let mosaicVcfUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, vcfFile.id);
+                    let mosaicTbiUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, tbiFile.id);
+                    let filesRes = await this.mosaicSession.promiseGetFiles(this.mosaicProjectId, sample.id);
+                    let alignmentFile = filesRes.data.filter((file) => file.type == "bam" || file.type == "cram");
 
                     let isProband = relationships.find((rel) => rel.value == "Proband");
 
                     if (isProband) {
-                        let res = await this.mosaicSession.promiseGetFiles(this.mosaicProjectId, sample.id);
-                        let alignmentFile = res.data.filter((file) => file.type == "bam" || file.type == "cram");
-
                         //if there are multiple alignment files, we want the cram (I believe that is the most downstream)
                         if (alignmentFile && alignmentFile.length >= 1) {
                             if (alignmentFile.length > 1) {
@@ -344,26 +346,31 @@ export default {
 
                             let indexFile;
                             if (alignmentFile.type == "bam") {
-                                indexFile = res.data.filter((file) => file.type == "bai")[0]; 
+                                indexFile = filesRes.data.filter((file) => file.type == "bai")[0];
+                                sessionSamples.proband.alignmentType = "bam";
                             } else {
-                                indexFile = res.data.filter((file) => file.type == "crai")[0];
-                                sessionSamples.proband.alignmentType = "cram"
+                                indexFile = filesRes.data.filter((file) => file.type == "crai")[0];
+                                sessionSamples.proband.alignmentType = "cram";
                             }
 
-                            let bedFile = res.data.filter((file) => file.type == "bam-bed")[0];
                             let alignmentUrl = "";
                             let indexUrl = "";
-                            let bedUrl = "";
-                            
-                            alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, alignmentFile.id);
+
+                            alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(
+                                this.mosaicProjectId,
+                                alignmentFile.id,
+                            );
                             sessionSamples.proband.bam = alignmentUrl.url;
                             indexUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, indexFile.id);
                             sessionSamples.proband.bai = indexUrl.url;
-                            
-                            if (bedFile) {
-                                bedUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, bedFile.id);
-                                sessionSamples.proband.bed = bedUrl.url;
-                            }
+                        }
+
+                        let bedUrl = "";
+                        let bedFile = filesRes.data.filter((file) => file.type == "bam-bed")[0];
+
+                        if (bedFile) {
+                            bedUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, bedFile.id);
+                            sessionSamples.proband.bed = bedUrl.url;
                         }
 
                         let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, sample.id);
@@ -371,7 +378,8 @@ export default {
 
                         sessionSamples.proband.vcf = mosaicVcfUrl.url;
                         sessionSamples.proband.id = sampleVcfName;
-                        sessionSamples.proband.relation = sample.relation.toLowerCase();                    
+                        sessionSamples.proband.relation = sample.relation.toLowerCase();
+                        sessionSamples.proband.tbi = mosaicTbiUrl.url;
 
                         probandFound = true;
                     } else {
@@ -391,7 +399,7 @@ export default {
                             name: sample.relation,
                             id: sampleVcfName,
                             vcf: mosaicVcfUrl.url,
-                            tbi: "",
+                            tbi: mosaicTbiUrl.url,
                             bam: "",
                             bai: "",
                             alignmentType: "bam",
@@ -399,6 +407,42 @@ export default {
                             svList: [],
                             relation: relation,
                         };
+
+                        if (alignmentFile && alignmentFile.length >= 1) {
+                            if (alignmentFile.length > 1) {
+                                alignmentFile = alignmentFile.filter((file) => file.type == "cram")[0];
+                            } else {
+                                alignmentFile = alignmentFile[0];
+                            }
+
+                            let indexFile;
+                            if (alignmentFile.type == "bam") {
+                                indexFile = filesRes.data.filter((file) => file.type == "bai")[0];
+                                newComparison.alignmentType = "bam";
+                            } else {
+                                indexFile = filesRes.data.filter((file) => file.type == "crai")[0];
+                                newComparison.alignmentType = "cram";
+                            }
+
+                            let alignmentUrl = "";
+                            let indexUrl = "";
+
+                            alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(
+                                this.mosaicProjectId,
+                                alignmentFile.id,
+                            );
+                            newComparison.bam = alignmentUrl.url;
+                            indexUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, indexFile.id);
+                            newComparison.bai = indexUrl.url;
+                        }
+
+                        let bedUrl = "";
+                        let bedFile = filesRes.data.filter((file) => file.type == "bam-bed")[0];
+
+                        if (bedFile) {
+                            bedUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, bedFile.id);
+                            newComparison.bed = bedUrl.url;
+                        }
 
                         sessionSamples.comparisons.push(newComparison);
                     }

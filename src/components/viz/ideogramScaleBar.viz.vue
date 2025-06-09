@@ -86,7 +86,7 @@ export default {
     padding: 5px
 .ideogram-scale-bar-viz
     width: 100%
-    height: 45px
+    height: 55px
     padding: 0px
     border: .5px solid transparent
 </style>

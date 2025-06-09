@@ -13,8 +13,6 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     let selection = null;
     let genesOfInterest = null;
     let phenRelatedGenes = null;
-    let centromeres = null;
-    let bands = null;
     let hideNormalGenes = true;
     let build = "hg38";
 
@@ -25,9 +23,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
         }
+
         if (options.brush) {
             brush = options.brush;
         }
+
         if (options.selection && options.selection !== null) {
             //we want to automatically brush to the selection
             selection = options.selection;
@@ -38,55 +38,19 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
                 selection.end = temp;
             }
         }
+
         if (options.genesOfInterest && options.genesOfInterest.length > 0) {
             genesOfInterest = options.genesOfInterest;
             genesOfInterest = genesOfInterest.map((gene) => genes[gene]);
             genesOfInterest.filter((gene) => gene !== undefined);
         }
+
         if (options.phenRelatedGenes && options.phenRelatedGenes.length > 0) {
             phenRelatedGenes = options.phenRelatedGenes;
             phenRelatedGenes = phenRelatedGenes.map((gene) => genes[gene]);
             phenRelatedGenes.filter((gene) => gene !== undefined);
         }
 
-        if (options.centromeres) {
-            centromeres = options.centromeres;
-
-            //Convert the centromeres remove the chr from the chr field use that as the key
-            let newCentromeres = {};
-            for (let centromere of centromeres) {
-                let newKey = centromere.chr.replace("chr", "");
-                newCentromeres[newKey] = centromere;
-            }
-            centromeres = newCentromeres;
-        }
-        if (options.bands) {
-            bands = options.bands;
-
-            let newBands = [];
-            for (let band of bands) {
-                let newChr = band.chr.replace("chr", "");
-
-                //if the chr has a _ cut everything after it
-                if (newChr.includes("_")) {
-                    newChr = newChr.split("_")[0];
-                }
-
-                //if the new chr has a _ then skip it or if it's M or Un, or if the name doesnt have a . in it then skip it
-                if (newChr == "M" || newChr == "Un") {
-                    continue;
-                }
-
-                //if they are gneg they are going to be white so skip them ie they are not gpos
-                if (!band.gieStain.includes("gpos")) {
-                    continue;
-                }
-
-                band.chr = newChr;
-                newBands.push(band);
-            }
-            bands = newBands;
-        }
         if (options.build) {
             build = options.build;
         }

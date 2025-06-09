@@ -19,6 +19,17 @@
                 <button @click="openFileSelect($event)">Select Local</button>
             </div>
 
+            <div class="label-input-wrapper link">
+                <label for="bam">VCF Index:</label>
+                <input
+                    type="text"
+                    class="vcf"
+                    @input="this.$emit('update-sample', this.sampleLocal)"
+                    v-model="sampleLocal.tbi"
+                    placeholder="Optional" />
+                <button @click="openFileSelect($event)">Select Local</button>
+            </div>
+
             <div class="label-input-wrapper">
                 <label for="sample-id">Sample Name:</label>
                 <input
@@ -57,14 +68,35 @@
                 </select>
             </div>
 
-            <div v-if="isProband" class="label-input-wrapper link">
-                <label for="bam">BAM:</label>
+            <div class="label-input-wrapper link">
+                <label for="bam">BAM/CRAM:</label>
                 <input
                     type="text"
                     class="vcf"
                     @input="this.$emit('update-sample', this.sampleLocal)"
                     v-model="sampleLocal.bam"
-                    placeholder="Paste a link or select a local file..." />
+                    placeholder="Optional" />
+                <button @click="openFileSelect($event)">Select Local</button>
+            </div>
+
+            <div class="label-input-wrapper link">
+                <label for="bam">Alignment Index:</label>
+                <input
+                    type="text"
+                    class="vcf"
+                    @input="this.$emit('update-sample', this.sampleLocal)"
+                    v-model="sampleLocal.bai"
+                    placeholder="If BAM/CRAM provided" />
+                <button @click="openFileSelect($event)">Select Local</button>
+            </div>
+            <div class="label-input-wrapper link">
+                <label for="bam">BED:</label>
+                <input
+                    type="text"
+                    class="vcf"
+                    @input="this.$emit('update-sample', this.sampleLocal)"
+                    v-model="sampleLocal.bed"
+                    placeholder="Optional" />
                 <button @click="openFileSelect($event)">Select Local</button>
             </div>
         </div>

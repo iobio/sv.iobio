@@ -9,16 +9,6 @@
                 @selectAreaEvent="selectAreaEventFired" />
         </div>
 
-        <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
-            <ChromSelectBarViz
-                v-if="chromSelectBarDataReady"
-                :selectedArea="selectedArea"
-                :centromeres="centromeres"
-                :bands="bands"
-                :chromosomes="chromosomes"
-                @selectAreaEvent="selectAreaEventFired" />
-        </div>
-
         <div class="upper-track-selectors-bar">
             <div id="radios-tools-container">
                 <fieldset class="location-indicator">
@@ -26,12 +16,12 @@
                     <p class="entry">{{ zoomedStamp }}</p>
                 </fieldset>
 
-                <div id="global-chart-style-selection">
+                <!-- <div id="global-chart-style-selection">
                     <select name="chart-view-selection" id="chart-view-select" v-model="globalView">
                         <option value="circos">Circos</option>
                         <option value="linear">Linear</option>
                     </select>
-                </div>
+                </div> -->
 
                 <fieldset class="fieldset-buttons-container" v-if="globalView == 'linear'">
                     <legend>ruler line</legend>
@@ -73,8 +63,8 @@
                 </fieldset>
             </div>
 
-            <div id="buttons-container">
-                <fieldset class="fieldset-buttons-container">
+            <!-- <div id="buttons-container"> -->
+            <!-- <fieldset class="fieldset-buttons-container">
                     <legend>Focused SV</legend>
                     <button
                         id="focus-chart-btn"
@@ -86,9 +76,9 @@
                             <path d="M12,20L7,22L12,11L17,22L12,20M8,2H16V5H22V7H16V10H8V7H2V5H8V2M10,4V8H14V4H10Z" />
                         </svg>
                     </button>
-                </fieldset>
+                </fieldset> -->
 
-                <fieldset class="fieldset-buttons-container">
+            <!-- <fieldset class="fieldset-buttons-container">
                     <legend>Previous Z</legend>
                     <button
                         id="prev-zoom-btn"
@@ -101,12 +91,28 @@
                                 d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z" />
                         </svg>
                     </button>
-                </fieldset>
+                </fieldset> -->
+            <!-- </div> -->
+            <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
+                <ChromSelectBarViz
+                    v-if="chromSelectBarDataReady"
+                    :selectedArea="selectedArea"
+                    :centromeres="centromeres"
+                    :bands="bands"
+                    :chromosomes="chromosomes"
+                    @selectAreaEvent="selectAreaEventFired" />
             </div>
         </div>
 
         <div class="wrapper-95">
-            <IgvModal v-if="showIgvModal && samples.proband && focusedVariant" @close="showIgvModal = false" :region="zoomedStamp" :proband="samples.proband" :selectedVariant="focusedVariant"></IgvModal>
+            <IgvModal
+                v-if="showIgvModal && samples.proband && focusedVariant"
+                @close="showIgvModal = false"
+                :region="zoomedStamp"
+                :proband="samples.proband"
+                :comparisons="samples.comparisons"
+                :selectedVariant="focusedVariant"
+                :genome-build="hgBuild"></IgvModal>
             <svCircos
                 v-if="globalView === 'circos' && circosDataReady"
                 :svList="svList"
@@ -159,11 +165,20 @@
                     :isProband="true"
                     @selectAreaEvent="selectAreaEventFired"
                     @focusedVariantEvent="focusedVariantEventFired" />
-                
-                <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, 'collapsed': !showProbandCoverage }">
-                    <button :disabled="zoomedSize < 32000" @click="showProbandCoverage = !showProbandCoverage"><span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage</button>
-                    <button :disabled="!focusedVariant || !focusedVariantInView" @click="showIgvModal = true"><span>Show IGV</span></button>
-                    <CoverageHistoWrapper v-if="showProbandCoverage" :bamUrl="samples.proband.bam" :baiUrl="samples.proband.bai" :bedUrl="samples.proband.bed" :region="selectedArea" :genomeSize="genomeEnd"/>
+
+                <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, collapsed: !showProbandCoverage }">
+                    <button :disabled="zoomedSize < 32000" @click="showProbandCoverage = !showProbandCoverage">
+                        <span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage
+                    </button>
+                    <button :disabled="!focusedVariant || !focusedVariantInView" @click="showIgvModal = true">
+                        <span>Show IGV</span>
+                    </button>
+                    <MultiBamWrapper
+                        v-if="showProbandCoverage"
+                        :bamUrls="[samples.proband.bam, ...samples.comparisons.map((sample) => sample.bam)]"
+                        :baiUrls="[samples.proband.bai, ...samples.comparisons.map((sample) => sample.bai)]"
+                        :region="selectedArea || { start: 0, end: genomeEnd }"
+                        :genomeSize="genomeEnd"></MultiBamWrapper>
                 </div>
 
                 <component
@@ -205,6 +220,7 @@ import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
 import LowerModal from "./LowerModal.vue";
 import TippedButton from "./parts/TippedButton.vue";
 import CoverageHistoWrapper from "./viz/CoverageHistoWrapper.vue";
+import MultiBamWrapper from "./viz/MultiBamWrapper.viz.vue";
 import IgvModal from "./viz/IgvModal.vue";
 import { bpFormatted } from "../dataHelpers/commonFunctions.js";
 
@@ -221,6 +237,7 @@ export default {
         LowerModal,
         TippedButton,
         CoverageHistoWrapper,
+        MultiBamWrapper,
         IgvModal,
     },
     props: {
@@ -278,7 +295,7 @@ export default {
         toggleLineTool() {
             this.tools.line = !this.tools.line;
         },
-        async getBaseData(build = "hg38", source = "refseq") {
+        async getBaseData(build, source = "refseq") {
             try {
                 let data = await dataHelper.getChromosomes(build);
                 this.chromosomes = data;
@@ -658,51 +675,58 @@ export default {
         zoomedSize() {
             if (!this.selectedArea) {
                 return this.genomeEnd - this.genomeStart;
-            } 
+            }
             let size = this.selectedArea.end - this.selectedArea.start;
-            return size
+            return size;
         },
         focusedVariantInView() {
             /**
-             * To show IGV we want to 1) have a focused variant and 2) we need that variant to be in the view window 
-             * This computed property is a boolean for that second criteria. 
-             * 
-             * There arent SVs called typically from one chromosome into another it isn't biologically plausible so 
+             * To show IGV we want to 1) have a focused variant and 2) we need that variant to be in the view window
+             * This computed property is a boolean for that second criteria.
+             *
+             * There arent SVs called typically from one chromosome into another it isn't biologically plausible so
              * we can save some checks in the case that we have multiple chromosomes
-             * 
+             *
              * Using other computed property so that we dont have to re parse which chromosome we are in
              */
 
             if (!this.focusedVariant) {
-                return false
+                return false;
             }
 
             let stamps = this.zoomedStamp.split(":");
-            if (!stamps) { //We are probably at the whole genome
-                return false
+            if (!stamps) {
+                //We are probably at the whole genome
+                return false;
             }
 
             if (stamps.length == 2) {
                 let chr = stamps[0].replace("chr", "");
                 let startEnd = stamps[1].split("-");
-                
-                return (chr == this.focusedVariant.chromosome && this.focusedVariant.start > startEnd[0] && this.focusedVariant.end < startEnd[1])
+
+                return (
+                    chr == this.focusedVariant.chromosome &&
+                    this.focusedVariant.start > startEnd[0] &&
+                    this.focusedVariant.end < startEnd[1]
+                );
             } else if (stamps.length > 2) {
                 let chr1 = stamps[0].replace("chr", "");
                 let chr2 = stamps[1].split("-")[1].replace("chr", "");
                 let start = stamps[1].split("-")[0];
                 let end = stamps[2];
 
-                if (chr1 == this.focusedVariant.chromosome) { //Head chromosome
+                if (chr1 == this.focusedVariant.chromosome) {
+                    //Head chromosome
                     return this.focusedVariant.start > start;
-                } else if (chr2 == this.focusedVariant.chromosome) { //Tail chromosome
+                } else if (chr2 == this.focusedVariant.chromosome) {
+                    //Tail chromosome
                     return this.focusedVariant.end < end;
-                } else if (chr1 < this.focusedVariant.chromosome && this.focusedVariant.chromosome < chr2){
+                } else if (chr1 < this.focusedVariant.chromosome && this.focusedVariant.chromosome < chr2) {
                     //In this case our range is multiple chromosomes but our variant is somewhere in there
-                    return true
+                    return true;
                 }
             }
-            return false
+            return false;
         },
     },
     watch: {
@@ -720,6 +744,8 @@ export default {
             }
         },
         focusedVariant(newVal, oldVal) {
+            this.showProbandCoverage = false;
+
             if (this.focusedVariant) {
                 this.hideLowerModal = false;
                 this.lowerModalType = "variant";
@@ -804,6 +830,11 @@ export default {
             },
             deep: true,
         },
+        hgBuild(newVal, oldVal) {
+            if (newVal !== oldVal) {
+                this.getBaseData(newVal);
+            }
+        },
     },
 };
 </script>
@@ -811,7 +842,7 @@ export default {
 <style lang="sass">
 .slider
     -webkit-appearance: none
-    width: 100%
+    width: 70px
     height: 5px
     border-radius: 5px
     background: #d3d3d3
@@ -842,7 +873,7 @@ export default {
     flex-direction: row
     align-items: center
     justify-content: center
-    padding: 5px
+    padding: 2px 5px
     border: 1px solid #E0E0E0
     border-radius: 5px
     margin-left: 10px
@@ -931,7 +962,6 @@ export default {
         box-sizing: border-box
         display: flex
         width: 100%
-        padding-bottom: 5px
     .wrapper-95
         position: relative
         box-sizing: border-box
@@ -964,9 +994,11 @@ export default {
     height: 100%
     display: flex
 #chrom-select-bar-div
-    height: 32px
-    padding: 8px 0px 2px 0px
-    margin-bottom: 5px
+    height: 30px
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-grow: 1
     box-sizing: content-box
 #global-chart-style-selection
     width: fit-content
