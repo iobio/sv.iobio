@@ -44,7 +44,7 @@ export default {
             this.igvBrowser.destroy();
         }
         const options = {
-            genome: "hg38",
+            genome: this.genomeBuild || "hg38",
             locus: this.locus,
             tracks: [
                 {

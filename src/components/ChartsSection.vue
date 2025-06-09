@@ -111,7 +111,8 @@
                 :region="zoomedStamp"
                 :proband="samples.proband"
                 :comparisons="samples.comparisons"
-                :selectedVariant="focusedVariant"></IgvModal>
+                :selectedVariant="focusedVariant"
+                :genome-build="hgBuild"></IgvModal>
             <svCircos
                 v-if="globalView === 'circos' && circosDataReady"
                 :svList="svList"
