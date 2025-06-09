@@ -50,10 +50,13 @@ export default {
 
         this.dataBrokerEl.setAttribute("id", "multi-bam-broker");
         this.multiBamView.brokerId = "multi-bam-broker";
+        this.multiBamView.totalSize = this.genomeSize;
+
         this.multiBamView.region = JSON.stringify({
             start: this.region.start,
             end: this.region.end,
         });
+
         this.dataBrokerEl.alignmentUrls = this.bamUrls;
 
         if (this.baiUrls) {
