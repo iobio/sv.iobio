@@ -165,7 +165,7 @@ export default {
             genomeStart: 0,
             genomeEnd: 0,
             overlapProp: 0.8,
-            hgBuild: "hg38",
+            hgBuild: "hg38", //default to hg38
             selectedTab: "svList",
             svListData: [],
             svListChart: [],
@@ -290,7 +290,7 @@ export default {
                         svList: [],
                     },
                     comparisons: [],
-                }
+                };
 
                 try {
                     await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType);
@@ -298,7 +298,7 @@ export default {
                     this.validFromMosaic = false;
                     this.selectDataSectionOpen = true;
                     this.toasts.push({ message: `Error initializing Mosaic Session: ${error}`, type: "error" });
-                    return
+                    return;
                 }
 
                 let projectAttributes = await this.mosaicSession.promiseGetProjectSettings(this.mosaicProjectId);
@@ -329,7 +329,7 @@ export default {
                     let sampleVcfName = vcfFile.vcf_sample_name;
 
                     let mosaicVcfUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, vcfFile.id);
-                    let mosaicTbiUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, tbiFile.id)
+                    let mosaicTbiUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, tbiFile.id);
                     let filesRes = await this.mosaicSession.promiseGetFiles(this.mosaicProjectId, sample.id);
                     let alignmentFile = filesRes.data.filter((file) => file.type == "bam" || file.type == "cram");
 
@@ -346,21 +346,23 @@ export default {
 
                             let indexFile;
                             if (alignmentFile.type == "bam") {
-                                indexFile = filesRes.data.filter((file) => file.type == "bai")[0]; 
-                                sessionSamples.proband.alignmentType = "bam"
+                                indexFile = filesRes.data.filter((file) => file.type == "bai")[0];
+                                sessionSamples.proband.alignmentType = "bam";
                             } else {
                                 indexFile = filesRes.data.filter((file) => file.type == "crai")[0];
-                                sessionSamples.proband.alignmentType = "cram"
+                                sessionSamples.proband.alignmentType = "cram";
                             }
 
                             let alignmentUrl = "";
                             let indexUrl = "";
-                            
-                            alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, alignmentFile.id);
+
+                            alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(
+                                this.mosaicProjectId,
+                                alignmentFile.id,
+                            );
                             sessionSamples.proband.bam = alignmentUrl.url;
                             indexUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, indexFile.id);
                             sessionSamples.proband.bai = indexUrl.url;
-                            
                         }
 
                         let bedUrl = "";
@@ -376,8 +378,8 @@ export default {
 
                         sessionSamples.proband.vcf = mosaicVcfUrl.url;
                         sessionSamples.proband.id = sampleVcfName;
-                        sessionSamples.proband.relation = sample.relation.toLowerCase();  
-                        sessionSamples.proband.tbi = mosaicTbiUrl.url;                  
+                        sessionSamples.proband.relation = sample.relation.toLowerCase();
+                        sessionSamples.proband.tbi = mosaicTbiUrl.url;
 
                         probandFound = true;
                     } else {
@@ -415,21 +417,23 @@ export default {
 
                             let indexFile;
                             if (alignmentFile.type == "bam") {
-                                indexFile = filesRes.data.filter((file) => file.type == "bai")[0]; 
-                                newComparison.alignmentType = "bam"
+                                indexFile = filesRes.data.filter((file) => file.type == "bai")[0];
+                                newComparison.alignmentType = "bam";
                             } else {
                                 indexFile = filesRes.data.filter((file) => file.type == "crai")[0];
-                                newComparison.alignmentType = "cram"
+                                newComparison.alignmentType = "cram";
                             }
 
                             let alignmentUrl = "";
                             let indexUrl = "";
-                            
-                            alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, alignmentFile.id);
+
+                            alignmentUrl = await this.mosaicSession.promiseGetSignedUrlForFile(
+                                this.mosaicProjectId,
+                                alignmentFile.id,
+                            );
                             newComparison.bam = alignmentUrl.url;
                             indexUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, indexFile.id);
                             newComparison.bai = indexUrl.url;
-                            
                         }
 
                         let bedUrl = "";
