@@ -36,7 +36,7 @@ export default {
         };
     },
     async mounted() {
-        await import("https://cdn.jsdelivr.net/npm/iobio-charts@0.23.0/index.js");
+        await import("https://cdn.jsdelivr.net/npm/iobio-charts@0.24.0/index.js");
 
         const options = {
             showChartLabel: false,
