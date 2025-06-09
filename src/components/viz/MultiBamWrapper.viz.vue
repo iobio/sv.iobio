@@ -34,10 +34,18 @@ export default {
     },
     async mounted() {
         await import("https://cdn.jsdelivr.net/npm/iobio-charts@0.23.0/index.js");
-        await import("http://localhost:8888/multi_series/multi_series_chart.js");
-        await import("http://localhost:8888/multi_series/multi_series_wc.js");
-        await import("http://localhost:8888/multi_series/multi_alignment_broker_wc.js");
-        await import("http://localhost:8888/multi_series/multi_alignment_broker.js");
+
+        // Local Development TODO: Remove
+        // await import("http://localhost:8888/multi_series/multi_series_chart.js");
+        // await import("http://localhost:8888/multi_series/multi_series_wc.js");
+        // await import("http://localhost:8888/multi_series/multi_alignment_broker_wc.js");
+        // await import("http://localhost:8888/multi_series/multi_alignment_broker.js");
+
+        // Will be removed when the iobio-charts package is updated to include multi_series components
+        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@multi-bam-chart/multi_series/multi_series_chart.js");
+        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@multi-bam-chart/multi_series/multi_series_wc.js");
+        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@multi-bam-chart/multi_series/multi_alignment_broker_wc.js");
+        await import("https://cdn.jsdelivr.net/gh/iobio/iobio-charts@multi-bam-chart/multi_series/multi_alignment_broker.js");
 
         let container = document.querySelector(".multi-bam-wrapper");
 
