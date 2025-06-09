@@ -177,7 +177,7 @@
                         v-if="showProbandCoverage"
                         :bamUrls="[samples.proband.bam, ...samples.comparisons.map((sample) => sample.bam)]"
                         :baiUrls="[samples.proband.bai, ...samples.comparisons.map((sample) => sample.bai)]"
-                        :region="selectedArea"
+                        :region="selectedArea || { start: 0, end: genomeEnd }"
                         :genomeSize="genomeEnd"></MultiBamWrapper>
                 </div>
 
@@ -295,7 +295,7 @@ export default {
         toggleLineTool() {
             this.tools.line = !this.tools.line;
         },
-        async getBaseData(build = "hg38", source = "refseq") {
+        async getBaseData(build, source = "refseq") {
             try {
                 let data = await dataHelper.getChromosomes(build);
                 this.chromosomes = data;
@@ -827,6 +827,11 @@ export default {
                 }
             },
             deep: true,
+        },
+        hgBuild(newVal, oldVal) {
+            if (newVal !== oldVal) {
+                this.getBaseData(newVal);
+            }
         },
     },
 };
