@@ -50,6 +50,10 @@ export default {
 
         this.dataBrokerEl.setAttribute("id", "multi-bam-broker");
         this.multiBamView.brokerId = "multi-bam-broker";
+        this.multiBamView.region = JSON.stringify({
+            start: this.region.start,
+            end: this.region.end,
+        });
         this.dataBrokerEl.alignmentUrls = this.bamUrls;
 
         if (this.baiUrls) {
@@ -63,6 +67,14 @@ export default {
             handler(newVal, oldVal) {
                 if (newVal == oldVal) {
                     return;
+                }
+                if (newVal) {
+                    let newRegion = {
+                        start: newVal.start,
+                        end: newVal.end,
+                    };
+
+                    this.multiBamView.region = JSON.stringify(newRegion);
                 }
             },
             deep: true,
