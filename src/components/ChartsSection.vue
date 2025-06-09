@@ -744,6 +744,8 @@ export default {
             }
         },
         focusedVariant(newVal, oldVal) {
+            this.showProbandCoverage = false;
+
             if (this.focusedVariant) {
                 this.hideLowerModal = false;
                 this.lowerModalType = "variant";
