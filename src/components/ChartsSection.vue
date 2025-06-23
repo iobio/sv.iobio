@@ -113,7 +113,7 @@
                 :comparisons="samples.comparisons"
                 :selectedVariant="focusedVariant"
                 :genome-build="hgBuild"></IgvModal>
-            <svCircos
+            <!-- <svCircos
                 v-if="globalView === 'circos' && circosDataReady"
                 :svList="svList"
                 :focusedVariant="focusedVariant"
@@ -129,7 +129,7 @@
                 :chromosomes="chromosomes"
                 :genes="genes"
                 @deleteTrack="removeTrack"
-                @selectAreaEvent="selectAreaEventFired" />
+                @selectAreaEvent="selectAreaEventFired" /> -->
 
             <div
                 id="linear-section-container"
@@ -175,6 +175,7 @@
                     </button>
                     <MultiBamWrapper
                         v-if="showProbandCoverage"
+                        :bamTitles="[samples.proband.name, ...samples.comparisons.map((sample) => sample.name)]"
                         :bamUrls="[samples.proband.bam, ...samples.comparisons.map((sample) => sample.bam)]"
                         :baiUrls="[samples.proband.bai, ...samples.comparisons.map((sample) => sample.bai)]"
                         :region="selectedArea || { start: 0, end: genomeEnd }"
