@@ -113,7 +113,7 @@
                 :comparisons="samples.comparisons"
                 :selectedVariant="focusedVariant"
                 :genome-build="hgBuild"></IgvModal>
-            <svCircos
+            <!-- <svCircos
                 v-if="globalView === 'circos' && circosDataReady"
                 :svList="svList"
                 :focusedVariant="focusedVariant"
@@ -129,7 +129,7 @@
                 :chromosomes="chromosomes"
                 :genes="genes"
                 @deleteTrack="removeTrack"
-                @selectAreaEvent="selectAreaEventFired" />
+                @selectAreaEvent="selectAreaEventFired" /> -->
 
             <div
                 id="linear-section-container"
