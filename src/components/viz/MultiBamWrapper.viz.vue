@@ -11,6 +11,10 @@ export default {
             type: Object,
             required: false,
         },
+        bamTitles: {
+            type: Array,
+            required: true,
+        },
         bamUrls: {
             type: Array,
             required: true,
@@ -65,6 +69,7 @@ export default {
             end: this.region.end,
         });
 
+        this.dataBrokerEl.alignmentTitles = this.bamTitles;
         this.dataBrokerEl.alignmentUrls = this.bamUrls;
 
         if (this.baiUrls) {
