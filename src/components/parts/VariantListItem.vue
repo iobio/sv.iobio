@@ -7,10 +7,38 @@
             <!-- col1 -->
             <div class="chr-text">
                 <div>{{ variant.chromosome }}</div>
-                <div v-if="band" class="band">{{ band }}</div>
             </div>
+            <div v-if="band" class="band">{{ band }}</div>
 
             <!-- col2 -->
+            <div class="size-text" v-html="bpFormatted(variant.size)"></div>
+
+            <!-- col3 -->
+            <div class="type-text">{{ variant.type }}</div>
+
+            <!-- col4 -->
+            <div class="zygosity-symbols">
+                <div
+                    class="genotype-text"
+                    :class="{ het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom' }"
+                    v-html="svgForZygosity(variant.genotype)"></div>
+
+                <div v-if="hasMom" v-html="parentZygosity.mother[0]"></div>
+                <div v-if="hasDad" v-html="parentZygosity.father[0]"></div>
+            </div>
+
+            <!-- col5 Top -->
+            <div
+                class="goi-ol-text"
+                v-if="geneCandidates && geneCandidates.length > 0"
+                :class="{ subtle: numberOfGenesOfInterest == 0 }">
+                {{ numberOfGenesOfInterest }}
+            </div>
+
+            <!-- col6 -->
+            <div class="total-text" :class="{ subtle: numberOfGenes == 0 }">{{ numberOfGenes }}</div>
+
+            <!-- col7 -->
             <div v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-text">
                 <strong>
                     <span :class="{ subtle: Math.round(maxSingularPhenotypes.max) == 0 }">{{
@@ -25,34 +53,6 @@
                     <span class="subtle">n/a</span>
                 </strong>
             </div>
-
-            <!-- col3 -->
-            <div
-                class="goi-ol-text"
-                v-if="geneCandidates && geneCandidates.length > 0"
-                :class="{ subtle: numberOfGenesOfInterest == 0 }">
-                {{ numberOfGenesOfInterest }}
-            </div>
-
-            <!-- col4 -->
-            <div class="total-text" :class="{ subtle: numberOfGenes == 0 }">{{ numberOfGenes }}</div>
-
-            <!-- col5 Top -->
-            <div class="zygosity-symbols">
-                <div
-                    class="genotype-text"
-                    :class="{ het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom' }"
-                    v-html="svgForZygosity(variant.genotype)"></div>
-
-                <div v-if="hasMom" v-html="parentZygosity.mother[0]"></div>
-                <div v-if="hasDad" v-html="parentZygosity.father[0]"></div>
-            </div>
-
-            <!-- col6 -->
-            <div class="type-text">{{ variant.type }}</div>
-
-            <!-- col7 -->
-            <div class="size-text" v-html="bpFormatted(variant.size)"></div>
         </div>
     </div>
 </template>
@@ -448,7 +448,7 @@ export default {
     .preview
         position: relative
         display: grid
-        grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
+        grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr)
         grid-template-rows: 1fr 1fr
         padding: 5px
         width: 100%
@@ -458,7 +458,7 @@ export default {
         border-left: 2px solid transparent
         border-right: 2px solid transparent
         &.hasGoi
-            grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .3fr) minmax(0, .15fr) minmax(0, .15fr)
+            grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .3fr)
         &.focusedVariant
             border: 2px solid #FFB60A
             border-radius: 5px
@@ -505,7 +505,7 @@ export default {
             justify-content: center
             text-align: center
             box-sizing: border-box
-            grid-row: 1/3
+            grid-row: 1/2
             font-size: 0.8em
             strong
                 font-size: 1.2em
@@ -523,7 +523,7 @@ export default {
             display: flex
             font-size: .8em
             font-weight: 200
-            grid-row: 1/3
+            grid-row: 1/2
             justify-content: space-evenly
             position: relative
             width: 100%
@@ -549,7 +549,7 @@ export default {
             font-size: 0.8em
             font-weight: 200
             color: #474747
-            grid-row: 1/3
+            grid-row: 1/2
             .bp-sc
                 font-size: 0.9em
                 opacity: .8
@@ -558,10 +558,10 @@ export default {
             font-size: 0.75em
             font-weight: 200
             opacity: .8
-            grid-row: 1/3
+            grid-row: 1/2
         .chr-text
             font-weight: 200
-            grid-row: 1/3
+            grid-row: 1/2
             color: #474747
             display: flex
             flex-direction: column
@@ -569,19 +569,20 @@ export default {
             justify-content: center
             text-align: cente
             overflow: visible
-            .band
-                font-size: 0.75em
-                font-weight: 200
-                color: #474747
-                margin-left: 5px
-                display: flex
-                align-self: flex-start
-                overflow: visible
-                white-space: nowrap
-                transform: translateY(3px)
+        .band
+            font-size: 0.75em
+            font-weight: 200
+            grid-row: 2/3
+            grid-column: 1/3
+            color: #474747
+            text-align: start
+            overflow: visible
+            white-space: nowrap
+            background-color: #F5F5F5
+            border-radius: 5px
         .total-text
             font-weight: 200
-            grid-row: 1/3
+            grid-row: 1/2
             color: #474747
             display: flex
             align-items: center
