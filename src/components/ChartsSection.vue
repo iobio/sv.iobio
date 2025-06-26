@@ -1,15 +1,19 @@
 <template>
     <div id="left-tracks-section">
-        <div id="circos-mini-wrapper" v-if="globalView === 'circos'">
+        <!-- <div id="circos-mini-wrapper" v-if="globalView === 'circos'">
             <SvCirosMiniViz
                 :zoomZone="selectedArea"
                 :centromeres="centromeres"
                 :bands="bands"
                 :chromosomes="chromosomes"
                 @selectAreaEvent="selectAreaEventFired" />
+        </div> -->
+        <div id="toggle-view-buttons">
+            <button :class="{ active: chartsView === 'hpo' }" @click="chartsView = 'hpo'">HPO</button>
+            <button :class="{ active: chartsView === 'genome' }" @click="chartsView = 'genome'">Genome</button>
         </div>
 
-        <div class="upper-track-selectors-bar">
+        <div v-if="chartsView === 'genome'" class="upper-track-selectors-bar">
             <div id="radios-tools-container">
                 <fieldset class="location-indicator">
                     <legend>Location</legend>
@@ -104,7 +108,7 @@
             </div>
         </div>
 
-        <div class="wrapper-95">
+        <div v-if="chartsView === 'genome'" class="wrapper-95">
             <IgvModal
                 v-if="showIgvModal && samples.proband && focusedVariant"
                 @close="showIgvModal = false"
@@ -174,12 +178,13 @@
                         <span>Show IGV</span>
                     </button>
                     <MultiBamWrapper
-                        v-if="showProbandCoverage"
+                        v-if="showProbandCoverage && chromosomeAccumulatedMap"
                         :bamTitles="[samples.proband.name, ...samples.comparisons.map((sample) => sample.name)]"
                         :bamUrls="[samples.proband.bam, ...samples.comparisons.map((sample) => sample.bam)]"
                         :baiUrls="[samples.proband.bai, ...samples.comparisons.map((sample) => sample.bai)]"
                         :region="selectedArea || { start: 0, end: genomeEnd }"
-                        :genomeSize="genomeEnd"></MultiBamWrapper>
+                        :genomeSize="genomeEnd"
+                        :genomeMap="Object.fromEntries(chromosomeAccumulatedMap)"></MultiBamWrapper>
                 </div>
 
                 <component
@@ -191,20 +196,16 @@
                     @selectAreaEvent="selectAreaEventFired"
                     @removeTrack="removeTrack(index)"
                     class="draggable-chart" />
-
-                <LowerModal
-                    v-if="focusedVariant"
-                    :hidden="hideLowerModal"
-                    :type="lowerModalType"
-                    :variant="focusedVariant"
-                    :patientPhenotypes="patientPhenotypes"
-                    :geneCandidates="genesOfInterest"
-                    :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
-                    :doseGenes="doseGenes"
-                    @close="closeLowerModal"
-                    @open="showLowerModal" />
             </div>
         </div>
+        <PhenotypeDetails
+            v-if="focusedVariant && chartsView === 'hpo'"
+            :type="lowerModalType"
+            :variant="focusedVariant"
+            :patientPhenotypes="patientPhenotypes"
+            :geneCandidates="genesOfInterest"
+            :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+            :doseGenes="doseGenes" />
     </div>
 </template>
 
@@ -218,7 +219,7 @@ import LinearGeneChartViz from "./viz/linearGeneChart.viz.vue";
 import LinearRegionsChartViz from "./viz/clinGenChart.viz.vue";
 import IdeogramScaleBarViz from "./viz/ideogramScaleBar.viz.vue";
 import SvCirosMiniViz from "./viz/svCircosMini.viz.vue";
-import LowerModal from "./LowerModal.vue";
+import PhenotypeDetails from "./PhenotypeDetails.vue";
 import TippedButton from "./parts/TippedButton.vue";
 import CoverageHistoWrapper from "./viz/CoverageHistoWrapper.vue";
 import MultiBamWrapper from "./viz/MultiBamWrapper.viz.vue";
@@ -235,7 +236,7 @@ export default {
         LinearRegionsChartViz,
         IdeogramScaleBarViz,
         SvCirosMiniViz,
-        LowerModal,
+        PhenotypeDetails,
         TippedButton,
         CoverageHistoWrapper,
         MultiBamWrapper,
@@ -279,6 +280,7 @@ export default {
             zoomFactor: 3000000,
             showProbandCoverage: false,
             showIgvModal: false,
+            chartsView: "hpo",
         };
     },
     async mounted() {
@@ -841,6 +843,32 @@ export default {
 </script>
 
 <style lang="sass">
+#toggle-view-buttons
+    display: flex
+    flex-direction: row
+    align-items: center
+    justify-content: center
+    width: 156px
+    padding: 0px
+    border-radius: 5px
+    border: 1px solid #E0E0E0
+    overflow: hidden
+    align-self: flex-end
+    margin-bottom: 5px
+    button
+        border: none
+        width: 50%
+        text-transform: uppercase
+        color: #474747
+        height: 100%
+        background-color: white
+        &:hover
+            cursor: pointer
+            background-color: #E0E0E0
+        &.active
+            background-color: #EBEBEB
+            &:hover
+                background-color: #E0E0E0
 .slider
     -webkit-appearance: none
     width: 70px
