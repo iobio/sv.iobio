@@ -4,6 +4,10 @@
             v-if="svList && svList.length > 0"
             id="variant-list-bar-header"
             :class="{ hasGoi: geneCandidates && geneCandidates.length > 0 }">
+            <!-- col0 -->
+            <div class="span-rows"></div>
+
+            <!-- col1 -->
             <div class="span-rows" @mouseenter="showSortTip" @mouseleave="hideSortTip" @click="$emit('sort-variants', 'chr')">
                 Chr
                 <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -471,7 +475,7 @@ export default {
         min-width: 0px
     #variant-list-bar-header
         display: grid
-        grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr)
+        grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .2fr)
         grid-template-rows: 1fr 1fr
         font-size: .8em
         font-weight: 200
@@ -492,7 +496,7 @@ export default {
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
         z-index: 1
         &.hasGoi
-            grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .3fr)
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr)
         .span-rows
             display: flex
             flex-direction: column

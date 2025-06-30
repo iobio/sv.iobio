@@ -4,6 +4,23 @@
             class="preview"
             :class="{ opened: showMore, focusedVariant: isFocusedVariant, hasGoi: geneCandidates && geneCandidates.length > 0 }"
             @click="focusOnVariant">
+            <!-- col0 -->
+            <div class="favorite-tag">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>favorite</title>
+                    <path
+                        d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" />
+                </svg>
+            </div>
+
+            <div class="hide-tag">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>hide</title>
+                    <path
+                        d="M2,5.27L3.28,4L20,20.72L18.73,22L15.65,18.92C14.5,19.3 13.28,19.5 12,19.5C7,19.5 2.73,16.39 1,12C1.69,10.24 2.79,8.69 4.19,7.46L2,5.27M12,9A3,3 0 0,1 15,12C15,12.35 14.94,12.69 14.83,13L11,9.17C11.31,9.06 11.65,9 12,9M12,4.5C17,4.5 21.27,7.61 23,12C22.18,14.08 20.79,15.88 19,17.19L17.58,15.76C18.94,14.82 20.06,13.54 20.82,12C19.17,8.64 15.76,6.5 12,6.5C10.91,6.5 9.84,6.68 8.84,7L7.3,5.47C8.74,4.85 10.33,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C12.69,17.5 13.37,17.43 14,17.29L11.72,15C10.29,14.85 9.15,13.71 9,12.28L5.6,8.87C4.61,9.72 3.78,10.78 3.18,12Z" />
+                </svg>
+            </div>
+
             <!-- col1 -->
             <div class="chr-text">
                 <div>{{ variant.chromosome }}</div>
@@ -448,7 +465,7 @@ export default {
     .preview
         position: relative
         display: grid
-        grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr)
+        grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .2fr)
         grid-template-rows: 1fr 1fr
         padding: 5px
         width: 100%
@@ -458,7 +475,7 @@ export default {
         border-left: 2px solid transparent
         border-right: 2px solid transparent
         &.hasGoi
-            grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .3fr)
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr)
         &.focusedVariant
             border: 2px solid #FFB60A
             border-radius: 5px
@@ -573,7 +590,7 @@ export default {
             font-size: 0.75em
             font-weight: 200
             grid-row: 2/3
-            grid-column: 1/3
+            grid-column: 2/4
             color: #474747
             text-align: start
             overflow: visible
@@ -597,4 +614,20 @@ export default {
         &:hover
             background-color: #F5F5F5
             cursor: pointer
+    .favorite-tag
+        grid-column: 1/2
+        grid-row: 1/2
+        svg
+            height: 15px
+            width: 15px
+            fill: #474747
+            pointer-events: none
+    .hide-tag
+        grid-column: 1/2
+        grid-row: 2/3
+        svg
+            height: 15px
+            width: 15px
+            fill: #474747
+            pointer-events: none
 </style>

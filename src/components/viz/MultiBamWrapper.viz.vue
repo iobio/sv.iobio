@@ -7,9 +7,8 @@ export default {
     name: "MultiBamWrapper",
     props: {
         region: {
-            //Must come with a rname, start, end
             type: Object,
-            required: false,
+            required: true,
         },
         bamTitles: {
             type: Array,
@@ -26,6 +25,10 @@ export default {
         genomeSize: {
             type: Number,
             required: false,
+        },
+        genomeMap: {
+            type: Object,
+            required: true,
         },
     },
     data() {
@@ -72,10 +75,20 @@ export default {
         this.multiBamView.brokerId = "multi-bam-broker";
         this.multiBamView.totalSize = this.genomeSize;
 
-        this.multiBamView.region = JSON.stringify({
-            start: this.region.start,
-            end: this.region.end,
-        });
+        if (this.genomeMap) {
+            this.multiBamView.regionMap = JSON.stringify(this.genomeMap);
+        }
+
+        if (this.region) {
+            this.dataBrokerEl.region = JSON.stringify({
+                start: this.region.start,
+                end: this.region.end,
+            });
+            this.multiBamView.region = JSON.stringify({
+                start: this.region.start,
+                end: this.region.end,
+            });
+        }
 
         this.dataBrokerEl.alignmentTitles = this.bamTitles;
         this.dataBrokerEl.alignmentUrls = this.bamUrls;

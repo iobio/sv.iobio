@@ -171,7 +171,7 @@
                     @focusedVariantEvent="focusedVariantEventFired" />
 
                 <div v-if="samples.proband.bam" :class="{ 'collapseable-chart': true, collapsed: !showProbandCoverage }">
-                    <button :disabled="zoomedSize < 32000" @click="showProbandCoverage = !showProbandCoverage">
+                    <button @click="showProbandCoverage = !showProbandCoverage">
                         <span v-if="!showProbandCoverage">show</span><span v-if="showProbandCoverage">hide</span> coverage
                     </button>
                     <button :disabled="!focusedVariant || !focusedVariantInView" @click="showIgvModal = true">

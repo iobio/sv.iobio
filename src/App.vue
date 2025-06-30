@@ -26,7 +26,13 @@
             @emit-toast="addToast" />
 
         <div id="lower-block-container">
-            <div id="var-list-bar-button-container" :class="{ collapsed: !variantListBarOpen }">
+            <div
+                id="var-list-bar-button-container"
+                :class="{
+                    normal: listViewMode == 'normal',
+                    condensed: listViewMode == 'condensed',
+                    expanded: listViewMode == 'expanded',
+                }">
                 <FilterDataSection
                     :show="filterDataSectionOpen"
                     :filters="filters"
@@ -1141,7 +1147,6 @@ export default {
     display: flex
     flex-direction: row
     flex: 1 1 auto
-    justify-content: center
     width: 100%
     box-sizing: border-box
     overflow: hidden
@@ -1160,10 +1165,7 @@ img
     flex-direction: column
     padding: 5px 0px 0px 0px
     margin: 0px
-    width: 25%
-    min-width: 380px
-    max-width: 500px
-    transition: width 0.4s, min-width 0.4s
+    transition: width 0.4s
     .button-container
         display: flex
         flex-direction: row
@@ -1314,6 +1316,12 @@ img
             display: none
         .sort-btn
             display: none
+    &.normal
+        width: 40%
+    &.condensed
+        width: 80px
+    &.expanded
+        width: 50%
 #var-list-bar-toggle-btn
     position: absolute
     top: 5px
