@@ -206,6 +206,7 @@
             :geneCandidates="genesOfInterest"
             :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
             :doseGenes="doseGenes" />
+        <PhenotypeSummary v-if="!focusedVariant && chartsView === 'hpo'" />
     </div>
 </template>
 
@@ -225,6 +226,7 @@ import CoverageHistoWrapper from "./viz/CoverageHistoWrapper.vue";
 import MultiBamWrapper from "./viz/MultiBamWrapper.viz.vue";
 import IgvModal from "./viz/IgvModal.vue";
 import { bpFormatted } from "../dataHelpers/commonFunctions.js";
+import PhenotypeSummary from "./PhenotypeSummary.vue";
 
 export default {
     name: "ChartsSection",
@@ -241,6 +243,7 @@ export default {
         CoverageHistoWrapper,
         MultiBamWrapper,
         IgvModal,
+        PhenotypeSummary,
     },
     props: {
         svList: Array,
