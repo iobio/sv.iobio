@@ -200,7 +200,6 @@
         </div>
         <PhenotypeDetails
             v-if="focusedVariant && chartsView === 'hpo'"
-            :type="lowerModalType"
             :variant="focusedVariant"
             :patientPhenotypes="patientPhenotypes"
             :geneCandidates="genesOfInterest"
@@ -278,10 +277,8 @@ export default {
             tools: {
                 line: false,
             },
-            hideLowerModal: true,
-            lowerModalType: "",
             zoomFactor: 3000000,
-            showProbandCoverage: false,
+            showProbandCoverage: true,
             showIgvModal: false,
             chartsView: "hpo",
         };
@@ -292,12 +289,6 @@ export default {
     },
     methods: {
         bpFormatted: bpFormatted,
-        closeLowerModal() {
-            this.hideLowerModal = true;
-        },
-        showLowerModal() {
-            this.hideLowerModal = false;
-        },
         toggleLineTool() {
             this.tools.line = !this.tools.line;
         },
@@ -737,8 +728,6 @@ export default {
     },
     watch: {
         focusedGeneName(newVal, oldVal) {
-            this.hideLowerModal = false;
-            this.lowerModalType = "gene";
             if (newVal && newVal !== oldVal && this.genes) {
                 this.findZoomFromFocusedGene();
             }
@@ -750,11 +739,7 @@ export default {
             }
         },
         focusedVariant(newVal, oldVal) {
-            this.showProbandCoverage = false;
-
             if (this.focusedVariant) {
-                this.hideLowerModal = false;
-                this.lowerModalType = "variant";
                 this.focusOnVariant();
             } else if (!this.focusedVariant) {
                 this.$emit("zoomEvent", null);

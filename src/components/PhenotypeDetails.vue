@@ -5,7 +5,7 @@
                 <div class="top-row">
                     <fieldset class="variant-summary-column">
                         <legend>Summary</legend>
-                        <div v-if="type == 'variant'" class="item bold-text">
+                        <div class="item bold-text">
                             <span>{{ variant.svCode }}</span>
                         </div>
                         <div class="item">
@@ -87,7 +87,7 @@
                     </select>
                 </div>
                 <div class="gene-card-row">
-                    <div class="row" v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length > 0">
+                    <div class="row" v-if="variant && Object.values(variant.overlappedGenes).length > 0">
                         <GeneAssociationsCard
                             v-for="gene in sortedRelevantGenes"
                             :key="gene.gene_symbol"
@@ -95,14 +95,7 @@
                             :doseGenes="doseGenes"
                             :patientPhenotypes="patientPhenotypes" />
                     </div>
-                    <div
-                        class="row"
-                        v-if="
-                            type == 'variant' &&
-                            variant &&
-                            Object.values(variant.overlappedGenes).length > 0 &&
-                            !hideExtraGeneInfo
-                        ">
+                    <div class="row" v-if="variant && Object.values(variant.overlappedGenes).length > 0 && !hideExtraGeneInfo">
                         <GeneAssociationsCard
                             v-for="gene in sortedIrrelevantGenes"
                             :key="gene.gene_symbol"
@@ -112,20 +105,13 @@
                     </div>
                     <div
                         class="show-more-genes"
-                        v-if="
-                            type == 'variant' &&
-                            variant &&
-                            Object.values(variant.overlappedGenes).length > 0 &&
-                            sortedIrrelevantGenes.length > 0
-                        ">
+                        v-if="variant && Object.values(variant.overlappedGenes).length > 0 && sortedIrrelevantGenes.length > 0">
                         <div class="show-btn" @click="hideExtraGeneInfo = !hideExtraGeneInfo">
                             <span v-if="hideExtraGeneInfo">Show Additional Genes</span><span v-else>Hide Additional Genes</span>
                         </div>
                     </div>
 
-                    <div
-                        class="no-genes row"
-                        v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length == 0">
+                    <div class="no-genes row" v-if="variant && Object.values(variant.overlappedGenes).length == 0">
                         No Genes Overlapped
                     </div>
                 </div>
@@ -145,7 +131,6 @@ export default {
         GeneAssociationsCard,
     },
     props: {
-        type: String,
         variant: Object,
         patientPhenotypes: Array,
         geneCandidates: Array,
