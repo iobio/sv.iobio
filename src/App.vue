@@ -58,7 +58,13 @@
                         </svg>
                     </div>
                     <div class="tab-select-wrapper">
-                        <nav class="tab-select" :class="{ collapsed: !variantListBarOpen }">
+                        <nav
+                            class="tab-select"
+                            :class="{
+                                collapsed: !variantListBarOpen,
+                                condensed: listViewMode == 'condensed',
+                                expanded: listViewMode == 'expanded',
+                            }">
                             <div class="tab" :class="{ selected: selectedTab == 'svList' }" @click="selectedTab = 'svList'">
                                 SVs <span class="tip">{{ svListVariantBar.length }}</span>
                             </div>
@@ -78,18 +84,18 @@
                 </div>
 
                 <div id="var-list-bar-toggle-btn">
+                    <button :class="{ active: listViewMode == 'condensed' }" @click="listViewMode = 'condensed'">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <title>consensed-view</title>
+                            <path
+                                d="M12 16C13.1 16 14 16.9 14 18S13.1 20 12 20 10 19.1 10 18 10.9 16 12 16M12 10C13.1 10 14 10.9 14 12S13.1 14 12 14 10 13.1 10 12 10.9 10 12 10M12 4C13.1 4 14 4.9 14 6S13.1 8 12 8 10 7.1 10 6 10.9 4 12 4M6 16C7.1 16 8 16.9 8 18S7.1 20 6 20 4 19.1 4 18 4.9 16 6 16M6 10C7.1 10 8 10.9 8 12S7.1 14 6 14 4 13.1 4 12 4.9 10 6 10M6 4C7.1 4 8 4.9 8 6S7.1 8 6 8 4 7.1 4 6 4.9 4 6 4M18 16C19.1 16 20 16.9 20 18S19.1 20 18 20 16 19.1 16 18 16.9 16 18 16M18 10C19.1 10 20 10.9 20 12S19.1 14 18 14 16 13.1 16 12 16.9 10 18 10M18 4C19.1 4 20 4.9 20 6S19.1 8 18 8 16 7.1 16 6 16.9 4 18 4Z" />
+                        </svg>
+                    </button>
                     <button :class="{ active: listViewMode == 'normal' }" @click="listViewMode = 'normal'">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>normal-view</title>
                             <path
                                 d="M17 22V20H20V17H22V20.5C22 20.9 21.8 21.2 21.5 21.5C21.2 21.8 20.8 22 20.5 22H17M7 22H3.5C3.1 22 2.8 21.8 2.5 21.5C2.2 21.2 2 20.8 2 20.5V17H4V20H7V22M17 2H20.5C20.9 2 21.2 2.2 21.5 2.5C21.8 2.8 22 3.1 22 3.5V7H20V4H17V2M7 2V4H4V7H2V3.5C2 3.1 2.2 2.8 2.5 2.5S3.1 2 3.5 2H7M19 11H5V13H19V11Z" />
-                        </svg>
-                    </button>
-                    <button :class="{ active: listViewMode == 'consensed' }" @click="listViewMode = 'consensed'">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <title>consensed-view</title>
-                            <path
-                                d="M12 16C13.1 16 14 16.9 14 18S13.1 20 12 20 10 19.1 10 18 10.9 16 12 16M12 10C13.1 10 14 10.9 14 12S13.1 14 12 14 10 13.1 10 12 10.9 10 12 10M12 4C13.1 4 14 4.9 14 6S13.1 8 12 8 10 7.1 10 6 10.9 4 12 4M6 16C7.1 16 8 16.9 8 18S7.1 20 6 20 4 19.1 4 18 4.9 16 6 16M6 10C7.1 10 8 10.9 8 12S7.1 14 6 14 4 13.1 4 12 4.9 10 6 10M6 4C7.1 4 8 4.9 8 6S7.1 8 6 8 4 7.1 4 6 4.9 4 6 4M18 16C19.1 16 20 16.9 20 18S19.1 20 18 20 16 19.1 16 18 16.9 16 18 16M18 10C19.1 10 20 10.9 20 12S19.1 14 18 14 16 13.1 16 12 16.9 10 18 10M18 4C19.1 4 20 4.9 20 6S19.1 8 18 8 16 7.1 16 6 16.9 4 18 4Z" />
                         </svg>
                     </button>
                     <button :class="{ active: listViewMode == 'expanded' }" @click="listViewMode = 'expanded'">
@@ -109,6 +115,7 @@
                     :comparisons="samples.comparisons"
                     :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
                     :overlapProp="overlapProp"
+                    :displayMode="listViewMode"
                     :filters="filters"
                     :focusedVariant="focusedVariant"
                     :open="variantListBarOpen"
@@ -1285,6 +1292,15 @@ img
             width: 0px
             min-width: 0px
             overflow: hidden
+        &.condensed
+            font-size: .8em
+            .tab
+                padding: 3px
+                .tip
+                    font-size: 10px
+                    top: -2px
+        &.expanded
+            font-size: 1em
     .tab
         padding: 5px 10px
         margin: 0px
@@ -1318,10 +1334,13 @@ img
             display: none
     &.normal
         width: 40%
+        min-width: 40%
     &.condensed
-        width: 80px
+        width: 250px
+        min-width: 250px
     &.expanded
         width: 50%
+        min-width: 50%
 #var-list-bar-toggle-btn
     position: absolute
     top: 5px

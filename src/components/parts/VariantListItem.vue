@@ -2,7 +2,13 @@
     <div class="variant-list-item">
         <div
             class="preview"
-            :class="{ opened: showMore, focusedVariant: isFocusedVariant, hasGoi: geneCandidates && geneCandidates.length > 0 }"
+            :class="{
+                opened: showMore,
+                focusedVariant: isFocusedVariant,
+                hasGoi: geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal'),
+                condensed: displayMode == 'condensed',
+                expanded: displayMode == 'expanded',
+            }"
             @click="focusOnVariant">
             <!-- col0 -->
             <div class="favorite-tag">
@@ -35,33 +41,66 @@
 
             <!-- col4 -->
             <div class="zygosity-symbols">
-                <div
-                    class="genotype-text"
-                    :class="{ het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom' }"
-                    v-html="svgForZygosity(variant.genotype)"></div>
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Proband</title>
+                        <path
+                            d="M9,7H13A2,2 0 0,1 15,9V11A2,2 0 0,1 13,13H11V17H9V7M11,9V11H13V9H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+                    <div class="genotype-text" v-html="svgForZygosity(variant.genotype)"></div>
+                </div>
 
-                <div v-if="hasMom" v-html="parentZygosity.mother[0]"></div>
-                <div v-if="hasDad" v-html="parentZygosity.father[0]"></div>
+                <div>
+                    <svg v-if="hasMom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Mother</title>
+                        <path
+                            d="M9,7H15A2,2 0 0,1 17,9V17H15V9H13V16H11V9H9V17H7V9A2,2 0 0,1 9,7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+                    <div v-if="hasMom" v-html="parentZygosity.mother[0]"></div>
+                </div>
+
+                <div>
+                    <svg v-if="hasDad" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Father</title>
+                        <path
+                            d="M9,7H15V9H11V11H14V13H11V17H9V7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+                    <div v-if="hasDad" v-html="parentZygosity.father[0]"></div>
+                </div>
             </div>
 
             <!-- col5 Top -->
             <div
                 class="goi-ol-text"
-                v-if="geneCandidates && geneCandidates.length > 0"
+                v-if="geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal')"
                 :class="{ subtle: numberOfGenesOfInterest == 0 }">
                 {{ numberOfGenesOfInterest }}
             </div>
 
             <!-- col6 -->
-            <div class="total-text" :class="{ subtle: numberOfGenes == 0 }">{{ numberOfGenes }}</div>
+            <div
+                v-if="displayMode == 'expanded' || displayMode == 'normal'"
+                class="total-text"
+                :class="{ subtle: numberOfGenes == 0 }">
+                {{ numberOfGenes }}
+            </div>
 
             <!-- col7 -->
             <div v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-text">
                 <strong>
-                    <span :class="{ subtle: Math.round(maxSingularPhenotypes.max) == 0 }">{{
-                        Math.round(maxSingularPhenotypes.max)
-                    }}</span>
-                    <span :class="{ subtle: numPhensAccountedFor == 0 }"> ({{ numPhensAccountedFor }}) </span>
+                    <span
+                        v-if="displayMode == 'expanded' || displayMode == 'normal'"
+                        :class="{ subtle: Math.round(maxSingularPhenotypes.max) == 0 }"
+                        >{{ Math.round(maxSingularPhenotypes.max) }}</span
+                    >
+                    <span
+                        v-if="displayMode == 'expanded' || displayMode == 'normal'"
+                        :class="{ subtle: numPhensAccountedFor == 0 }">
+                        ({{ numPhensAccountedFor }})
+                    </span>
+                    <span v-if="displayMode == 'condensed'" :class="{ subtle: numPhensAccountedFor == 0 }">
+                        {{ numPhensAccountedFor }}
+                    </span>
                 </strong>
             </div>
             <!-- OR -->
@@ -86,6 +125,7 @@ export default {
         geneCandidates: Array,
         openedSvSet: Object,
         comparisons: Array,
+        displayMode: String,
         chromosomeAccumulatedMap: Object,
         placeInList: Number,
         overlapProp: Number,
@@ -501,6 +541,12 @@ export default {
                 width: 20px
                 fill: #2A65B7
                 pointer-events: none
+        &.condensed
+            grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .15fr)
+            grid-template-rows: 1fr 1fr
+        &.expanded
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .3fr) minmax(0, .4fr)
+            grid-template-rows: 1fr 1fr
         .goi-ol-text
             font-weight: 200
             grid-row: 1/3
@@ -535,13 +581,15 @@ export default {
                 font-weight: 400
                 padding-top: 3px
         .zygosity-symbols
+            display: flex
+            flex-direction: column
             align-items: center
             color: #474747
             display: flex
             font-size: .8em
             font-weight: 200
-            grid-row: 1/2
-            justify-content: space-evenly
+            grid-row: 1/3
+            justify-content: flex-start
             position: relative
             width: 100%
             svg

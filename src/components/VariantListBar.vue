@@ -3,7 +3,11 @@
         <div
             v-if="svList && svList.length > 0"
             id="variant-list-bar-header"
-            :class="{ hasGoi: geneCandidates && geneCandidates.length > 0 }">
+            :class="{
+                hasGoi: geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal'),
+                condensed: displayMode == 'condensed',
+                expanded: displayMode == 'expanded',
+            }">
             <!-- col0 -->
             <div class="span-rows"></div>
 
@@ -36,34 +40,19 @@
             </div>
 
             <div class="span-rows" @click="$emit('sort-variants', 'zygosity')">
-                Zygosity
+                <span v-if="displayMode == 'expanded' || displayMode == 'normal'">Zygosity</span>
+                <span v-if="displayMode == 'condensed'">Zyg</span>
                 <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>sort</title>
                     <path
                         d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
                 </svg>
-                <span class="svgs">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>Proband</title>
-                        <path
-                            d="M9,7H13A2,2 0 0,1 15,9V11A2,2 0 0,1 13,13H11V17H9V7M11,9V11H13V9H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
-                    </svg>
-
-                    <svg v-if="hasMom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>Mother</title>
-                        <path
-                            d="M9,7H15A2,2 0 0,1 17,9V17H15V9H13V16H11V9H9V17H7V9A2,2 0 0,1 9,7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
-                    </svg>
-
-                    <svg v-if="hasDad" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>Father</title>
-                        <path
-                            d="M9,7H15V9H11V11H14V13H11V17H9V7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
-                    </svg>
-                </span>
             </div>
 
-            <div class="span-rows" v-if="geneCandidates && geneCandidates.length > 0" @click="$emit('sort-variants', 'goi')">
+            <div
+                class="span-rows"
+                v-if="geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal')"
+                @click="$emit('sort-variants', 'goi')">
                 GoI
                 <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>sort</title>
@@ -72,7 +61,10 @@
                 </svg>
             </div>
 
-            <div class="span-rows" @click="$emit('sort-variants', 'totalGenes')">
+            <div
+                v-if="displayMode == 'expanded' || displayMode == 'normal'"
+                class="span-rows"
+                @click="$emit('sort-variants', 'totalGenes')">
                 Genes
                 <br />
                 Total
@@ -83,9 +75,20 @@
                 </svg>
             </div>
 
-            <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">
+            <div
+                v-if="displayMode == 'expanded' || displayMode == 'normal'"
+                class="span-rows"
+                @click="$emit('sort-variants', 'hpoOverlapped')">
                 Gene:HPO
                 <span>Top (Total)</span>
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+            <div v-if="displayMode == 'condensed'" class="span-rows">
+                <span>HPO</span>
                 <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>sort</title>
                     <path
@@ -104,6 +107,7 @@
                     :geneCandidates="geneCandidates"
                     :patientPhenotypes="patientPhenotypes"
                     :comparisons="comparisons"
+                    :displayMode="displayMode"
                     :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
                     :placeInList="index"
                     :overlapProp="overlapProp"
@@ -133,6 +137,10 @@ export default {
         comparisons: Array,
         chromosomeAccumulatedMap: Object,
         focusedVariant: Object,
+        displayMode: {
+            type: String,
+            default: "normal",
+        },
         loading: {
             type: Boolean,
             default: false,
@@ -464,7 +472,6 @@ export default {
     justify-content: flex-start
     padding-bottom: 1px
     width: 100%
-    min-width: 350px
     height: 100%
     box-sizing: border-box
     overflow: hidden
@@ -477,7 +484,7 @@ export default {
         display: grid
         grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .2fr)
         grid-template-rows: 1fr 1fr
-        font-size: .8em
+        font-size: .7em
         font-weight: 200
         width: 100%
         height: 50px
@@ -497,6 +504,12 @@ export default {
         z-index: 1
         &.hasGoi
             grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr)
+        &.condensed
+            grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .15fr)
+            grid-template-rows: 1fr 1fr
+        &.expanded
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .3fr) minmax(0, .4fr)
+            grid-template-rows: 1fr 1fr
         .span-rows
             display: flex
             flex-direction: column
