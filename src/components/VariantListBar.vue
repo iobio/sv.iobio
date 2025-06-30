@@ -75,20 +75,8 @@
                 </svg>
             </div>
 
-            <div
-                v-if="displayMode == 'expanded' || displayMode == 'normal'"
-                class="span-rows"
-                @click="$emit('sort-variants', 'hpoOverlapped')">
-                Gene:HPO
-                <span>Top (Total)</span>
-                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>sort</title>
-                    <path
-                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                </svg>
-            </div>
-            <div v-if="displayMode == 'condensed'" class="span-rows">
-                <span>HPO</span>
+            <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">
+                <span>HPO Terms</span>
                 <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>sort</title>
                     <path
@@ -482,7 +470,7 @@ export default {
         min-width: 0px
     #variant-list-bar-header
         display: grid
-        grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .2fr)
+        grid-template-columns: minmax(0, .05fr) minmax(0, .05fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .5fr)
         grid-template-rows: 1fr 1fr
         font-size: .7em
         font-weight: 200
@@ -508,7 +496,7 @@ export default {
             grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .15fr)
             grid-template-rows: 1fr 1fr
         &.expanded
-            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .3fr) minmax(0, .4fr)
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .2fr) minmax(0, .5fr)
             grid-template-rows: 1fr 1fr
         .span-rows
             display: flex

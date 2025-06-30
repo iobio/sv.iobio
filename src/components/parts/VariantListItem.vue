@@ -47,7 +47,7 @@
                         <path
                             d="M9,7H13A2,2 0 0,1 15,9V11A2,2 0 0,1 13,13H11V17H9V7M11,9V11H13V9H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
                     </svg>
-                    <div class="genotype-text" v-html="svgForZygosity(variant.genotype)"></div>
+                    <div v-html="svgForZygosity(variant.genotype)"></div>
                 </div>
 
                 <div>
@@ -87,8 +87,7 @@
 
             <!-- col7 -->
             <div v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-text">
-                <strong>
-                    <span
+                <!-- <span
                         v-if="displayMode == 'expanded' || displayMode == 'normal'"
                         :class="{ subtle: Math.round(maxSingularPhenotypes.max) == 0 }"
                         >{{ Math.round(maxSingularPhenotypes.max) }}</span
@@ -97,11 +96,15 @@
                         v-if="displayMode == 'expanded' || displayMode == 'normal'"
                         :class="{ subtle: numPhensAccountedFor == 0 }">
                         ({{ numPhensAccountedFor }})
+                    </span> -->
+                <div class="phenotypes-preview" v-if="displayMode == 'expanded' || displayMode == 'normal'">
+                    <span class="phenotype-tag" v-for="phenotype in overlappedPhenotypes" :key="phenotype">
+                        {{ phenotype }}
                     </span>
-                    <span v-if="displayMode == 'condensed'" :class="{ subtle: numPhensAccountedFor == 0 }">
-                        {{ numPhensAccountedFor }}
-                    </span>
-                </strong>
+                </div>
+                <span v-if="displayMode == 'condensed'" :class="{ subtle: numPhensAccountedFor == 0 }">
+                    {{ numPhensAccountedFor }}
+                </span>
             </div>
             <!-- OR -->
             <div v-else class="num-phens-text">
@@ -115,6 +118,7 @@
 
 <script>
 import * as common from "../../dataHelpers/commonFunctions.js";
+import { searchForHPO } from "../../dataHelpers/dataHelpers.js";
 
 export default {
     name: "VariantListItem",
@@ -136,9 +140,12 @@ export default {
         return {
             showMore: false,
             focused: false,
+            overlappedPhenotypes: [],
         };
     },
-    mounted() {},
+    mounted() {
+        this.updateOverlappedPhenotypes();
+    },
     methods: {
         formatGenotype: common.formatGenotype,
         bpFormatted: common.bpFormatted,
@@ -187,6 +194,42 @@ export default {
                 return overlappedGenes;
             } else {
                 return this.variant.overlappedGenes;
+            }
+        },
+        async updateOverlappedPhenotypes() {
+            if (
+                this.patientPhenotypes &&
+                this.patientPhenotypes.length > 0 &&
+                this.variant.overlappedGenes &&
+                Object.values(this.variant.overlappedGenes).length > 0
+            ) {
+                let inCommonOverlappedPhens = [];
+                for (let gene of Object.values(this.variant.overlappedGenes)) {
+                    inCommonOverlappedPhens.push(
+                        ...Object.keys(gene.phenotypes).filter((phenotype) => this.patientPhenotypes.includes(phenotype)),
+                    );
+                }
+                inCommonOverlappedPhens = new Set(inCommonOverlappedPhens);
+
+                let inCommonNames = [];
+                for (let hpo of inCommonOverlappedPhens) {
+                    try {
+                        const result = await searchForHPO(hpo);
+                        if (result && result.length > 0 && result[0].name) {
+                            inCommonNames.push(result[0].name);
+                        } else {
+                            // Fallback to using the HPO ID if lookup fails or returns no results
+                            inCommonNames.push(hpo);
+                        }
+                    } catch (error) {
+                        console.error(`Error looking up HPO ${hpo}:`, error);
+                        // Fallback to using the HPO ID if lookup fails
+                        inCommonNames.push(hpo);
+                    }
+                }
+                this.overlappedPhenotypes = inCommonNames;
+            } else {
+                this.overlappedPhenotypes = [];
             }
         },
     },
@@ -466,15 +509,29 @@ export default {
             }
         },
     },
-    watch: {},
+    watch: {
+        patientPhenotypes: {
+            handler() {
+                this.updateOverlappedPhenotypes();
+            },
+            deep: true,
+        },
+        "variant.overlappedGenes": {
+            handler() {
+                this.updateOverlappedPhenotypes();
+            },
+            deep: true,
+        },
+    },
 };
 </script>
 
 <style lang="sass">
 .variant-list-item
     width: 100%
-    min-width: 200px
-    min-height: 45px
+    height: 100px
+    min-height: 100px
+    max-height: 100px
     position: relative
     .novel-tag
         display: flex
@@ -505,10 +562,11 @@ export default {
     .preview
         position: relative
         display: grid
-        grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .2fr) minmax(0, .2fr)
+        grid-template-columns: minmax(0, .05fr) minmax(0, .05fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .5fr)
         grid-template-rows: 1fr 1fr
         padding: 5px
         width: 100%
+        height: 100%
         box-sizing: border-box
         border-bottom: 1px solid #F5F5F5
         border-top: 2px solid transparent
@@ -545,7 +603,7 @@ export default {
             grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .15fr)
             grid-template-rows: 1fr 1fr
         &.expanded
-            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .3fr) minmax(0, .4fr)
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .2fr) minmax(0, .5fr)
             grid-template-rows: 1fr 1fr
         .goi-ol-text
             font-weight: 200
@@ -561,6 +619,7 @@ export default {
 
                 opacity: .4
         .num-phens-text
+            max-height: 100%
             padding: 3px 3px
             display: flex
             flex-direction: column
@@ -568,7 +627,7 @@ export default {
             justify-content: center
             text-align: center
             box-sizing: border-box
-            grid-row: 1/2
+            grid-row: 1/3
             font-size: 0.8em
             strong
                 font-size: 1.2em
@@ -580,6 +639,20 @@ export default {
             .max-gene
                 font-weight: 400
                 padding-top: 3px
+            .phenotypes-preview
+                display: flex
+                flex-wrap: wrap
+                overflow-y: auto
+                max-height: 100%
+                height: 100%
+                .phenotype-tag
+                    padding: 3px
+                    border-radius: 5px
+                    background-color: #F5F5F5
+                    margin: 2px
+                    font-size: 0.8em
+                    font-weight: 200
+                    color: #474747
         .zygosity-symbols
             display: flex
             flex-direction: column
@@ -589,23 +662,9 @@ export default {
             font-size: .8em
             font-weight: 200
             grid-row: 1/3
-            justify-content: flex-start
+            justify-content: center
             position: relative
             width: 100%
-            svg
-                height: 15px
-                width: 15px
-                fill: #474747
-        .genotype-text
-            font-size: 0.75em
-            border-radius: 5px
-            text-transform: uppercase
-            color: #474747
-            font-weight: 200
-            display: flex
-            align-items: flex-start
-            &.homalt
-                color: red
             svg
                 height: 15px
                 width: 15px
@@ -623,7 +682,7 @@ export default {
             font-size: 0.75em
             font-weight: 200
             opacity: .8
-            grid-row: 1/2
+            grid-row: 1/3
         .chr-text
             font-weight: 200
             grid-row: 1/2
@@ -647,7 +706,7 @@ export default {
             border-radius: 5px
         .total-text
             font-weight: 200
-            grid-row: 1/2
+            grid-row: 1/3
             color: #474747
             display: flex
             align-items: center
