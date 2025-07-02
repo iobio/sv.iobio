@@ -100,11 +100,21 @@
                     :overlapProp="overlapProp"
                     :filters="filters"
                     :focusedVariant="focusedVariant"
-                    @variant-clicked="variantClicked" />
+                    @variant-clicked="variantClicked"
+                    @favorite-variant="favoriteVariant"
+                    @hide-variant="hideVariant" />
             </div>
             <div id="variant-list-bar-sudo-scroll">
                 <div id="variant-list-bar-sudo-scroll-thumb"></div>
             </div>
+        </div>
+        <div id="hidden-variants-section">
+            <span
+                ><b>{{ hiddenVar.length }}</b> User Hidden Variants</span
+            >
+            <span
+                ><b>{{ filteredOutVar.length }}</b> Variants Filtered Out</span
+            >
         </div>
     </div>
 </template>
@@ -124,6 +134,8 @@ export default {
     },
     props: {
         svList: Array,
+        filteredOutVar: Array,
+        hiddenVar: Array,
         patientPhenotypes: Array,
         geneCandidates: Array,
         comparisons: Array,
@@ -484,6 +496,27 @@ export default {
             cursor: pointer
             &:hover
                 background-color: #B8B8B8
+#hidden-variants-section
+    height: 40px
+    width: 100%
+    border-radius: 3px
+    padding-right: 10px
+    display: flex
+    align-items: center
+    justify-content: flex-end
+    box-sizing: border-box
+    border: 1px solid #E0E0E0
+    text-transform: uppercase
+    font-size: .8em
+    font-weight: 200
+    color: #474747
+    span
+        margin-right: 5px
+        b
+            background: #E0E0E0
+            padding: 2px
+            border-radius: 3px
+            text-align: center
 #variant-list-bar
     display: flex
     flex-direction: column

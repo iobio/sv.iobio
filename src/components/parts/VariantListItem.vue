@@ -11,7 +11,7 @@
             }"
             @click="focusOnVariant">
             <!-- col0 -->
-            <div class="favorite-tag">
+            <div class="favorite-tag" @click.stop="favoriteVariant" :class="{ favorite: variant.favorite }">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>favorite</title>
                     <path
@@ -19,7 +19,7 @@
                 </svg>
             </div>
 
-            <div class="hide-tag">
+            <div class="hide-tag" @click.stop="hideVariant">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>hide</title>
                     <path
@@ -98,6 +98,9 @@
                         ({{ numPhensAccountedFor }})
                     </span> -->
                 <div class="phenotypes-preview" v-if="displayMode == 'expanded' || displayMode == 'normal'">
+                    <div class="num-phens-tag" v-if="numPhensAccountedFor > 0">
+                        {{ numPhensAccountedFor }}
+                    </div>
                     <span class="phenotype-tag" v-for="phenotype in overlappedPhenotypes" :key="phenotype">
                         {{ phenotype }}
                     </span>
@@ -127,7 +130,6 @@ export default {
         variant: Object,
         patientPhenotypes: Array,
         geneCandidates: Array,
-        openedSvSet: Object,
         comparisons: Array,
         displayMode: String,
         chromosomeAccumulatedMap: Object,
@@ -151,6 +153,12 @@ export default {
         bpFormatted: common.bpFormatted,
         formatType: common.formatType,
         svgForZygosity: common.svgForZygosity,
+        favoriteVariant() {
+            this.$emit("favorite-variant", this.variant);
+        },
+        hideVariant() {
+            this.$emit("hide-variant", this.variant);
+        },
         variantOpened(event) {
             event.stopPropagation();
             this.showMore = !this.showMore;
@@ -619,6 +627,7 @@ export default {
 
                 opacity: .4
         .num-phens-text
+            position: relative
             max-height: 100%
             padding: 3px 3px
             display: flex
@@ -724,17 +733,36 @@ export default {
     .favorite-tag
         grid-column: 1/2
         grid-row: 1/2
+        border-radius: 5px
         svg
-            height: 15px
-            width: 15px
+            height: 20px
+            width: 20px
             fill: #474747
             pointer-events: none
+        &:hover
+            background: #e3e3e3
+        &.favorite
+            svg
+                fill: #FFB60A
     .hide-tag
         grid-column: 1/2
         grid-row: 2/3
+        border-radius: 5px
         svg
             height: 15px
             width: 15px
             fill: #474747
             pointer-events: none
+        &:hover
+            background: #e3e3e3
+    .num-phens-tag
+        position: absolute
+        top: -3px
+        left: 0
+        border: .5px solid #474747
+        padding: 1px 3px
+        font-size: 0.8em
+        font-weight: 200
+        border-radius: 5px
+        color: #474747
 </style>

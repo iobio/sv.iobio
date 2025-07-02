@@ -24,6 +24,7 @@ class Sv {
             this.quality = input.quality;
             this.svCode = input.svCode || "";
             this.bands = input.bands || [];
+            this.favorite = false;
 
             //if we get vcfInfo then parse otherwise don't
             if (input.vcfInfo != "" && input.vcfInfo != undefined) {

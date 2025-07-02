@@ -109,6 +109,8 @@
                 <VariantListBar
                     v-if="selectedTab == 'svList'"
                     :svList="svListVariantBar"
+                    :filteredOutVar="variantsFilteredOut"
+                    :hiddenVar="variantsHiddenByUser"
                     :patientPhenotypes="phenotypesOfInterest"
                     :geneCandidates="genesOfInterest"
                     :loading="!loadedInitiallyComplete"
@@ -121,7 +123,9 @@
                     :open="variantListBarOpen"
                     @updateSvAtIndex="updateSvList"
                     @variant-clicked="updateFocusedVariant"
-                    @sort-variants="sortSvList" />
+                    @sort-variants="sortSvList"
+                    @favorite-variant="favoriteVariant"
+                    @hide-variant="hideVariant" />
 
                 <PhenotypesListBar
                     v-if="selectedTab == 'phenotypes'"
@@ -238,6 +242,7 @@ export default {
             toasts: [],
             variantsSorted: false,
             variantsFilteredOut: [],
+            variantsHiddenByUser: [],
             //Mosaic Session Items
             mosaicSession: null,
             mosaicUrlParams: null,
@@ -705,6 +710,21 @@ export default {
                 //dont change focused variant
             } else {
                 this.focusedVariant = variant;
+            }
+        },
+        favoriteVariant(variant) {
+            variant = this.svListVariantBar.find((sv) => sv.svCode == variant.svCode);
+            if (variant && variant.favorite == false) {
+                variant.favorite = true;
+            } else if (variant) {
+                variant.favorite = false;
+            }
+        },
+        hideVariant(variant) {
+            variant = this.svListVariantBar.find((sv) => sv.svCode == variant.svCode);
+            if (variant) {
+                this.variantsHiddenByUser.push(variant);
+                this.svListVariantBar = this.svListVariantBar.filter((sv) => sv.svCode !== variant.svCode);
             }
         },
         updateDataFilters(filters) {
