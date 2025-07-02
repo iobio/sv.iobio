@@ -383,13 +383,6 @@ export default {
             }
         },
         async variantClicked(variant, flag) {
-            //add to openedSvSet
-            let key = `${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`;
-            if (key in this.openedSvSet) {
-                delete this.openedSvSet[key];
-            } else {
-                this.openedSvSet[key] = true;
-            }
             this.clickedFromBar = true;
             this.$emit("variant-clicked", variant, flag);
         },
@@ -428,11 +421,6 @@ export default {
                 return;
             }
 
-            if (this.clickedFromBar) {
-                this.clickedFromBar = false;
-                return;
-            }
-
             //Find the index of the focused variant in the svList
             let index = this.svList.findIndex((variant) => {
                 return (
@@ -454,7 +442,6 @@ export default {
             } else {
                 scrollSelection = [index, index + this.viewWindow];
             }
-            this.clickedFromBar = false;
             this.handleScrollToVariant(scrollSelection);
         },
     },
