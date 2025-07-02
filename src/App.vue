@@ -692,11 +692,21 @@ export default {
                     } else {
                         //if there are no overlappedGenes send to the bottom
                         this.svListVariantBar[originalIndex] = newSv;
+                        this.variantsFilteredOut.push(newSv);
                     }
                 }
                 this.progressPercent = Math.round(((i + batchSize) / svListCopy.length) * 100);
             }
             this.loadedInitiallyComplete = true;
+
+            //We want to sort the variants by the number of phenotypes they have in common with the patient
+            this.sortSvList("hpoOverlapped");
+
+            // Any variants in the variantsFilteredOut list should be removed from the svListVariantBar the key of the variant is the svCode
+            this.svListVariantBar = this.svListVariantBar.filter(
+                (sv) => !this.variantsFilteredOut.some((v) => v.svCode == sv.svCode),
+            );
+
             //We just want to make sure we trigger this incase we got phenotypes while we were loading or before
             await this.updatePhenotypesOfInterest(this.phenotypesOfInterest);
         },
