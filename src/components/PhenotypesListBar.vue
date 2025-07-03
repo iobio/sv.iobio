@@ -106,7 +106,11 @@ export default {
                 if (!oldKeys.includes(term_id)) {
                     newLocalPhenotypes[term_id] = { term_id: term_id };
                     let result = await searchForHPO(term_id);
-                    newLocalPhenotypes[term_id].name = result[0].name;
+                    if (result && result.length > 0) {
+                        newLocalPhenotypes[term_id].name = result[0].name;
+                    } else {
+                        newLocalPhenotypes[term_id].name = "Not Found In Database";
+                    }
                 } else {
                     newLocalPhenotypes[term_id] = this.phenotypesLocal[term_id];
                 }
