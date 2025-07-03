@@ -54,6 +54,7 @@ export default {
     },
     methods: {
         showTip() {
+            this.rootPosition = this.root.getBoundingClientRect();
             this.tip.style.visibility = "visible";
             this.tip.style.opacity = 1;
         },
@@ -91,6 +92,7 @@ export default {
 
 <style lang="sass">
 .tipped-button
+    position: relative
     background-color: #f0f0f0
     border-radius: 5px
     border: 1px solid #e0e0e0
