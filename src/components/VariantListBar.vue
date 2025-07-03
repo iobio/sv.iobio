@@ -522,14 +522,19 @@ export default {
                 return;
             }
 
+            if (index >= this.scrollSelection[0] && index <= this.scrollSelection[1]) {
+                return;
+            }
+
             let scrollSelection = [0, this.viewWindow];
 
             if (index > this.svList.length - this.viewWindow - 1) {
                 scrollSelection = [this.svList.length - this.viewWindow, this.svList.length];
+                this.handleScrollToVariant(scrollSelection);
             } else {
                 scrollSelection = [index, index + this.viewWindow];
+                this.handleScrollToVariant(scrollSelection);
             }
-            this.handleScrollToVariant(scrollSelection);
         },
     },
 };
