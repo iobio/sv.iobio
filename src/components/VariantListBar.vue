@@ -78,7 +78,8 @@
             </div>
 
             <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">
-                <span>HPO Terms</span>
+                <span v-if="displayMode == 'expanded' || displayMode == 'normal'">HPO In Common</span>
+                <span v-if="displayMode == 'condensed'">HPO</span>
                 <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>sort</title>
                     <path
