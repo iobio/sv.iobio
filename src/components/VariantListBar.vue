@@ -9,7 +9,9 @@
                 expanded: displayMode == 'expanded',
             }">
             <!-- col0 -->
-            <div class="span-rows"></div>
+            <div class="span-rows" @click="this.$emit('filter-to-favorites')">
+                <TippedButton :button-symbol="favoritesIcon" :position="'right'" :tip-text="'Filter to Favorites'" />
+            </div>
 
             <!-- col1 -->
             <div class="span-rows" @mouseenter="showSortTip" @mouseleave="hideSortTip" @click="$emit('sort-variants', 'chr')">
@@ -85,7 +87,7 @@
             </div>
         </div>
 
-        <div id="variant-scroll-wrapper">
+        <div id="variant-scroll-wrapper" :class="{ hidden: showOtherVariantsList }">
             <div id="variant-items-wrapper">
                 <VariantListItem
                     v-for="(variant, index) in svListSelection"
@@ -100,6 +102,7 @@
                     :overlapProp="overlapProp"
                     :filters="filters"
                     :focusedVariant="focusedVariant"
+                    :isHidden="false"
                     @variant-clicked="variantClicked"
                     @favorite-variant="favoriteVariant"
                     @hide-variant="hideVariant" />
@@ -108,13 +111,69 @@
                 <div id="variant-list-bar-sudo-scroll-thumb"></div>
             </div>
         </div>
-        <div id="hidden-variants-section">
-            <span
-                ><b>{{ hiddenVar.length }}</b> User Hidden Variants</span
-            >
-            <span
-                ><b>{{ filteredOutVar.length }}</b> Variants Filtered Out</span
-            >
+        <div id="hidden-variants-section" :class="{ expanded: showOtherVariantsList }">
+            <div id="hidden-variants-header">
+                <span>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        v-if="showOtherVariantsList"
+                        @click="
+                            showOtherVariantsList = false;
+                            otherVariantsShowing = 'none';
+                        ">
+                        <title>hide other variants</title>
+                        <path
+                            d="M12,14L16,10H13V4H11V10H8M5,20H19C20.11,20 21,19.1 21,18V6A2,2 0 0,1 19,4H15V6H19V16H5V6H9V4H5A2,2 0 0,1 3,6V19A2,2 0 0,1 5,20Z" />
+                    </svg>
+                </span>
+
+                <span>
+                    <b @click="toggleShowVarList('hidden')" :class="{ showing: otherVariantsShowing == 'hidden' }">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" v-if="otherVariantsShowing != 'hidden'">
+                                <title>show</title>
+                                <path
+                                    d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+                            </svg>
+                        </span>
+                        <span>{{ hiddenVar.length }}</span>
+                    </b>
+                    <span>User Hidden</span>
+                </span>
+                <span>
+                    <b @click="toggleShowVarList('filtered')" :class="{ showing: otherVariantsShowing == 'filtered' }">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" v-if="otherVariantsShowing != 'filtered'">
+                                <title>show</title>
+                                <path
+                                    d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+                            </svg>
+                        </span>
+                        <span>{{ filteredOutVar.length }}</span>
+                    </b>
+                    <span>Filtered Out</span>
+                </span>
+            </div>
+            <div id="hidden-variants-column" v-if="showOtherVariantsList">
+                <VariantListItem
+                    v-for="(variant, index) in shownHiddenList"
+                    :key="`${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`"
+                    :variant="variant"
+                    :geneCandidates="geneCandidates"
+                    :patientPhenotypes="patientPhenotypes"
+                    :comparisons="comparisons"
+                    :displayMode="displayMode"
+                    :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+                    :placeInList="index"
+                    :overlapProp="overlapProp"
+                    :filters="filters"
+                    :focusedVariant="focusedVariant"
+                    :isHidden="true"
+                    @variant-clicked="variantClicked"
+                    @favorite-variant="favoriteVariant"
+                    @unhide-variant="unhideVariant" />
+            </div>
         </div>
     </div>
 </template>
@@ -126,11 +185,13 @@
  * Change things with the utmost caution
  */
 import VariantListItem from "./parts/VariantListItem.vue";
+import TippedButton from "./parts/TippedButton.vue";
 
 export default {
     name: "VariantListBar",
     components: {
         VariantListItem,
+        TippedButton,
     },
     props: {
         svList: Array,
@@ -168,6 +229,8 @@ export default {
             itemHeight: 100,
             containerHeight: 0,
             resizeObserver: null,
+            showOtherVariantsList: false,
+            otherVariantsShowing: "none",
         };
     },
     mounted() {
@@ -200,6 +263,15 @@ export default {
         }
     },
     methods: {
+        toggleShowVarList(toShow) {
+            if (this.otherVariantsShowing == toShow) {
+                this.showOtherVariantsList = false;
+                this.otherVariantsShowing = "none";
+            } else {
+                this.showOtherVariantsList = true;
+                this.otherVariantsShowing = toShow;
+            }
+        },
         setupVariables() {
             this.listItemsContainer = document.getElementById("variant-items-wrapper");
             this.containerHeight = this.listItemsContainer.clientHeight;
@@ -212,6 +284,9 @@ export default {
         },
         hideVariant(variant) {
             this.$emit("hide-variant", variant);
+        },
+        unhideVariant(variant) {
+            this.$emit("unhide-variant", variant);
         },
         resetScroll() {
             this.lastScrollTop = 0;
@@ -401,6 +476,17 @@ export default {
                 return comparison.relation.toLowerCase() == "father";
             });
         },
+        shownHiddenList() {
+            if (this.otherVariantsShowing == "filtered") {
+                return this.filteredOutVar;
+            } else if (this.otherVariantsShowing == "hidden") {
+                return this.hiddenVar;
+            }
+            return [];
+        },
+        favoritesIcon() {
+            return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>favorites filter</title><path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" /></svg>';
+        },
     },
     watch: {
         svList: {
@@ -457,6 +543,9 @@ export default {
     position: relative
     overflow: hidden
     overscroll-behavior: none
+    &.hidden
+        display: none
+        height: 0px
     #variant-items-wrapper
         overflow-y: auto
         height: 100%
@@ -486,24 +575,62 @@ export default {
 #hidden-variants-section
     height: 40px
     width: 100%
-    border-radius: 3px
-    padding-right: 10px
     display: flex
-    align-items: center
-    justify-content: flex-end
+    flex-direction: column
     box-sizing: border-box
-    border: 1px solid #E0E0E0
-    text-transform: uppercase
-    font-size: .8em
-    font-weight: 200
+    border-right: 1px solid #E0E0E0
     color: #474747
-    span
-        margin-right: 5px
-        b
-            background: #E0E0E0
-            padding: 2px
-            border-radius: 3px
-            text-align: center
+    #hidden-variants-header
+        height: 40px
+        min-height: 40px
+        width: 100%
+        border-radius: 0px 3px 0px 0px
+        padding-right: 10px
+        display: flex
+        align-items: center
+        justify-content: flex-end
+        box-sizing: border-box
+        border-top: 1px solid #E0E0E0
+        background: #F5F5F5
+        text-transform: uppercase
+        font-size: .8em
+        font-weight: 200
+        color: #474747
+        span
+            margin-right: 5px
+            display: inline-flex
+            align-items: center
+            gap: 3px
+            svg
+                height: 22px
+                width: 22px
+                cursor: pointer
+                fill: #474747
+            b
+                background: #E0E0E0
+                padding: 2px 3px
+                border-radius: 3px
+                display: inline-flex
+                align-items: center
+                justify-content: center
+                cursor: pointer
+                &.showing
+                    background: #aeaeae
+                span
+                    margin: 0px
+                    svg
+                        height: 18px
+                        width: 18px
+                        fill: #474747
+                &:hover
+                    background: #aeaeae
+    &.expanded
+        height: 100%
+        #hidden-variants-column
+            display: flex
+            flex-direction: column
+            flex-grow: 1
+            overflow-y: auto
 #variant-list-bar
     display: flex
     flex-direction: column
@@ -561,6 +688,15 @@ export default {
             text-overflow: ellipsis
             position: relative
             cursor: pointer
+            .tipped-button
+                border: none
+                background: none
+                .symbol
+                    pointer-events: none
+                    svg
+                        height: 20px
+                        width: 20px
+                        fill: #474747
             .sort-tip
                 position: absolute
                 right: -9px

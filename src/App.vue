@@ -125,7 +125,9 @@
                     @variant-clicked="updateFocusedVariant"
                     @sort-variants="sortSvList"
                     @favorite-variant="favoriteVariant"
-                    @hide-variant="hideVariant" />
+                    @hide-variant="hideVariant"
+                    @unhide-variant="unhideVariant"
+                    @filter-to-favorites="filterToFavorites" />
 
                 <PhenotypesListBar
                     v-if="selectedTab == 'phenotypes'"
@@ -730,12 +732,29 @@ export default {
                 variant.favorite = false;
             }
         },
+        filterToFavorites() {
+            const nonFavorites = this.svListVariantBar.filter((sv) => !sv.favorite);
+            const favorites = this.svListVariantBar.filter((sv) => sv.favorite);
+
+            this.variantsHiddenByUser.push(...nonFavorites);
+            this.svListVariantBar = favorites;
+        },
         hideVariant(variant) {
             variant = this.svListVariantBar.find((sv) => sv.svCode == variant.svCode);
             if (variant) {
                 this.variantsHiddenByUser.push(variant);
                 this.svListVariantBar = this.svListVariantBar.filter((sv) => sv.svCode !== variant.svCode);
             }
+        },
+        unhideVariant(variant) {
+            //The variant could be in variantsFilteredOut or variantsHiddenByUser so we need to check both
+            if (this.variantsFilteredOut.some((sv) => sv.svCode == variant.svCode)) {
+                this.variantsFilteredOut = this.variantsFilteredOut.filter((sv) => sv.svCode !== variant.svCode);
+            } else if (this.variantsHiddenByUser.some((sv) => sv.svCode == variant.svCode)) {
+                this.variantsHiddenByUser = this.variantsHiddenByUser.filter((sv) => sv.svCode !== variant.svCode);
+            }
+            // Add the variant back to the top of the svListVariantBar
+            this.svListVariantBar.unshift(variant);
         },
         updateDataFilters(filters) {
             //Filters, essentially shouldn't need to make additional calls to the server
