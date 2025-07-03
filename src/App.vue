@@ -705,10 +705,9 @@ export default {
             this.sortSvList("hpoOverlapped");
 
             // Any variants in the variantsFilteredOut list should be removed from the svListVariantBar the key of the variant is the svCode
-            this.svListVariantBar = this.svListVariantBar.filter(
-                (sv) => !this.variantsFilteredOut.some((v) => v.svCode == sv.svCode),
-            );
-
+            let filteredSvs = this.svListVariantBar.filter((sv) => !this.variantsFilteredOut.some((v) => v.svCode == sv.svCode));
+            this.svListVariantBar = filteredSvs;
+            this.svListChart = filteredSvs;
             //We just want to make sure we trigger this incase we got phenotypes while we were loading or before
             await this.updatePhenotypesOfInterest(this.phenotypesOfInterest);
         },
@@ -738,12 +737,15 @@ export default {
 
             this.variantsHiddenByUser.push(...nonFavorites);
             this.svListVariantBar = favorites;
+            this.svListChart = favorites;
         },
         hideVariant(variant) {
             variant = this.svListVariantBar.find((sv) => sv.svCode == variant.svCode);
             if (variant) {
                 this.variantsHiddenByUser.push(variant);
-                this.svListVariantBar = this.svListVariantBar.filter((sv) => sv.svCode !== variant.svCode);
+                let newSvs = this.svListVariantBar.filter((sv) => sv.svCode !== variant.svCode);
+                this.svListVariantBar = newSvs;
+                this.svListChart = newSvs;
             }
         },
         unhideVariant(variant) {
