@@ -5,6 +5,7 @@
             :class="{
                 opened: showMore,
                 focusedVariant: isFocusedVariant,
+                isHidden: isHidden,
                 hasGoi: geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal'),
                 condensed: displayMode == 'condensed',
                 expanded: displayMode == 'expanded',
@@ -95,16 +96,6 @@
 
             <!-- col7 -->
             <div v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-text">
-                <!-- <span
-                        v-if="displayMode == 'expanded' || displayMode == 'normal'"
-                        :class="{ subtle: Math.round(maxSingularPhenotypes.max) == 0 }"
-                        >{{ Math.round(maxSingularPhenotypes.max) }}</span
-                    >
-                    <span
-                        v-if="displayMode == 'expanded' || displayMode == 'normal'"
-                        :class="{ subtle: numPhensAccountedFor == 0 }">
-                        ({{ numPhensAccountedFor }})
-                    </span> -->
                 <div class="phenotypes-preview" v-if="displayMode == 'expanded' || displayMode == 'normal'">
                     <div class="num-phens-tag" v-if="numPhensAccountedFor > 0">
                         {{ numPhensAccountedFor }}
@@ -188,6 +179,9 @@ export default {
             }
         },
         focusOnVariant() {
+            if (this.isHidden) {
+                return; // We can't show/hide a variant that is hidden
+            }
             this.focused = !this.focused;
             if (this.focused) {
                 this.$emit("variant-clicked", this.variant, "show");
@@ -595,6 +589,10 @@ export default {
         border-right: 2px solid transparent
         &.hasGoi
             grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr)
+        &.isHidden
+            &:hover
+                background-color: white
+                cursor: auto
         &.focusedVariant
             border: 2px solid #FFB60A
             border-radius: 5px
