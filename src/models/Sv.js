@@ -25,6 +25,7 @@ class Sv {
             this.svCode = input.svCode || "";
             this.bands = input.bands || [];
             this.favorite = false;
+            this.overlappedPhenGenes = [];
 
             //if we get vcfInfo then parse otherwise don't
             if (input.vcfInfo != "" && input.vcfInfo != undefined) {
