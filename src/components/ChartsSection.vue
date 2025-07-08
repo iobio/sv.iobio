@@ -205,7 +205,12 @@
             :geneCandidates="genesOfInterest"
             :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
             :doseGenes="doseGenes" />
-        <PhenotypeSummary v-if="!focusedVariant && chartsView === 'hpo'" />
+        <PhenotypeSummary
+            v-if="!focusedVariant && chartsView === 'hpo'"
+            :svList="svList"
+            :genesOfInterest="genesOfInterest"
+            :phenRelatedGenes="phenRelatedGenes"
+            :ptPhenotypes="patientPhenotypes" />
     </div>
 </template>
 
@@ -837,6 +842,7 @@ export default {
     align-items: center
     justify-content: center
     width: 156px
+    min-height: 20px
     padding: 0px
     border-radius: 5px
     border: 1px solid #E0E0E0
