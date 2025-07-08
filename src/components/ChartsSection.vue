@@ -9,8 +9,8 @@
                 @selectAreaEvent="selectAreaEventFired" />
         </div> -->
         <div id="toggle-view-buttons">
-            <button :class="{ active: chartsView === 'hpo' }" @click="chartsView = 'hpo'">HPO</button>
-            <button :class="{ active: chartsView === 'genome' }" @click="chartsView = 'genome'">Genome</button>
+            <button :class="{ active: chartsView === 'hpo' }" @click="updateChartsView('hpo')">HPO</button>
+            <button :class="{ active: chartsView === 'genome' }" @click="updateChartsView('genome')">Genome</button>
         </div>
 
         <div v-if="chartsView === 'genome'" class="upper-track-selectors-bar">
@@ -294,6 +294,12 @@ export default {
     },
     methods: {
         bpFormatted: bpFormatted,
+        updateChartsView(view) {
+            if (view == "genome") {
+                this.$emit("update-list-view", "condensed");
+            }
+            this.chartsView = view;
+        },
         toggleLineTool() {
             this.tools.line = !this.tools.line;
         },

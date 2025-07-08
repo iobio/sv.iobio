@@ -162,6 +162,7 @@
                 :doseGenes="doseGenes"
                 :doseRegions="doseRegions"
                 @updateComparisons="updateComparisons"
+                @update-list-view="updateListViewMode"
                 @zoomEvent="zoomFired"
                 @updateFocusedVariant="updateFocusedVariant"
                 @update-comparison-lists="setComparisonSamples"
@@ -282,6 +283,9 @@ export default {
         }
     },
     methods: {
+        updateListViewMode(mode) {
+            this.listViewMode = mode;
+        },
         updateGenesAndPhensWithDemo(demoInfo) {
             this.updateGenesOfInterest(demoInfo.genes);
             this.updatePhenotypesOfInterest(demoInfo.phenotypes);
