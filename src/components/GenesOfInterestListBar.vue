@@ -74,6 +74,11 @@ export default {
     methods: {
         removeGeneFromList(event, gene) {
             event.stopPropagation();
+            let tips = Array.from(document.getElementsByClassName("btn-tip"));
+            tips.forEach((tip) => {
+                tip.style.visibility = "hidden";
+                tip.style.opacity = 0;
+            });
             this.$emit("remove-gene-from-goi", gene);
         },
         addGeneToList() {

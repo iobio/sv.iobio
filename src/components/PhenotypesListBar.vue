@@ -93,6 +93,11 @@ export default {
             this.searchedPhenotype = { term_id: "", query: "" };
         },
         removePhenotype(term_id) {
+            let tips = Array.from(document.getElementsByClassName("btn-tip"));
+            tips.forEach((tip) => {
+                tip.style.visibility = "hidden";
+                tip.style.opacity = 0;
+            });
             this.$emit("remove-phenotype", term_id);
         },
         addMultiplePhenotypes(term_ids) {
