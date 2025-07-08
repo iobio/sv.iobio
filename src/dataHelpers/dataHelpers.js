@@ -144,6 +144,17 @@ export async function getGenesForPhenotypes(phenotypes) {
     }
 }
 
+//GET PHENOTYPES FOR A DISEASE
+export async function getPhenotypesForDiseases(disease) {
+    try {
+        const response = await fetch(`${BACKEND_URL_BASE}/disease/phenotypes?disease=${disease}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error Getting Phenotypes for Diseases:", error);
+    }
+}
+
 //GET TRANSCRIPTS FOR GENE LIST
 export async function getTranscriptsForGenes(geneList, build = "hg38", source = "gencode") {
     const geneListString = geneList.join(",");
