@@ -370,7 +370,6 @@ export default {
                     let mosaicTbiUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, tbiFile.id);
                     let filesRes = await this.mosaicSession.promiseGetFiles(this.mosaicProjectId, sample.id);
                     let alignmentFile = filesRes.data.filter((file) => file.type == "bam" || file.type == "cram");
-
                     let isProband = relationships.find((rel) => rel.value == "Proband");
 
                     if (isProband) {
@@ -811,14 +810,6 @@ export default {
             this.svListVariantBar = newSVs;
             this.svListChart = newSVs;
             this.variantsFilteredOut = newFilteredOut;
-        },
-        hasPhenotypes(overlappedGenes) {
-            /**
-             * Returns true if any of the overlappedGenes have phenotypes
-             */
-            return Object.values(overlappedGenes).some(
-                (gene) => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0,
-            );
         },
         async updateSamples(samples) {
             this.samples.proband = samples.proband;
