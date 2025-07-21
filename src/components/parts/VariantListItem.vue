@@ -2,22 +2,111 @@
     <div class="variant-list-item">
         <div
             class="preview"
-            :class="{ opened: showMore, focusedVariant: isFocusedVariant, hasGoi: geneCandidates && geneCandidates.length > 0 }"
+            :class="{
+                opened: showMore,
+                focusedVariant: isFocusedVariant,
+                isHidden: isHidden,
+                hasGoi: geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal'),
+                condensed: displayMode == 'condensed',
+                expanded: displayMode == 'expanded',
+            }"
             @click="focusOnVariant">
+            <!-- col0 -->
+            <div class="favorite-tag" @click.stop="favoriteVariant" :class="{ favorite: variant.favorite }">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>favorite</title>
+                    <path
+                        d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" />
+                </svg>
+            </div>
+
+            <div class="hide-tag" @click.stop="hideVariant" v-if="!isHidden">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>hide</title>
+                    <path
+                        d="M2,5.27L3.28,4L20,20.72L18.73,22L15.65,18.92C14.5,19.3 13.28,19.5 12,19.5C7,19.5 2.73,16.39 1,12C1.69,10.24 2.79,8.69 4.19,7.46L2,5.27M12,9A3,3 0 0,1 15,12C15,12.35 14.94,12.69 14.83,13L11,9.17C11.31,9.06 11.65,9 12,9M12,4.5C17,4.5 21.27,7.61 23,12C22.18,14.08 20.79,15.88 19,17.19L17.58,15.76C18.94,14.82 20.06,13.54 20.82,12C19.17,8.64 15.76,6.5 12,6.5C10.91,6.5 9.84,6.68 8.84,7L7.3,5.47C8.74,4.85 10.33,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C12.69,17.5 13.37,17.43 14,17.29L11.72,15C10.29,14.85 9.15,13.71 9,12.28L5.6,8.87C4.61,9.72 3.78,10.78 3.18,12Z" />
+                </svg>
+            </div>
+
+            <div class="hide-tag" @click.stop="hideVariant" v-if="isHidden">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>eye-plus-outline</title>
+                    <path
+                        d="M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C12.36,19.5 12.72,19.5 13.08,19.45C13.03,19.13 13,18.82 13,18.5C13,18.14 13.04,17.78 13.1,17.42C12.74,17.46 12.37,17.5 12,17.5C8.24,17.5 4.83,15.36 3.18,12C4.83,8.64 8.24,6.5 12,6.5C15.76,6.5 19.17,8.64 20.82,12C20.7,12.24 20.56,12.45 20.43,12.68C21.09,12.84 21.72,13.11 22.29,13.5C22.56,13 22.8,12.5 23,12C21.27,7.61 17,4.5 12,4.5M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M18,14.5V17.5H15V19.5H18V22.5H20V19.5H23V17.5H20V14.5H18Z" />
+                </svg>
+            </div>
+
             <!-- col1 -->
             <div class="chr-text">
                 <div>{{ variant.chromosome }}</div>
-                <div v-if="band" class="band">{{ band }}</div>
             </div>
+            <div v-if="band" class="band">{{ band }}</div>
 
             <!-- col2 -->
+            <div class="size-text" v-html="bpFormatted(variant.size)"></div>
+
+            <!-- col3 -->
+            <div class="type-text">{{ variant.type }}</div>
+
+            <!-- col4 -->
+            <div class="zygosity-symbols">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Proband</title>
+                        <path
+                            d="M9,7H13A2,2 0 0,1 15,9V11A2,2 0 0,1 13,13H11V17H9V7M11,9V11H13V9H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+                    <div v-html="svgForZygosity(variant.genotype)"></div>
+                </div>
+
+                <div>
+                    <svg v-if="hasMom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Mother</title>
+                        <path
+                            d="M9,7H15A2,2 0 0,1 17,9V17H15V9H13V16H11V9H9V17H7V9A2,2 0 0,1 9,7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+                    <div v-if="hasMom" v-html="parentZygosity.mother[0]"></div>
+                </div>
+
+                <div>
+                    <svg v-if="hasDad" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <title>Father</title>
+                        <path
+                            d="M9,7H15V9H11V11H14V13H11V17H9V7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
+                    </svg>
+                    <div v-if="hasDad" v-html="parentZygosity.father[0]"></div>
+                </div>
+            </div>
+
+            <!-- col5 Top -->
+            <div
+                class="goi-ol-text"
+                v-if="geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal')"
+                :class="{ subtle: numberOfGenesOfInterest == 0 }">
+                {{ numberOfGenesOfInterest }}
+            </div>
+
+            <!-- col6 -->
+            <div
+                v-if="displayMode == 'expanded' || displayMode == 'normal'"
+                class="total-text"
+                :class="{ subtle: numberOfGenes == 0 }">
+                {{ numberOfGenes }}
+            </div>
+
+            <!-- col7 -->
             <div v-if="variant.overlappedGenes && patientPhenotypes && patientPhenotypes.length" class="num-phens-text">
-                <strong>
-                    <span :class="{ subtle: Math.round(maxSingularPhenotypes.max) == 0 }">{{
-                        Math.round(maxSingularPhenotypes.max)
-                    }}</span>
-                    <span :class="{ subtle: numPhensAccountedFor == 0 }"> ({{ numPhensAccountedFor }}) </span>
-                </strong>
+                <div class="phenotypes-preview" v-if="displayMode == 'expanded' || displayMode == 'normal'">
+                    <div class="num-phens-tag" v-if="numPhensAccountedFor > 0">
+                        {{ numPhensAccountedFor }}
+                    </div>
+                    <span class="phenotype-tag" v-for="phenotype in overlappedPhenotypes" :key="phenotype">
+                        {{ phenotype }}
+                    </span>
+                </div>
+                <span v-if="displayMode == 'condensed'" :class="{ subtle: numPhensAccountedFor == 0 }">
+                    {{ numPhensAccountedFor }}
+                </span>
             </div>
             <!-- OR -->
             <div v-else class="num-phens-text">
@@ -25,40 +114,13 @@
                     <span class="subtle">n/a</span>
                 </strong>
             </div>
-
-            <!-- col3 -->
-            <div
-                class="goi-ol-text"
-                v-if="geneCandidates && geneCandidates.length > 0"
-                :class="{ subtle: numberOfGenesOfInterest == 0 }">
-                {{ numberOfGenesOfInterest }}
-            </div>
-
-            <!-- col4 -->
-            <div class="total-text" :class="{ subtle: numberOfGenes == 0 }">{{ numberOfGenes }}</div>
-
-            <!-- col5 Top -->
-            <div class="zygosity-symbols">
-                <div
-                    class="genotype-text"
-                    :class="{ het: formatGenotype(variant.genotype) == 'Het', homalt: formatGenotype(variant.genotype) == 'Hom' }"
-                    v-html="svgForZygosity(variant.genotype)"></div>
-
-                <div v-if="hasMom" v-html="parentZygosity.mother[0]"></div>
-                <div v-if="hasDad" v-html="parentZygosity.father[0]"></div>
-            </div>
-
-            <!-- col6 -->
-            <div class="type-text">{{ variant.type }}</div>
-
-            <!-- col7 -->
-            <div class="size-text" v-html="bpFormatted(variant.size)"></div>
         </div>
     </div>
 </template>
 
 <script>
 import * as common from "../../dataHelpers/commonFunctions.js";
+import { searchForHPO } from "../../dataHelpers/dataHelpers.js";
 
 export default {
     name: "VariantListItem",
@@ -67,26 +129,40 @@ export default {
         variant: Object,
         patientPhenotypes: Array,
         geneCandidates: Array,
-        openedSvSet: Object,
         comparisons: Array,
+        displayMode: String,
         chromosomeAccumulatedMap: Object,
         placeInList: Number,
         overlapProp: Number,
         filters: Object,
         focusedVariant: Object,
+        isHidden: Boolean,
     },
     data() {
         return {
             showMore: false,
             focused: false,
+            overlappedPhenotypes: [],
         };
     },
-    mounted() {},
+    mounted() {
+        this.updateOverlappedPhenotypes();
+    },
     methods: {
         formatGenotype: common.formatGenotype,
         bpFormatted: common.bpFormatted,
         formatType: common.formatType,
         svgForZygosity: common.svgForZygosity,
+        favoriteVariant() {
+            this.$emit("favorite-variant", this.variant);
+        },
+        hideVariant() {
+            if (!this.isHidden) {
+                this.$emit("hide-variant", this.variant);
+            } else {
+                this.$emit("unhide-variant", this.variant);
+            }
+        },
         variantOpened(event) {
             event.stopPropagation();
             this.showMore = !this.showMore;
@@ -103,6 +179,9 @@ export default {
             }
         },
         focusOnVariant() {
+            if (this.isHidden) {
+                return; // We can't show/hide a variant that is hidden
+            }
             this.focused = !this.focused;
             if (this.focused) {
                 this.$emit("variant-clicked", this.variant, "show");
@@ -130,6 +209,42 @@ export default {
                 return overlappedGenes;
             } else {
                 return this.variant.overlappedGenes;
+            }
+        },
+        async updateOverlappedPhenotypes() {
+            if (
+                this.patientPhenotypes &&
+                this.patientPhenotypes.length > 0 &&
+                this.variant.overlappedGenes &&
+                Object.values(this.variant.overlappedGenes).length > 0
+            ) {
+                let inCommonOverlappedPhens = [];
+                for (let gene of Object.values(this.variant.overlappedGenes)) {
+                    inCommonOverlappedPhens.push(
+                        ...Object.keys(gene.phenotypes).filter((phenotype) => this.patientPhenotypes.includes(phenotype)),
+                    );
+                }
+                inCommonOverlappedPhens = new Set(inCommonOverlappedPhens);
+
+                let inCommonNames = [];
+                for (let hpo of inCommonOverlappedPhens) {
+                    try {
+                        const result = await searchForHPO(hpo);
+                        if (result && result.length > 0 && result[0].name) {
+                            inCommonNames.push(result[0].name);
+                        } else {
+                            // Fallback to using the HPO ID if lookup fails or returns no results
+                            inCommonNames.push(hpo);
+                        }
+                    } catch (error) {
+                        console.error(`Error looking up HPO ${hpo}:`, error);
+                        // Fallback to using the HPO ID if lookup fails
+                        inCommonNames.push(hpo);
+                    }
+                }
+                this.overlappedPhenotypes = inCommonNames;
+            } else {
+                this.overlappedPhenotypes = [];
             }
         },
     },
@@ -409,15 +524,29 @@ export default {
             }
         },
     },
-    watch: {},
+    watch: {
+        patientPhenotypes: {
+            handler() {
+                this.updateOverlappedPhenotypes();
+            },
+            deep: true,
+        },
+        "variant.overlappedGenes": {
+            handler() {
+                this.updateOverlappedPhenotypes();
+            },
+            deep: true,
+        },
+    },
 };
 </script>
 
 <style lang="sass">
 .variant-list-item
     width: 100%
-    min-width: 200px
-    min-height: 45px
+    height: 100px
+    min-height: 100px
+    max-height: 100px
     position: relative
     .novel-tag
         display: flex
@@ -448,17 +577,22 @@ export default {
     .preview
         position: relative
         display: grid
-        grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
+        grid-template-columns: minmax(0, .05fr) minmax(0, .05fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .5fr)
         grid-template-rows: 1fr 1fr
         padding: 5px
         width: 100%
+        height: 100%
         box-sizing: border-box
         border-bottom: 1px solid #F5F5F5
         border-top: 2px solid transparent
         border-left: 2px solid transparent
         border-right: 2px solid transparent
         &.hasGoi
-            grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .3fr) minmax(0, .15fr) minmax(0, .15fr)
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr)
+        &.isHidden
+            &:hover
+                background-color: white
+                cursor: auto
         &.focusedVariant
             border: 2px solid #FFB60A
             border-radius: 5px
@@ -484,6 +618,12 @@ export default {
                 width: 20px
                 fill: #2A65B7
                 pointer-events: none
+        &.condensed
+            grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .15fr)
+            grid-template-rows: 1fr 1fr
+        &.expanded
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .2fr) minmax(0, .5fr)
+            grid-template-rows: 1fr 1fr
         .goi-ol-text
             font-weight: 200
             grid-row: 1/3
@@ -498,6 +638,8 @@ export default {
 
                 opacity: .4
         .num-phens-text
+            position: relative
+            max-height: 100%
             padding: 3px 3px
             display: flex
             flex-direction: column
@@ -517,30 +659,32 @@ export default {
             .max-gene
                 font-weight: 400
                 padding-top: 3px
+            .phenotypes-preview
+                display: flex
+                flex-wrap: wrap
+                overflow-y: auto
+                max-height: 100%
+                height: 100%
+                .phenotype-tag
+                    padding: 3px
+                    border-radius: 5px
+                    background-color: #F5F5F5
+                    margin: 2px
+                    font-size: 0.8em
+                    font-weight: 200
+                    color: #474747
         .zygosity-symbols
+            display: flex
+            flex-direction: column
             align-items: center
             color: #474747
             display: flex
             font-size: .8em
             font-weight: 200
             grid-row: 1/3
-            justify-content: space-evenly
+            justify-content: center
             position: relative
             width: 100%
-            svg
-                height: 15px
-                width: 15px
-                fill: #474747
-        .genotype-text
-            font-size: 0.75em
-            border-radius: 5px
-            text-transform: uppercase
-            color: #474747
-            font-weight: 200
-            display: flex
-            align-items: flex-start
-            &.homalt
-                color: red
             svg
                 height: 15px
                 width: 15px
@@ -549,7 +693,7 @@ export default {
             font-size: 0.8em
             font-weight: 200
             color: #474747
-            grid-row: 1/3
+            grid-row: 1/2
             .bp-sc
                 font-size: 0.9em
                 opacity: .8
@@ -561,7 +705,7 @@ export default {
             grid-row: 1/3
         .chr-text
             font-weight: 200
-            grid-row: 1/3
+            grid-row: 1/2
             color: #474747
             display: flex
             flex-direction: column
@@ -569,16 +713,17 @@ export default {
             justify-content: center
             text-align: cente
             overflow: visible
-            .band
-                font-size: 0.75em
-                font-weight: 200
-                color: #474747
-                margin-left: 5px
-                display: flex
-                align-self: flex-start
-                overflow: visible
-                white-space: nowrap
-                transform: translateY(3px)
+        .band
+            font-size: 0.75em
+            font-weight: 200
+            grid-row: 2/3
+            grid-column: 2/4
+            color: #474747
+            text-align: start
+            overflow: visible
+            white-space: nowrap
+            background-color: #F5F5F5
+            border-radius: 5px
         .total-text
             font-weight: 200
             grid-row: 1/3
@@ -596,4 +741,39 @@ export default {
         &:hover
             background-color: #F5F5F5
             cursor: pointer
+    .favorite-tag
+        grid-column: 1/2
+        grid-row: 1/2
+        border-radius: 5px
+        svg
+            height: 20px
+            width: 20px
+            fill: #474747
+            pointer-events: none
+        &:hover
+            background: #e3e3e3
+        &.favorite
+            svg
+                fill: #FFB60A
+    .hide-tag
+        grid-column: 1/2
+        grid-row: 2/3
+        border-radius: 5px
+        svg
+            height: 15px
+            width: 15px
+            fill: #474747
+            pointer-events: none
+        &:hover
+            background: #e3e3e3
+    .num-phens-tag
+        position: absolute
+        top: -3px
+        left: 0
+        border: .5px solid #474747
+        padding: 1px 3px
+        font-size: 0.8em
+        font-weight: 200
+        border-radius: 5px
+        color: #474747
 </style>

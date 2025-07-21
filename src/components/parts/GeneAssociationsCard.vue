@@ -295,8 +295,9 @@ export default {
         &:hover
             background-color: #C1D1EA
             border: 1px solid #2A65B7
-.gene-row
-    height: 100%
+.gene-associations-card
+    height: 250px
+    width: 400px
     display: flex
     flex-direction: column
     border: 1px solid #e0e0e0
@@ -385,11 +386,9 @@ export default {
             flex-direction: column
             align-items: flex-start
             position: relative
-            min-width: 220px
             overflow-y: auto
             overflow-x: hidden
-            &:first-of-type
-                flex-grow: 1
+            min-width: 45%
             .additional-information
                 font-size: 0.8em
                 color: #666666

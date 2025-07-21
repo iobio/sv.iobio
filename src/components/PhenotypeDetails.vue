@@ -1,36 +1,13 @@
 <template>
-    <div id="lower-modal" :class="{ hidden: this.hidden }">
-        <div v-if="!this.hidden" class="close-button" @click="close">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <title>close</title>
-                <path
-                    d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,22 22,17.53 22,12C22,6.47 17.53,2 12,2M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41L14.59,8Z" />
-            </svg>
-        </div>
-        <div v-if="this.hidden" class="show-modal-btn" @click="open">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <title>re-open details</title>
-                <path
-                    d="M16,12A2,2 0 0,1 18,10A2,2 0 0,1 20,12A2,2 0 0,1 18,14A2,2 0 0,1 16,12M10,12A2,2 0 0,1 12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12M4,12A2,2 0 0,1 6,10A2,2 0 0,1 8,12A2,2 0 0,1 6,14A2,2 0 0,1 4,12Z" />
-            </svg>
-        </div>
-
+    <div id="phenotype-details">
         <div id="upper-section">
-            <h3 v-if="type == 'variant'">
-                SV Details (<span class="variant-code">{{ variant.svCode }}</span
-                >)
-            </h3>
-            <div v-if="!this.hidden" class="column">
+            <div class="column">
                 <div class="top-row">
-                    <!-- <fieldset class="actions fieldset-buttons-container">
-                        <legend>Actions</legend>
-                        <button>IGV Breakends</button>
-                        <button>Sample Coverage</button>
-                        <button>Pull SNPs</button>
-                    </fieldset> -->
-
                     <fieldset class="variant-summary-column">
                         <legend>Summary</legend>
+                        <div class="item bold-text">
+                            <span>{{ variant.svCode }}</span>
+                        </div>
                         <div class="item">
                             <span>Size: </span>
                             <span v-html="bpFormatted(variant.size)"></span>
@@ -98,12 +75,19 @@
             </div>
         </div>
 
-        <div v-if="!this.hidden" id="lower-section">
+        <div id="lower-section">
             <fieldset class="column gene-cards">
                 <legend>Overlapped Genes</legend>
 
+                <!-- <div class="select-organization-btn-container">
+                    <label for="organization-select">Organize By:</label>
+                    <select v-model="selectedOrganization" class="organization-select">
+                        <option value="genes">Genes</option>
+                        <option value="diseases">Diseases</option>
+                    </select>
+                </div> -->
                 <div class="gene-card-row">
-                    <div class="row" v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length > 0">
+                    <div class="row" v-if="variant && Object.values(variant.overlappedGenes).length > 0">
                         <GeneAssociationsCard
                             v-for="gene in sortedRelevantGenes"
                             :key="gene.gene_symbol"
@@ -111,14 +95,7 @@
                             :doseGenes="doseGenes"
                             :patientPhenotypes="patientPhenotypes" />
                     </div>
-                    <div
-                        class="row"
-                        v-if="
-                            type == 'variant' &&
-                            variant &&
-                            Object.values(variant.overlappedGenes).length > 0 &&
-                            !hideExtraGeneInfo
-                        ">
+                    <div class="row" v-if="variant && Object.values(variant.overlappedGenes).length > 0 && !hideExtraGeneInfo">
                         <GeneAssociationsCard
                             v-for="gene in sortedIrrelevantGenes"
                             :key="gene.gene_symbol"
@@ -127,21 +104,14 @@
                             :patientPhenotypes="patientPhenotypes" />
                     </div>
                     <div
-                        class="row show-more-genes"
-                        v-if="
-                            type == 'variant' &&
-                            variant &&
-                            Object.values(variant.overlappedGenes).length > 0 &&
-                            sortedIrrelevantGenes.length > 0
-                        ">
+                        class="show-more-genes"
+                        v-if="variant && Object.values(variant.overlappedGenes).length > 0 && sortedIrrelevantGenes.length > 0">
                         <div class="show-btn" @click="hideExtraGeneInfo = !hideExtraGeneInfo">
                             <span v-if="hideExtraGeneInfo">Show Additional Genes</span><span v-else>Hide Additional Genes</span>
                         </div>
                     </div>
 
-                    <div
-                        class="no-genes row"
-                        v-if="type == 'variant' && variant && Object.values(variant.overlappedGenes).length == 0">
+                    <div class="no-genes row" v-if="variant && Object.values(variant.overlappedGenes).length == 0">
                         No Genes Overlapped
                     </div>
                 </div>
@@ -156,30 +126,34 @@ import { getPopulationSvs } from "../dataHelpers/dataHelpers.js";
 import GeneAssociationsCard from "./parts/GeneAssociationsCard.vue";
 
 export default {
-    name: "LowerModal",
+    name: "PhenotypeDetails",
     components: {
         GeneAssociationsCard,
     },
     props: {
-        hidden: Boolean,
-        type: String,
         variant: Object,
         patientPhenotypes: Array,
         geneCandidates: Array,
         chromosomeAccumulatedMap: Object,
         doseGenes: Object,
+        build: String,
     },
     data() {
         return {
             popSvs: null,
             hideExtraGeneInfo: true,
+            selectedOrganization: "genes",
         };
     },
     async mounted() {
+        if (!this.build) {
+            return;
+        }
         try {
-            this.popSvs = await getPopulationSvs(this.variant);
+            this.popSvs = await getPopulationSvs(this.variant, this.build);
         } catch (error) {
             this.popSvs = [];
+            console.error("Error fetching population SVs:", error);
         }
     },
     methods: {
@@ -187,12 +161,6 @@ export default {
         svgForZygosity: common.svgForZygosity,
         bpFormatted: common.bpFormatted,
         formatType: common.formatType,
-        close() {
-            this.$emit("close");
-        },
-        open() {
-            this.$emit("open");
-        },
     },
     computed: {
         sortedRelevantGenes() {
@@ -294,34 +262,42 @@ export default {
                 this.hideExtraGeneInfo = true;
                 this.popSvs = null;
                 try {
-                    this.popSvs = await getPopulationSvs(this.variant);
+                    this.popSvs = await getPopulationSvs(this.variant, this.build);
                 } catch (error) {
                     this.popSvs = [];
                 }
             },
             deep: true,
         },
+        build: {
+            handler: async function (newVal, oldVal) {
+                if (newVal && newVal !== oldVal) {
+                    try {
+                        this.popSvs = await getPopulationSvs(this.variant, newVal);
+                    } catch (error) {
+                        this.popSvs = [];
+                        console.error("Error fetching population SVs:", error);
+                    }
+                }
+            },
+        },
     },
 };
 </script>
 
 <style lang="sass">
-#lower-modal
+#phenotype-details
     width: 100%
-    height: 45vh
-    max-height: 500px
+    height: 100%
     box-sizing: border-box
     position: relative
     display: flex
     flex-direction: column
     justify-content: flex-start
     align-items: space-between
-    border: .5px solid #2A65B7
-    border-radius: 3px
     background-color: white
     padding: 5px 10px 5px 1px
     overflow: hidden
-    transition: height 0.4s, border 0.4s
     .pop-svs
         display: flex
         overflow-y: auto
@@ -388,52 +364,17 @@ export default {
         font-size: 0.8em
         margin-right: 5px
     #upper-section
-        height: 40%
+        height: 180px
+        max-height: 30%
         box-sizing: border-box
         display: flex
         flex-direction: column
     #lower-section
-        height: 60%
+        flex: 1 0
         box-sizing: border-box
         display: flex
         flex-direction: column
         overflow: hidden
-    h3
-        margin: 0px
-        padding: 5px
-        width: 100%
-        text-align: center
-        font-weight: 400
-        font-size: 1em
-        text-transform: uppercase
-        .variant-code
-            font-weight: 200
-            font-size: 0.9em
-            text-transform: none
-            color: #666666
-    &.hidden
-        height: 50px
-    .close-button
-        position: absolute
-        height: 30px
-        width: 30px
-        display: flex
-        justify-content: center
-        align-items: center
-        left: 5px
-        top: 5px
-        cursor: pointer
-        background-color: rgba(255, 255, 255, 0.8)
-        border-radius: 50%
-        box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
-        svg
-            width: 29px
-            height: 29px
-            fill: #666666
-            &:hover
-                fill: red
-        &:hover
-            color: #2A65B7
     .column
         display: flex
         flex-direction: column
@@ -484,29 +425,17 @@ export default {
                     width: 20px
                     height: 20px
                     fill: #2A65B7
-        .actions
-            align-items: center
-            display: flex
-            flex-direction: column
-            height: 100%
-            justify-content: space-evenly
-            max-width: 140px
-            button
-                color: #2A65B7
-                font-size: 0.8em
-                margin-top: 2px
-                padding: 5px
-                width: 100%
-                cursor: not-allowed
+                &.bold-text > span
+                    font-weight: 600
     .gene-card-row
         display: flex
-        flex-direction: row
         align-items: flex-start
         justify-content: flex-start
+        flex-wrap: wrap
         padding: 5px
-        width: 100%
         flex: 1 0
-        overflow-x: auto
+        overflow-x: hidden
+        overflow-y: auto
         &.no-genes
             justify-content: center
             align-items: center
@@ -520,15 +449,23 @@ export default {
         .row
             display: flex
             flex-direction: row
-            align-items: center
-            justify-content: center
-            height: 100%
+            width: 100%
+            align-items: flex-start
+            gap: 6px
+            margin-bottom: 6px
+            flex-wrap: wrap
+            justify-content: flex-start
     .show-more-genes
-        height: 100%
         display: flex
-        align-items: center
-        justify-content: center
+        flex-direction: column
+        width: 100%
+        align-items: flex-start
+        justify-content: flex-start
         .show-btn
+            background-color: #F5F5F5
+            border-radius: 5px
+            padding: 5px
+            align-self: flex-end
             font-size: .8em
             cursor: pointer
             padding: 5px
@@ -537,22 +474,33 @@ export default {
             color: #666666
             &:hover
                 color: #2A65B7
-.show-modal-btn
-    position: absolute
-    left: 5px
-    top: 5px
-    // background-color: #2A65B7
-    border-radius: 50%
-    width: 40px
-    height: 40px
-    display: flex
-    justify-content: center
-    align-items: center
-    &:hover
-        cursor: pointer
-        background-color: #F5F5F5
-    svg
-        fill: #2A65B7
-        width: 40px
-        height: 40px
+    .select-organization-btn-container
+        display: flex
+        flex-direction: row
+        align-items: center
+        justify-content: center
+        padding: 0px
+        overflow: hidden
+        font-size: 0.8em
+        color: #474747
+        align-self: flex-end
+        margin-bottom: 10px
+        .organization-select
+            border: none
+            width: 120px
+            text-transform: uppercase
+            color: #474747
+            height: 100%
+            border: 1px solid #E0E0E0
+            border-radius: 5px
+            font-weight: 200
+            margin-left: 5px
+            background-color: white
+            padding: 2px 5px
+            cursor: pointer
+            outline: none
+            &:hover
+                background-color: #E0E0E0
+            &:focus
+                background-color: #EBEBEB
 </style>

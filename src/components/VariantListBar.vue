@@ -3,75 +3,19 @@
         <div
             v-if="svList && svList.length > 0"
             id="variant-list-bar-header"
-            :class="{ hasGoi: geneCandidates && geneCandidates.length > 0 }">
+            :class="{
+                hasGoi: geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal'),
+                condensed: displayMode == 'condensed',
+                expanded: displayMode == 'expanded',
+            }">
+            <!-- col0 -->
+            <div class="span-rows" @click="this.$emit('filter-to-favorites')">
+                <TippedButton :button-symbol="favoritesIcon" :position="'right'" :tip-text="'Filter to Favorites'" />
+            </div>
+
+            <!-- col1 -->
             <div class="span-rows" @mouseenter="showSortTip" @mouseleave="hideSortTip" @click="$emit('sort-variants', 'chr')">
                 Chr
-                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>sort</title>
-                    <path
-                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                </svg>
-            </div>
-            <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">
-                Gene:HPO
-                <span>Top (Total)</span>
-                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>sort</title>
-                    <path
-                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                </svg>
-            </div>
-
-            <div class="span-rows" v-if="geneCandidates && geneCandidates.length > 0" @click="$emit('sort-variants', 'goi')">
-                GoI
-                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>sort</title>
-                    <path
-                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                </svg>
-            </div>
-
-            <div class="span-rows" @click="$emit('sort-variants', 'totalGenes')">
-                Genes
-                <br />
-                Total
-                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>sort</title>
-                    <path
-                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                </svg>
-            </div>
-
-            <div class="span-rows" @click="$emit('sort-variants', 'zygosity')">
-                Zygosity
-                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <title>sort</title>
-                    <path
-                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
-                </svg>
-                <span class="svgs">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>Proband</title>
-                        <path
-                            d="M9,7H13A2,2 0 0,1 15,9V11A2,2 0 0,1 13,13H11V17H9V7M11,9V11H13V9H11M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
-                    </svg>
-
-                    <svg v-if="hasMom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>Mother</title>
-                        <path
-                            d="M9,7H15A2,2 0 0,1 17,9V17H15V9H13V16H11V9H9V17H7V9A2,2 0 0,1 9,7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
-                    </svg>
-
-                    <svg v-if="hasDad" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <title>Father</title>
-                        <path
-                            d="M9,7H15V9H11V11H14V13H11V17H9V7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z" />
-                    </svg>
-                </span>
-            </div>
-
-            <div class="span-rows" @click="$emit('sort-variants', 'type')">
-                Type
                 <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <title>sort</title>
                     <path
@@ -87,47 +31,182 @@
                         d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
                 </svg>
             </div>
+
+            <div class="span-rows" @click="$emit('sort-variants', 'type')">
+                Type
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+
+            <div class="span-rows" @click="$emit('sort-variants', 'zygosity')">
+                <span v-if="displayMode == 'expanded' || displayMode == 'normal'">Zygosity</span>
+                <span v-if="displayMode == 'condensed'">Zyg</span>
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+
+            <div
+                class="span-rows"
+                v-if="geneCandidates && geneCandidates.length > 0 && (displayMode == 'expanded' || displayMode == 'normal')"
+                @click="$emit('sort-variants', 'goi')">
+                GoI
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+
+            <div
+                v-if="displayMode == 'expanded' || displayMode == 'normal'"
+                class="span-rows"
+                @click="$emit('sort-variants', 'totalGenes')">
+                Genes
+                <br />
+                Total
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
+
+            <div class="span-rows" @click="$emit('sort-variants', 'hpoOverlapped')">
+                <span v-if="displayMode == 'expanded' || displayMode == 'normal'">HPO In Common</span>
+                <span v-if="displayMode == 'condensed'">HPO</span>
+                <svg class="sort-tip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <title>sort</title>
+                    <path
+                        d="M17.45,17.55L12,23L6.55,17.55L7.96,16.14L11,19.17V4.83L7.96,7.86L6.55,6.45L12,1L17.45,6.45L16.04,7.86L13,4.83V19.17L16.04,16.14L17.45,17.55Z" />
+                </svg>
+            </div>
         </div>
 
-        <div id="variant-scroll-wrapper">
+        <div id="variant-scroll-wrapper" :class="{ hidden: showOtherVariantsList }">
             <div id="variant-items-wrapper">
                 <VariantListItem
                     v-for="(variant, index) in svListSelection"
                     :key="`${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`"
                     :variant="variant"
-                    :openedSvSet="openedSvSet"
                     :geneCandidates="geneCandidates"
                     :patientPhenotypes="patientPhenotypes"
                     :comparisons="comparisons"
+                    :displayMode="displayMode"
                     :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
                     :placeInList="index"
                     :overlapProp="overlapProp"
                     :filters="filters"
                     :focusedVariant="focusedVariant"
-                    @variant-clicked="variantClicked" />
+                    :isHidden="false"
+                    @variant-clicked="variantClicked"
+                    @favorite-variant="favoriteVariant"
+                    @hide-variant="hideVariant" />
             </div>
             <div id="variant-list-bar-sudo-scroll">
                 <div id="variant-list-bar-sudo-scroll-thumb"></div>
+            </div>
+        </div>
+        <div id="hidden-variants-section" :class="{ expanded: showOtherVariantsList }">
+            <div id="hidden-variants-header">
+                <span>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        v-if="showOtherVariantsList"
+                        @click="
+                            showOtherVariantsList = false;
+                            otherVariantsShowing = 'none';
+                        ">
+                        <title>hide other variants</title>
+                        <path
+                            d="M12,14L16,10H13V4H11V10H8M5,20H19C20.11,20 21,19.1 21,18V6A2,2 0 0,1 19,4H15V6H19V16H5V6H9V4H5A2,2 0 0,1 3,6V19A2,2 0 0,1 5,20Z" />
+                    </svg>
+                </span>
+
+                <span>
+                    <b @click="toggleShowVarList('hidden')" :class="{ showing: otherVariantsShowing == 'hidden' }">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" v-if="otherVariantsShowing != 'hidden'">
+                                <title>show</title>
+                                <path
+                                    d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+                            </svg>
+                        </span>
+                        <span>{{ hiddenVar.length }}</span>
+                    </b>
+                    <span>User Hidden</span>
+                </span>
+                <span>
+                    <b @click="toggleShowVarList('filtered')" :class="{ showing: otherVariantsShowing == 'filtered' }">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" v-if="otherVariantsShowing != 'filtered'">
+                                <title>show</title>
+                                <path
+                                    d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+                            </svg>
+                        </span>
+                        <span>{{ filteredOutVar.length }}</span>
+                    </b>
+                    <span>Filtered Out</span>
+                </span>
+            </div>
+            <div id="hidden-variants-column" v-if="showOtherVariantsList">
+                <VariantListItem
+                    v-for="(variant, index) in shownHiddenList"
+                    :key="`${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`"
+                    :variant="variant"
+                    :geneCandidates="geneCandidates"
+                    :patientPhenotypes="patientPhenotypes"
+                    :comparisons="comparisons"
+                    :displayMode="displayMode"
+                    :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
+                    :placeInList="index"
+                    :overlapProp="overlapProp"
+                    :filters="filters"
+                    :focusedVariant="focusedVariant"
+                    :isHidden="true"
+                    @variant-clicked="variantClicked"
+                    @favorite-variant="favoriteVariant"
+                    @unhide-variant="unhideVariant" />
             </div>
         </div>
     </div>
 </template>
 
 <script>
+/**
+ * This component is the worst thing I've created in my entire life I am sorry for anyone who has to maintain it
+ * The virtual scroller is very particular you have to ensure that you have just the right logic to actually have it work as intended
+ * Change things with the utmost caution
+ */
 import VariantListItem from "./parts/VariantListItem.vue";
+import TippedButton from "./parts/TippedButton.vue";
 
 export default {
     name: "VariantListBar",
     components: {
         VariantListItem,
+        TippedButton,
     },
     props: {
         svList: Array,
+        filteredOutVar: Array,
+        hiddenVar: Array,
         patientPhenotypes: Array,
         geneCandidates: Array,
         comparisons: Array,
         chromosomeAccumulatedMap: Object,
         focusedVariant: Object,
+        displayMode: {
+            type: String,
+            default: "normal",
+        },
         loading: {
             type: Boolean,
             default: false,
@@ -141,36 +220,80 @@ export default {
     },
     data() {
         return {
-            scrollSelection: [0, 22],
-            openedSvSet: {},
-            clickedFromBar: false,
-            viewWindow: 22,
+            listItemsContainer: null,
+            sudoScrollBar: null,
+            scrollThumb: null,
+            scrollSelection: [0, 11],
+            viewWindow: 11,
             lastScrollTop: 0,
             handleScrollBound: null,
+            itemHeight: 100,
+            containerHeight: 0,
+            resizeObserver: null,
+            showOtherVariantsList: false,
+            otherVariantsShowing: "none",
         };
     },
     mounted() {
-        this.lastScrollTop = 0;
-        let variantListBar = document.getElementById("variant-items-wrapper");
-        this.handleScrollBound = this.handleScroll.bind(this);
-        variantListBar.addEventListener("scroll", this.handleScrollBound);
+        this.setupVariables();
 
-        variantListBar.scrollTop = 0;
+        this.handleScrollBound = this.scrollHandler.bind(this);
+        this.listItemsContainer.addEventListener("scroll", this.handleScrollBound);
+
+        this.listItemsContainer.scrollTop = 0;
         this.initializeScroll();
+
+        // Add resize observer
+        this.resizeObserver = new ResizeObserver(() => {
+            this.$nextTick(() => {
+                this.viewWindow = this.calculateViewWindow();
+                if (this.svList.length > 0) {
+                    let height = (this.viewWindow / this.svList.length) * 100;
+                    this.scrollThumb.style.height = height > 100 ? "99.9%" : height + "%";
+                }
+            });
+        });
+        this.resizeObserver.observe(this.listItemsContainer);
     },
     beforeDestroy() {
-        let variantListBar = document.getElementById("variant-items-wrapper");
-        variantListBar.removeEventListener("scroll", this.handleScrollBound);
+        this.listItemsContainer.removeEventListener("scroll", this.handleScrollBound);
+
+        // Clean up resize observer
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
     },
     methods: {
-        resetData() {
-            this.openedSvSet = {};
-            this.clickedFromBar = false;
+        toggleShowVarList(toShow) {
+            if (this.otherVariantsShowing == toShow) {
+                this.showOtherVariantsList = false;
+                this.otherVariantsShowing = "none";
+            } else {
+                this.showOtherVariantsList = true;
+                this.otherVariantsShowing = toShow;
+            }
+        },
+        setupVariables() {
+            this.listItemsContainer = document.getElementById("variant-items-wrapper");
+            this.containerHeight = this.listItemsContainer.clientHeight;
+
+            this.sudoScrollBar = document.getElementById("variant-list-bar-sudo-scroll");
+            this.scrollThumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
+        },
+        favoriteVariant(variant) {
+            this.$emit("favorite-variant", variant);
+        },
+        hideVariant(variant) {
+            this.$emit("hide-variant", variant);
+        },
+        unhideVariant(variant) {
+            this.$emit("unhide-variant", variant);
+        },
+        resetScroll() {
             this.lastScrollTop = 0;
         },
-        handleScroll(event) {
-            let variantListBar = document.getElementById("variant-items-wrapper");
-            let currentScrollTop = variantListBar.scrollTop;
+        scrollHandler() {
+            let currentScrollTop = this.listItemsContainer.scrollTop;
             if (
                 currentScrollTop == this.lastScrollTop ||
                 currentScrollTop == this.lastScrollTop + 1 ||
@@ -189,27 +312,27 @@ export default {
                 this.lastScrollTop = newLastScrollTop;
             }
         },
+        calculateViewWindow() {
+            this.containerHeight = this.listItemsContainer.clientHeight;
+            let calculatedViewWindow = Math.ceil(this.containerHeight / this.itemHeight) + 2; // Add buffer
+            return calculatedViewWindow;
+        },
         initializeScroll() {
-            //Anytime we are going to initialize or reinitialize the scroll we need to reset
-            this.resetData();
-
-            this.scrollSelection = [0, 22];
-            this.viewWindow = 22;
-
-            //the initial thumb size will be the size of the scrollSelection[1] / svList.length * 100
-            let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
-            let height = (this.viewWindow / this.svList.length) * 100;
-            thumb.style.height = height > 100 ? "99.9%" : height + "%";
+            this.resetScroll();
+            this.viewWindow = this.calculateViewWindow();
+            this.scrollSelection = [0, this.viewWindow];
+            if (this.svList.length > 0) {
+                let height = (this.viewWindow / this.svList.length) * 100;
+                this.scrollThumb.style.height = height > 100 ? "99.9%" : height + "%";
+            }
 
             this.setupScrollbar();
         },
         setupScrollbar() {
-            let variantListBar = document.getElementById("variant-items-wrapper");
-            let clientHeight = variantListBar.clientHeight;
-            let scrollHeight = variantListBar.scrollHeight;
+            let clientHeight = this.listItemsContainer.clientHeight;
+            let scrollHeight = this.listItemsContainer.scrollHeight;
 
-            let sudoScrollBar = document.getElementById("variant-list-bar-sudo-scroll");
-            sudoScrollBar.addEventListener("mousedown", (event) => {
+            this.sudoScrollBar.addEventListener("mousedown", (event) => {
                 event.preventDefault();
                 document.addEventListener("mousemove", onMouseMove);
                 document.addEventListener("mouseup", onMouseUp);
@@ -220,7 +343,7 @@ export default {
                 //get the mouse y position
                 let mouseY = event.clientY;
                 //what percent of the sudo scroll bar is the mouse at
-                let percent = (mouseY - sudoScrollBar.getBoundingClientRect().top) / sudoScrollBar.clientHeight;
+                let percent = (mouseY - this.sudoScrollBar.getBoundingClientRect().top) / this.sudoScrollBar.clientHeight;
                 let scrollSelection = [
                     Math.floor(percent * this.svList.length),
                     Math.floor(percent * this.svList.length) + this.viewWindow,
@@ -253,60 +376,56 @@ export default {
             };
         },
         scrollUp(currentScrollTop) {
-            let variantListBar = document.getElementById("variant-items-wrapper");
-            let clientHeight = variantListBar.clientHeight;
-            let scrollHeight = variantListBar.scrollHeight;
-            let scrollTop = currentScrollTop;
+            let clientHeight = this.listItemsContainer.clientHeight;
+            let scrollHeight = this.listItemsContainer.scrollHeight;
             let svListLen = this.svList.length;
             let newLastScrollTop = currentScrollTop;
 
-            //If we are currently at the max scroll we have available then increment the scroll selection
-            if (currentScrollTop + clientHeight >= scrollHeight && this.scrollSelection[1] < svListLen) {
+            // If we're near the bottom and there are more items to show
+            if (currentScrollTop + clientHeight >= scrollHeight - this.itemHeight && this.scrollSelection[1] < svListLen) {
+                // Move the window up by one item
                 this.scrollSelection[0] += 1;
                 this.scrollSelection[1] += 1;
-                //Move us down one pixle so we can trigger scroll again if needed
-                scrollTop -= 1;
-                variantListBar.scrollTop = scrollTop;
-                //Set last scroll top so we know if we scroll up or down
-                newLastScrollTop = scrollTop;
-                //Move the thumb
-                let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
-                let top = (this.scrollSelection[0] / this.svList.length) * 100;
-                thumb.style.top = top > 100 ? "100%" : top + "%";
-                //return early
-                return newLastScrollTop;
+
+                // Update thumb position
+                if (this.svList.length > 0) {
+                    let top = (this.scrollSelection[0] / this.svList.length) * 100;
+                    this.scrollThumb.style.top = top > 100 ? "100%" : top + "%";
+                }
+                this.listItemsContainer.scrollTop -= 1;
+                return currentScrollTop - 1;
             }
-            //If we haven't gotten through the buffer space then just update the last scroll top value
+
             return newLastScrollTop;
         },
         scrollDown(currentScrollTop) {
-            let variantListBar = document.getElementById("variant-items-wrapper");
-            let scrollTop = currentScrollTop;
             let newLastScrollTop = currentScrollTop;
 
-            //If we are currently at 0 or even with the top of the container
-            if (currentScrollTop <= 0 && this.scrollSelection[0] > 0) {
+            // If we're near the top and there are more items above
+            if (currentScrollTop <= this.itemHeight && this.scrollSelection[0] > 0) {
+                // Move the window down by one item
                 this.scrollSelection[0] -= 1;
                 this.scrollSelection[1] -= 1;
-                //Move us down one pixle so we can trigger scroll again if needed
-                scrollTop += 1;
-                variantListBar.scrollTop = scrollTop;
-                //Set last scroll top so we know if we scroll up or down
-                newLastScrollTop = scrollTop;
-                //move the thumb
-                let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
-                let top = (this.scrollSelection[0] / this.svList.length) * 100;
-                thumb.style.top = top > 100 ? "100%" : top + "%";
-                //return early
-                return newLastScrollTop;
+
+                if (this.svList.length > 0) {
+                    let top = (this.scrollSelection[0] / this.svList.length) * 100;
+                    this.scrollThumb.style.top = top > 100 ? "100%" : top + "%";
+                }
+                this.listItemsContainer.scrollTop += 1;
+                return currentScrollTop + 1;
             }
+            this.listItemsContainer.scrollTop += 1;
             return newLastScrollTop;
         },
         handleScrollDrag(scrollSelection) {
             this.scrollSelection = scrollSelection;
-            let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
-            let top = (this.scrollSelection[0] / this.svList.length) * 100;
-            thumb.style.top = top > 100 ? "100%" : top + "%";
+
+            this.listItemsContainer.scrollTop = this.scrollSelection[0] * this.itemHeight;
+
+            if (this.svList.length > 0) {
+                let top = (this.scrollSelection[0] / this.svList.length) * 100;
+                this.scrollThumb.style.top = top > 100 ? "100%" : top + "%";
+            }
         },
         handleScrollToVariant(scrollSelection) {
             let direction;
@@ -319,34 +438,27 @@ export default {
             this.scrollSelection = scrollSelection;
 
             //if we are at the very bottom of the list, we need to scroll to the bottom so we can see the last variant
-            let variantListBar = document.getElementById("variant-items-wrapper");
-
             if (this.scrollSelection[1] >= this.svList.length - 1 && direction == "down") {
-                variantListBar.scrollTop = variantListBar.scrollHeight;
+                this.listItemsContainer.scrollTop = this.listItemsContainer.scrollHeight;
             } else if (direction == "up") {
-                let variantListBar = document.getElementById("variant-items-wrapper");
                 let firstVariant = document.getElementsByClassName("variant-list-item")[0];
-                let scrollInc = firstVariant.offsetHeight;
 
-                let newTop = variantListBar.scrollTop - scrollInc * 2;
-                if (newTop < 0) {
-                    newTop = 0;
+                if (firstVariant) {
+                    let scrollInc = firstVariant.offsetHeight;
+                    let newTop = this.listItemsContainer.scrollTop - scrollInc * 2;
+                    if (newTop < 0) {
+                        newTop = 0;
+                    }
+                    this.listItemsContainer.scrollTop = newTop;
                 }
-                variantListBar.scrollTop = newTop;
             }
 
-            let thumb = document.getElementById("variant-list-bar-sudo-scroll-thumb");
-            let top = (this.scrollSelection[0] / this.svList.length) * 100;
-            thumb.style.top = top > 100 ? "100%" : top + "%";
+            if (this.svList.length > 0) {
+                let top = (this.scrollSelection[0] / this.svList.length) * 100;
+                this.scrollThumb.style.top = top > 100 ? "100%" : top + "%";
+            }
         },
         async variantClicked(variant, flag) {
-            //add to openedSvSet
-            let key = `${variant.chromosome}-${variant.start}-${variant.end}-${variant.type}`;
-            if (key in this.openedSvSet) {
-                delete this.openedSvSet[key];
-            } else {
-                this.openedSvSet[key] = true;
-            }
             this.clickedFromBar = true;
             this.$emit("variant-clicked", variant, flag);
         },
@@ -365,29 +477,34 @@ export default {
                 return comparison.relation.toLowerCase() == "father";
             });
         },
+        shownHiddenList() {
+            if (this.otherVariantsShowing == "filtered") {
+                return this.filteredOutVar;
+            } else if (this.otherVariantsShowing == "hidden") {
+                return this.hiddenVar;
+            }
+            return [];
+        },
+        favoritesIcon() {
+            return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>favorites filter</title><path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" /></svg>';
+        },
     },
     watch: {
-        svList(newVal, oldVal) {
-            if (!oldVal.length || oldVal.length == 0) {
-                let variantListBar = document.getElementById("variant-items-wrapper");
-                variantListBar.scrollTop = 0;
-                this.initializeScroll();
-            }
-            if (newVal.length && newVal.length !== oldVal.length) {
-                let variantListBar = document.getElementById("variant-items-wrapper");
-                variantListBar.scrollTop = 0;
-                this.initializeScroll();
-            }
+        svList: {
+            handler(newVal, oldVal) {
+                if (!oldVal || oldVal.length === 0) {
+                    this.listItemsContainer.scrollTop = 0;
+                    this.initializeScroll();
+                } else if (newVal.length && newVal.length !== oldVal.length) {
+                    this.listItemsContainer.scrollTop = 0;
+                    this.initializeScroll();
+                }
+            },
         },
         focusedVariant(newVal, oldVal) {
             if (!this.focusedVariant) {
                 return;
             } else if (newVal == oldVal) {
-                return;
-            }
-
-            if (this.clickedFromBar) {
-                this.clickedFromBar = false;
                 return;
             }
 
@@ -405,15 +522,19 @@ export default {
                 return;
             }
 
+            if (index >= this.scrollSelection[0] && index <= this.scrollSelection[1]) {
+                return;
+            }
+
             let scrollSelection = [0, this.viewWindow];
 
             if (index > this.svList.length - this.viewWindow - 1) {
                 scrollSelection = [this.svList.length - this.viewWindow, this.svList.length];
+                this.handleScrollToVariant(scrollSelection);
             } else {
                 scrollSelection = [index, index + this.viewWindow];
+                this.handleScrollToVariant(scrollSelection);
             }
-            this.clickedFromBar = false;
-            this.handleScrollToVariant(scrollSelection);
         },
     },
 };
@@ -428,11 +549,16 @@ export default {
     position: relative
     overflow: hidden
     overscroll-behavior: none
+    &.hidden
+        display: none
+        height: 0px
     #variant-items-wrapper
         overflow-y: auto
         height: 100%
+        max-height: 100%
         scrollbar-width: none
         -ms-overflow-style: none
+        position: relative
     #variant-items-wrapper::-webkit-scrollbar
         display: none
     #variant-list-bar-sudo-scroll
@@ -452,6 +578,65 @@ export default {
             cursor: pointer
             &:hover
                 background-color: #B8B8B8
+#hidden-variants-section
+    height: 40px
+    width: 100%
+    display: flex
+    flex-direction: column
+    box-sizing: border-box
+    border-right: 1px solid #E0E0E0
+    color: #474747
+    #hidden-variants-header
+        height: 40px
+        min-height: 40px
+        width: 100%
+        border-radius: 0px 3px 0px 0px
+        padding-right: 10px
+        display: flex
+        align-items: center
+        justify-content: flex-end
+        box-sizing: border-box
+        border-top: 1px solid #E0E0E0
+        background: #F5F5F5
+        text-transform: uppercase
+        font-size: .8em
+        font-weight: 200
+        color: #474747
+        span
+            margin-right: 5px
+            display: inline-flex
+            align-items: center
+            gap: 3px
+            svg
+                height: 22px
+                width: 22px
+                cursor: pointer
+                fill: #474747
+            b
+                background: #E0E0E0
+                padding: 2px 3px
+                border-radius: 3px
+                display: inline-flex
+                align-items: center
+                justify-content: center
+                cursor: pointer
+                &.showing
+                    background: #aeaeae
+                span
+                    margin: 0px
+                    svg
+                        height: 18px
+                        width: 18px
+                        fill: #474747
+                &:hover
+                    background: #aeaeae
+    &.expanded
+        height: 100%
+        #hidden-variants-column
+            display: flex
+            flex-direction: column
+            flex-grow: 1
+            overflow-y: auto
 #variant-list-bar
     display: flex
     flex-direction: column
@@ -459,7 +644,6 @@ export default {
     justify-content: flex-start
     padding-bottom: 1px
     width: 100%
-    min-width: 350px
     height: 100%
     box-sizing: border-box
     overflow: hidden
@@ -470,9 +654,9 @@ export default {
         min-width: 0px
     #variant-list-bar-header
         display: grid
-        grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .2fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr)
+        grid-template-columns: minmax(0, .05fr) minmax(0, .05fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .5fr)
         grid-template-rows: 1fr 1fr
-        font-size: .8em
+        font-size: .7em
         font-weight: 200
         width: 100%
         height: 50px
@@ -491,7 +675,13 @@ export default {
         box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
         z-index: 1
         &.hasGoi
-            grid-template-columns: minmax(0, .1fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .3fr) minmax(0, .15fr) minmax(0, .15fr)
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .2fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .25fr)
+        &.condensed
+            grid-template-columns: minmax(0, .1fr) minmax(0, .15fr) minmax(0, .25fr) minmax(0, .15fr) minmax(0, .15fr) minmax(0, .15fr)
+            grid-template-rows: 1fr 1fr
+        &.expanded
+            grid-template-columns: minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .1fr) minmax(0, .2fr) minmax(0, .5fr)
+            grid-template-rows: 1fr 1fr
         .span-rows
             display: flex
             flex-direction: column
@@ -504,6 +694,15 @@ export default {
             text-overflow: ellipsis
             position: relative
             cursor: pointer
+            .tipped-button
+                border: none
+                background: none
+                .symbol
+                    pointer-events: none
+                    svg
+                        height: 20px
+                        width: 20px
+                        fill: #474747
             .sort-tip
                 position: absolute
                 right: -9px

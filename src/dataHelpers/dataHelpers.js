@@ -2,7 +2,7 @@
 const BACKEND_URL_BASE = "https://mosaic-staging.chpc.utah.edu/sv.iobio/backend"; //Production
 
 //GET CROMOSOMES
-export async function getChromosomes(build = "hg38") {
+export async function getChromosomes(build) {
     try {
         const response = await fetch(`${BACKEND_URL_BASE}/chromosomes?build=${build}`);
         const data = await response.json();
@@ -13,7 +13,7 @@ export async function getChromosomes(build = "hg38") {
 }
 
 //GET CENTROMERES
-export async function getCentromeres(build = "hg38") {
+export async function getCentromeres(build) {
     try {
         const response = await fetch(`${BACKEND_URL_BASE}/centromeres?build=${build}`);
         const data = await response.json();
@@ -24,7 +24,7 @@ export async function getCentromeres(build = "hg38") {
 }
 
 //GET BANDS
-export async function getBands(build = "hg38") {
+export async function getBands(build) {
     try {
         const response = await fetch(`${BACKEND_URL_BASE}/bands?build=${build}`);
         const data = await response.json();
@@ -35,7 +35,7 @@ export async function getBands(build = "hg38") {
 }
 
 //GET GENES
-export async function getGenes(build = "hg38", source = "refseq") {
+export async function getGenes(build, source = "refseq") {
     try {
         const response = await fetch(`${BACKEND_URL_BASE}/genes?build=${build}&source=${source}`);
         const data = await response.json();
@@ -46,7 +46,7 @@ export async function getGenes(build = "hg38", source = "refseq") {
 }
 
 //GET SENSITIVE GENES
-export async function getSensitiveGenes(build = "hg38") {
+export async function getSensitiveGenes(build) {
     try {
         const response = await fetch(`${BACKEND_URL_BASE}/doseSensitiveGenes?build=${build}`);
         const data = await response.json();
@@ -57,7 +57,7 @@ export async function getSensitiveGenes(build = "hg38") {
 }
 
 //GET SENSITIVE REGIONS
-export async function getSensitiveRegions(build = "hg38") {
+export async function getSensitiveRegions(build) {
     try {
         const response = await fetch(`${BACKEND_URL_BASE}/doseSensitiveRegions?build=${build}`);
         const data = await response.json();
@@ -68,7 +68,7 @@ export async function getSensitiveRegions(build = "hg38") {
 }
 
 //GET SVS FROM VCF
-export async function getSVsFromVCF(vcfFile, build = "hg38", sampleName = null) {
+export async function getSVsFromVCF(vcfFile, build, sampleName = null) {
     try {
         if (!sampleName) {
             const response = await fetch(`${BACKEND_URL_BASE}/dataFromVcf?vcfPath=${vcfFile}&build=${build}`);
@@ -98,7 +98,7 @@ export async function getVCFSamplesFromURL(url) {
 }
 
 //GET SV BATCH INFO
-export async function getSVBatchInfo(svBatch, build = "hg38", source = "refseq") {
+export async function getSVBatchInfo(svBatch, build, source = "refseq") {
     const svBatchJson = JSON.stringify({ variants: svBatch });
     try {
         const response = await fetch(`${BACKEND_URL_BASE}/sv/info/batch?source=${source}&build=${build}`, {
@@ -116,7 +116,7 @@ export async function getSVBatchInfo(svBatch, build = "hg38", source = "refseq")
 }
 
 //GET THE OVERLAPPING SVS FROM POPULATION
-export async function getPopulationSvs(sv, build = "hg38") {
+export async function getPopulationSvs(sv, build) {
     const chr = sv.chromosome;
     const start = sv.start;
     const end = sv.end;
@@ -144,8 +144,19 @@ export async function getGenesForPhenotypes(phenotypes) {
     }
 }
 
+//GET PHENOTYPES FOR A DISEASE
+export async function getPhenotypesForDiseases(disease) {
+    try {
+        const response = await fetch(`${BACKEND_URL_BASE}/disease/phenotypes?disease=${disease}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error Getting Phenotypes for Diseases:", error);
+    }
+}
+
 //GET TRANSCRIPTS FOR GENE LIST
-export async function getTranscriptsForGenes(geneList, build = "hg38", source = "gencode") {
+export async function getTranscriptsForGenes(geneList, build, source = "gencode") {
     const geneListString = geneList.join(",");
     try {
         const response = await fetch(`${BACKEND_URL_BASE}/transcripts?genes=${geneList}&build=${build}&source=${source}`);

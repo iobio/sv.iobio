@@ -7,9 +7,8 @@ export default {
     name: "MultiBamWrapper",
     props: {
         region: {
-            //Must come with a rname, start, end
             type: Object,
-            required: false,
+            required: true,
         },
         bamTitles: {
             type: Array,
@@ -26,6 +25,10 @@ export default {
         genomeSize: {
             type: Number,
             required: false,
+        },
+        genomeMap: {
+            type: Object,
+            required: true,
         },
     },
     data() {
@@ -47,16 +50,16 @@ export default {
 
         // Will be removed when the iobio-charts package is updated to include multi_series components
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@e9dea897f8a74b201b0b360f2b9e41014c3d8d02/multi_series/multi_series_chart.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b16ddf8ecf5030ac4fb3322c617d7e419b959501/multi_series/multi_series_chart.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@e9dea897f8a74b201b0b360f2b9e41014c3d8d02/multi_series/multi_series_wc.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b16ddf8ecf5030ac4fb3322c617d7e419b959501/multi_series/multi_series_wc.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@e9dea897f8a74b201b0b360f2b9e41014c3d8d02/multi_series/multi_alignment_broker_wc.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b16ddf8ecf5030ac4fb3322c617d7e419b959501/multi_series/multi_alignment_broker_wc.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@e9dea897f8a74b201b0b360f2b9e41014c3d8d02/multi_series/multi_alignment_broker.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b16ddf8ecf5030ac4fb3322c617d7e419b959501/multi_series/multi_alignment_broker.js"
         );
 
         let container = document.querySelector(".multi-bam-wrapper");
@@ -72,10 +75,20 @@ export default {
         this.multiBamView.brokerId = "multi-bam-broker";
         this.multiBamView.totalSize = this.genomeSize;
 
-        this.multiBamView.region = JSON.stringify({
-            start: this.region.start,
-            end: this.region.end,
-        });
+        if (this.genomeMap) {
+            this.multiBamView.regionMap = JSON.stringify(this.genomeMap);
+        }
+
+        if (this.region) {
+            this.dataBrokerEl.region = JSON.stringify({
+                start: this.region.start,
+                end: this.region.end,
+            });
+            this.multiBamView.region = JSON.stringify({
+                start: this.region.start,
+                end: this.region.end,
+            });
+        }
 
         this.dataBrokerEl.alignmentTitles = this.bamTitles;
         this.dataBrokerEl.alignmentUrls = this.bamUrls;

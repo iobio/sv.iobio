@@ -26,7 +26,13 @@
             @emit-toast="addToast" />
 
         <div id="lower-block-container">
-            <div id="var-list-bar-button-container" :class="{ collapsed: !variantListBarOpen }">
+            <div
+                id="var-list-bar-button-container"
+                :class="{
+                    normal: listViewMode == 'normal',
+                    condensed: listViewMode == 'condensed',
+                    expanded: listViewMode == 'expanded',
+                }">
                 <FilterDataSection
                     :show="filterDataSectionOpen"
                     :filters="filters"
@@ -35,25 +41,6 @@
                     @updateFilters="updateDataFilters" />
 
                 <div class="button-container">
-                    <div class="tab-select-wrapper">
-                        <nav class="tab-select" :class="{ collapsed: !variantListBarOpen }">
-                            <div class="tab" :class="{ selected: selectedTab == 'svList' }" @click="selectedTab = 'svList'">
-                                SVs <span class="tip">{{ svListVariantBar.length }}</span>
-                            </div>
-
-                            <div
-                                class="tab"
-                                :class="{ selected: selectedTab == 'phenotypes' }"
-                                @click="selectedTab = 'phenotypes'">
-                                Phenotypes <span class="tip">{{ phenotypesOfInterest.length }}</span>
-                            </div>
-
-                            <div class="tab" :class="{ selected: selectedTab == 'goi' }" @click="selectedTab = 'goi'">
-                                Genes <span class="tip">{{ genesOfInterest.length }}</span>
-                            </div>
-                        </nav>
-                    </div>
-
                     <div v-if="selectedTab == 'svList'" class="filter-button" @click="onToggleFilterDataSection()">
                         <svg v-if="loadedInitiallyComplete" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <title>Filter SVs</title>
@@ -70,28 +57,77 @@
                             <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
                         </svg>
                     </div>
+                    <div class="tab-select-wrapper">
+                        <nav
+                            class="tab-select"
+                            :class="{
+                                collapsed: !variantListBarOpen,
+                                condensed: listViewMode == 'condensed',
+                                expanded: listViewMode == 'expanded',
+                            }">
+                            <div class="tab" :class="{ selected: selectedTab == 'svList' }" @click="selectedTab = 'svList'">
+                                SVs <span class="tip">{{ svListVariantBar.length }}</span>
+                            </div>
+
+                            <div
+                                class="tab"
+                                :class="{ selected: selectedTab == 'phenotypes' }"
+                                @click="selectedTab = 'phenotypes'">
+                                Phenotypes <span class="tip">{{ phenotypesOfInterest.length }}</span>
+                            </div>
+
+                            <div class="tab" :class="{ selected: selectedTab == 'goi' }" @click="selectedTab = 'goi'">
+                                Genes <span class="tip">{{ genesOfInterest.length }}</span>
+                            </div>
+                        </nav>
+                    </div>
                 </div>
 
-                <button id="var-list-bar-toggle-btn" @click="variantListBarOpen = !variantListBarOpen">
-                    <img v-if="variantListBarOpen" src="/arrow-expand-left.svg" alt="close" />
-                    <img v-else src="/arrow-expand-right.svg" alt="open" />
-                </button>
+                <div id="var-list-bar-toggle-btn">
+                    <button :class="{ active: listViewMode == 'condensed' }" @click="listViewMode = 'condensed'">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <title>consensed-view</title>
+                            <path
+                                d="M12 16C13.1 16 14 16.9 14 18S13.1 20 12 20 10 19.1 10 18 10.9 16 12 16M12 10C13.1 10 14 10.9 14 12S13.1 14 12 14 10 13.1 10 12 10.9 10 12 10M12 4C13.1 4 14 4.9 14 6S13.1 8 12 8 10 7.1 10 6 10.9 4 12 4M6 16C7.1 16 8 16.9 8 18S7.1 20 6 20 4 19.1 4 18 4.9 16 6 16M6 10C7.1 10 8 10.9 8 12S7.1 14 6 14 4 13.1 4 12 4.9 10 6 10M6 4C7.1 4 8 4.9 8 6S7.1 8 6 8 4 7.1 4 6 4.9 4 6 4M18 16C19.1 16 20 16.9 20 18S19.1 20 18 20 16 19.1 16 18 16.9 16 18 16M18 10C19.1 10 20 10.9 20 12S19.1 14 18 14 16 13.1 16 12 16.9 10 18 10M18 4C19.1 4 20 4.9 20 6S19.1 8 18 8 16 7.1 16 6 16.9 4 18 4Z" />
+                        </svg>
+                    </button>
+                    <button :class="{ active: listViewMode == 'normal' }" @click="listViewMode = 'normal'">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <title>normal-view</title>
+                            <path
+                                d="M17 22V20H20V17H22V20.5C22 20.9 21.8 21.2 21.5 21.5C21.2 21.8 20.8 22 20.5 22H17M7 22H3.5C3.1 22 2.8 21.8 2.5 21.5C2.2 21.2 2 20.8 2 20.5V17H4V20H7V22M17 2H20.5C20.9 2 21.2 2.2 21.5 2.5C21.8 2.8 22 3.1 22 3.5V7H20V4H17V2M7 2V4H4V7H2V3.5C2 3.1 2.2 2.8 2.5 2.5S3.1 2 3.5 2H7M19 11H5V13H19V11Z" />
+                        </svg>
+                    </button>
+                    <button :class="{ active: listViewMode == 'expanded' }" @click="listViewMode = 'expanded'">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <title>expanded-view</title>
+                            <path d="M9,11H15V8L19,12L15,16V13H9V16L5,12L9,8V11M2,20V4H4V20H2M20,20V4H22V20H20Z" />
+                        </svg>
+                    </button>
+                </div>
 
                 <VariantListBar
                     v-if="selectedTab == 'svList'"
                     :svList="svListVariantBar"
+                    :filteredOutVar="variantsFilteredOut"
+                    :hiddenVar="variantsHiddenByUser"
                     :patientPhenotypes="phenotypesOfInterest"
                     :geneCandidates="genesOfInterest"
                     :loading="!loadedInitiallyComplete"
                     :comparisons="samples.comparisons"
                     :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
                     :overlapProp="overlapProp"
+                    :displayMode="listViewMode"
                     :filters="filters"
                     :focusedVariant="focusedVariant"
                     :open="variantListBarOpen"
                     @updateSvAtIndex="updateSvList"
                     @variant-clicked="updateFocusedVariant"
-                    @sort-variants="sortSvList" />
+                    @sort-variants="sortSvList"
+                    @favorite-variant="favoriteVariant"
+                    @hide-variant="hideVariant"
+                    @unhide-variant="unhideVariant"
+                    @filter-to-favorites="filterToFavorites" />
 
                 <PhenotypesListBar
                     v-if="selectedTab == 'phenotypes'"
@@ -111,6 +147,7 @@
             </div>
 
             <ChartsSection
+                v-if="hgBuild && samples.proband"
                 :samples="samples"
                 :svList="svListChart"
                 :hgBuild="hgBuild"
@@ -126,6 +163,7 @@
                 :doseGenes="doseGenes"
                 :doseRegions="doseRegions"
                 @updateComparisons="updateComparisons"
+                @update-list-view="updateListViewMode"
                 @zoomEvent="zoomFired"
                 @updateFocusedVariant="updateFocusedVariant"
                 @update-comparison-lists="setComparisonSamples"
@@ -208,6 +246,7 @@ export default {
             toasts: [],
             variantsSorted: false,
             variantsFilteredOut: [],
+            variantsHiddenByUser: [],
             //Mosaic Session Items
             mosaicSession: null,
             mosaicUrlParams: null,
@@ -224,13 +263,17 @@ export default {
                 chr: false,
                 type: false,
             },
+            listViewMode: "normal",
         };
     },
     async mounted() {
         await this.initMosaicSession();
 
         //There are a little over 1000 genes and 518 regions
-        let [doseGenes, doseRegions] = await Promise.all([dataHelper.getSensitiveGenes(), dataHelper.getSensitiveRegions()]);
+        let [doseGenes, doseRegions] = await Promise.all([
+            dataHelper.getSensitiveGenes(this.hgBuild),
+            dataHelper.getSensitiveRegions(this.hgBuild),
+        ]);
 
         this.doseGenes = doseGenes.sensitiveGenes || {};
         this.doseRegions = doseRegions.sensitiveRegions || {};
@@ -244,6 +287,9 @@ export default {
         }
     },
     methods: {
+        updateListViewMode(mode) {
+            this.listViewMode = mode;
+        },
         updateGenesAndPhensWithDemo(demoInfo) {
             this.updateGenesOfInterest(demoInfo.genes);
             this.updatePhenotypesOfInterest(demoInfo.phenotypes);
@@ -332,7 +378,6 @@ export default {
                     let mosaicTbiUrl = await this.mosaicSession.promiseGetSignedUrlForFile(this.mosaicProjectId, tbiFile.id);
                     let filesRes = await this.mosaicSession.promiseGetFiles(this.mosaicProjectId, sample.id);
                     let alignmentFile = filesRes.data.filter((file) => file.type == "bam" || file.type == "cram");
-
                     let isProband = relationships.find((rel) => rel.value == "Proband");
 
                     if (isProband) {
@@ -656,11 +701,20 @@ export default {
                     } else {
                         //if there are no overlappedGenes send to the bottom
                         this.svListVariantBar[originalIndex] = newSv;
+                        this.variantsFilteredOut.push(newSv);
                     }
                 }
                 this.progressPercent = Math.round(((i + batchSize) / svListCopy.length) * 100);
             }
             this.loadedInitiallyComplete = true;
+
+            //We want to sort the variants by the number of phenotypes they have in common with the patient
+            this.sortSvList("hpoOverlapped");
+
+            // Any variants in the variantsFilteredOut list should be removed from the svListVariantBar the key of the variant is the svCode
+            let filteredSvs = this.svListVariantBar.filter((sv) => !this.variantsFilteredOut.some((v) => v.svCode == sv.svCode));
+            this.svListVariantBar = filteredSvs;
+            this.svListChart = filteredSvs;
             //We just want to make sure we trigger this incase we got phenotypes while we were loading or before
             await this.updatePhenotypesOfInterest(this.phenotypesOfInterest);
         },
@@ -675,6 +729,41 @@ export default {
             } else {
                 this.focusedVariant = variant;
             }
+        },
+        favoriteVariant(variant) {
+            variant = this.svListVariantBar.find((sv) => sv.svCode == variant.svCode);
+            if (variant && variant.favorite == false) {
+                variant.favorite = true;
+            } else if (variant) {
+                variant.favorite = false;
+            }
+        },
+        filterToFavorites() {
+            const nonFavorites = this.svListVariantBar.filter((sv) => !sv.favorite);
+            const favorites = this.svListVariantBar.filter((sv) => sv.favorite);
+
+            this.variantsHiddenByUser.push(...nonFavorites);
+            this.svListVariantBar = favorites;
+            this.svListChart = favorites;
+        },
+        hideVariant(variant) {
+            variant = this.svListVariantBar.find((sv) => sv.svCode == variant.svCode);
+            if (variant) {
+                this.variantsHiddenByUser.push(variant);
+                let newSvs = this.svListVariantBar.filter((sv) => sv.svCode !== variant.svCode);
+                this.svListVariantBar = newSvs;
+                this.svListChart = newSvs;
+            }
+        },
+        unhideVariant(variant) {
+            //The variant could be in variantsFilteredOut or variantsHiddenByUser so we need to check both
+            if (this.variantsFilteredOut.some((sv) => sv.svCode == variant.svCode)) {
+                this.variantsFilteredOut = this.variantsFilteredOut.filter((sv) => sv.svCode !== variant.svCode);
+            } else if (this.variantsHiddenByUser.some((sv) => sv.svCode == variant.svCode)) {
+                this.variantsHiddenByUser = this.variantsHiddenByUser.filter((sv) => sv.svCode !== variant.svCode);
+            }
+            // Add the variant back to the top of the svListVariantBar
+            this.svListVariantBar.unshift(variant);
         },
         updateDataFilters(filters) {
             //Filters, essentially shouldn't need to make additional calls to the server
@@ -730,24 +819,16 @@ export default {
             this.svListChart = newSVs;
             this.variantsFilteredOut = newFilteredOut;
         },
-        hasPhenotypes(overlappedGenes) {
-            /**
-             * Returns true if any of the overlappedGenes have phenotypes
-             */
-            return Object.values(overlappedGenes).some(
-                (gene) => Object.keys(gene.phenotypes) && Object.keys(gene.phenotypes).length > 0,
-            );
-        },
         async updateSamples(samples) {
             this.samples.proband = samples.proband;
             this.loadData();
 
             this.samples.comparisons = samples.comparisons;
         },
-        async getSVAssociations(variantBatch, build = "hg38", source = "refseq") {
+        async getSVAssociations(variantBatch, source = "refseq") {
             let svs;
             try {
-                svs = await dataHelper.getSVBatchInfo(variantBatch, build, source);
+                svs = await dataHelper.getSVBatchInfo(variantBatch, this.hgBuild, source);
 
                 if (svs.length == 0) {
                     this.toasts.push({ message: `No SV associations for the variant batch`, type: "error" });
@@ -1096,6 +1177,22 @@ export default {
                 }
             },
         },
+        hgBuild: {
+            async handler(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    //There are a little over 1000 genes and 518 regions
+                    let [doseGenes, doseRegions] = await Promise.all([
+                        dataHelper.getSensitiveGenes(newVal),
+                        dataHelper.getSensitiveRegions(newVal),
+                    ]);
+
+                    this.doseGenes = doseGenes.sensitiveGenes || {};
+                    this.doseRegions = doseRegions.sensitiveRegions || {};
+                    this.resetFilters();
+                    this.loadData();
+                }
+            },
+        },
     },
 };
 </script>
@@ -1123,7 +1220,6 @@ export default {
     display: flex
     flex-direction: row
     flex: 1 1 auto
-    justify-content: center
     width: 100%
     box-sizing: border-box
     overflow: hidden
@@ -1142,10 +1238,7 @@ img
     flex-direction: column
     padding: 5px 0px 0px 0px
     margin: 0px
-    width: 25%
-    min-width: 380px
-    max-width: 500px
-    transition: width 0.4s, min-width 0.4s
+    transition: width 0.4s
     .button-container
         display: flex
         flex-direction: row
@@ -1265,6 +1358,15 @@ img
             width: 0px
             min-width: 0px
             overflow: hidden
+        &.condensed
+            font-size: .8em
+            .tab
+                padding: 3px
+                .tip
+                    font-size: 10px
+                    top: -2px
+        &.expanded
+            font-size: 1em
     .tab
         padding: 5px 10px
         margin: 0px
@@ -1296,28 +1398,45 @@ img
             display: none
         .sort-btn
             display: none
+    &.normal
+        width: 40%
+        min-width: 40%
+    &.condensed
+        width: 250px
+        min-width: 250px
+    &.expanded
+        width: 50%
+        min-width: 50%
 #var-list-bar-toggle-btn
     position: absolute
-    bottom: 10px
-    right: -35px
+    top: 5px
+    right: -100px
     z-index: 2
-    padding: 3px
     margin: 0px
-    border-radius: 50%
+    border-radius: 5px
     opacity: 0.8
     display: flex
     justify-content: center
     align-items: center
-    border: 2px solid #2A65B7
-    background-color: #C1D1EA
-    &:hover
-        cursor: pointer
-        opacity: 1
-    img
-        height: 23px
-        width: 23px
+    border: 1px solid #E0E0E0
+    button
+        border: none
+        background-color: transparent
+        padding: 3px 5px
+        margin: 0px
         display: flex
+        height: 100%
         justify-content: center
         align-items: center
-        transform: translate(0px, 0px)
+        svg
+            height: 20px
+            width: 20px
+            fill: #474747
+        &:hover
+            cursor: pointer
+            background-color: #E0E0E0
+        &.active
+            background-color: #EBEBEB
+            &:hover
+                background-color: #E0E0E0
 </style>
