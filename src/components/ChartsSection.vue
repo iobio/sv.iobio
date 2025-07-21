@@ -199,8 +199,9 @@
             </div>
         </div>
         <PhenotypeDetails
-            v-if="focusedVariant && chartsView === 'hpo'"
+            v-if="focusedVariant && chartsView === 'hpo' && hgBuild"
             :variant="focusedVariant"
+            :build="hgBuild"
             :patientPhenotypes="patientPhenotypes"
             :geneCandidates="genesOfInterest"
             :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
@@ -832,9 +833,10 @@ export default {
             },
             deep: true,
         },
-        hgBuild(newVal, oldVal) {
-            if (newVal !== oldVal) {
-                this.getBaseData(newVal);
+        async hgBuild(newVal, oldVal) {
+            if (newVal && newVal !== oldVal) {
+                await this.getBaseData(newVal);
+                await this.fetchSamples();
             }
         },
     },

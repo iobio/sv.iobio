@@ -133,7 +133,6 @@ export default {
                         name: hpo[0].name
                     };
                 } catch (error) {
-                    console.error(`Error fetching HPO for ${term}:`, error);
                     return {
                         term_id: term,
                         name: 'Unknown'

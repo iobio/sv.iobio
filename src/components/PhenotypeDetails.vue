@@ -79,13 +79,13 @@
             <fieldset class="column gene-cards">
                 <legend>Overlapped Genes</legend>
 
-                <div class="select-organization-btn-container">
+                <!-- <div class="select-organization-btn-container">
                     <label for="organization-select">Organize By:</label>
                     <select v-model="selectedOrganization" class="organization-select">
                         <option value="genes">Genes</option>
                         <option value="diseases">Diseases</option>
                     </select>
-                </div>
+                </div> -->
                 <div class="gene-card-row">
                     <div class="row" v-if="variant && Object.values(variant.overlappedGenes).length > 0">
                         <GeneAssociationsCard
@@ -136,6 +136,7 @@ export default {
         geneCandidates: Array,
         chromosomeAccumulatedMap: Object,
         doseGenes: Object,
+        build: String,
     },
     data() {
         return {
@@ -145,10 +146,14 @@ export default {
         };
     },
     async mounted() {
+        if (!this.build) {
+            return;
+        }
         try {
-            this.popSvs = await getPopulationSvs(this.variant);
+            this.popSvs = await getPopulationSvs(this.variant, this.build);
         } catch (error) {
             this.popSvs = [];
+            console.error("Error fetching population SVs:", error);
         }
     },
     methods: {
@@ -257,12 +262,24 @@ export default {
                 this.hideExtraGeneInfo = true;
                 this.popSvs = null;
                 try {
-                    this.popSvs = await getPopulationSvs(this.variant);
+                    this.popSvs = await getPopulationSvs(this.variant, this.build);
                 } catch (error) {
                     this.popSvs = [];
                 }
             },
             deep: true,
+        },
+        build: {
+            handler: async function (newVal, oldVal) {
+                if (newVal && newVal !== oldVal) {
+                    try {
+                        this.popSvs = await getPopulationSvs(this.variant, newVal);
+                    } catch (error) {
+                        this.popSvs = [];
+                        console.error("Error fetching population SVs:", error);
+                    }
+                }
+            },
         },
     },
 };

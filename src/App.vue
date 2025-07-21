@@ -147,6 +147,7 @@
             </div>
 
             <ChartsSection
+                v-if="hgBuild && samples.proband"
                 :samples="samples"
                 :svList="svListChart"
                 :hgBuild="hgBuild"
@@ -269,7 +270,10 @@ export default {
         await this.initMosaicSession();
 
         //There are a little over 1000 genes and 518 regions
-        let [doseGenes, doseRegions] = await Promise.all([dataHelper.getSensitiveGenes(), dataHelper.getSensitiveRegions()]);
+        let [doseGenes, doseRegions] = await Promise.all([
+            dataHelper.getSensitiveGenes(this.hgBuild),
+            dataHelper.getSensitiveRegions(this.hgBuild),
+        ]);
 
         this.doseGenes = doseGenes.sensitiveGenes || {};
         this.doseRegions = doseRegions.sensitiveRegions || {};
@@ -821,10 +825,10 @@ export default {
 
             this.samples.comparisons = samples.comparisons;
         },
-        async getSVAssociations(variantBatch, build = "hg38", source = "refseq") {
+        async getSVAssociations(variantBatch, source = "refseq") {
             let svs;
             try {
-                svs = await dataHelper.getSVBatchInfo(variantBatch, build, source);
+                svs = await dataHelper.getSVBatchInfo(variantBatch, this.hgBuild, source);
 
                 if (svs.length == 0) {
                     this.toasts.push({ message: `No SV associations for the variant batch`, type: "error" });
@@ -1170,6 +1174,22 @@ export default {
             handler(newVal, oldVal) {
                 if (newVal == false) {
                     this.filterDataSectionOpen = false;
+                }
+            },
+        },
+        hgBuild: {
+            async handler(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    //There are a little over 1000 genes and 518 regions
+                    let [doseGenes, doseRegions] = await Promise.all([
+                        dataHelper.getSensitiveGenes(newVal),
+                        dataHelper.getSensitiveRegions(newVal),
+                    ]);
+
+                    this.doseGenes = doseGenes.sensitiveGenes || {};
+                    this.doseRegions = doseRegions.sensitiveRegions || {};
+                    this.resetFilters();
+                    this.loadData();
                 }
             },
         },
