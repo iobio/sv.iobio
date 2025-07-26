@@ -211,7 +211,8 @@
             :svList="svList"
             :genesOfInterest="genesOfInterest"
             :phenRelatedGenes="phenRelatedGenes"
-            :ptPhenotypes="patientPhenotypes" />
+            :ptPhenotypes="patientPhenotypes"
+            :isLoading="isLoading" />
     </div>
 </template>
 
@@ -265,6 +266,7 @@ export default {
         genomeEnd: Number,
         doseGenes: Object,
         doseRegions: Object,
+        isLoading: Boolean,
     },
     data() {
         return {
@@ -283,7 +285,7 @@ export default {
             tools: {
                 line: false,
             },
-            zoomFactor: 3000000,
+            zoomFactor: 5000,
             showProbandCoverage: true,
             showIgvModal: false,
             chartsView: "hpo",

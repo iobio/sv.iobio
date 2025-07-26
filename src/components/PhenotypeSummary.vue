@@ -1,49 +1,72 @@
 <template>
     <div id="phenotype-summary">
-        <h3 class="title">HPO Summary</h3>
+        <div v-if="isLoading" class="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading...</div>
+        </div>
         <div class="summary-container">
-            <div class="phens-not-accounted-for" v-if="phensNotAccountedFor.length > 0 && phenRelatedGenes.length > 0">
-                <h3>Phenotypes Not Covered</h3>
-                <div class="term" v-for="term in phensNotAccountedFor">
-                    <span>{{ term.name }}</span> <span>({{ term.term_id }})</span>
+            <div class="phenotype-chips-container" v-if="allPhenotypesDisplay.length > 0 && phenRelatedGenes.length > 0">
+                <h3>Patient Phenotypes</h3>
+                <div class="chip-legend">
+                    <div class="legend-item">
+                        <span class="legend-chip accounted"></span>
+                        <span class="legend-text">Accounted for</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-chip unaccounted"></span>
+                        <span class="legend-text">Not accounted for</span>
+                    </div>
+                </div>
+                <div class="phenotype-chips">
+                    <span
+                        v-for="phenotype in allPhenotypesDisplay"
+                        :key="phenotype.term_id"
+                        class="phenotype-chip"
+                        :class="{ unaccounted: !phenotype.isAccountedFor }">
+                        {{ phenotype.name }}
+                    </span>
                 </div>
             </div>
-            <!-- <div class="select-view-container">
-                <label for="view-select">View:</label>
-                <select v-model="view" class="view-select">
-                    <option value="sv">SVs</option>
-                    <option value="diseases">Diseases</option>
-                </select>
-            </div> -->
         </div>
 
-        <div class="sv-container" v-if="view === 'sv'">
-            <p class="sv" v-for="(sv) in relevantSvsLocal">
-                <div class="sv-code">{{ sv.svCode }}</div>
-                <div v-for="(geneObj, gene_symbol) in sv.structGenesWithPhenoOverlap">
-                    <p class="gene-symbol">{{ gene_symbol }}</p>
-                    <div class="term" v-for="term in getPhensNotFound(geneObj.diseaseGroups, geneObj.inCommonPhens)">
-                        <span>{{ term.name }}</span> <span>({{ term.term_id }})</span> <span>Associated with: {{ term.disease_id }}</span>
-                    </div>
-                    <div class="disease-group" v-for="diseaseGroup in geneObj.diseasesGrouped">
-                        <div class="disease-group-header" v-if="getCommonPhensForGroup(diseaseGroup, geneObj.inCommonPhens).length > 0">
-                            <span v-for="(diseaseObj, index) in diseaseGroup">
-                                <span v-if="index == 0">{{ diseaseObj.disease_name }}</span> 
-                                <span v-if="index == 0"> (</span><span>{{ diseaseObj.disease_id }}</span><span v-if="index < diseaseGroup.length - 1">, </span> <span v-if="index == diseaseGroup.length - 1">)</span>
-                            </span>
+        <div v-if="view === 'diseases'" class="associations-container">
+            <div class="disease" v-for="(disease, diseaseId) in sortedDiseasesLocal" :key="diseaseId">
+                <div class="disease-content">
+                    <div class="disease-info">
+                        <div class="disease-header">
+                            <div>
+                                <span class="disease-name">{{ disease.diseases[0].disease_name }}</span>
+                                <span class="disease-id">({{ disease.diseases[0].disease_id }})</span>
+                            </div>
+
+                            <span class="phenotype-count"
+                                ><b>{{ disease.associationsInCommon.length }}</b> HPO in common</span
+                            >
                         </div>
-                        <div v-if="getCommonPhensForGroup(diseaseGroup, geneObj.inCommonPhens).length > 0" class="phen-in-common-header">Phenotypes in common:</div>
-                        <div class="indented term" v-for="term in getCommonPhensForGroup(diseaseGroup, geneObj.inCommonPhens)">{{ term.name }}</div>
+                        <div class="common-phenotypes">
+                            <div class="phenotypes-label">Common phenotypes:</div>
+                            <div class="phenotype-chips-inline">
+                                <span
+                                    v-for="phenotype in disease.associationsInCommon"
+                                    :key="phenotype.term_id"
+                                    class="phenotype-chip-small">
+                                    {{ phenotype.name }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sv-gene-pairs">
+                        <div class="pair-label"><span>SV Assoc.</span><span>Gene Assoc.</span></div>
+                        <div class="pairs-list">
+                            <div v-for="(pair, index) in disease.svGenePairs" :key="index" class="sv-gene-pair">
+                                <span class="sv-code">{{ pair.svCode }}</span>
+                                <span class="gene-symbol">{{ pair.geneSymbol }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </p>    
-        </div>
-
-        <!-- <div v-if="view === 'diseases'">
-            <div class="disease" v-for="disease in diseasesLocal">
-                <span>{{ disease.diseases[0].disease_name }}</span> <span>({{ disease.diseases[0].disease_id }})</span>
             </div>
-        </div> -->
+        </div>
     </div>
 </template>
 
@@ -56,21 +79,24 @@ export default {
         genesOfInterest: Array,
         phenRelatedGenes: Array,
         ptPhenotypes: Array,
+        isLoading: Boolean,
     },
     data() {
         return {
             phensNotAccountedFor: [],
+            allPhenotypesDisplay: [],
             diseasesLocal: [],
             relevantSvsLocal: [],
             ptPhenotypesObj: {},
-            view: "sv",
-        }
+            view: "diseases",
+        };
     },
     async mounted() {
         this.setPtPhenotypesObj();
         this.getSvsWithPhenGenes();
         await this.getDiseasesLocal();
         this.getPhensNotAccountedFor();
+        await this.createAllPhenotypesDisplay();
     },
     methods: {
         setPtPhenotypesObj() {
@@ -78,28 +104,22 @@ export default {
                 this.ptPhenotypesObj = {};
                 this.ptPhenotypes.forEach((hpo_id) => {
                     this.ptPhenotypesObj[hpo_id] = true;
-                })
+                });
             }
         },
         getPhensNotFound(diseaseGroups, inCommonPhens) {
             if (!diseaseGroups || !inCommonPhens) {
                 return [];
             }
-            
+
             const allDiseaseIds = new Set(
-                Object.values(diseaseGroups).flatMap(diseaseGroup => 
-                    diseaseGroup.map(d => d.disease_id)
-                )
+                Object.values(diseaseGroups).flatMap((diseaseGroup) => diseaseGroup.map((d) => d.disease_id)),
             );
-            return Object.values(inCommonPhens).filter(term => 
-                !allDiseaseIds.has(term.disease_id)
-            );
+            return Object.values(inCommonPhens).filter((term) => !allDiseaseIds.has(term.disease_id));
         },
         getCommonPhensForGroup(diseaseGroup, inCommonPhens) {
-            const diseaseIds = diseaseGroup.map(d => d.disease_id);
-            return Object.values(inCommonPhens).filter(term => 
-                diseaseIds.includes(term.disease_id)
-            );
+            const diseaseIds = diseaseGroup.map((d) => d.disease_id);
+            return Object.values(inCommonPhens).filter((term) => diseaseIds.includes(term.disease_id));
         },
         async getPhensNotAccountedFor() {
             const svs = this.svList.filter((sv) => sv.overlappedPhenGenes.length > 0);
@@ -119,7 +139,7 @@ export default {
             // Use Promise.all to handle all async operations
             const missingTerms = [];
             for (const term of lookupPhens) {
-                if (!allPhensInCommon.some(inCommonPhens => inCommonPhens[term])) {
+                if (!allPhensInCommon.some((inCommonPhens) => inCommonPhens[term])) {
                     missingTerms.push(term);
                 }
             }
@@ -130,12 +150,12 @@ export default {
                     const hpo = await searchForHPO(term);
                     return {
                         term_id: term,
-                        name: hpo[0].name
+                        name: hpo[0].name,
                     };
                 } catch (error) {
                     return {
                         term_id: term,
-                        name: 'Unknown'
+                        name: "Unknown",
                     };
                 }
             });
@@ -143,68 +163,143 @@ export default {
             phensNotAccountedForLocal = await Promise.all(termPromises);
             this.phensNotAccountedFor = phensNotAccountedForLocal;
         },
+        async createAllPhenotypesDisplay() {
+            // Create a map of accounted phenotypes
+            const accountedPhenotypes = new Set();
+            const svs = this.svList.filter((sv) => sv.overlappedPhenGenes.length > 0);
+            const lookupPhens = new Set(this.ptPhenotypes);
+
+            svs.forEach((sv) => {
+                sv.overlappedPhenGenes.forEach((gene) => {
+                    Object.keys(sv.overlappedGenes[gene].phenotypes).forEach((termId) => {
+                        if (lookupPhens.has(termId)) {
+                            accountedPhenotypes.add(termId);
+                        }
+                    });
+                });
+            });
+
+            // Create display array with all phenotypes
+            const phenotypesDisplay = [];
+
+            for (const termId of this.ptPhenotypes) {
+                try {
+                    const hpo = await searchForHPO(termId);
+                    phenotypesDisplay.push({
+                        term_id: termId,
+                        name: hpo[0]?.name || "Unknown",
+                        isAccountedFor: accountedPhenotypes.has(termId),
+                    });
+                } catch (error) {
+                    phenotypesDisplay.push({
+                        term_id: termId,
+                        name: "Unknown",
+                        isAccountedFor: accountedPhenotypes.has(termId),
+                    });
+                }
+            }
+
+            this.allPhenotypesDisplay = phenotypesDisplay;
+        },
         async getDiseasesLocal() {
-            this.diseasesLocal = [];
-            // Diseases local will be an array of arrays where each array is a disease and each item in the sub array is a different instance of the same disease (ORPHA vs OMIM)
-            let allDiseases = [];
-            let sortedDiseases = [];
+            this.diseasesLocal = {};
+            // Diseases local will be an object of objects where each key is a disease_id and value contains disease info plus SV/Gene pairs
+            let diseaseMap = {};
             if (this.relevantSvsLocal.length > 0) {
-                let diseases = [];
-                diseases = this.relevantSvsLocal.flatMap((sv) => {
-                    return Object.values(sv.structGenesWithPhenoOverlap).flatMap((obj) => Object.values(obj.diseasesGrouped))
-                })
+                // Iterate through each SV and its genes to track associations
+                this.relevantSvsLocal.forEach((sv) => {
+                    Object.entries(sv.structGenesWithPhenoOverlap).forEach(([geneSymbol, geneObj]) => {
+                        Object.values(geneObj.diseasesGrouped).forEach((diseaseArr) => {
+                            let diseaseId = diseaseArr[0].disease_id;
 
-                for (let diseaseArr of diseases) {
-                    let diseaseObj = {}
-                    diseaseObj.diseases = diseaseArr;
+                            if (!diseaseMap.hasOwnProperty(diseaseId)) {
+                                diseaseMap[diseaseId] = {
+                                    diseases: diseaseArr,
+                                    svGenePairs: [],
+                                    associatedPhenotypes: [],
+                                    associationsInCommon: [],
+                                    uniquePhensMap: {},
+                                    uniqueInCommonMap: {},
+                                };
+                            }
 
+                            // Add the SV and Gene pair if not already present
+                            let pairExists = diseaseMap[diseaseId].svGenePairs.some(
+                                (pair) => pair.svCode === sv.svCode && pair.geneSymbol === geneSymbol,
+                            );
+                            if (!pairExists) {
+                                diseaseMap[diseaseId].svGenePairs.push({
+                                    svCode: sv.svCode,
+                                    geneSymbol: geneSymbol,
+                                });
+                            }
+                        });
+                    });
+                });
+
+                // Now fetch phenotypes for each disease
+                for (let diseaseId of Object.keys(diseaseMap)) {
+                    let diseaseObj = diseaseMap[diseaseId];
                     let diseasePhens = [];
-                    let uniquePhensMap = {};
-                    let uniquePhensList = [];
-                    let uniqueInCommonList = [];
 
-                    if (diseaseArr.length > 1) {
-                        for (let diseaseEntry of diseaseArr) {
+                    if (diseaseObj.diseases.length > 1) {
+                        for (let diseaseEntry of diseaseObj.diseases) {
                             let id = diseaseEntry.disease_id;
-                            
-                            try {
-                                let phens = await getPhenotypesForDiseases(id)
-                                diseasePhens.push(...phens)
-                            } catch (error) {
-                                console.log('Error getting disease phenotypes')
-                            }  
-                        }
-                    } else {
-                        let id = diseaseArr[0].disease_id;
-                        try {
-                            let phens = await getPhenotypesForDiseases(id)
-                            diseasePhens = phens;
-                        } catch (error) {
-                            console.log('Error getting disease phenotypes')
-                        }
-                    }
-                    diseasePhens.forEach((phen) => {
-                        if (!uniquePhensMap.hasOwnProperty(phen.term_id)) {
-                            uniquePhensMap[phen.term_id] = phen;
-                            uniquePhensList.push(phen)
 
-                            if (this.ptPhenotypesObj.hasOwnProperty(phen.term_id)) {
-                                uniqueInCommonList.push(phen)
+                            try {
+                                let phens = await getPhenotypesForDiseases(id);
+                                diseasePhens.push(...phens);
+                            } catch (error) {
+                                console.log("Error getting disease phenotypes");
                             }
                         }
-                    })
-                    diseaseObj.associatedPhenotypes = uniquePhensList;
-                    diseaseObj.associationsInCommon = uniqueInCommonList;
+                    } else {
+                        let id = diseaseObj.diseases[0].disease_id;
+                        try {
+                            let phens = await getPhenotypesForDiseases(id);
+                            diseasePhens = phens;
+                        } catch (error) {
+                            console.log("Error getting disease phenotypes");
+                        }
+                    }
 
+                    diseasePhens.forEach((phen) => {
+                        if (!diseaseObj.uniquePhensMap.hasOwnProperty(phen.term_id)) {
+                            diseaseObj.uniquePhensMap[phen.term_id] = phen;
+                            diseaseObj.associatedPhenotypes.push(phen);
+
+                            if (this.ptPhenotypesObj.hasOwnProperty(phen.term_id)) {
+                                diseaseObj.uniqueInCommonMap[phen.term_id] = phen;
+                                // We'll resolve the names later after all diseases are processed
+                                diseaseObj.associationsInCommon.push({
+                                    term_id: phen.term_id,
+                                    name: null, // Will be filled in later
+                                });
+                            }
+                        }
+                    });
+
+                    // Only keep diseases that have associations
                     if (diseaseObj.associatedPhenotypes.length > 0 && diseaseObj.associationsInCommon.length > 0) {
-                        allDiseases.push(diseaseObj)
+                        this.diseasesLocal[diseaseId] = diseaseObj;
                     }
                 }
-                sortedDiseases = allDiseases.sort((a, b) => 
-                    (b.associationsInCommon?.length || 0) - (a.associationsInCommon?.length || 0)
-                );
+
+                // Now resolve all the phenotype names using searchForHPO
+                for (let diseaseId of Object.keys(this.diseasesLocal)) {
+                    let disease = this.diseasesLocal[diseaseId];
+                    for (let i = 0; i < disease.associationsInCommon.length; i++) {
+                        let phenotype = disease.associationsInCommon[i];
+                        try {
+                            let hpo = await searchForHPO(phenotype.term_id);
+                            phenotype.name = hpo[0]?.name || "Unknown phenotype";
+                        } catch (error) {
+                            phenotype.name = "Unknown phenotype";
+                        }
+                    }
+                }
             }
-            this.diseasesLocal = sortedDiseases;
+            console.log("Diseases Local:", this.diseasesLocal);
         },
         getSvsWithPhenGenes() {
             // Filter down to the svs that have genes with phenotypes in common
@@ -216,7 +311,6 @@ export default {
                 let newGenes = {};
                 // Extract only the genes with phenotypes in common, and only those phenotypes
                 sv.overlappedPhenGenes.forEach((gene) => {
-                    
                     let inCommonPhens = Object.fromEntries(
                         Object.entries(sv.overlappedGenes[gene].phenotypes).filter(([t_id, term]) => lookupPhens.has(t_id)),
                     );
@@ -225,14 +319,17 @@ export default {
                     // For all of the diseases if the disease_name is the same as another case insensitive and remove spaces or non alphanumeric characters then group them together
                     let diseasesGrouped = Object.values(diseases).reduce((acc, disease) => {
                         if (disease.disease_name) {
-                            let key = disease.disease_name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+                            let key = disease.disease_name
+                                .toLowerCase()
+                                .replace(/\s+/g, "")
+                                .replace(/[^a-z0-9]/g, "");
                             if (!acc[key]) {
                                 acc[key] = [];
                             }
                             let diseaseObj = {
                                 disease_name: disease.disease_name || "No disease name found",
                                 disease_id: disease.disease_id,
-                            }
+                            };
                             acc[key].push(diseaseObj);
                         } else {
                             if (!acc[disease.disease_id]) {
@@ -241,28 +338,39 @@ export default {
                             let diseaseObj = {
                                 disease_name: disease.disease_name || "No disease name found",
                                 disease_id: disease.disease_id,
-                            }
+                            };
                             acc[disease.disease_id].push(diseaseObj);
                         }
                         return acc;
                     }, {});
 
-                    newGenes[gene] = {inCommonPhens, diseasesGrouped};
+                    newGenes[gene] = { inCommonPhens, diseasesGrouped };
                 });
                 sv.structGenesWithPhenoOverlap = newGenes;
                 return sv;
-            })
+            });
 
-            this.relevantSvsLocal = editedSvs
+            this.relevantSvsLocal = editedSvs;
         },
     },
-    computed: {},
+    computed: {
+        sortedDiseasesLocal() {
+            // Convert object to array, sort by phenotypes in common count, then convert back to array of [key, value] pairs
+            return Object.entries(this.diseasesLocal)
+                .sort(([, a], [, b]) => (b.associationsInCommon?.length || 0) - (a.associationsInCommon?.length || 0))
+                .reduce((acc, [diseaseId, disease]) => {
+                    acc[diseaseId] = disease;
+                    return acc;
+                }, {});
+        },
+    },
     watch: {
         svList: {
             async handler() {
                 this.getSvsWithPhenGenes();
                 await this.getDiseasesLocal();
                 this.getPhensNotAccountedFor();
+                await this.createAllPhenotypesDisplay();
             },
         },
         ptPhenotypes: {
@@ -271,6 +379,7 @@ export default {
                 this.getSvsWithPhenGenes();
                 await this.getDiseasesLocal();
                 this.getPhensNotAccountedFor();
+                await this.createAllPhenotypesDisplay();
             },
         },
         phenRelatedGenes: {
@@ -279,117 +388,271 @@ export default {
                 this.getSvsWithPhenGenes();
                 await this.getDiseasesLocal();
                 this.getPhensNotAccountedFor();
+                await this.createAllPhenotypesDisplay();
             },
         },
     },
-}
+};
 </script>
 
 <style lang="sass">
-    #phenotype-summary
-        overflow-y: auto
-        margin-top: 20px
-        display: flex
-        flex-direction: column
-        gap: 10px
-        .title
-            width: 100%
-            text-align: center
-            margin: 0px
-            padding: 0px
-    .summary-container
-        display: flex
-        flex-direction: row
-        gap: 10px
-        align-items: flex-start
-        justify-content: space-evenly
-    .sv-container
-        display: flex
-        flex-direction: column
-        align-items: flex-start
-        justify-content: flex-start
-        padding: 2px 10px
-        .sv-code
-            margin-bottom: 5px
-            margin-top: 0px
-            text-align: center
-            border-bottom: 1px solid #f0f0f0
-            padding-bottom: 5px
-        .gene-symbol
-            margin-bottom: 5px
-            margin-top: 0px
-            text-align: center
-    .sv
-        border: 1px solid #f0f0f0
-        padding: 10px
-        border-radius: 5px
+#phenotype-summary
+    margin-top: 20px
+    display: flex
+    flex-direction: column
+    overflow: hidden
+    height: 100%
+.summary-container
+    display: flex
+    flex-direction: row
+    gap: 10px
+    align-items: flex-start
+    justify-content: flex-start
+.associations-container
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    justify-content: flex-start
+    padding: 20px 10px
+    overflow-y: auto
+    .sv-code
         margin-bottom: 5px
-        width: 100%
-    .phens-not-accounted-for
-        margin-bottom: 20px
-        border: 1px solid #f0f0f0
-        padding: 0px
-        border-radius: 5px  
-        font-size: 14px
-        width: fit-content
-        h3
-            margin-bottom: 10px
-            margin-top: 0px
-            text-align: center
-            padding: 5px
-            font-weight: normal
-            background-color: #f0f0f0
-        .term
-            padding-left: 20px
-            padding-right: 20px
-    .indented
+        margin-top: 0px
+        text-align: center
+        border-bottom: 1px solid #f0f0f0
+        padding-bottom: 5px
+    .gene-symbol
+        margin-bottom: 5px
+        margin-top: 0px
+        text-align: center
+.sv
+    border: 1px solid #f0f0f0
+    padding: 10px
+    border-radius: 5px
+    margin-bottom: 5px
+    width: 100%
+.phenotype-chips-container
+    border: 1px solid #f0f0f0
+    padding: 0px
+    border-radius: 5px
+    font-size: 14px
+    width: fit-content
+    h3
+        margin: 0
+        text-align: center
+        padding: 2px 3px
+        font-weight: normal
+        background-color: #f0f0f0
+.chip-legend
+    display: flex
+    gap: 15px
+    padding: 10px
+    font-size: 12px
+    border-bottom: 1px solid #f0f0f0
+    background-color: #fafafa
+.legend-item
+    display: flex
+    align-items: center
+    gap: 5px
+.legend-chip
+    width: 12px
+    height: 12px
+    border-radius: 6px
+    display: inline-block
+    &.accounted
+        background: #D4ECE2
+    &.unaccounted
+        background: #e0e0e0
+        border: 1px solid #bdbdbd
+.legend-text
+    color: #666
+    font-size: 11px
+.phenotype-chips
+    display: flex
+    flex-wrap: wrap
+    gap: 7px
+    padding: 10px
+.phenotype-chip
+    display: inline-block
+    padding: 3px 10px
+    border-radius: 8px
+    background: #D4ECE2
+    font-size: 0.9em
+    font-weight: 500
+    transition: background 0.2s, color 0.2s
+    &.unaccounted
+        background: #e0e0e0
+        color: #888
+        border: 1px solid #bdbdbd
+.indented
+    padding-left: 20px
+    &.term
         padding-left: 20px
-        &.term
-            padding-left: 20px
-            font-size: 14px
-            font-weight: normal
-            margin-bottom: 5px
-            margin-left: 20px
-            background-color: #f0f0f0
-            border-radius: 5px
-            padding: 2px 5px
-            width: fit-content
-    .disease
-        background-color: #f0f0f0
-        width: fit-content
-        padding: 5px
-        border-radius: 5px
-        margin-bottom: 5px
-    .disease-group
-        margin-bottom: 5px
-    .disease-group-header
-        background-color: #f0f0f0
-        padding: 5px
-        border-radius: 5px
-        margin-bottom: 5px
-        font-weight: bold
-        font-size: 14px
-        width: fit-content
-    .select-view-container
-        display: flex
-        flex-direction: row
-        gap: 10px
-        align-items: center
-        justify-content: center
-        margin-bottom: 10px
-        .view-select
-            width: 100px
-            height: 30px
-            border-radius: 5px
-            border: 1px solid #f0f0f0
-            padding: 5px
-            font-size: 14px
-            font-weight: bold
-    .phen-in-common-header
-        font-style: italic
-        color: #666
-        margin-bottom: 5px
-        margin-top: 10px
         font-size: 14px
         font-weight: normal
+        margin-bottom: 5px
+        margin-left: 20px
+        background-color: #f0f0f0
+        border-radius: 5px
+        padding: 2px 5px
+        width: fit-content
+.disease
+    background-color: #f0f0f0
+    padding: 12px
+    border-radius: 8px
+    margin-bottom: 10px
+    width: 100%
+    .disease-content
+        display: flex
+        gap: 20px
+        align-items: flex-start
+    .disease-info
+        flex: 1
+        min-width: 0
+    .disease-header
+        display: flex
+        align-items: center
+        margin-bottom: 8px
+        .disease-name
+            font-weight: bold
+            font-size: 16px
+            color: #333
+        .disease-id
+            color: #666
+            font-size: 14px
+            margin-left: 5px
+        .phenotype-count
+            display: block
+            font-size: 12px
+            font-weight: normal
+            color: #666
+            padding: 2px 8px
+            border-radius: 5px
+            width: fit-content
+            margin-left: 10px
+            b
+                font-size: 14px
+    .common-phenotypes
+        .phenotypes-label
+            font-size: 12px
+            font-weight: 500
+            color: #555
+            margin-bottom: 4px
+        .phenotype-chips-inline
+            display: flex
+            flex-wrap: wrap
+            gap: 4px
+            .phenotype-chip-small
+                display: inline-block
+                padding: 2px 8px
+                border-radius: 12px
+                background: #D4ECE2
+                font-size: 11px
+                font-weight: 500
+                color: #333
+    .sv-gene-pairs
+        min-width: 200px
+        .pair-label
+            font-size: 12px
+            font-weight: 500
+            color: #555
+            margin-bottom: 4px
+            display: grid
+            grid-template-columns: 1fr 1fr
+            gap: 5
+        .pairs-list
+            display: flex
+            flex-direction: column
+            gap: 3px
+            .sv-gene-pair
+                display: grid
+                grid-template-columns: 1fr 1fr
+                gap: 5px
+                .sv-code
+                    background-color: #e0e0e0
+                    padding: 2px 6px
+                    border-radius: 3px
+                    font-size: 11px
+                    font-weight: 500
+                .gene-symbol
+                    background-color: #d1ecf1
+                    padding: 2px 6px
+                    border-radius: 3px
+                    font-size: 11px
+                    font-weight: 500
+                    color: #0c5460
+                    width: fit-content
+.disease-group
+    margin-bottom: 5px
+.disease-group-header
+    background-color: #f0f0f0
+    padding: 5px
+    border-radius: 5px
+    margin-bottom: 5px
+    font-weight: bold
+    font-size: 14px
+    width: fit-content
+.view-section
+    width: 100%
+    border-right: 1px solid #f0f0f0
+    border-left: 1px solid #f0f0f0
+    border-bottom: 1px solid #f0f0f0
+    border-radius: 0px 0px 5px 5px
+    padding: 5px 10px
+    background-color: #fafafa
+.select-view-container
+    display: flex
+    flex-direction: row
+    gap: 10px
+    align-items: center
+    justify-content: flex-start
+    label
+        font-weight: normal
+        font-size: 14px
+        color: #666
+    .view-select
+        width: 120px
+        height: 30px
+        border-radius: 5px
+        border: 1px solid #f0f0f0
+        padding: 5px
+        font-size: 14px
+        font-weight: normal
+        background: white
+.phen-in-common-header
+    font-style: italic
+    color: #666
+    margin-bottom: 5px
+    margin-top: 10px
+    font-size: 14px
+    font-weight: normal
+.loading-overlay
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background: rgba(255,255,255,0.7)
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    z-index: 10
+.spinner
+    border: 4px solid #f3f3f3
+    border-top: 4px solid #0C5FC3
+    border-radius: 50%
+    width: 40px
+    height: 40px
+    animation: spin 1s linear infinite
+@keyframes spin
+    0%
+        transform: rotate(0deg)
+    100%
+        transform: rotate(360deg)
+.loading-text
+    margin-top: 10px
+    color: #0C5FC3
+    font-size: 1.1em
+    font-weight: 500
 </style>

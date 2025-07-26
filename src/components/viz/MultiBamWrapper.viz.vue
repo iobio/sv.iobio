@@ -50,16 +50,16 @@ export default {
 
         // Will be removed when the iobio-charts package is updated to include multi_series components
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b16ddf8ecf5030ac4fb3322c617d7e419b959501/multi_series/multi_series_chart.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b456d0f7ef9174dca647a4952c57360148cc299f/multi_series/multi_series_chart.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b16ddf8ecf5030ac4fb3322c617d7e419b959501/multi_series/multi_series_wc.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b456d0f7ef9174dca647a4952c57360148cc299f/multi_series/multi_series_wc.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b16ddf8ecf5030ac4fb3322c617d7e419b959501/multi_series/multi_alignment_broker_wc.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b456d0f7ef9174dca647a4952c57360148cc299f/multi_series/multi_alignment_broker_wc.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b16ddf8ecf5030ac4fb3322c617d7e419b959501/multi_series/multi_alignment_broker.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@b456d0f7ef9174dca647a4952c57360148cc299f/multi_series/multi_alignment_broker.js"
         );
 
         let container = document.querySelector(".multi-bam-wrapper");
@@ -74,9 +74,11 @@ export default {
         this.dataBrokerEl.setAttribute("id", "multi-bam-broker");
         this.multiBamView.brokerId = "multi-bam-broker";
         this.multiBamView.totalSize = this.genomeSize;
+        this.dataBrokerEl.totalSize = this.genomeSize;
 
         if (this.genomeMap) {
             this.multiBamView.regionMap = JSON.stringify(this.genomeMap);
+            this.dataBrokerEl.regionMap = JSON.stringify(this.genomeMap);
         }
 
         if (this.region) {
@@ -111,6 +113,7 @@ export default {
                         end: newVal.end,
                     };
 
+                    this.dataBrokerEl.region = JSON.stringify(newRegion);
                     this.multiBamView.region = JSON.stringify(newRegion);
                 }
             },

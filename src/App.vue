@@ -162,6 +162,7 @@
                 :genomeStart="genomeStart"
                 :doseGenes="doseGenes"
                 :doseRegions="doseRegions"
+                :isLoading="!loadedInitiallyComplete"
                 @updateComparisons="updateComparisons"
                 @update-list-view="updateListViewMode"
                 @zoomEvent="zoomFired"
