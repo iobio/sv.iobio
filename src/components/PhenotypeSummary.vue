@@ -416,6 +416,8 @@ export default {
     display: flex
     flex-direction: column
     overflow: hidden
+    max-width: 1000px
+    align-self: center
     height: 100%
 .summary-container
     display: flex

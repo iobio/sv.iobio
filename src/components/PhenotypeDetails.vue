@@ -288,6 +288,7 @@ export default {
 <style lang="sass">
 #phenotype-details
     width: 100%
+    max-width: 1000px
     height: 100%
     box-sizing: border-box
     position: relative
@@ -295,6 +296,7 @@ export default {
     flex-direction: column
     justify-content: flex-start
     align-items: space-between
+    align-self: center
     background-color: white
     padding: 5px 10px 5px 1px
     overflow: hidden
