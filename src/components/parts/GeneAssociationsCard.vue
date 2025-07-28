@@ -102,6 +102,27 @@
                             <b>{{ Object.keys(disease.associationsInCommon).length }}</b> HPO in common
                         </span>
                     </div>
+                    <div class="disease-ids">
+                        <span v-for="(id, i) of disease.diseaseIds">
+                            <a
+                                class="disease-link"
+                                v-if="id.slice(0, 4) == 'OMIM'"
+                                :href="`https://www.omim.org/entry/${id.slice(5)}`"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                {{ id }}
+                            </a>
+                            <a
+                                class="disease-link"
+                                v-else-if="id.slice(0, 5) == 'ORPHA'"
+                                :href="`https://hpo.jax.org/browse/disease/${id}`"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                {{ id }}
+                            </a>
+                            <span v-if="i !== disease.diseaseIds.length - 1">, </span>
+                        </span>
+                    </div>
                     <div class="common-phenotypes">
                         <div class="phenotype-chips-inline">
                             <span
@@ -368,7 +389,7 @@ export default {
             display: flex
             justify-content: space-between
             align-items: center
-            margin-bottom: 6px
+            margin-bottom: 0px
             .disease-name
                 font-weight: bold
                 font-size: 0.9em
@@ -377,6 +398,16 @@ export default {
                 color: #666
                 b
                     color: #0C5FC3
+        .disease-ids
+            font-size: 0.8em
+            color: #666
+            margin-bottom: 10px
+            .disease-link
+                color: #0C5FC3
+                text-decoration: none
+                font-weight: 200
+                &:hover
+                    text-decoration: underline
         .common-phenotypes
             .phenotype-chips-inline
                 display: flex

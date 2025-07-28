@@ -36,7 +36,27 @@
                         <div class="disease-header">
                             <div>
                                 <span class="disease-name">{{ disease.diseases[0].disease_name }}</span>
-                                <span class="disease-id">({{ disease.diseases[0].disease_id }})</span>
+                                <div class="disease-ids">
+                                    <span v-for="(d, i) in disease.diseases" :key="d.disease_id">
+                                        <a
+                                            class="disease-link"
+                                            v-if="d.disease_id.slice(0, 4) == 'OMIM'"
+                                            :href="`https://www.omim.org/entry/${d.disease_id.slice(5)}`"
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            {{ d.disease_id }}
+                                        </a>
+                                        <a
+                                            class="disease-link"
+                                            v-else-if="d.disease_id.slice(0, 5) == 'ORPHA'"
+                                            :href="`https://hpo.jax.org/browse/disease/${d.disease_id}`"
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            {{ d.disease_id }}
+                                        </a>
+                                        <span v-if="i !== disease.diseases.length - 1">, </span>
+                                    </span>
+                                </div>
                             </div>
 
                             <span class="phenotype-count"
@@ -44,7 +64,7 @@
                             >
                         </div>
                         <div class="common-phenotypes">
-                            <div class="phenotypes-label">Common phenotypes:</div>
+                            <div class="phenotypes-label">Phenotypes In Common:</div>
                             <div class="phenotype-chips-inline">
                                 <span
                                     v-for="phenotype in disease.associationsInCommon"
@@ -528,9 +548,23 @@ export default {
             padding: 2px 8px
             border-radius: 5px
             width: fit-content
+            align-self: start
             margin-left: 10px
             b
                 font-size: 14px
+    .disease-ids
+        display: flex
+        flex-wrap: wrap
+        gap: 5px
+        margin-bottom: 10px
+        font-size: 12px
+        color: #666
+        .disease-link
+            color: #0C5FC3
+            font-weight: 200
+            text-decoration: none
+            &:hover
+                text-decoration: underline
     .common-phenotypes
         .phenotypes-label
             font-size: 12px
