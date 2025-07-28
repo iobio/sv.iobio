@@ -551,7 +551,7 @@ export default {
             align-self: start
             margin-left: 10px
             b
-                font-size: 14px
+                color: #0C5FC3
     .disease-ids
         display: flex
         flex-wrap: wrap
