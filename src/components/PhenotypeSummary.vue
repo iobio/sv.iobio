@@ -26,6 +26,10 @@
         </div>
 
         <div v-if="view === 'diseases'" class="associations-container">
+            <div class="diseases-header">
+                <h3>Diseases with Phenotypic Overlap</h3>
+                <p class="diseases-subtitle">Ordered by number of phenotypes in common with patient</p>
+            </div>
             <div class="disease" v-for="(disease, diseaseId) in sortedDiseasesLocal" :key="diseaseId">
                 <div class="disease-content">
                     <div class="disease-info">
@@ -432,6 +436,18 @@ export default {
     justify-content: flex-start
     padding: 20px 10px
     overflow-y: auto
+    .diseases-header
+        margin-bottom: 15px
+        h3
+            margin: 0 0 5px 0
+            font-size: 18px
+            font-weight: 600
+            color: #333
+        .diseases-subtitle
+            margin: 0
+            font-size: 13px
+            color: #666
+            font-style: italic
     .sv-code
         margin-bottom: 5px
         margin-top: 0px
@@ -455,10 +471,10 @@ export default {
     font-size: 14px
     width: fit-content
     h3
-        margin: 0
-        text-align: center
-        padding: 2px 3px
-        font-weight: normal
+        margin: 0px
+        padding: 5px 10px
+        font-size: 18px
+        font-weight: 600
         background-color: #f0f0f0
 .chip-legend
     display: flex
