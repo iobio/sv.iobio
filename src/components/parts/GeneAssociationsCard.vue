@@ -3,94 +3,7 @@
         <div class="gene-card-header">
             <div class="symbol-row">
                 {{ gene.gene_symbol }}
-                <div
-                    v-if="
-                        doseGenes[gene.gene_symbol] &&
-                        (parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) !== 0 ||
-                            parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) !== 0)
-                    ">
-                    <a
-                        :href="`https://search.clinicalgenome.org/kb/gene-dosage/${gene.gene_symbol}`"
-                        target="_blank"
-                        rel="noopener noreferrer">
-                        <span class="dose-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <title>Review Dose Sensitivity In ClinGen</title>
-                                <path
-                                    d="M4.22,11.29L11.29,4.22C13.64,1.88 17.43,1.88 19.78,4.22C22.12,6.56 22.12,10.36 19.78,12.71L12.71,19.78C10.36,22.12 6.56,22.12 4.22,19.78C1.88,17.43 1.88,13.64 4.22,11.29M5.64,12.71C4.59,13.75 4.24,15.24 4.6,16.57L10.59,10.59L14.83,14.83L18.36,11.29C19.93,9.73 19.93,7.2 18.36,5.64C16.8,4.07 14.27,4.07 12.71,5.64L5.64,12.71Z" />
-                            </svg>
-                        </span>
-                    </a>
-                </div>
-
-                <div v-if="!doseGenes[gene.gene_symbol]">
-                    <span class="dose-icon null">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <title>Not listed in ClinGen</title>
-                            <path
-                                d="M22.11 21.46L2.39 1.73L1.11 3L6.81 8.7L4.22 11.29C1.88 13.64 1.88 17.43 4.22 19.78C6.56 22.12 10.36 22.12 12.71 19.78L15.3 17.19L20.84 22.73L22.11 21.46M4.6 16.57C4.24 15.24 4.59 13.75 5.64 12.71L8.23 10.12L9.64 11.53L4.6 16.57M10.78 7.58L9.36 6.16L11.29 4.22C13.64 1.88 17.43 1.88 19.78 4.22C22.12 6.56 22.12 10.36 19.78 12.71L17.85 14.65L16.43 13.23L18.36 11.29C19.93 9.73 19.93 7.2 18.36 5.64C16.8 4.07 14.27 4.07 12.71 5.64L10.78 7.58Z" />
-                        </svg>
-                    </span>
-                </div>
-
-                <div
-                    v-if="
-                        doseGenes[gene.gene_symbol] &&
-                        parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) == 0 &&
-                        parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) == 0
-                    ">
-                    <a
-                        :href="`https://search.clinicalgenome.org/kb/gene-dosage/${gene.gene_symbol}`"
-                        target="_blank"
-                        rel="noopener noreferrer">
-                        <span class="dose-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <title>Review Dose Sensitivity In ClinGen</title>
-                                <path
-                                    d="M4.22,11.29L11.29,4.22C13.64,1.88 17.43,1.88 19.78,4.22C22.12,6.56 22.12,10.36 19.78,12.71L12.71,19.78C10.36,22.12 6.56,22.12 4.22,19.78C1.88,17.43 1.88,13.64 4.22,11.29M5.64,12.71C4.59,13.75 4.24,15.24 4.6,16.57L10.59,10.59L14.83,14.83L18.36,11.29C19.93,9.73 19.93,7.2 18.36,5.64C16.8,4.07 14.27,4.07 12.71,5.64L5.64,12.71Z" />
-                            </svg>
-                        </span>
-                    </a>
-                </div>
             </div>
-
-            <div
-                class="dose-sensitive-tag"
-                v-if="doseGenes[gene.gene_symbol] && parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) != 0">
-                Triplosensitivity: {{ convertClinGenScores(doseGenes[gene.gene_symbol].triplosensitivity.score) }} (<a
-                    :href="`https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${doseGenes[
-                        gene.gene_symbol
-                    ].triplosensitivity.diseaseAssociation.slice(6)}`"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >{{ doseGenes[gene.gene_symbol].triplosensitivity.diseaseAssociation }}</a
-                >)
-            </div>
-
-            <div
-                class="dose-sensitive-tag"
-                v-if="doseGenes[gene.gene_symbol] && parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) != 0">
-                Haploinsufficiency: {{ convertClinGenScores(doseGenes[gene.gene_symbol].haploinsufficiency.score) }} (<a
-                    :href="`https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${doseGenes[
-                        gene.gene_symbol
-                    ].haploinsufficiency.diseaseAssociation.slice(6)}`"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >{{ doseGenes[gene.gene_symbol].haploinsufficiency.diseaseAssociation }}</a
-                >)
-            </div>
-
-            <div
-                class="dose-sensitive-tag"
-                v-if="
-                    doseGenes[gene.gene_symbol] &&
-                    parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) == 0 &&
-                    parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) == 0
-                ">
-                Dosage Sensitivity: No Evidence
-            </div>
-
-            <div class="dose-sensitive-tag" v-if="!doseGenes[gene.gene_symbol]">(No reported dosage sensitivity)</div>
         </div>
 
         <div class="gene-information-section">
@@ -149,6 +62,70 @@
             <p class="additional-information" v-if="Object.keys(diseasesLocal).length === 0">
                 <span>No Relevant Disease Associations</span>
             </p>
+        </div>
+
+        <!-- ClinGen Dosage Sensitivity Section - moved to bottom -->
+        <div class="clingen-dosage-section">
+            <div class="clingen-header">
+                <span class="clingen-label">ClinGen Dosage Sensitivity</span>
+                <a
+                    v-if="doseGenes[gene.gene_symbol]"
+                    :href="`https://search.clinicalgenome.org/kb/gene-dosage/${gene.gene_symbol}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="clingen-link">
+                    <span class="clingen-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <title>View in ClinGen</title>
+                            <path
+                                d="M4.22,11.29L11.29,4.22C13.64,1.88 17.43,1.88 19.78,4.22C22.12,6.56 22.12,10.36 19.78,12.71L12.71,19.78C10.36,22.12 6.56,22.12 4.22,19.78C1.88,17.43 1.88,13.64 4.22,11.29M5.64,12.71C4.59,13.75 4.24,15.24 4.6,16.57L10.59,10.59L14.83,14.83L18.36,11.29C19.93,9.73 19.93,7.2 18.36,5.64C16.8,4.07 14.27,4.07 12.71,5.64L5.64,12.71Z" />
+                        </svg>
+                        View in ClinGen
+                    </span>
+                </a>
+            </div>
+
+            <!-- Show content based on whether gene exists in ClinGen -->
+            <div v-if="doseGenes[gene.gene_symbol]">
+                <!-- Triplosensitivity -->
+                <div class="dose-sensitive-tag">
+                    <span v-if="parseInt(doseGenes[gene.gene_symbol].triplosensitivity.score) != 0">
+                        Triplosensitivity: {{ convertClinGenScores(doseGenes[gene.gene_symbol].triplosensitivity.score) }} (<a
+                            :href="`https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${doseGenes[
+                                gene.gene_symbol
+                            ].triplosensitivity.diseaseAssociation.slice(6)}`"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="disease-association-link"
+                            >{{ doseGenes[gene.gene_symbol].triplosensitivity.diseaseAssociation }}</a
+                        >)
+                    </span>
+                    <span v-else>
+                        Triplosensitivity: No Evidence (score: {{ doseGenes[gene.gene_symbol].triplosensitivity.score }})
+                    </span>
+                </div>
+
+                <!-- Haploinsufficiency -->
+                <div class="dose-sensitive-tag">
+                    <span v-if="parseInt(doseGenes[gene.gene_symbol].haploinsufficiency.score) != 0">
+                        Haploinsufficiency: {{ convertClinGenScores(doseGenes[gene.gene_symbol].haploinsufficiency.score) }} (<a
+                            :href="`https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${doseGenes[
+                                gene.gene_symbol
+                            ].haploinsufficiency.diseaseAssociation.slice(6)}`"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="disease-association-link"
+                            >{{ doseGenes[gene.gene_symbol].haploinsufficiency.diseaseAssociation }}</a
+                        >)
+                    </span>
+                    <span v-else>
+                        Haploinsufficiency: No Evidence ( score: {{ doseGenes[gene.gene_symbol].haploinsufficiency.score }})
+                    </span>
+                </div>
+            </div>
+
+            <!-- Show message when gene is not in ClinGen -->
+            <div v-else class="dose-sensitive-tag no-data">No reported dosage sensitivity</div>
         </div>
     </div>
 </template>
@@ -302,7 +279,7 @@ export default {
 
 <style lang="sass">
 .gene-associations-card
-    height: 250px
+    height: 320px
     width: 400px
     display: flex
     flex-direction: column
@@ -339,22 +316,52 @@ export default {
             display: flex
             justify-content: center
             align-items: center
-            .dose-icon
-                display: flex
-                align-items: center
-                margin-left: 5px
-                border-radius: 5px
-                border: 1px solid transparent
-                &.null:hover
-                    background-color: inherit
-                    border: 1px solid transparent
-                    cursor: default
+    .clingen-dosage-section
+        background-color: #f8f9fa
+        border-top: 1px solid #dee2e6
+        border-radius: 0px 0px 5px 5px
+        padding: 8px
+        .clingen-header
+            display: flex
+            justify-content: space-between
+            align-items: center
+            margin-bottom: 8px
+            .clingen-label
+                font-weight: 600
+                color: #495057
+                font-size: 0.85em
+            .clingen-link
+                text-decoration: none
+                .clingen-button
+                    display: flex
+                    align-items: center
+                    gap: 4px
+                    padding: 4px 8px
+                    background-color: #2A65B7
+                    color: white
+                    border-radius: 4px
+                    font-size: 0.75em
+                    font-weight: 500
+                    transition: background-color 0.2s
+                    svg
+                        height: 12px
+                        fill: white
+                    &:hover
+                        background-color: #1e4a8c
+        .dose-sensitive-tag
+            margin-bottom: 4px
+            font-size: 0.8em
+            line-height: 1.3
+            &.no-data
+                text-align: center
+                color: #6c757d
+                font-style: italic
+            .disease-association-link
+                color: #0C5FC3
+                text-decoration: none
+                font-weight: 500
                 &:hover
-                    background-color: #C1D1EA
-                    border: 1px solid #2A65B7
-                svg
-                    height: 15px
-                    fill: #2A65B7
+                    text-decoration: underline
         .centered
             display: flex
             align-items: center
