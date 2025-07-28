@@ -515,15 +515,11 @@ export default {
                 transition: all 0.2s ease
                 cursor: default
                 flex: 0 0 auto
+                border: 1px solid #E0E0E0
+                background: #F5F5F5
                 @media (max-width: 480px)
                     padding: 2px 4px
                     min-width: 45px
-                &.primary
-                    background: #F8FAFC
-                    border: 1px solid #E2E8F0
-                &.secondary
-                    background: #FFFBEB
-                    border: 1px solid #FEF3C7
                 &.zygosity-chip .chip-value
                     display: flex
                     align-items: center
