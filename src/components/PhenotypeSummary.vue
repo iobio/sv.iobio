@@ -299,7 +299,6 @@ export default {
                     }
                 }
             }
-            console.log("Diseases Local:", this.diseasesLocal);
         },
         getSvsWithPhenGenes() {
             // Filter down to the svs that have genes with phenotypes in common

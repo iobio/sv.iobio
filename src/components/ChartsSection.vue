@@ -207,7 +207,7 @@
             :chromosomeAccumulatedMap="chromosomeAccumulatedMap"
             :doseGenes="doseGenes" />
         <PhenotypeSummary
-            v-if="!focusedVariant && chartsView === 'hpo'"
+            v-show="!focusedVariant && chartsView === 'hpo'"
             :svList="svList"
             :genesOfInterest="genesOfInterest"
             :phenRelatedGenes="phenRelatedGenes"

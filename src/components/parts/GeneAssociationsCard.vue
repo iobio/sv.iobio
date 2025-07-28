@@ -261,7 +261,6 @@ export default {
             let sorted = Object.values(this.diseasesLocal).sort(
                 (a, b) => Object.keys(b.associationsInCommon).length - Object.keys(a.associationsInCommon).length,
             );
-            console.log("Sorted Diseases:", sorted);
             return sorted;
         },
     },
