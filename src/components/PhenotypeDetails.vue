@@ -4,71 +4,100 @@
             <div class="column">
                 <div class="top-row">
                     <fieldset class="variant-summary-column">
-                        <legend>Summary</legend>
-                        <div class="item bold-text">
-                            <span>{{ variant.svCode }}</span>
-                        </div>
-                        <div class="item">
-                            <span>Size: </span>
-                            <span v-html="bpFormatted(variant.size)"></span>
-                        </div>
-                        <div class="item">
-                            <span>Start: </span>
-                            <span v-html="bpFormatted(variant.start)"></span>
-                        </div>
-                        <div class="item">
-                            <span>End: </span>
-                            <span v-html="bpFormatted(variant.end)"></span>
-                        </div>
-                        <div class="item">
-                            <span>Type: </span>
-                            <span>{{ formatType(variant.type) }}</span>
-                        </div>
-                        <div class="item">
-                            <span>Zygosity: </span>
-                            <span v-html="svgForZygosity(variant.genotype)"></span>
-                            <span>{{ formatGenotype(variant.genotype).toUpperCase() }}</span>
-                        </div>
-                        <div v-if="variant.svafotateMaxAf" class="item">
-                            <span>Max Af: </span>
-                            <span>{{ parseFloat(variant.svafotateMaxAf).toExponential(3) }}</span>
-                        </div>
-                        <div v-if="variant.dupHChr" class="item">
-                            <span>FC Chr: </span>
-                            <span>{{ parseFloat(variant.dupHChr).toExponential(2) }}</span>
-                        </div>
-                        <div v-if="variant.dupHFlank" class="item">
-                            <span>FC Flank: </span>
-                            <span>{{ parseFloat(variant.dupHFlank).toExponential(2) }}</span>
-                        </div>
-                        <div v-if="variant.dupHBinGC" class="item">
-                            <span>FC Sim GC: </span>
-                            <span>{{ parseFloat(variant.dupHBinGC).toExponential(2) }}</span>
-                        </div>
-                        <div v-if="variant.gcFraction" class="item">
-                            <span>GC Fraction: </span>
-                            <span>{{ parseFloat(variant.gcFraction).toExponential(2) }}</span>
+                        <legend>{{ variant.svCode }}</legend>
+                        <div class="summary-chips">
+                            <div class="chip primary">
+                                <span class="chip-label">Size</span>
+                                <span class="chip-value" v-html="bpFormatted(variant.size)"></span>
+                            </div>
+                            <div class="chip primary">
+                                <span class="chip-label">Start</span>
+                                <span class="chip-value" v-html="bpFormatted(variant.start)"></span>
+                            </div>
+                            <div class="chip primary">
+                                <span class="chip-label">End</span>
+                                <span class="chip-value" v-html="bpFormatted(variant.end)"></span>
+                            </div>
+                            <div class="chip primary">
+                                <span class="chip-label">Type</span>
+                                <span class="chip-value">{{ formatType(variant.type) }}</span>
+                            </div>
+                            <div class="chip primary zygosity-chip">
+                                <span class="chip-label">Zygosity</span>
+                                <span class="chip-value">
+                                    <span v-html="svgForZygosity(variant.genotype)"></span>
+                                    <span>{{ formatGenotype(variant.genotype).toUpperCase() }}</span>
+                                </span>
+                            </div>
+                            <div v-if="variant.svafotateMaxAf" class="chip secondary">
+                                <span class="chip-label">Max AF</span>
+                                <span class="chip-value">{{ parseFloat(variant.svafotateMaxAf).toExponential(3) }}</span>
+                            </div>
+                            <div v-if="variant.dupHChr" class="chip secondary">
+                                <span class="chip-label">FC Chr</span>
+                                <span class="chip-value">{{ parseFloat(variant.dupHChr).toExponential(2) }}</span>
+                            </div>
+                            <div v-if="variant.dupHFlank" class="chip secondary">
+                                <span class="chip-label">FC Flank</span>
+                                <span class="chip-value">{{ parseFloat(variant.dupHFlank).toExponential(2) }}</span>
+                            </div>
+                            <div v-if="variant.dupHBinGC" class="chip secondary">
+                                <span class="chip-label">FC Sim GC</span>
+                                <span class="chip-value">{{ parseFloat(variant.dupHBinGC).toExponential(2) }}</span>
+                            </div>
+                            <div v-if="variant.gcFraction" class="chip secondary">
+                                <span class="chip-label">GC Fraction</span>
+                                <span class="chip-value">{{ parseFloat(variant.gcFraction).toExponential(2) }}</span>
+                            </div>
                         </div>
                     </fieldset>
 
                     <fieldset class="pop-svs">
-                        <legend>Population SVs ({{ popSvLen }})</legend>
+                        <legend>SVAFotate Population SVs ({{ popSvLen }})</legend>
                         <div class="fetching-message" v-if="!popSvs">
-                            Fetching Overlapping SVs in Population <span class="blinking-elipse"></span>
+                            Fetching SVAFotate Population SVs <span class="blinking-elipse"></span>
                         </div>
                         <div class="none-found-message" v-else-if="popSvs && popSvs.length == 0">
-                            No Overlapping SVs Found In Population <br />
-                            (80% overlap threshold)
+                            <div class="empty-state">
+                                <div class="empty-text">
+                                    <div>No Overlapping SVs Found</div>
+                                    <div class="empty-subtext">(80% overlap threshold)</div>
+                                </div>
+                            </div>
                         </div>
-                        <div v-else class="pop-sv" v-for="sv in popSvs">
-                            <div v-html="`Size: ${bpFormatted(sv.svlen)}`"></div>
-                            <div v-html="`Start: ${bpFormatted(sv.start)}`"></div>
-                            <div v-html="`End: ${bpFormatted(sv.end)}`"></div>
-                            <div>Type: {{ formatType(sv.svtype) }}</div>
-                            <div>Overlap: {{ sv.overlapFractionProd.toFixed(2) }}</div>
-                            <div>AF: {{ parseFloat(sv.af).toExponential(2) }}</div>
-                            <div>Max AF: {{ parseFloat(sv.pop_max_af).toExponential(2) }}</div>
-                            <div>Source: {{ sv.source }}</div>
+                        <div v-else class="pop-svs-grid">
+                            <div class="pop-sv-card" v-for="sv in popSvs" :key="`${sv.start}-${sv.end}-${sv.svtype}`">
+                                <div class="pop-sv-header">
+                                    <span class="sv-type-badge" :class="sv.svtype.toLowerCase()">{{
+                                        formatType(sv.svtype)
+                                    }}</span>
+                                    <span class="sv-source">{{ sv.source }}</span>
+                                </div>
+                                <div class="pop-sv-metrics">
+                                    <div class="metric-row">
+                                        <span class="metric-label">Size</span>
+                                        <span class="metric-value" v-html="bpFormatted(sv.svlen)"></span>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span class="metric-label">Position</span>
+                                        <span
+                                            class="metric-value"
+                                            v-html="`${bpFormatted(sv.start)} - ${bpFormatted(sv.end)}`"></span>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span class="metric-label">Overlap</span>
+                                        <span class="metric-value">{{ sv.overlapFractionProd.toFixed(2) }}</span>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span class="metric-label">AF</span>
+                                        <span class="metric-value">{{ parseFloat(sv.af).toExponential(2) }}</span>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span class="metric-label">Max AF</span>
+                                        <span class="metric-value">{{ parseFloat(sv.pop_max_af).toExponential(2) }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </fieldset>
                 </div>
@@ -78,14 +107,6 @@
         <div id="lower-section">
             <fieldset class="column gene-cards">
                 <legend>Overlapped Genes</legend>
-
-                <!-- <div class="select-organization-btn-container">
-                    <label for="organization-select">Organize By:</label>
-                    <select v-model="selectedOrganization" class="organization-select">
-                        <option value="genes">Genes</option>
-                        <option value="diseases">Diseases</option>
-                    </select>
-                </div> -->
                 <div class="gene-card-row">
                     <div class="row" v-if="variant && Object.values(variant.overlappedGenes).length > 0">
                         <GeneAssociationsCard
@@ -302,11 +323,9 @@ export default {
     overflow: hidden
     .pop-svs
         display: flex
+        flex-direction: column
         overflow-y: auto
         overflow-x: hidden
-        flex-wrap: wrap
-        justify-content: flex-start
-        gap: 5px
         height: 100%
         padding: 10px 5px
         flex: 1 0
@@ -317,34 +336,88 @@ export default {
             font-style: italic
             font-size: 0.8em
             color: #666666
-        .pop-sv
+        .pop-svs-grid
+            display: flex
+            flex-wrap: wrap
+            gap: 6px
+            overflow-y: auto
+            align-items: flex-start
+            justify-content: flex-start
+        .pop-sv-card
+            background: #FAFBFC
+            border: 1px solid #E1E8ED
+            border-radius: 6px
+            padding: 8px 10px
+            transition: all 0.2s ease
+            flex: 0 0 auto
+            min-width: 200px
+            max-width: 280px
+        .pop-sv-header
+            display: flex
+            justify-content: space-between
+            align-items: center
+            margin-bottom: 6px
+        .sv-type-badge
+            display: inline-block
+            padding: 1px 6px
+            border-radius: 10px
+            font-size: 0.7em
+            font-weight: 500
+            text-transform: uppercase
+            background: #d1ecf1
+            color: #0c5460
+        .sv-source
+            font-size: 0.7em
+            color: #6B7280
+            font-style: italic
+        .pop-sv-metrics
             display: flex
             flex-direction: column
-            flex-wrap: wrap
-            height: 100%
-            min-width: 205px
-            gap: 5px
-            border: 1px solid #C1D1EA
-            border-radius: 5px
-            padding: 5px
-            margin: 5px
-            font-size: 0.8em
+            gap: 3px
+        .metric-row
+            display: flex
+            justify-content: space-between
+            align-items: center
+            font-size: 0.75em
+        .metric-label
+            color: #6B7280
+            font-weight: 400
+        .metric-value
+            color: #1F2937
+            font-weight: 500
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
         .fetching-message
             font-weight: 200
             font-style: italic
             color: #666666
-            margin: 5px
+            margin: 20px
             width: 100%
             display: flex
             align-items: center
+            justify-content: center
         .none-found-message
-            font-weight: 200
-            font-style: italic
-            color: #666666
-            margin: 5px
-            width: 100%
             display: flex
             align-items: center
+            justify-content: center
+            height: 100%
+            width: 100%
+        .empty-state
+            display: flex
+            flex-direction: column
+            align-items: center
+            gap: 12px
+            padding: 20px
+            text-align: center
+        .empty-icon
+            font-size: 2.5em
+            opacity: 0.6
+        .empty-text
+            color: #6B7280
+            font-weight: 400
+        .empty-subtext
+            font-size: 0.85em
+            color: #9CA3AF
+            font-style: italic
         .blinking-elipse
             display: inline-block
             font-size: 16px
@@ -366,7 +439,7 @@ export default {
         font-size: 0.8em
         margin-right: 5px
     #upper-section
-        height: 180px
+        height: 200px
         max-height: 30%
         box-sizing: border-box
         display: flex
@@ -397,38 +470,79 @@ export default {
     .top-row
         display: flex
         flex-direction: row
-        gap: 10px
+        gap: 15px
         width: 100%
         max-height: 100%
         overflow: hidden
+        @media (max-width: 768px)
+            flex-direction: column
+            gap: 10px
         .variant-summary-column
             display: flex
             flex-direction: column
-            flex-wrap: wrap
-            gap: 5px
+            gap: 4px
             border: none
             border-top: 1px solid #E0E0E0
-            padding: 10px
+            padding: 6px 10px
             overflow: hidden
             flex: .5 0
+            @media (max-width: 768px)
+                flex: 1 0
             legend
-                font-weight: 200
-                font-style: italic
-                font-size: 0.8em
-                color: #666666
-            .item
+                font-weight: 600
+                font-size: 1.1em
                 color: #2A65B7
-                font-weight: 200
-                font-size: 0.9em
+                text-align: center
+                padding: 0
+                margin-bottom: 2px
+            .summary-chips
                 display: flex
+                flex-wrap: wrap
+                gap: 8px
+                align-items: flex-start
+                justify-content: flex-start
+                @media (max-width: 480px)
+                    gap: 3px
+            .chip
+                display: flex
+                flex-direction: column
                 align-items: center
-                gap: 5px
-                svg
-                    width: 20px
-                    height: 20px
-                    fill: #2A65B7
-                &.bold-text > span
-                    font-weight: 600
+                gap: 1px
+                padding: 3px 6px
+                border-radius: 4px
+                min-width: 50px
+                text-align: center
+                transition: all 0.2s ease
+                cursor: default
+                flex: 0 0 auto
+                @media (max-width: 480px)
+                    padding: 2px 4px
+                    min-width: 45px
+                &.primary
+                    background: #F8FAFC
+                    border: 1px solid #E2E8F0
+                &.secondary
+                    background: #FFFBEB
+                    border: 1px solid #FEF3C7
+                &.zygosity-chip .chip-value
+                    display: flex
+                    align-items: center
+                    gap: 2px
+                    svg
+                        width: 12px
+                        height: 12px
+                        fill: black
+            .chip-label
+                font-size: 0.7em
+                font-weight: 500
+                color: #6B7280
+                text-transform: uppercase
+                letter-spacing: 0.2px
+            .chip-value
+                font-size: 0.8em
+                font-weight: 600
+                color: #1F2937
+                font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace
     .gene-card-row
         display: flex
         align-items: flex-start
