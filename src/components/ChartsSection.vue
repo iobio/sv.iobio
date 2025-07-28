@@ -1247,7 +1247,6 @@ select
     text-align: center
     animation: slideIn 0.5s ease-in-out
     white-space: nowrap
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05)
 
 @keyframes slideIn
     0%
