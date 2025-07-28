@@ -95,7 +95,7 @@
 
         <div class="gene-information-section">
             <div class="diseases-container" v-if="Object.keys(diseasesLocal).length > 0">
-                <div class="disease" v-for="(disease, diseaseId) in diseasesLocal" :key="diseaseId">
+                <div class="disease" v-for="disease in sortedDiseasesLocal" :key="disease.diseaseIds[0]">
                     <div class="disease-header">
                         <span class="disease-name">{{ disease.disease_name }}</span>
                         <span class="phenotype-count">
@@ -157,7 +157,6 @@ export default {
     },
     async mounted() {
         await this.getDiseasesLocal();
-        console.log("Diseases Local:", this.gene);
     },
     methods: {
         convertClinGenScores: convertClinGenScores,
@@ -257,7 +256,15 @@ export default {
             }
         },
     },
-    computed: {},
+    computed: {
+        sortedDiseasesLocal() {
+            let sorted = Object.values(this.diseasesLocal).sort(
+                (a, b) => Object.keys(b.associationsInCommon).length - Object.keys(a.associationsInCommon).length,
+            );
+            console.log("Sorted Diseases:", sorted);
+            return sorted;
+        },
+    },
     watch: {
         patientPhenotypes: {
             async handler() {
