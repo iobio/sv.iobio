@@ -1,9 +1,5 @@
 <template>
     <div id="phenotype-summary">
-        <div v-if="isLoading" class="loading-overlay">
-            <div class="spinner"></div>
-            <div class="loading-text">Loading...</div>
-        </div>
         <div class="summary-container">
             <div class="phenotype-chips-container" v-if="allPhenotypesDisplay.length > 0 && phenRelatedGenes.length > 0">
                 <h3>Patient Phenotypes</h3>
@@ -659,33 +655,4 @@ export default {
     margin-top: 10px
     font-size: 14px
     font-weight: normal
-.loading-overlay
-    position: absolute
-    top: 0
-    left: 0
-    width: 100%
-    height: 100%
-    background: rgba(255,255,255,0.7)
-    display: flex
-    flex-direction: column
-    align-items: center
-    justify-content: center
-    z-index: 10
-.spinner
-    border: 4px solid #f3f3f3
-    border-top: 4px solid #0C5FC3
-    border-radius: 50%
-    width: 40px
-    height: 40px
-    animation: spin 1s linear infinite
-@keyframes spin
-    0%
-        transform: rotate(0deg)
-    100%
-        transform: rotate(360deg)
-.loading-text
-    margin-top: 10px
-    color: #0C5FC3
-    font-size: 1.1em
-    font-weight: 500
 </style>

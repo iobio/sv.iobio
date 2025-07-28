@@ -10,11 +10,6 @@
             </span>
         </div>
 
-        <div id="loading-container" disabled v-if="!loaded && !selectDataOpen">
-            <p>Associations Loaded {{ progressPercent }}%</p>
-            <div class="progress-bar"></div>
-        </div>
-
         <div class="ghost"></div>
 
         <div id="disclaimer-overlay" v-if="showDisclaimer">
@@ -47,9 +42,7 @@ export default {
     props: {
         selectDataOpen: Boolean,
         filterDataOpen: Boolean,
-        loaded: Boolean,
         hgBuild: String,
-        progressPercent: Number,
     },
     data() {
         return {
@@ -77,14 +70,7 @@ export default {
             }
         },
     },
-    watch: {
-        progressPercent() {
-            let progressBar = document.querySelector(".progress-bar");
-            if (progressBar) {
-                progressBar.style.width = this.progressPercent + "%";
-            }
-        },
-    },
+    watch: {},
 };
 </script>
 
@@ -133,29 +119,6 @@ export default {
             width: auto
             display: block
             fill: #CC0000
-    #loading-container
-        display: flex
-        flex-direction: column
-        align-items: center
-        justify-content: space-between
-        height: 100%
-        padding: 5px 10px
-        border: .5px solid white
-        border-radius: 5px
-        box-shadow: 0px 0px 5px 0px white
-        background-color: rgba(255, 255, 255, 0.2)
-        p
-            margin: 0px
-            font-size: .9em
-            border-bottom: 1px solid white
-            font-style: italic
-            padding: 0px 2px
-        .progress-bar
-            width: 1%
-            height: 5px
-            background-color: #CCE0D7
-            align-self: flex-start
-            border-radius: 3px
     #disclaimer-overlay
         position: absolute
         top: 0px

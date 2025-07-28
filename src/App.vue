@@ -5,8 +5,6 @@
                 :selectDataOpen="selectDataSectionOpen"
                 :filterDataOpen="filterDataSectionOpen"
                 :hgBuild="hgBuild"
-                :loaded="loadedInitiallyComplete"
-                :progressPercent="progressPercent"
                 @toggleSelectDataSection="onToggleSelectDataSection()"
                 @toggleFilterDataSection="onToggleFilterDataSection()" />
         </div>
@@ -163,6 +161,8 @@
                 :doseGenes="doseGenes"
                 :doseRegions="doseRegions"
                 :isLoading="!loadedInitiallyComplete"
+                :progressPercent="progressPercent"
+                :selectDataOpen="selectDataSectionOpen"
                 @updateComparisons="updateComparisons"
                 @update-list-view="updateListViewMode"
                 @zoomEvent="zoomFired"

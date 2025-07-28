@@ -8,6 +8,20 @@
                 :chromosomes="chromosomes"
                 @selectAreaEvent="selectAreaEventFired" />
         </div> -->
+        <div v-if="isLoading && !selectDataOpen" class="loading-overlay">
+            <div id="loading-container">
+                <p>Associations Loaded {{ correctedPercentLoaded }}%</p>
+                <div class="progress-outline">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+            <div class="spinner"></div>
+            <div class="loading-carousel">
+                <div class="carousel-message" :key="currentMessageIndex">
+                    {{ loadingMessages[currentMessageIndex] }}
+                </div>
+            </div>
+        </div>
         <div id="toggle-view-buttons">
             <button :class="{ active: chartsView === 'hpo' }" @click="updateChartsView('hpo')">HPO</button>
             <button :class="{ active: chartsView === 'genome' }" @click="updateChartsView('genome')">Genome</button>
@@ -267,6 +281,8 @@ export default {
         doseGenes: Object,
         doseRegions: Object,
         isLoading: Boolean,
+        progressPercent: Number,
+        selectDataOpen: Boolean,
     },
     data() {
         return {
@@ -289,11 +305,25 @@ export default {
             showProbandCoverage: true,
             showIgvModal: false,
             chartsView: "hpo",
+            currentMessageIndex: 0,
+            loadingMessages: [
+                "Extracting genes overlapped by SVs...",
+                "Collecting phenotypes associated with overlapped genes...",
+                "Calculating phenotypic overlap with proband phenotypes...",
+                "Gathering diseases associated with proband phenotypes...",
+                "Analyzing genotype-phenotype overlap with proband...",
+                "Building disease profiles...",
+            ],
+            messageInterval: null,
         };
     },
     async mounted() {
         await this.getBaseData(this.hgBuild);
         await this.fetchSamples();
+        this.startMessageCarousel();
+    },
+    beforeDestroy() {
+        this.stopMessageCarousel();
     },
     methods: {
         bpFormatted: bpFormatted,
@@ -631,8 +661,23 @@ export default {
             localSampleComparisons.splice(trackIndex, 1);
             this.$emit("updateComparisons", localSampleComparisons);
         },
+        startMessageCarousel() {
+            this.messageInterval = setInterval(() => {
+                this.currentMessageIndex = (this.currentMessageIndex + 1) % this.loadingMessages.length;
+            }, 6000); // Change message every 2 seconds
+        },
+        stopMessageCarousel() {
+            if (this.messageInterval) {
+                clearInterval(this.messageInterval);
+                this.messageInterval = null;
+            }
+        },
     },
     computed: {
+        correctedPercentLoaded() {
+            // Ensure the progress percent is between 0 and 100
+            return Math.max(0, Math.min(100, this.progressPercent));
+        },
         isGlobalView() {
             if (this.selectedArea) {
                 return this.selectedArea.start === 0 && this.selectedArea.end >= this.genomeEnd;
@@ -741,6 +786,18 @@ export default {
         },
     },
     watch: {
+        progressPercent() {
+            let progressBar = document.querySelector(".progress-bar");
+            if (progressBar) {
+                if (this.progressPercent < 0) {
+                    progressBar.style.width = 0 + "%";
+                } else if (this.progressPercent > 100) {
+                    progressBar.style.width = 100 + "%";
+                } else {
+                    progressBar.style.width = this.progressPercent + "%";
+                }
+            }
+        },
         focusedGeneName(newVal, oldVal) {
             if (newVal && newVal !== oldVal && this.genes) {
                 this.findZoomFromFocusedGene();
@@ -840,6 +897,15 @@ export default {
                 await this.getBaseData(newVal);
                 await this.fetchSamples();
             }
+        },
+        isLoading: {
+            handler(newVal) {
+                if (newVal) {
+                    this.startMessageCarousel();
+                } else {
+                    this.stopMessageCarousel();
+                }
+            },
         },
     },
 };
@@ -1114,4 +1180,86 @@ select
                 border: 1px solid #B0B0B0
                 background-color: #EBEBEB
                 cursor: not-allowed
+.loading-overlay
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background: rgba(255,255,255,0.7)
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    z-index: 10
+    #loading-container
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: space-evenly
+        padding: 10px
+        width: 100%
+        border-radius: 5px
+        margin-bottom: 20px
+        box-shadow: 0px 0px 5px 0px white
+        background-color: rgba(255, 255, 255, .7)
+        height: 100px
+        p
+            margin: 0px
+            font-size: 1em
+            text-transform: uppercase
+            color: #474747
+            font-weight: 200
+        .progress-outline
+            border: 1px solid #E0E0E0
+            border-radius: 5px
+            width: 50%
+            max-width: 600px
+            overflow: hidden
+        .progress-bar
+            width: 1%
+            height: 10px
+            background-color: #0C5FC3
+            align-self: flex-start
+            border-radius: 3px
+    .spinner
+        border: 4px solid #f3f3f3
+        border-top: 4px solid #0C5FC3
+        border-radius: 50%
+        width: 40px
+        height: 40px
+        animation: spin 1s linear infinite
+        margin-bottom: 40px
+    .loading-carousel
+        height: 60px
+        overflow: hidden
+        display: flex
+        align-items: center
+        justify-content: center
+
+.carousel-message
+    color: #0C5FC3
+    font-size: 16pt
+    background-color: rgba(255, 255, 255, 0.9)
+    padding: 15px
+    border-radius: 5px
+    font-weight: 300
+    text-align: center
+    animation: slideIn 0.5s ease-in-out
+    white-space: nowrap
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05)
+
+@keyframes slideIn
+    0%
+        transform: translateY(30px)
+        opacity: 0
+    100%
+        transform: translateY(0)
+        opacity: 1
+
+@keyframes spin
+    0%
+        transform: rotate(0deg)
+    100%
+        transform: rotate(360deg)
 </style>
