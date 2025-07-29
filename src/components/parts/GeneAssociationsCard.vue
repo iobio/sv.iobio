@@ -337,17 +337,16 @@ export default {
                     align-items: center
                     gap: 4px
                     padding: 4px 8px
-                    background-color: #2A65B7
-                    color: white
+                    color: #2A65B7
                     border-radius: 4px
                     font-size: 0.75em
                     font-weight: 500
                     transition: background-color 0.2s
                     svg
                         height: 12px
-                        fill: white
+                        fill: #2A65B7
                     &:hover
-                        background-color: #1e4a8c
+                        background-color: #e9ecef
         .dose-sensitive-tag
             margin-bottom: 4px
             font-size: 0.8em
@@ -359,7 +358,7 @@ export default {
             .disease-association-link
                 color: #0C5FC3
                 text-decoration: none
-                font-weight: 500
+                font-weight: 200
                 &:hover
                     text-decoration: underline
         .centered

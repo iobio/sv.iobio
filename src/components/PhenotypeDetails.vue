@@ -106,7 +106,16 @@
 
         <div id="lower-section">
             <fieldset class="column gene-cards">
-                <legend>Overlapped Genes</legend>
+                <legend v-if="hideExtraGeneInfo">
+                    Overlapped Genes (Showing: {{ sortedRelevantGenes.length }}/{{
+                        Object.values(variant.overlappedGenes).length
+                    }})
+                </legend>
+                <legend v-else>
+                    Overlapped Genes (Showing: {{ Object.values(variant.overlappedGenes).length }}/{{
+                        Object.values(variant.overlappedGenes).length
+                    }})
+                </legend>
                 <div class="gene-card-row">
                     <div class="row" v-if="variant && Object.values(variant.overlappedGenes).length > 0">
                         <GeneAssociationsCard
@@ -128,7 +137,8 @@
                         class="show-more-genes"
                         v-if="variant && Object.values(variant.overlappedGenes).length > 0 && sortedIrrelevantGenes.length > 0">
                         <div class="show-btn" @click="hideExtraGeneInfo = !hideExtraGeneInfo">
-                            <span v-if="hideExtraGeneInfo">Show Additional Genes</span><span v-else>Hide Additional Genes</span>
+                            <span v-if="hideExtraGeneInfo">Show Genes Without HPO In Common</span
+                            ><span v-else>Hide Genes Without HPO In Common</span>
                         </div>
                     </div>
 
