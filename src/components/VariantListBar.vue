@@ -140,7 +140,7 @@
                         </span>
                         <span>{{ hiddenVar.length }}</span>
                     </b>
-                    <span>User Hidden</span>
+                    <span>Removed</span>
                 </span>
                 <span>
                     <b @click="toggleShowVarList('filtered')" :class="{ showing: otherVariantsShowing == 'filtered' }">
@@ -153,7 +153,7 @@
                         </span>
                         <span>{{ filteredOutVar.length }}</span>
                     </b>
-                    <span>Filtered Out</span>
+                    <span>No Genes Overlapped</span>
                 </span>
             </div>
             <div id="hidden-variants-column" v-if="showOtherVariantsList">
