@@ -150,10 +150,13 @@ export default {
             align-items: center
             h1
                 margin: 0px
-                padding-bottom: 10px
+                padding: 10px 0px
                 font-size: 1.1em
                 color: black
                 font-weight: 600
+            i
+                font-style: italic
+                color: #555
         p
             margin: 0px
             color: black
