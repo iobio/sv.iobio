@@ -14,16 +14,17 @@
 
         <div id="disclaimer-overlay" v-if="showDisclaimer">
             <div id="disclaimer-text">
-                <h3>License</h3>
+                <h1>License</h1>
                 <p>
                     Terms of service Academic Use:
                     <br />
-                    *sv.iobio is free for academic use
+                    <i>sv.iobio is free for academic use</i>
+                    <br />
                     <br />
                     Commercial Use Commercial use of gene.iobio is licensed through Frameshift Genomics. Please contact Frameshift
                     at admin@frameshift.io to discuss any commercial use of this tool.
                 </p>
-                <h3>Disclaimer</h3>
+                <h1>Disclaimer</h1>
                 <p>
                     The University of Utah makes no claims that iobio applications, including sv.iobio are approved for clinical
                     use. All users of iobio applications including sv.iobio understand and accept that any information gained by
@@ -147,6 +148,12 @@ export default {
             display: flex
             flex-direction: column
             align-items: center
+            h1
+                margin: 0px
+                padding-bottom: 10px
+                font-size: 1.1em
+                color: black
+                font-weight: 600
         p
             margin: 0px
             color: black
