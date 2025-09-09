@@ -114,7 +114,7 @@ export function formatType(type) {
 }
 
 export function generateSvCode(sv) {
-    //We are going to do Chr#-SizeInFormat-Type
-    let code = `Chr${sv.chromosome}-${bpFormattedSansHtml(sv.size)}-${sv.type.toUpperCase()}`;
+    //We are going to do Chr#-SizeInFormat-Type-Start-End
+    let code = `Chr${sv.chromosome}-${bpFormattedSansHtml(sv.size)}-${sv.type.toUpperCase()}-${sv.start}-${sv.end}`;
     return code;
 }
