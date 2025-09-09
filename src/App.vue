@@ -169,6 +169,7 @@
                 @updateFocusedVariant="updateFocusedVariant"
                 @update-comparison-lists="setComparisonSamples"
                 @set-chromosome-accumulated-map="setChromosomeMap" />
+                @updateDisplayMode="changeDisplayMode" />
         </div>
     </div>
 </template>
@@ -265,6 +266,7 @@ export default {
                 type: false,
             },
             listViewMode: "normal",
+            displayMode: "hpo",
         };
     },
     async mounted() {
@@ -288,6 +290,9 @@ export default {
         }
     },
     methods: {
+        changeDisplayMode(mode) {
+            this.displayMode = mode;
+        },
         updateListViewMode(mode) {
             this.listViewMode = mode;
         },

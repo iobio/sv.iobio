@@ -786,6 +786,9 @@ export default {
         },
     },
     watch: {
+        chartsView(newVal) {
+            this.$emit("updateDisplayMode", newVal);
+        },
         progressPercent() {
             let progressBar = document.querySelector(".progress-bar");
             if (progressBar) {
