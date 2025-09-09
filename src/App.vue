@@ -5,12 +5,8 @@
                 :selectDataOpen="selectDataSectionOpen"
                 :filterDataOpen="filterDataSectionOpen"
                 :hgBuild="hgBuild"
-                :launchedFromMosaic="validFromMosaic"
                 @toggleSelectDataSection="onToggleSelectDataSection()"
-                @toggleFilterDataSection="onToggleFilterDataSection()"
-                @saveJsonAnalysis="saveJsonAnalysis"
-                @loadJsonAnalysis="loadJsonAnalysis"
-                @saveMosaicAnalysis="" />
+                @toggleFilterDataSection="onToggleFilterDataSection()" />
         </div>
 
         <ToastsSection
@@ -172,7 +168,7 @@
                 @zoomEvent="zoomFired"
                 @updateFocusedVariant="updateFocusedVariant"
                 @update-comparison-lists="setComparisonSamples"
-                @set-chromosome-accumulated-map="setChromosomeMap"
+                @set-chromosome-accumulated-map="setChromosomeMap" />
                 @updateDisplayMode="changeDisplayMode" />
         </div>
     </div>
@@ -252,21 +248,13 @@ export default {
             toasts: [],
             variantsSorted: false,
             variantsFilteredOut: [],
-            favoriteVariantIds: [],
             variantsHiddenByUser: [],
-            variantsHiddenByUserIds: [],
             //Mosaic Session Items
             mosaicSession: null,
             mosaicUrlParams: null,
             mosaidProjectId: null,
             mosaicExperimentId: null,
             validFromMosaic: true,
-            // Loaded from mosaic analysis
-            loadedFromMosaicAnalysis: false,
-            //Loaded from json analysis
-            loadedFromJson: false,
-            waygateUsed: false,
-            waygateVariables: {},
             doseGenes: {},
             doseRegions: {},
             //Sorts
@@ -305,144 +293,8 @@ export default {
         }
     },
     methods: {
-        updateSortedBy(sortObj) {
-            this.sortedBy = sortObj;
-        },
         changeDisplayMode(mode) {
             this.displayMode = mode;
-        },
-        // TODO: implement these methods
-        saveJsonAnalysis() {
-            //save the current analysis as a json file
-            const favoriteVariants = this.svListVariantBar
-                .filter((sv) => sv.favorite)
-                .map((sv) => {
-                    return sv.svCode;
-                });
-
-            const samplesLessSvList = {
-                proband: { ...this.samples.proband, svList: [] },
-                comparisons: this.samples.comparisons.map((comp) => {
-                    return { ...comp, svList: [] };
-                }),
-            };
-
-            const hiddenVariantIds = this.variantsHiddenByUser.map((sv) => sv.svCode);
-
-            const jsonAnalysis = {
-                projectId: "",
-                experimentId: "",
-                hgBuild: this.hgBuild,
-                genesOfInterest: this.genesOfInterest,
-                phenotypesOfInterest: this.phenotypesOfInterest,
-                filters: this.filters,
-                samples: samplesLessSvList,
-                sortedBy: this.sortedBy,
-                hiddenVariantIds: hiddenVariantIds,
-                favoriteVariantIds: favoriteVariants,
-                zoomZone: this.selectedArea,
-                sizeMode: this.listViewMode,
-                displayMode: this.displayMode, // this is actually the display mode for the gene vs phenotype view
-                waygateUsed: this.waygateUsed, // We need to know if we used waygate becasue the urls on the samples won't work we will have to re-grab waygate urls on load
-                waygateVariables: this.waygateVariables, // We will store the waygate variables so we can re-grab the urls on load
-            };
-
-            //Create a json file and download it
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonAnalysis));
-            const downloadAnchorNode = document.createElement("a");
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "sv_iobio_analysis.json");
-            document.body.appendChild(downloadAnchorNode); // required for firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-
-            this.toasts.push({ message: "Analysis saved", type: "success" });
-        },
-        loadJsonAnalysis() {
-            //load a json analysis
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = ".json,application/json";
-
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        try {
-                            const content = e.target.result;
-                            const jsonAnalysis = JSON.parse(content);
-
-                            //validate the json analysis
-                            if (
-                                !jsonAnalysis.hgBuild ||
-                                !jsonAnalysis.samples ||
-                                !jsonAnalysis.genesOfInterest ||
-                                !jsonAnalysis.phenotypesOfInterest
-                            ) {
-                                this.toasts.push({ message: "Invalid analysis file", type: "error" });
-                                return;
-                            }
-
-                            this.loadedFromJson = true;
-                            //update the app state with the loaded analysis
-                            this.updateHgBuild(jsonAnalysis.hgBuild);
-                            this.updateGenesOfInterest(jsonAnalysis.genesOfInterest);
-                            this.updatePhenotypesOfInterest(jsonAnalysis.phenotypesOfInterest);
-                            this.updateDataFilters(jsonAnalysis.filters || { geneOverlap: false, denovoOnly: false });
-                            this.sortedBy = jsonAnalysis.sortedBy || this.sortedBy;
-                            this.selectedArea = jsonAnalysis.zoomZone || null;
-                            this.listViewMode = jsonAnalysis.sizeMode || "normal";
-                            this.displayMode = jsonAnalysis.displayMode || "hpo";
-                            this.variantsHiddenByUserIds = jsonAnalysis.hiddenVariantIds || [];
-                            this.favoriteVariantIds = jsonAnalysis.favoriteVariantIds || [];
-                            // So there are some things we need to handle after the samples are loaded that arent handleable right now
-                            if (!jsonAnalysis.waygateUsed) {
-                                this.updateSamples(jsonAnalysis.samples);
-                            } else {
-                                // We will need to make some new urls for the samples before loading them up
-                                this.waygateUsed = true;
-                                this.waygateVariables = jsonAnalysis.waygateVariables || {};
-                                // Get the waygate urls for the variables we have
-                            }
-
-                            this.selectDataSectionOpen = false;
-                            this.toasts.push({ message: "Analysis loaded", type: "success" });
-                        } catch (error) {
-                            this.toasts.push({ message: `Error loading analysis: ${error}`, type: "error" });
-                        }
-                    };
-                    reader.readAsText(file);
-                }
-            };
-
-            input.click();
-        },
-        saveMosaicAnalysis() {
-            //save the current analysis to mosaic
-            const favoriteVariants = this.svListVariantBar
-                .filter((sv) => sv.favorite)
-                .map((sv) => {
-                    return sv.svCode;
-                });
-
-            const hiddenVariantIds = this.variantsHiddenByUser.map((sv) => sv.svCode);
-
-            const jsonAnalysis = {
-                projectId: "",
-                experimentId: "",
-                hgBuild: this.hgBuild,
-                genesOfInterest: this.genesOfInterest,
-                phenotypesOfInterest: this.phenotypesOfInterest,
-                filters: this.filters,
-                samples: null, // do not save samples to mosaic we don't need that
-                sortedBy: this.sortedBy,
-                hiddenVariantIds: hiddenVariantIds,
-                favoriteVariantIds: favoriteVariants,
-                zoomZone: this.selectedArea,
-                sizeMode: this.listViewMode,
-                displayMode: this.displayMode, // this is actually the display mode for the gene vs phenotype view
-            };
         },
         updateListViewMode(mode) {
             this.listViewMode = mode;
@@ -794,7 +646,6 @@ export default {
             this.svListVariantBar = svList.map((sv) => {
                 let newSv = new Sv(sv);
                 newSv.setSvCode(common.generateSvCode(newSv));
-                newSv.favorite = this.favoriteVariantIds.includes(newSv.svCode);
                 return newSv;
             });
             this.svListData = svList;
@@ -853,13 +704,10 @@ export default {
                         } else {
                             this.svListVariantBar[originalIndex] = newSv;
                         }
-                    }
-
-                    if (this.loadedFromJson) {
-                        newSv.favorite = this.favoriteVariantIds.includes(newSv.svCode);
-                        if (this.variantsHiddenByUserIds.includes(newSv.svCode)) {
-                            this.variantsHiddenByUser.push(newSv);
-                        }
+                    } else {
+                        //if there are no overlappedGenes send to the bottom
+                        this.svListVariantBar[originalIndex] = newSv;
+                        this.variantsFilteredOut.push(newSv);
                     }
                 }
                 this.progressPercent = Math.round(((i + batchSize) / svListCopy.length) * 100);
@@ -1208,8 +1056,6 @@ export default {
                     return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
                 });
                 this.variantsSorted = true;
-                this.sortedBy.totalGenes = [true, this.sortedBy.currentSortIndex];
-                this.sortedBycurrentSortIndex++;
             } else if (sortCategory == "hpoOverlapped") {
                 if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
                     this.toasts.push({
@@ -1221,8 +1067,6 @@ export default {
                         return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
                     });
                     this.variantsSorted = true;
-                    this.sortedBy.totalGenes = [true, this.sortedBy.currentSortIndex];
-                    this.sortedBy.currentSortIndex++;
                 } else {
                     this.svListVariantBar.sort((a, b) => {
                         return (
@@ -1231,8 +1075,6 @@ export default {
                         );
                     });
                     this.variantsSorted = true;
-                    this.sortedBy.hpoOverlapped = [true, this.sortedBy.currentSortIndex];
-                    this.sortedBy.currentSortIndex++;
                 }
             } else if (sortCategory == "goi") {
                 if (!this.genesOfInterest || this.genesOfInterest.length == 0) {
@@ -1245,26 +1087,18 @@ export default {
                         return Object.keys(b.overlappedGenes).length - Object.keys(a.overlappedGenes).length;
                     });
                     this.variantsSorted = true;
-                    this.sortedBy.totalGenes = [true, this.sortedBy.currentSortIndex];
-                    this.sortedBy.currentSortIndex++;
                 } else {
                     this.svListVariantBar.sort((a, b) => {
                         return (
                             this.numOfGOIOverlapped(this.genesOfInterest, b) - this.numOfGOIOverlapped(this.genesOfInterest, a)
                         );
                     });
-                    this.variantsSorted = true;
-                    this.sortedBy.goi = [true, this.sortedBy.currentSortIndex];
-                    this.sortedBy.currentSortIndex++;
                 }
             } else if (sortCategory == "chr") {
                 //the chromosome of each sv is a number so we can sort by that
                 this.svListVariantBar.sort((a, b) => {
                     return a.chromosome - b.chromosome;
                 });
-                this.variantsSorted = true;
-                this.sortedBy.chr = [true, this.sortedBy.currentSortIndex];
-                this.sortedBy.currentSortIndex++;
             } else if (sortCategory == "type") {
                 let order = ["DEL", "DUP", "INS", "CNV", "INV", "BND", "OTHER"];
 
@@ -1281,9 +1115,6 @@ export default {
                     }
                     return aIndex - bIndex;
                 });
-                this.variantsSorted = true;
-                this.sortedBy.type = [true, this.sortedBy.currentSortIndex];
-                this.sortedBy.currentSortIndex++;
             } else if (sortCategory == "zygosity") {
                 let order = ["HOM", "HET", "HEM", "HEP", "UNKNOWN"];
 
@@ -1300,16 +1131,10 @@ export default {
                     }
                     return aIndex - bIndex;
                 });
-                this.variantsSorted = true;
-                this.sortedBy.zygosity = [true, this.sortedBy.currentSortIndex];
-                this.sortedBy.currentSortIndex++;
             } else if (sortCategory == "size") {
                 this.svListVariantBar.sort((a, b) => {
                     return b.size - a.size;
                 });
-                this.variantsSorted = true;
-                this.sortedBy.size = [true, this.sortedBy.currentSortIndex];
-                this.sortedBy.currentSortIndex++;
             }
         },
         zoomToGene(gene) {
