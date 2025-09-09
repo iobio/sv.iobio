@@ -651,7 +651,7 @@ export default {
             let svListCopy = [...this.svListVariantBar];
 
             //the batch size we will send SVs in to get their associations
-            let batchSize = 200;
+            let batchSize = 100;
             for (let i = 0; i < svListCopy.length; i += batchSize) {
                 this.batchNum++;
                 let batchSvs = svListCopy.slice(i, i + batchSize);
@@ -674,15 +674,12 @@ export default {
                 //new svs is an array of Sv objects
                 for (let [index, newSv] of newSvs.entries()) {
                     let originalIndex = i + index; // Calculate the original index
-                    // Update the current index with the new SV
 
-                    //If we have both phenotypes of interest and overlappedGenes we can see how many phenotypes are accounted for
-                    if (
-                        this.phenotypesOfInterest &&
-                        this.phenotypesOfInterest.length > 0 &&
-                        newSv.overlappedGenes &&
-                        Object.values(newSv.overlappedGenes).length > 0
-                    ) {
+                    if (!newSv.overlappedGenes || Object.values(newSv.overlappedGenes).length == 0) {
+                        this.svListVariantBar[originalIndex] = newSv;
+                        this.variantsFilteredOut.push(newSv);
+                    } else if (this.phenotypesOfInterest && this.phenotypesOfInterest.length > 0) {
+                        // This runs if there are phenotypes of interest and there were overlapped genes
                         let num = this.numPhensAccountedFor(this.phenotypesOfInterest, newSv.overlappedGenes);
 
                         //----------------SORTING------------------------------------//
