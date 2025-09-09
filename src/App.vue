@@ -259,11 +259,14 @@ export default {
             doseRegions: {},
             //Sorts
             sortedBy: {
-                totalGenes: false,
-                hpoOverlapped: false,
-                goi: false,
-                chr: false,
-                type: false,
+                chr: [false, null], //Second el is order the filter is applied
+                size: [false, null],
+                type: [false, null],
+                zygosity: [false, null],
+                goi: [false, null],
+                totalGenes: [false, null],
+                hpoOverlapped: [false, null],
+                currentSortIndex: 0,
             },
             listViewMode: "normal",
             displayMode: "hpo",
