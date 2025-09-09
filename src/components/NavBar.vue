@@ -1,6 +1,6 @@
 <template>
     <div id="nav-bar">
-        <div class="right-container">
+        <div class="container">
             <button id="disclaimer-btn" @click="toggleDisclaimer"><img src="/dots-vertical.svg" alt="" /></button>
             <button @click="this.$emit('toggleSelectDataSection')" :class="{ highlight: selectDataOpen }">Select Data</button>
             <span id="build-span">
@@ -42,7 +42,54 @@
             </div>
         </div>
 
-        <h1 id="title">SV.iobio</h1>
+        <div class="container">
+            <button @click="saveMosaicAnalysis" v-if="launchedFromMosaic">
+                <span>Save To Mosaic</span>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+                </svg>
+            </button>
+            <button @click="loadJsonAnalysis" v-if="!launchedFromMosaic">
+                <span>Load</span>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                </svg>
+            </button>
+            <button @click="saveJsonAnalysis" v-if="!launchedFromMosaic">
+                <span>Save</span>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+            </button>
+            <h1 id="title">SV.iobio</h1>
+        </div>
     </div>
 </template>
 
@@ -51,6 +98,7 @@ export default {
     name: "NavBar",
     components: {},
     props: {
+        launchedFromMosaic: Boolean,
         selectDataOpen: Boolean,
         filterDataOpen: Boolean,
         hgBuild: String,
@@ -64,6 +112,15 @@ export default {
     methods: {
         toggleDisclaimer() {
             this.showDisclaimer = !this.showDisclaimer;
+        },
+        saveJsonAnalysis() {
+            this.$emit("saveJsonAnalysis");
+        },
+        loadJsonAnalysis() {
+            this.$emit("loadJsonAnalysis");
+        },
+        saveMosaicAnalysis() {
+            this.$emit("saveMosaicAnalysis");
         },
     },
     computed: {
@@ -173,7 +230,7 @@ export default {
             transition: all 0.15s ease
             &:hover
                 filter: brightness(120%)
-    .right-container
+    .container
         display: flex
         flex-direction: row
         align-items: center
@@ -181,6 +238,9 @@ export default {
         gap: 10px
         height: 100%
         button
+            display: flex
+            flex-direction: row
+            align-items: center
             border: 1px solid #0B4B99
             border-radius: 3px
             background-color: #0B4B99
@@ -214,6 +274,10 @@ export default {
                 background-color: #0D60C3
                 border: 2px solid white
                 box-shadow: 0px 0px 5px 0px white
+            svg
+                height: 20px
+                width: auto
+                margin-left: 5px
 .alt-section-text.nav
     color: white
     position: relative
