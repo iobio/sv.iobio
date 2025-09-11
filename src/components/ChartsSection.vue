@@ -283,6 +283,7 @@ export default {
         isLoading: Boolean,
         progressPercent: Number,
         selectDataOpen: Boolean,
+        globalDisplayMode: String,
     },
     data() {
         return {
@@ -321,6 +322,10 @@ export default {
         await this.getBaseData(this.hgBuild);
         await this.fetchSamples();
         this.startMessageCarousel();
+
+        if (this.globalDisplayMode) {
+            this.chartsView = this.globalDisplayMode;
+        }
     },
     beforeDestroy() {
         this.stopMessageCarousel();
@@ -823,11 +828,17 @@ export default {
         selectedArea: {
             handler(newVal, oldVal) {
                 if (newVal && newVal !== oldVal) {
+                    if (!this.geneChartData || !this.geneChartData.props) {
+                        return;
+                    }
                     this.geneChartData.props.selectedArea = this.selectedArea;
                     this.chartsData.forEach((chart) => {
                         chart.props.selectedArea = this.selectedArea;
                     });
                 } else if (!newVal) {
+                    if (!this.geneChartData || !this.geneChartData.props) {
+                        return;
+                    }
                     this.geneChartData.props.selectedArea = null;
                     this.chartsData.forEach((chart) => {
                         chart.props.selectedArea = null;
@@ -848,7 +859,7 @@ export default {
         phenRelatedGenes: {
             handler() {
                 const genesChart = this.geneChartData;
-                if (genesChart) {
+                if (genesChart && genesChart.props) {
                     genesChart.props.phenRelatedGenes = this.phenRelatedGenes;
                 }
             },
