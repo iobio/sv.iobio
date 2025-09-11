@@ -10,8 +10,18 @@
                 @toggleFilterDataSection="onToggleFilterDataSection()"
                 @saveJsonAnalysis="saveJsonAnalysis"
                 @loadJsonAnalysis="loadJsonAnalysis"
-                @saveMosaicAnalysis="" />
+                @saveMosaicAnalysis="openSaveToMosaicModal" />
         </div>
+
+        <SaveToMosaicModal
+            v-if="isSaveToMosaicModalOpen"
+            :title="analysisTitle"
+            :description="analysisDescription"
+            :saving="isSavingToMosaic"
+            @update:title="analysisTitle = $event"
+            @update:description="analysisDescription = $event"
+            @cancel="hideSaveToMosaicModal()"
+            @save="onConfirmSaveToMosaic" />
 
         <ToastsSection
             v-if="toasts.length > 0"
@@ -162,6 +172,7 @@
                 :focusedGeneName="focusedGeneName"
                 :genomeEnd="genomeEnd"
                 :genomeStart="genomeStart"
+                :globalDisplayMode="displayMode"
                 :doseGenes="doseGenes"
                 :doseRegions="doseRegions"
                 :isLoading="!loadedInitiallyComplete"
@@ -191,6 +202,7 @@ import SelectDataSection from "./components/SelectDataSection.vue";
 import FilterDataSection from "./components/FilterDataSection.vue";
 import ToastsSection from "./components/ToastsSection.vue";
 import MosaicSession from "./models/MosaicSession.js";
+import SaveToMosaicModal from "./components/SaveToMosaicModal.vue";
 
 export default {
     name: "app",
@@ -203,6 +215,7 @@ export default {
         FilterDataSection,
         ToastsSection,
         PhenotypesListBar,
+        SaveToMosaicModal,
     },
     data() {
         return {
@@ -258,8 +271,9 @@ export default {
             //Mosaic Session Items
             mosaicSession: null,
             mosaicUrlParams: null,
-            mosaidProjectId: null,
+            mosaicProjectId: null,
             mosaicExperimentId: null,
+            mosaicProbandId: null,
             validFromMosaic: true,
             // Loaded from mosaic analysis
             loadedFromMosaicAnalysis: false,
@@ -281,7 +295,11 @@ export default {
                 currentSortIndex: 0,
             },
             listViewMode: "normal",
-            displayMode: "hpo",
+            displayMode: null,
+            isSaveToMosaicModalOpen: false,
+            analysisDescription: "",
+            analysisTitle: "",
+            isSavingToMosaic: false,
         };
     },
     async mounted() {
@@ -305,13 +323,28 @@ export default {
         }
     },
     methods: {
+        openSaveToMosaicModal() {
+            this.isSaveToMosaicModalOpen = true;
+            this.analysisTitle = `SV iobio Analysis - ${new Date().toLocaleString()}`;
+            this.analysisDescription = "";
+        },
+        hideSaveToMosaicModal() {
+            this.isSaveToMosaicModalOpen = false;
+            this.analysisTitle = "";
+            this.analysisDescription = "";
+        },
+        async onConfirmSaveToMosaic() {
+            this.isSavingToMosaic = true;
+            const ok = await this.saveMosaicAnalysis();
+            this.isSavingToMosaic = false;
+            if (ok) this.hideSaveToMosaicModal();
+        },
         updateSortedBy(sortObj) {
             this.sortedBy = sortObj;
         },
         changeDisplayMode(mode) {
             this.displayMode = mode;
         },
-        // TODO: implement these methods
         saveJsonAnalysis() {
             //save the current analysis as a json file
             const favoriteVariants = this.svListVariantBar
@@ -418,7 +451,7 @@ export default {
 
             input.click();
         },
-        saveMosaicAnalysis() {
+        async saveMosaicAnalysis() {
             //save the current analysis to mosaic
             const favoriteVariants = this.svListVariantBar
                 .filter((sv) => sv.favorite)
@@ -428,14 +461,12 @@ export default {
 
             const hiddenVariantIds = this.variantsHiddenByUser.map((sv) => sv.svCode);
 
-            const jsonAnalysis = {
-                projectId: "",
-                experimentId: "",
-                hgBuild: this.hgBuild,
+            const payload = {
+                projectId: this.mosaicProjectId ? String(this.mosaicProjectId) : "",
+                experimentId: this.mosaicExperimentId ? String(this.mosaicExperimentId) : "",
                 genesOfInterest: this.genesOfInterest,
                 phenotypesOfInterest: this.phenotypesOfInterest,
                 filters: this.filters,
-                samples: null, // do not save samples to mosaic we don't need that
                 sortedBy: this.sortedBy,
                 hiddenVariantIds: hiddenVariantIds,
                 favoriteVariantIds: favoriteVariants,
@@ -443,6 +474,25 @@ export default {
                 sizeMode: this.listViewMode,
                 displayMode: this.displayMode, // this is actually the display mode for the gene vs phenotype view
             };
+
+            const analysis = {
+                payload: payload,
+                sample_id: this.mosaicProbandId,
+                description: this.analysisDescription || "",
+                title: this.analysisTitle || `SV iobio Analysis - ${new Date().toLocaleString()}`,
+            };
+
+            try {
+                if (!this.mosaicSession || !this.mosaicProjectId) {
+                    throw new Error("Missing Mosaic session or project id");
+                }
+                await this.mosaicSession.promisePostAnalysisToMosaic(this.mosaicProjectId, analysis);
+                this.toasts.push({ message: "Analysis saved to Mosaic", type: "success" });
+                return true;
+            } catch (error) {
+                this.toasts.push({ message: `Error saving analysis to Mosaic: ${error}`, type: "error" });
+                return false;
+            }
         },
         updateListViewMode(mode) {
             this.listViewMode = mode;
@@ -470,16 +520,55 @@ export default {
         },
         async initMosaicSession() {
             if (localStorage.getItem("mosaic-iobio-tkn") && localStorage.getItem("mosaic-iobio-tkn").length > 0) {
+                
+                const clientAppNumber = this.mosaicUrlParams.get("client_application_id");
+                const source = decodeURIComponent(this.mosaicUrlParams.get("source"));
+                const tokenType = this.mosaicUrlParams.get("token_type");
                 this.mosaicProjectId = Number(this.mosaicUrlParams.get("project_id"));
-                let tokenType = this.mosaicUrlParams.get("token_type");
-                let source = this.mosaicUrlParams.get("source");
-                source = decodeURIComponent(source);
+                const analysisId = this.mosaicUrlParams.get("analysis_id") || null;
 
-                let clientAppNumber = this.mosaicUrlParams.get("client_application_id");
-                this.mosaicExperimentId = this.mosaicUrlParams.get("experiment_id");
-
-                //Create a new MosaicSession object
                 this.mosaicSession = new MosaicSession(clientAppNumber);
+
+                try {
+                    await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType);
+                } catch (error) {
+                    this.validFromMosaic = false;
+                    this.selectDataSectionOpen = true;
+                    this.toasts.push({ message: `Error initializing Mosaic Session: ${error}`, type: "error" });
+                    return;
+                }
+
+                if (analysisId) {
+                    try {
+                        const analysis = await this.mosaicSession.promiseGetAnalysisFromMosaic(this.mosaicProjectId, analysisId);
+
+                        if (analysis && analysis.payload) {
+                            this.mosaicExperimentId = analysis.payload.experimentId;
+                            const payload = analysis.payload;
+                            this.updateGenesOfInterest(payload.genesOfInterest || []);
+                            this.updatePhenotypesOfInterest(payload.phenotypesOfInterest || []);
+                            this.updateDataFilters(payload.filters || { geneOverlap: false, denovoOnly: false });
+                            this.sortedBy = payload.sortedBy || this.sortedBy;
+                            this.selectedArea = payload.zoomZone || null;
+                            this.listViewMode = payload.sizeMode || "normal";
+                            this.displayMode = payload.displayMode || "hpo";
+                            this.variantsHiddenByUserIds = payload.hiddenVariantIds || [];
+                            this.favoriteVariantIds = payload.favoriteVariantIds || [];
+                            // Set the proband id so we can load the samples correctly
+                            if (analysis.sample_id) {
+                                this.mosaicProbandId = analysis.sample_id;
+                            }
+                            this.loadedFromMosaicAnalysis = true;
+                        } else {
+                            this.toasts.push({ message: "No analysis found in Mosaic", type: "error" });
+                        }
+                    } catch (error) {
+                        this.toasts.push({ message: `Error loading analysis from Mosaic: ${error}`, type: "error" });
+                    }
+                } else {
+                    this.mosaicExperimentId = this.mosaicUrlParams.get("experiment_id");
+                }
+
                 let sessionSamples = {
                     proband: {
                         name: "Proband",
@@ -494,15 +583,6 @@ export default {
                     },
                     comparisons: [],
                 };
-
-                try {
-                    await this.mosaicSession.promiseInit(source, this.mosaicProjectId, tokenType);
-                } catch (error) {
-                    this.validFromMosaic = false;
-                    this.selectDataSectionOpen = true;
-                    this.toasts.push({ message: `Error initializing Mosaic Session: ${error}`, type: "error" });
-                    return;
-                }
 
                 let projectAttributes = await this.mosaicSession.promiseGetProjectSettings(this.mosaicProjectId);
                 this.updateHgBuild(projectAttributes.reference);
@@ -538,6 +618,7 @@ export default {
                     let isProband = relationships.find((rel) => rel.value == "Proband");
 
                     if (isProband) {
+                        this.mosaicProbandId = sample.id;
                         //if there are multiple alignment files, we want the cram (I believe that is the most downstream)
                         if (alignmentFile && alignmentFile.length >= 1) {
                             if (alignmentFile.length > 1) {
@@ -575,8 +656,11 @@ export default {
                             sessionSamples.proband.bed = bedUrl.url;
                         }
 
-                        let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, sample.id);
-                        this.phenotypesOfInterest = terms.map((term) => term.hpo_id);
+                        // Check here to see if we haven't gathered phenotypes from the analysis, if we haven't then grab the proband hpo terms
+                        if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
+                            let terms = await this.mosaicSession.promiseGetSampleHpoTerms(this.mosaicProjectId, sample.id);
+                            this.phenotypesOfInterest = terms.map((term) => term.hpo_id);
+                        }
 
                         sessionSamples.proband.vcf = mosaicVcfUrl.url;
                         sessionSamples.proband.id = sampleVcfName;
@@ -855,10 +939,11 @@ export default {
                         }
                     }
 
-                    if (this.loadedFromJson) {
+                    if (this.loadedFromJson || this.loadedFromMosaicAnalysis) {
                         newSv.favorite = this.favoriteVariantIds.includes(newSv.svCode);
                         if (this.variantsHiddenByUserIds.includes(newSv.svCode)) {
                             this.variantsHiddenByUser.push(newSv);
+
                         }
                     }
                 }
@@ -871,6 +956,7 @@ export default {
 
             // Any variants in the variantsFilteredOut list should be removed from the svListVariantBar the key of the variant is the svCode
             let filteredSvs = this.svListVariantBar.filter((sv) => !this.variantsFilteredOut.some((v) => v.svCode == sv.svCode));
+            filteredSvs = filteredSvs.filter((sv) => !this.variantsHiddenByUserIds.includes(sv.svCode));
             this.svListVariantBar = filteredSvs;
             this.svListChart = filteredSvs;
             //We just want to make sure we trigger this incase we got phenotypes while we were loading or before
@@ -1209,7 +1295,7 @@ export default {
                 });
                 this.variantsSorted = true;
                 this.sortedBy.totalGenes = [true, this.sortedBy.currentSortIndex];
-                this.sortedBycurrentSortIndex++;
+                this.sortedBy.currentSortIndex++;
             } else if (sortCategory == "hpoOverlapped") {
                 if (!this.phenotypesOfInterest || this.phenotypesOfInterest.length == 0) {
                     this.toasts.push({
