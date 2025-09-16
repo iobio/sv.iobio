@@ -36,8 +36,12 @@
             </div>
             <div class="footer">
                 <button class="secondary" @click="$emit('cancel')">Cancel</button>
-                <button class="primary" :disabled="!title || saving" @click="$emit('save')">
+                <button v-if="post" class="primary" :disabled="!title || saving" @click="$emit('save')">
                     <span v-if="!saving">Save</span>
+                    <span v-else>Saving…</span>
+                </button>
+                <button v-else class="primary" :disabled="!title || saving" @click="$emit('save')">
+                    <span v-if="!saving">Save Analysis Updates</span>
                     <span v-else>Saving…</span>
                 </button>
             </div>
@@ -52,6 +56,7 @@ export default {
         title: { type: String, default: "" },
         description: { type: String, default: "" },
         saving: { type: Boolean, default: false },
+        post: { type: Boolean, default: true }
     },
     emits: ["update:title", "update:description", "cancel", "save"],
 };

@@ -18,6 +18,7 @@
             :title="analysisTitle"
             :description="analysisDescription"
             :saving="isSavingToMosaic"
+            :post="!putAnalysis"
             @update:title="analysisTitle = $event"
             @update:description="analysisDescription = $event"
             @cancel="hideSaveToMosaicModal()"
@@ -275,6 +276,7 @@ export default {
             mosaicExperimentId: null,
             mosaicProbandId: null,
             validFromMosaic: true,
+            analysisId: null,
             // Loaded from mosaic analysis
             loadedFromMosaicAnalysis: false,
             //Loaded from json analysis
@@ -300,6 +302,7 @@ export default {
             analysisDescription: "",
             analysisTitle: "",
             isSavingToMosaic: false,
+            putAnalysis: false,
         };
     },
     async mounted() {
@@ -323,15 +326,22 @@ export default {
         }
     },
     methods: {
-        openSaveToMosaicModal() {
+        openSaveToMosaicModal(method) {
+            this.putAnalysis = method === "put";
             this.isSaveToMosaicModalOpen = true;
-            this.analysisTitle = `SV iobio Analysis - ${new Date().toLocaleString()}`;
-            this.analysisDescription = "";
+
+            if (method !== "put") {
+                this.analysisTitle = `SV iobio Analysis - ${new Date().toLocaleString()}`;
+                this.analysisDescription = "";
+            } else if (!this.analysisTitle) {
+                this.analysisTitle = `SV iobio Analysis - ${new Date().toLocaleString()}`;
+            } else if (!this.analysisDescription) {
+                this.analysisDescription = "";
+            }
         },
         hideSaveToMosaicModal() {
             this.isSaveToMosaicModalOpen = false;
-            this.analysisTitle = "";
-            this.analysisDescription = "";
+            this.putAnalysis = false;
         },
         async onConfirmSaveToMosaic() {
             this.isSavingToMosaic = true;
@@ -482,16 +492,30 @@ export default {
                 title: this.analysisTitle || `SV iobio Analysis - ${new Date().toLocaleString()}`,
             };
 
-            try {
-                if (!this.mosaicSession || !this.mosaicProjectId) {
-                    throw new Error("Missing Mosaic session or project id");
+            if (!this.putAnalysis) {
+                try {
+                    if (!this.mosaicSession || !this.mosaicProjectId) {
+                        throw new Error("Missing Mosaic session or project id");
+                    }
+                    await this.mosaicSession.promisePostAnalysisToMosaic(this.mosaicProjectId, analysis);
+                    this.toasts.push({ message: "Analysis saved to Mosaic", type: "success" });
+                    return true;
+                } catch (error) {
+                    this.toasts.push({ message: `Error saving analysis to Mosaic: ${error}`, type: "error" });
+                    return false;
                 }
-                await this.mosaicSession.promisePostAnalysisToMosaic(this.mosaicProjectId, analysis);
-                this.toasts.push({ message: "Analysis saved to Mosaic", type: "success" });
-                return true;
-            } catch (error) {
-                this.toasts.push({ message: `Error saving analysis to Mosaic: ${error}`, type: "error" });
-                return false;
+            } else {
+                try {
+                    if (!this.mosaicSession || !this.mosaicProjectId || !this.analysisId) {
+                        throw new Error("Missing Mosaic session, project id, or analysis id");
+                    }
+                    await this.mosaicSession.promisePutAnalysisToMosaic(this.mosaicProjectId, this.analysisId, analysis);
+                    this.toasts.push({ message: "Analysis updated in Mosaic", type: "success" });
+                    return true;
+                } catch (error) {
+                    this.toasts.push({ message: `Error updating analysis in Mosaic: ${error}`, type: "error" });
+                    return false;
+                }
             }
         },
         updateListViewMode(mode) {
@@ -525,7 +549,7 @@ export default {
                 const source = decodeURIComponent(this.mosaicUrlParams.get("source"));
                 const tokenType = this.mosaicUrlParams.get("token_type");
                 this.mosaicProjectId = Number(this.mosaicUrlParams.get("project_id"));
-                const analysisId = this.mosaicUrlParams.get("analysis_id") || null;
+                this.analysisId = this.mosaicUrlParams.get("analysis_id") || null;
 
                 this.mosaicSession = new MosaicSession(clientAppNumber);
 
@@ -538,10 +562,9 @@ export default {
                     return;
                 }
 
-                if (analysisId) {
+                if (this.analysisId) {
                     try {
-                        const analysis = await this.mosaicSession.promiseGetAnalysisFromMosaic(this.mosaicProjectId, analysisId);
-
+                        const analysis = await this.mosaicSession.promiseGetAnalysisFromMosaic(this.mosaicProjectId, this.analysisId);
                         if (analysis && analysis.payload) {
                             this.mosaicExperimentId = analysis.payload.experimentId;
                             const payload = analysis.payload;
@@ -554,6 +577,8 @@ export default {
                             this.displayMode = payload.displayMode || "hpo";
                             this.variantsHiddenByUserIds = payload.hiddenVariantIds || [];
                             this.favoriteVariantIds = payload.favoriteVariantIds || [];
+                            this.analysisTitle = analysis.title || `SV iobio Analysis - ${new Date().toLocaleString()}`;
+                            this.analysisDescription = analysis.description || "";
                             // Set the proband id so we can load the samples correctly
                             if (analysis.sample_id) {
                                 this.mosaicProbandId = analysis.sample_id;

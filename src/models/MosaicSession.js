@@ -443,6 +443,41 @@ export default class MosaicSession {
         });
     }
 
+    async putAnalysisToMosaic(projectId, analysisId, analysis) {
+        let self = this;
+        const response = await fetch(`${self.api}/projects/${projectId}/analyses/${analysisId}`, {
+            method: "PUT",
+            headers: {
+                Authorization: self.authorizationString,
+                "Content-Type": "application/json",
+                accept: "application/json",
+            },
+            body: JSON.stringify(analysis),
+        });
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        return response.json();
+    }
+
+    promisePutAnalysisToMosaic(projectId, analysisId, analysis) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.putAnalysisToMosaic(projectId, analysisId, analysis)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    const errorMsg = self.getErrorMessage(error);
+                    console.error(`Error putting analysis to Mosaic with project_id ${projectId}`);
+                    console.error(errorMsg
+                    );                    reject(`Error putting analysis to Mosaic ${projectId}: ${errorMsg}`);
+                });
+        });
+    }
+
     getErrorMessage(error) {
         if (error.hasOwnProperty("message")) {
             return error.message;
