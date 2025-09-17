@@ -439,6 +439,7 @@ export default {
                             this.variantsHiddenByUserIds = jsonAnalysis.hiddenVariantIds || [];
                             this.favoriteVariantIds = jsonAnalysis.favoriteVariantIds || [];
                             this.selectDataSectionOpen = false;
+                            this.samples = jsonAnalysis.samples;
                             
                             this.toasts.push({ message: "Analysis loaded", type: "success" });
                         } catch (error) {
@@ -952,6 +953,9 @@ export default {
                         } else {
                             this.svListVariantBar[originalIndex] = newSv;
                         }
+                    } else {
+                        // This runs if there are no phenotypes of interest but there were overlapped genes
+                        this.svListVariantBar[originalIndex] = newSv;
                     }
 
                     if (this.loadedFromJson || this.loadedFromMosaicAnalysis) {
@@ -960,7 +964,7 @@ export default {
                             this.variantsHiddenByUser.push(newSv);
 
                         }
-                    }
+                    } 
                 }
                 this.progressPercent = Math.round(((i + batchSize) / svListCopy.length) * 100);
             }
@@ -1194,7 +1198,6 @@ export default {
             }
 
             this.candidatePhenGenes = Object.keys(data);
-
             let overlappedLocal = [];
 
             //We will iterate over the svListChart and update the overlappedPhenGenes for each SV
