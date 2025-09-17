@@ -207,6 +207,7 @@ export default {
 
             //serve the directory tree
             waygateJs.serve(listener, waygateJs.directoryTreeHandler(this.dirTree));
+            this.$emit("updateWaygateUsed", true);
         },
         addFileToWaygate(files, sampleName, fileType) {
             //use the dirTree to add files

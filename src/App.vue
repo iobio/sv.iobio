@@ -6,6 +6,7 @@
                 :filterDataOpen="filterDataSectionOpen"
                 :hgBuild="hgBuild"
                 :launchedFromMosaic="validFromMosaic"
+                :waygateUsed="waygateUsed"
                 @toggleSelectDataSection="onToggleSelectDataSection()"
                 @toggleFilterDataSection="onToggleFilterDataSection()"
                 @saveJsonAnalysis="saveJsonAnalysis"
@@ -36,6 +37,7 @@
             @send-demo-info="updateGenesAndPhensWithDemo"
             @update-samples="updateSamples"
             @toggle-show="selectDataSectionOpen = false"
+            @updateWaygateUsed="waygateUsed = $event"
             @emit-toast="addToast" />
 
         <div id="lower-block-container">
@@ -281,8 +283,6 @@ export default {
             loadedFromMosaicAnalysis: false,
             //Loaded from json analysis
             loadedFromJson: false,
-            waygateUsed: false,
-            waygateVariables: {},
             doseGenes: {},
             doseRegions: {},
             //Sorts
@@ -303,6 +303,7 @@ export default {
             analysisTitle: "",
             isSavingToMosaic: false,
             putAnalysis: false,
+            waygateUsed: false,
         };
     },
     async mounted() {
@@ -386,8 +387,6 @@ export default {
                 zoomZone: this.selectedArea,
                 sizeMode: this.listViewMode,
                 displayMode: this.displayMode, // this is actually the display mode for the gene vs phenotype view
-                waygateUsed: this.waygateUsed, // We need to know if we used waygate becasue the urls on the samples won't work we will have to re-grab waygate urls on load
-                waygateVariables: this.waygateVariables, // We will store the waygate variables so we can re-grab the urls on load
             };
 
             //Create a json file and download it
@@ -439,17 +438,8 @@ export default {
                             this.displayMode = jsonAnalysis.displayMode || "hpo";
                             this.variantsHiddenByUserIds = jsonAnalysis.hiddenVariantIds || [];
                             this.favoriteVariantIds = jsonAnalysis.favoriteVariantIds || [];
-                            // So there are some things we need to handle after the samples are loaded that arent handleable right now
-                            if (!jsonAnalysis.waygateUsed) {
-                                this.updateSamples(jsonAnalysis.samples);
-                            } else {
-                                // We will need to make some new urls for the samples before loading them up
-                                this.waygateUsed = true;
-                                this.waygateVariables = jsonAnalysis.waygateVariables || {};
-                                // Get the waygate urls for the variables we have
-                            }
-
                             this.selectDataSectionOpen = false;
+                            
                             this.toasts.push({ message: "Analysis loaded", type: "success" });
                         } catch (error) {
                             this.toasts.push({ message: `Error loading analysis: ${error}`, type: "error" });
