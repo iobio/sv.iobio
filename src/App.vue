@@ -575,9 +575,18 @@ export default {
                                 this.mosaicProbandId = analysis.sample_id;
                             }
                             this.loadedFromMosaicAnalysis = true;
+
+                            // TESTING ONLY - REMOVE LATER
+                            try {
+                                let variantsets = await this.mosaicSession.promiseGetVariantSet(this.mosaicProjectId, "4246");
+                                console.log("variantsets", variantsets);
+                            } catch (error) {
+                                this.toasts.push({ message: `Error getting var list from Mosaic: ${error}`, type: "error" });
+                            }
                         } else {
                             this.toasts.push({ message: "No analysis found in Mosaic", type: "error" });
                         }
+
                     } catch (error) {
                         this.toasts.push({ message: `Error loading analysis from Mosaic: ${error}`, type: "error" });
                     }
@@ -1260,19 +1269,16 @@ export default {
                 return 0;
             }
         },
-        maxSingPhenotypesOverlapped(phenotypesOfInterest, variant) {
+        numPhenotypesOverlapped(phenotypesOfInterest, variant) {
             if (phenotypesOfInterest.length > 0 && variant.overlappedGenes && Object.values(variant.overlappedGenes).length > 0) {
-                let maxPercent = 0;
+                let phenotypes = [];
                 for (let gene of Object.values(variant.overlappedGenes)) {
-                    let inCommonPhens = Object.keys(gene.phenotypes).filter((phenotype) =>
-                        phenotypesOfInterest.includes(phenotype),
+                    phenotypes.push(
+                        ...Object.keys(gene.phenotypes).filter((phenotype) => phenotypesOfInterest.includes(phenotype)),
                     );
-                    let percent = (inCommonPhens.length / phenotypesOfInterest.length) * 100;
-                    if (percent > maxPercent) {
-                        maxPercent = percent;
-                    }
                 }
-                return maxPercent;
+                phenotypes = new Set(phenotypes);
+                return phenotypes.size;
             } else {
                 return 0;
             }
@@ -1330,8 +1336,8 @@ export default {
                 } else {
                     this.svListVariantBar.sort((a, b) => {
                         return (
-                            this.maxSingPhenotypesOverlapped(this.phenotypesOfInterest, b) -
-                            this.maxSingPhenotypesOverlapped(this.phenotypesOfInterest, a)
+                            this.numPhenotypesOverlapped(this.phenotypesOfInterest, b) -
+                            this.numPhenotypesOverlapped(this.phenotypesOfInterest, a)
                         );
                     });
                     this.variantsSorted = true;

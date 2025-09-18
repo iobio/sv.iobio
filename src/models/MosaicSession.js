@@ -478,6 +478,39 @@ export default class MosaicSession {
         });
     }
 
+    async getVariantSet(projectId, variantSetId) {
+        let self = this;
+        const response = await fetch(`${self.api}/projects/${projectId}/variants/sets/${variantSetId}?include_variant_data=true`, {
+            method: "GET",
+            headers: {
+                Authorization: self.authorizationString,
+                accept: "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        return response.json();
+    }
+
+    promiseGetVariantSet(projectId, variantSetId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+            self.getVariantSet(projectId, variantSetId)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    const errorMsg = self.getErrorMessage(error);
+                    console.error(`Error getting variant set from Mosaic with project_id ${projectId}`);
+                    console.error(errorMsg);
+                    reject(`Error getting variant set ${projectId}: ${errorMsg}`);
+                });
+        });
+    }
+
     getErrorMessage(error) {
         if (error.hasOwnProperty("message")) {
             return error.message;
