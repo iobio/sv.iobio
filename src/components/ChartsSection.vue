@@ -1205,7 +1205,7 @@ select
     flex-direction: column
     align-items: center
     justify-content: center
-    z-index: 10
+    z-index: 12
     #loading-container
         display: flex
         flex-direction: column
