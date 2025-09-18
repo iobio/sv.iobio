@@ -126,17 +126,6 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
         selection = null;
     }
 
-    //Put a message at the top of the chart 'Click and drag to select a region'
-    svg.append("text")
-        .attr("x", "60px")
-        .attr("y", 13)
-        .attr("text-anchor", "start")
-        .attr("font-size", "13px")
-        .attr("font-weight", "100")
-        .attr("font-style", "italic")
-        .text("Click and drag to select a region")
-        .attr("fill", "#A3A3A3");
-
     let x = d3
         .scaleLinear()
         .domain([zoomedSelection.start, zoomedSelection.end])
@@ -417,56 +406,6 @@ export default function linearSvChart(parentElement, refChromosomes, data = null
                 .attr("font-style", "italic")
                 .text("No SVs in this region")
                 .attr("fill", "#A3A3A3");
-        }
-    }
-
-    //render brush later so it's on top
-    if (brush) {
-        let brush = d3
-            .brushX()
-            .extent([
-                [0, 0],
-                [width, 20],
-            ])
-            .on("brush", function (event) {
-                let brushArea = d3.select(this);
-                let selection = brushArea.select(".selection");
-                // Customize the brush rectangle during brushing
-                selection
-                    .attr("fill", "rgba(0, 100, 255, 0.3)")
-                    .attr("stroke", "#4C709B")
-                    .attr("stroke-width", 1)
-                    .attr("height", height)
-                    .attr("rx", 2);
-            })
-            .on("end", brushed);
-
-        svg.append("g").attr("class", `brush-area`).call(brush).raise();
-    }
-
-    function brushed(event) {
-        let brushSelection = event.selection;
-        //if the selection is null then the user has clicked off the brush so don't do anything
-        if (!brushSelection || brushSelection[0] == brushSelection[1]) {
-            //ensure we return back the whole genome
-            selectionCallback({ start: 0, end: genomeSize });
-            return;
-        }
-
-        //selection will be in the pixel space so need to convert it to the base pair space
-        let start = x.invert(brushSelection[0]);
-        let end = x.invert(brushSelection[1]);
-
-        //send the rounded start and end to the callback to the nearest whole number
-        start = Math.round(start);
-        end = Math.round(end);
-
-        if (selection && start == selection.start && end == selection.end) {
-            return;
-        }
-
-        if (selectionCallback) {
-            selectionCallback({ start, end });
         }
     }
 
