@@ -322,6 +322,22 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                             .attr("fill", "purple")
                             .attr("opacity", 0.4)
                             .raise();
+
+                        // Add label for gvar regions when zoomed in
+                        let rangeLen = range[1] - range[0];
+                        let chromosome1Length = chromosomeMap.get("1").end - chromosomeMap.get("1").start;
+                        if (rangeLen <= chromosome1Length && (bandEndX - bandStartX) > 20) {
+                            let labelX = bandStartX + (bandEndX - bandStartX) / 2;
+                            chromosomeGroup
+                                .append("text")
+                                .attr("x", labelX)
+                                .attr("y", 38)
+                                .text("variable")
+                                .attr("font-size", "12px")
+                                .attr("fill", "purple")
+                                .attr("text-anchor", "middle")
+                                .attr("font-weight", "bold");
+                        }
                     } else if (band.gieStain.includes("stalk")) {
                         // These are the stalk regions which are usually the short arms of acrocentric chromosomes
                         //create my band rectangle
@@ -343,6 +359,22 @@ export default function idoigramScaleBar(parentElementTag, refChromosomes, optio
                             .attr("fill", "orange")
                             .attr("opacity", 0.4)
                             .raise();
+
+                        // Add label for stalk regions when zoomed in
+                        let rangeLen = range[1] - range[0];
+                        let chromosome1Length = chromosomeMap.get("1").end - chromosomeMap.get("1").start;
+                        if (rangeLen <= chromosome1Length && (bandEndX - bandStartX) > 15) {
+                            let labelX = bandStartX + (bandEndX - bandStartX) / 2;
+                            chromosomeGroup
+                                .append("text")
+                                .attr("x", labelX)
+                                .attr("y", 38)
+                                .text("stalk")
+                                .attr("font-size", "12px")
+                                .attr("fill", "orange")
+                                .attr("text-anchor", "middle")
+                                .attr("font-weight", "bold");
+                        }
                     }
 
                     //Render a text label for the band but try to pick breakpoints that make sense
