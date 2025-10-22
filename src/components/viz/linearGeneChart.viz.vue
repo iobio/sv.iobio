@@ -31,9 +31,10 @@ export default {
     mounted() {
         this.drawLinearGeneChart();
 
-        let debouncedDraw = this.debounce(this.drawLinearGeneChart, 100);
+        // Increase debounce delay for more stability
+        this.debouncedDrawFunction = this.debounce(this.drawLinearGeneChart, 300);
         this.resizeObserver = new ResizeObserver(() => {
-            debouncedDraw();
+            this.debouncedDrawFunction();
         });
 
         this.resizeObserver.observe(this.$refs.linearGeneChartContainer);
@@ -95,30 +96,31 @@ export default {
         },
     },
     watch: {
+        // Debounced watchers to lessen redraw frequency and the chance of race conditions
         batchNum(newVal, oldVal) {
             if (newVal !== oldVal) {
-                this.drawLinearGeneChart();
+                this.debouncedDrawFunction();
             }
         },
         selectedArea(newVal, oldVal) {
             if (newVal !== oldVal) {
-                this.drawLinearGeneChart();
+                this.debouncedDrawFunction();
             }
         },
         genesList(newVal, oldVal) {
             if (newVal !== oldVal) {
-                this.drawLinearGeneChart();
+                this.debouncedDrawFunction();
             }
         },
         genesOfInterest: {
             handler() {
-                this.drawLinearGeneChart();
+                this.debouncedDrawFunction();
             },
             deep: true,
         },
         phenRelatedGenes: {
             handler() {
-                this.drawLinearGeneChart();
+                this.debouncedDrawFunction();
             },
             deep: true,
         },
