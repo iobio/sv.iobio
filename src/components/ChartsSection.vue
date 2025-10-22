@@ -1,13 +1,5 @@
 <template>
     <div id="left-tracks-section">
-        <!-- <div id="circos-mini-wrapper" v-if="globalView === 'circos'">
-            <SvCirosMiniViz
-                :zoomZone="selectedArea"
-                :centromeres="centromeres"
-                :bands="bands"
-                :chromosomes="chromosomes"
-                @selectAreaEvent="selectAreaEventFired" />
-        </div> -->
         <div v-if="isLoading && !selectDataOpen" class="loading-overlay">
             <div id="loading-container">
                 <p>Associations Loaded {{ correctedPercentLoaded }}%</p>
@@ -33,13 +25,6 @@
                     <legend>Location</legend>
                     <p class="entry">{{ zoomedStamp }}</p>
                 </fieldset>
-
-                <!-- <div id="global-chart-style-selection">
-                    <select name="chart-view-selection" id="chart-view-select" v-model="globalView">
-                        <option value="circos">Circos</option>
-                        <option value="linear">Linear</option>
-                    </select>
-                </div> -->
 
                 <fieldset class="fieldset-buttons-container" v-if="globalView == 'linear'">
                     <legend>ruler line</legend>
@@ -81,36 +66,6 @@
                 </fieldset>
             </div>
 
-            <!-- <div id="buttons-container"> -->
-            <!-- <fieldset class="fieldset-buttons-container">
-                    <legend>Focused SV</legend>
-                    <button
-                        id="focus-chart-btn"
-                        @click="focusOnVariant"
-                        :disabled="!showButton || !focusedVariant"
-                        :class="{ disabled: !showButton || !focusedVariant }">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <title>zoom to focused sv</title>
-                            <path d="M12,20L7,22L12,11L17,22L12,20M8,2H16V5H22V7H16V10H8V7H2V5H8V2M10,4V8H14V4H10Z" />
-                        </svg>
-                    </button>
-                </fieldset> -->
-
-            <!-- <fieldset class="fieldset-buttons-container">
-                    <legend>Previous Z</legend>
-                    <button
-                        id="prev-zoom-btn"
-                        :class="{ disabled: zoomHistory.length <= 1 }"
-                        @click="focusOnPrevious"
-                        :disabled="zoomHistory.length <= 1">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <title>previous-zoom</title>
-                            <path
-                                d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z" />
-                        </svg>
-                    </button>
-                </fieldset> -->
-            <!-- </div> -->
             <div id="chrom-select-bar-div" v-if="globalView === 'linear'">
                 <ChromSelectBarViz
                     v-if="chromSelectBarDataReady"
