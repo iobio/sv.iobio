@@ -1,3 +1,4 @@
+<!-- Not currently used -->
 <template>
     <div id="sv-circos-mini-viz"></div>
 </template>

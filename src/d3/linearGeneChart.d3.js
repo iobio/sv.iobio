@@ -19,6 +19,9 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     //zoom variables
     let zoomedSelection = null;
 
+    // Track pending transcript requests to prevent race conditions
+    let pendingTranscriptRequests = new Map();
+
     if (options) {
         if (options.selectionCallback) {
             selectionCallback = options.selectionCallback;
@@ -128,6 +131,10 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
     }
 
     function _renderGenes(range) {
+        // Cancel all pending transcript requests when re-rendering
+        pendingTranscriptRequests.forEach(token => token.cancelled = true);
+        pendingTranscriptRequests.clear();
+
         //grab all the gene-group groups and remove them before rendering the new ones
         svg.selectAll(".gene-group").remove();
         svg.selectAll(".gene-group-phenrelated").remove();
@@ -651,11 +658,37 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             }
         }
 
-        //if the gene has been truncated we need the new start and end b
-        //get the mane transcript using the beHelper it is async though
+        const requestKey = `${gene.gene_name}-${gene.start}-${gene.end}`;
+        // Cancel any pending request for this gene to avoid race conditions if we can
+        
+        /**
+         * There were issues where if the user zoomed in quickly or while other important variables were changing,
+         * multiple requests for the same gene could be made and the responses could come back out of order,
+         * leading to incorrect or outdated transcript diagrams being rendered.
+         * 
+         * By cancelling any pending requests for the same gene before making a new request,
+         * we ensure that only the most recent request's response is processed.
+         */
+        if (pendingTranscriptRequests.has(requestKey)) {
+            pendingTranscriptRequests.get(requestKey).cancelled = true;
+        }
+        
+        // Create a cancellation token
+        const cancellationToken = { cancelled: false };
+        pendingTranscriptRequests.set(requestKey, cancellationToken);
+
         beHelper
             .getTranscriptsForGenes([gene.gene_name], build)
             .then((data) => {
+                // Check if this request was cancelled
+                if (cancellationToken.cancelled) {
+                    return;
+                }
+                
+                // Verify the geneGroup still exists and is attached to DOM
+                if (!geneGroup.node() || !geneGroup.node().parentNode) {
+                    return;
+                }
                 let strand = data[gene.gene_name].strand;
                 let transcript_type = data[gene.gene_name].transcript_type;
                 let geneRectangle = geneGroup.select(".gene-rect");
@@ -834,6 +867,11 @@ export default function linearGeneChart(parentElement, refChromosomes, data, opt
             })
             .catch((error) => {
                 //if we cant get the transcript that is okay we will have a gene rectangle
+                console.warn('Failed to load transcript for gene:', gene.gene_name, error);
+            })
+            .finally(() => {
+                // Clean up the request tracking
+                pendingTranscriptRequests.delete(requestKey);
             });
     }
 

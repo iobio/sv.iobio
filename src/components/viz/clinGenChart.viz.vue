@@ -33,6 +33,9 @@ export default {
     },
     beforeDestroy() {
         this.resizeObserver.unobserve(this.$refs.clinGenRegionsChart);
+        // Clean up any persistent tooltips and global click listeners
+        d3.select(".region-tooltip-persistent").remove();
+        d3.select("body").on("click.tooltip-cleanup", null);
     },
     methods: {
         drawLinearRegionsChart() {
@@ -86,10 +89,14 @@ export default {
     margin-top: 10px
     position: relative
 .linear-regions-chart
-    height: 20px
+    max-height: 80px
+    overflow-y: auto
+    scrollbar-width: none
     width: 100%
     border: .5px solid #ccc
     border-radius: 5px
+    &::-webkit-scrollbar
+        display: none
 #regions-chart-title
     position: absolute
     top: -12px
@@ -103,12 +110,29 @@ export default {
     background-color: white
     border: 1px solid #ccc
     border-radius: 5px
-    padding: 5px
     font-size: 13px
     box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2)
     display: flex
     flex-direction: column
     z-index: 3
+    .region-tooltip-header
+        position: relative
+    .region-tooltip-drag-header
+        padding: 5px 8px
+        user-select: none
+        border-bottom: 1px solid #e9ecef
+        border-radius: 5px 5px 0 0
+    .region-tooltip-content
+        padding: 5px
+    .region-tooltip-instruction
+        font-style: italic
+        color: #666
+        font-size: 11px
+        text-align: center
+        margin-bottom: 5px
+        padding: 3px
+        background-color: #f0f0f0
+        border-radius: 3px
     .region-tooltip-item
         display: flex
         margin-bottom: 5px
@@ -128,4 +152,12 @@ export default {
             border-right: 1px solid #ccc
             border-radius: 0px 5px 5px 0px
             padding: 2px 5px
+
+.region-tooltip-persistent
+    border: 2px solid #2A65B7
+    box-shadow: 0 0 10px 0 rgba(42, 101, 183, 0.3)
+    
+.region-tooltip-hover
+    border: 1px solid #ccc
+    padding: 5px
 </style>

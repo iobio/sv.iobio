@@ -50,16 +50,16 @@ export default {
 
         // Will be removed when the iobio-charts package is updated to include multi_series components
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@f666ff4b0102217355c74f0362f3985c0f51ac6a/multi_series/multi_series_chart.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@3fc8a091a4c9d83bd6787065e4a133a0f982b2ec/multi_series/multi_series_chart.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@f666ff4b0102217355c74f0362f3985c0f51ac6a/multi_series/multi_series_wc.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@3fc8a091a4c9d83bd6787065e4a133a0f982b2ec/multi_series/multi_series_wc.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@f666ff4b0102217355c74f0362f3985c0f51ac6a/multi_series/multi_alignment_broker_wc.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@3fc8a091a4c9d83bd6787065e4a133a0f982b2ec/multi_series/multi_alignment_broker_wc.js"
         );
         await import(
-            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@f666ff4b0102217355c74f0362f3985c0f51ac6a/multi_series/multi_alignment_broker.js"
+            "https://cdn.jsdelivr.net/gh/iobio/iobio-charts@3fc8a091a4c9d83bd6787065e4a133a0f982b2ec/multi_series/multi_alignment_broker.js"
         );
 
         let container = document.querySelector(".multi-bam-wrapper");

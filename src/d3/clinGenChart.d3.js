@@ -197,10 +197,12 @@ export default function clinGenChart(parentElement, refChromosomes, clinGenRegio
                     }
                 }
 
-                let translateY = (currentTrac - 1) * 0;
+                let translateY = (currentTrac - 1) * 7;
 
-                if (translateY >= height) {
-                    svg.attr("viewBox", [0, 0, width, height + 5]).attr("height", height + 5);
+                let newHeight = translateY + 20; // 20 accounts for the base position (14) plus region height
+                if (newHeight > height) {
+                    svg.attr("viewBox", [0, 0, width, newHeight]).attr("height", newHeight);
+                    height = newHeight;
                 }
 
                 regionGroup.attr("transform", `translate(${startX}, ${translateY + 14})`);
@@ -266,52 +268,147 @@ export default function clinGenChart(parentElement, refChromosomes, clinGenRegio
                 return 1;
             })
             .on("mouseover", function (event, d) {
-                let regionTooltip = d3.select("body").append("div").attr("class", "region-tooltip").style("opacity", 0);
+                // Only show hover tooltip if no persistent tooltip is showing
+                if (d3.select(".region-tooltip-persistent").empty()) {
+                    let regionTooltip = d3.select("body").append("div").attr("class", "region-tooltip region-tooltip-hover").style("opacity", 0);
 
-                regionTooltip.transition().duration(200).style("opacity", 0.9);
+                    regionTooltip.transition().duration(200).style("opacity", 0.9);
 
-                let tooltipHtml = `<div class="region-tooltip-header">
-                    <div class="region-tooltip-item"><span class="label">ID</span><span class="value">${
-                        region.iscaId
-                    }</span></div>
-                    <div class="region-tooltip-item"><span class="label">Name</span><span class="value">${
-                        region.iscaName
-                    }</span></div>
-                    <div class="region-tooltip-item"><span class="label">Haploinsufficiency</span><span class="value">${
-                        region.haploinsufficiency.description
-                    }</span></div>
-                    <div class="region-tooltip-item"><span class="label">Haplo Disease</span><span class="value">${
-                        region.haploinsufficiency.diseaseAssociation || "n/a"
-                    }</span></div>
-                    <div class="region-tooltip-item"><span class="label">Triplosensitivity</span><span class="value">${
-                        region.triplosensitivity.description
-                    }</span></div>
-                    <div class="region-tooltip-item"><span class="label">Triplo Disease</span><span class="value">${
-                        region.triplosensitivity.diseaseAssociation || "n/a"
-                    }</span></div>
-                </div>`;
+                    let haploContent = "n/a";
+                    if (region.haploinsufficiency.diseaseAssociation) {
+                        let url = `https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${region.haploinsufficiency.diseaseAssociation.slice(6)}`;
+                        haploContent = `<a href='${url}' target="_blank" rel="noopener noreferrer">${region.haploinsufficiency.diseaseAssociation}</a>`;
+                    }
 
-                let x = event.clientX;
-                let y = event.clientY;
+                    let triploContent = "n/a";
+                    if (region.triplosensitivity.diseaseAssociation) {
+                        let url = `https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${region.triplosensitivity.diseaseAssociation.slice(6)}`;
+                        triploContent = `<a href='${url}' target="_blank" rel="noopener noreferrer">${region.triplosensitivity.diseaseAssociation}</a>`;
+                    }
 
-                if (window.innerWidth - x < 300) {
-                    x = x - 300;
-                } else {
-                    x = x + 10;
+                    let tooltipHtml = `<div class="region-tooltip-header">
+                        <div class="region-tooltip-instruction">Click to keep tooltip open</div>
+                        <div class="region-tooltip-item"><span class="label">ID</span><span class="value">${
+                            region.iscaId
+                        }</span></div>
+                        <div class="region-tooltip-item"><span class="label">Name</span><span class="value">${
+                            region.iscaName
+                        }</span></div>
+                        <div class="region-tooltip-item"><span class="label">Haploinsufficiency</span><span class="value">${
+                            region.haploinsufficiency.description
+                        }</span></div>
+                        <div class="region-tooltip-item"><span class="label">Haplo Disease</span><span class="value">${
+                            haploContent
+                        }</span></div>
+                        <div class="region-tooltip-item"><span class="label">Triplosensitivity</span><span class="value">${
+                            region.triplosensitivity.description
+                        }</span></div>
+                        <div class="region-tooltip-item"><span class="label">Triplo Disease</span><span class="value">${
+                            triploContent
+                        }</span></div>
+                    </div>`;
+
+                    let x = event.clientX;
+                    let y = event.clientY;
+
+                    if (window.innerWidth - x < 300) {
+                        x = x - 300;
+                    } else {
+                        x = x + 10;
+                    }
+
+                    //There shouldn't be a case to handle for the bottom of the screen because the tooltip will always be near the top of the app
+                    regionTooltip
+                        .html(tooltipHtml)
+                        .style("left", x + 5 + "px")
+                        .style("top", y - 10 + "px");
                 }
-
-                //There shouldn't be a case to handle for the bottom of the screen because the tooltip will always be near the top of the app
-                regionTooltip
-                    .html(tooltipHtml)
-                    .style("left", x + 5 + "px")
-                    .style("top", y - 10 + "px");
             })
             .on("mouseout", function (d) {
-                d3.select(".region-tooltip").remove();
+                d3.select(".region-tooltip-hover").remove();
+            })
+            .on("click", function (event, d) {
+                event.stopPropagation();
+                
+                // Remove any existing persistent tooltips
+                d3.select(".region-tooltip-persistent").remove();
+                // Remove hover tooltip
+                d3.select(".region-tooltip-hover").remove();
+                
+                _createPersistentTooltip(event, region);
             });
 
         return regionGroup;
     }
+
+    function _createPersistentTooltip(event, region) {
+        let regionTooltip = d3.select("body")
+            .append("div")
+            .attr("class", "region-tooltip region-tooltip-persistent")
+            .style("opacity", 0);
+
+        regionTooltip.transition().duration(200).style("opacity", 0.9);
+
+        let haploContent = "n/a";
+        if (region.haploinsufficiency.diseaseAssociation) {
+            let url = `https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${region.haploinsufficiency.diseaseAssociation.slice(6)}`;
+            haploContent = `<a href='${url}' target="_blank" rel="noopener noreferrer">${region.haploinsufficiency.diseaseAssociation}</a>`;
+        }
+
+        let triploContent = "n/a";
+        if (region.triplosensitivity.diseaseAssociation) {
+            let url = `https://www.ebi.ac.uk/ols4/ontologies/mondo/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FMONDO_${region.triplosensitivity.diseaseAssociation.slice(6)}`;
+            triploContent = `<a href='${url}' target="_blank" rel="noopener noreferrer">${region.triplosensitivity.diseaseAssociation}</a>`;
+        }
+
+        let tooltipHtml = `<div class="region-tooltip-drag-header">
+                <div class="region-tooltip-instruction">Click outside to close</div>
+            </div>
+            <div class="region-tooltip-content">
+                <div class="region-tooltip-item"><span class="label">ID</span><span class="value">${
+                    region.iscaId
+                }</span></div>
+                <div class="region-tooltip-item"><span class="label">Name</span><span class="value">${
+                    region.iscaName
+                }</span></div>
+                <div class="region-tooltip-item"><span class="label">Haploinsufficiency</span><span class="value">${
+                    region.haploinsufficiency.description
+                }</span></div>
+                <div class="region-tooltip-item"><span class="label">Haplo Disease</span><span class="value">${
+                    haploContent
+                }</span></div>
+                <div class="region-tooltip-item"><span class="label">Triplosensitivity</span><span class="value">${
+                    region.triplosensitivity.description
+                }</span></div>
+                <div class="region-tooltip-item"><span class="label">Triplo Disease</span><span class="value">${
+                    triploContent
+                }</span></div>
+            </div>`;
+
+        let x = event.clientX;
+        let y = event.clientY;
+
+        if (window.innerWidth - x < 300) {
+            x = x - 300;
+        } else {
+            x = x + 10;
+        }
+
+        regionTooltip
+            .html(tooltipHtml)
+            .style("left", x + 5 + "px")
+            .style("top", y - 10 + "px");
+
+        // Prevent clicks inside tooltip from closing it
+        regionTooltip.on("click", function(event) {
+            event.stopPropagation();
+        });
+    }
+
+    // Add click listener to body to close persistent tooltips when clicking outside
+    d3.select("body").on("click.tooltip-cleanup", function() {
+        d3.select(".region-tooltip-persistent").remove();
+    });
 
     return svg.node();
 }

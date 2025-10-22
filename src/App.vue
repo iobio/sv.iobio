@@ -575,18 +575,9 @@ export default {
                                 this.mosaicProbandId = analysis.sample_id;
                             }
                             this.loadedFromMosaicAnalysis = true;
-
-                            // TESTING ONLY - REMOVE LATER
-                            try {
-                                let variantsets = await this.mosaicSession.promiseGetVariantSet(this.mosaicProjectId, "4246");
-                                console.log("variantsets", variantsets);
-                            } catch (error) {
-                                this.toasts.push({ message: `Error getting var list from Mosaic: ${error}`, type: "error" });
-                            }
                         } else {
                             this.toasts.push({ message: "No analysis found in Mosaic", type: "error" });
                         }
-
                     } catch (error) {
                         this.toasts.push({ message: `Error loading analysis from Mosaic: ${error}`, type: "error" });
                     }

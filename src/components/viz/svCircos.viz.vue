@@ -1,3 +1,4 @@
+<!-- Not currently used -->
 <template>
     <div class="loading-div" v-if="!svList || svList.length == 0">
         <p>Pending Data...</p>
