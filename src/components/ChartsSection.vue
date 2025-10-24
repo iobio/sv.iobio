@@ -168,7 +168,14 @@
                     :selectedArea="selectedArea"
                     :chromosomes="chromosomes" />
 
-                <component :is="geneChartData.component" v-bind="geneChartData.props" @selectAreaEvent="selectAreaEventFired" />
+                <component :is="geneChartData.component" v-bind="geneChartData.props" @selectAreaEvent="selectAreaEventFired" @showSnvChart="showingSnvChart = true" @hideSnvChart="showingSnvChart = false"/>
+
+                <SnvsChartViz
+                    v-if="showingSnvChart && snvs && snvs.length > 0"
+                    class="proband-chart"
+                    :snvsList="snvs"
+                    :selectedArea="selectedArea"
+                    :chromosomes="chromosomes" />
 
                 <LinearSvChartViz
                     v-if="svList && svList.length > 0"
@@ -247,6 +254,7 @@ import MultiBamWrapper from "./viz/MultiBamWrapper.viz.vue";
 import IgvModal from "./viz/IgvModal.vue";
 import { bpFormatted } from "../dataHelpers/commonFunctions.js";
 import PhenotypeSummary from "./PhenotypeSummary.vue";
+import SnvsChartViz from "./viz/snvsChart.viz.vue";
 
 export default {
     name: "ChartsSection",
@@ -264,6 +272,7 @@ export default {
         MultiBamWrapper,
         IgvModal,
         PhenotypeSummary,
+        SnvsChartViz,
     },
     props: {
         svList: Array,
@@ -284,6 +293,7 @@ export default {
         progressPercent: Number,
         selectDataOpen: Boolean,
         globalDisplayMode: String,
+        snvs: Array,
     },
     data() {
         return {
@@ -316,6 +326,7 @@ export default {
                 "Building disease profiles...",
             ],
             messageInterval: null,
+            showingSnvChart: false,
         };
     },
     async mounted() {
@@ -383,6 +394,8 @@ export default {
                         genesOfInterest: this.genesOfInterest,
                         batchNum: this.batchNum,
                         build: this.hgBuild,
+                        showingSnvs: this.showingSnvChart,
+                        focusedVariant: this.focusedVariant,
                     },
                 };
             } catch (error) {
@@ -818,6 +831,8 @@ export default {
             }
         },
         focusedVariant(newVal, oldVal) {
+            this.geneChartData.props.focusedVariant = this.focusedVariant;
+            
             if (this.focusedVariant) {
                 this.focusOnVariant();
             } else if (!this.focusedVariant) {
@@ -855,6 +870,17 @@ export default {
                 }
             },
             deep: true,
+        },
+        showingSnvChart(newVal) {
+            const genesChart = this.geneChartData;
+            if (genesChart) {
+                genesChart.props.showingSnvs = newVal;
+                if (newVal) {
+                    this.$emit("loadSnvs");
+                } else {
+                    this.$emit("clearSnvs");
+                }
+            }
         },
         phenRelatedGenes: {
             handler() {
@@ -926,6 +952,22 @@ export default {
 </script>
 
 <style lang="sass">
+.show-snv-btn
+    position: absolute
+    bottom: -10px
+    right: -10px
+    z-index: 2
+    margin-top: 5px
+    border: 1px solid transparent
+    color: #2A65B7
+    border-radius: 20px
+    cursor: pointer
+    drop-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1)
+    transition: background-color 0.2s, border 0.2s
+    transform: translateX(-10px)
+    &:hover
+        border: #2A65B7 solid 1px
+        background-color: #C1D1EA
 #toggle-view-buttons
     display: flex
     flex-direction: row

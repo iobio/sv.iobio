@@ -478,9 +478,22 @@ export default class MosaicSession {
         });
     }
 
-    async getVariantSet(projectId, variantSetId) {
+    async getGeneSnps(projectId, chr, start, end, inheritance) {
+        // Largest gene in humans is Dystrophin at ~2.4Mb so we want to make sure our range is not much more than that
+        let size = end - start;
+        if (size > 2500000) {
+            throw new Error(`Requested region is too large (${size}bp). Please request a region smaller than 2.5Mb.`);
+        }
+
         let self = this;
-        const response = await fetch(`${self.api}/projects/${projectId}/variants/sets/${variantSetId}?include_variant_data=true`, {
+        let url;
+        if (inheritance) {
+            url = `${self.api}/projects/${projectId}/sv/variants?chr=${chr}&start=${start}&end=${end}&inheritance=${inheritance}`;
+        } else {
+            url = `${self.api}/projects/${projectId}/sv/variants?chr=${chr}&start=${start}&end=${end}`;
+        }
+
+        const response = await fetch(url, {
             method: "GET",
             headers: {
                 Authorization: self.authorizationString,
@@ -495,16 +508,16 @@ export default class MosaicSession {
         return response.json();
     }
 
-    promiseGetVariantSet(projectId, variantSetId) {
+    promiseGetGeneSnps(projectId, chr, start, end, inheritance = null) {
         let self = this;
         return new Promise((resolve, reject) => {
-            self.getVariantSet(projectId, variantSetId)
+            self.getGeneSnps(projectId, chr, start, end, inheritance)
                 .then((response) => {
                     resolve(response);
                 })
                 .catch((error) => {
                     const errorMsg = self.getErrorMessage(error);
-                    console.error(`Error getting variant set from Mosaic with project_id ${projectId}`);
+                    console.error(`Error getting snps from Mosaic ${projectId}`);
                     console.error(errorMsg);
                     reject(`Error getting variant set ${projectId}: ${errorMsg}`);
                 });

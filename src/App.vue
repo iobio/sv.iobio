@@ -181,6 +181,9 @@
                 :isLoading="!loadedInitiallyComplete"
                 :progressPercent="progressPercent"
                 :selectDataOpen="selectDataSectionOpen"
+                :snvs="snvs"
+                @loadSnvs="loadSnvs"
+                @clearSnvs="snvs = []"
                 @updateComparisons="updateComparisons"
                 @update-list-view="updateListViewMode"
                 @zoomEvent="zoomFired"
@@ -304,6 +307,7 @@ export default {
             isSavingToMosaic: false,
             putAnalysis: false,
             waygateUsed: false,
+            snvs: [],
         };
     },
     async mounted() {
@@ -327,6 +331,32 @@ export default {
         }
     },
     methods: {
+        async loadSnvs() {
+            if (!this.focusedVariant) {
+                this.toasts.push({ message: "No variant selected to load SNVs around", type: "error" });
+                return;
+            } 
+
+            if (!this.mosaicSession) {
+                this.toasts.push({ message: "SNVs Available Only When Launched From Mosaic", type: "error" });
+                return;
+            }
+
+            for (let geneName of this.focusedVariant.overlappedPhenGenes) {
+                let gene = this.focusedVariant.overlappedGenes[geneName];
+                let start = gene.start;
+                let end = gene.end;
+                let chr = gene.chr.substring(3);
+
+                try {
+                    let snvs = await this.mosaicSession.promiseGetGeneSnps(this.mosaicProjectId, chr, start, end)
+                    console.log('snvs for gene ', geneName, snvs);
+                    this.snvs = this.snvs.concat(snvs);
+                } catch (error) {
+                    this.toasts.push({ message: `Error loading SNVs: ${error}`, type: "error" });
+                } 
+            }
+        },
         openSaveToMosaicModal(method) {
             this.putAnalysis = method === "put";
             this.isSaveToMosaicModalOpen = true;

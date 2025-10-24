@@ -2,6 +2,7 @@
     <div class="linear-gene-chart-wrapper" ref="rootDraggableContainer">
         <p v-if="name">{{ name }}</p>
         <div ref="linearGeneChartContainer" class="linear-gene-chart"></div>
+        <button class="show-snv-btn" @click="triggerSnvChange"><span v-if="!showingSnvs && focusedVariant">Pull SNVs for Genes Of Interest</span><span v-if="showingSnvs && focusedVariant">Hide SNVs</span></button>
     </div>
 </template>
 
@@ -22,6 +23,11 @@ export default {
         name: String,
         batchNum: Number,
         build: String,
+        showingSnvs: Boolean,
+        focusedVariant: {
+            type: Object,
+            required: false
+        }
     },
     data() {
         return {
@@ -42,6 +48,13 @@ export default {
         this.resizeObserver.unobserve(this.$refs.linearGeneChartContainer);
     },
     methods: {
+        triggerSnvChange() {
+            if (!this.showingSnvs) {
+                this.$emit('showSnvChart')
+            } else {
+                this.$emit('hideSnvChart')
+            }
+        },
         drawLinearGeneChart() {
             //Grab the container by ref
             let container = this.$refs.linearGeneChartContainer;
