@@ -234,7 +234,7 @@ export default function svCircos(parentTag, refChromosomes, data = null, options
         //get our centerSymbolGroup and change the symbol to our magnify-out.svg
         zoomOutButtonGroup
             .append("image")
-            .attr("xlink:href", "/sv.iobio/frontend/magnify-out.svg")
+            .attr("xlink:href", "/magnify-out.svg")
             .attr("x", width / 2 - 10)
             .attr("y", 10)
             .attr("width", 20)
@@ -244,7 +244,7 @@ export default function svCircos(parentTag, refChromosomes, data = null, options
         //on top of this circle we will render the dna.svg that we have /dna.svg
         zoomOutButtonGroup
             .append("image")
-            .attr("xlink:href", "/sv.iobio/frontend/dna.svg")
+            .attr("xlink:href", "/dna.svg")
             .attr("x", width / 2 - 10)
             .attr("y", 10)
             .attr("width", 20)
