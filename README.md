@@ -21,7 +21,7 @@ This tool is designed to enhance case analysis workflows by providing a clear, i
 # Availability
 
 SV.iobio is under active development but is available publicly on the web.
-[SV.iobio Website Link](https://mosaic-staging.chpc.utah.edu/sv.iobio/frontend/)
+[SV.iobio Website Link](https://sv.iobio.io/)
 
 # Multi-Scale
 
