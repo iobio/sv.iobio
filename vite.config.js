@@ -15,5 +15,5 @@ export default defineConfig({
             },
         }),
     ],
-    base: "/sv.iobio/frontend/", //add a base path to the project
+    //base: "/sv.iobio/frontend/", //add a base path to the project
 });
